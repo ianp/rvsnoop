@@ -7,9 +7,12 @@
  */
 package rvsn00p;
 
+import rvsn00p.util.DateFormatManager;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * LogRecord.  A LogRecord encapsulates the details of your desired log
@@ -20,11 +23,9 @@ import java.io.StringWriter;
  *
  * @author Michael J. Sikorsky
  * @author Robert Shaw
+ * Contributed by ThoughtWorks Inc.
  */
-
-// Contributed by ThoughtWorks Inc.
-
-public abstract class LogRecord implements java.io.Serializable {
+public class LogRecord implements java.io.Serializable {
     //--------------------------------------------------------------------------
     //   Constants:
     //--------------------------------------------------------------------------
@@ -35,14 +36,21 @@ public abstract class LogRecord implements java.io.Serializable {
     protected static long _seqCount = 0;
 
     protected MsgType _type;
-    protected String _message;
+
     protected long _sequenceNumber;
     protected long _millis;
-    protected String _sSubject;
 
-    protected String _thrownStackTrace;
-    protected Throwable _thrown;
-    protected String _replySubject;
+    protected StringBuffer _sSubject = new StringBuffer();
+    protected StringBuffer _message  = new StringBuffer();
+    protected StringBuffer _replySubject = new StringBuffer();
+    protected StringBuffer _trackingID = new StringBuffer();
+
+    private static final int MAX_FREE_POOL_SIZE = 2000;  // Free pool capacity.
+
+    // Pool owned by class.
+    private static LogRecord[] _freeStack = new LogRecord[MAX_FREE_POOL_SIZE];
+    private static int _countFree = 0;
+    private static long lastAllocationTime = System.currentTimeMillis()-3000 ;
 
     //--------------------------------------------------------------------------
     //   Private Variables:
@@ -52,20 +60,58 @@ public abstract class LogRecord implements java.io.Serializable {
     //   Constructors:
     //--------------------------------------------------------------------------
 
-    public LogRecord() {
+    protected LogRecord() {
         super();
-
-        _millis = System.currentTimeMillis();
-        _sSubject = "Debug";
-        _message = "";
-        _type = MsgType.UNKNOWN;
-        _sequenceNumber = getNextId();
-        _replySubject = "";
     }
+
+    public static synchronized LogRecord getInstance() {
+
+        LogRecord result;
+        // Check if the pool is empty.
+
+        if (_countFree == 0) {
+
+            long timeSinceLastAlloc =  System.currentTimeMillis() - lastAllocationTime ;
+
+            int noToAlloc = 0;
+            if( timeSinceLastAlloc < 200 ) {
+                noToAlloc =  MAX_FREE_POOL_SIZE;
+            } else if( timeSinceLastAlloc < 1000 ) {
+                noToAlloc =  MAX_FREE_POOL_SIZE/2;
+            } else if( timeSinceLastAlloc < 3000 ) {
+                noToAlloc =  MAX_FREE_POOL_SIZE/4;
+            } else {
+                noToAlloc = 100;
+            }
+
+            // Fill the pool if so.
+            for(int i = 0; i < noToAlloc; ++i ){
+              freeInstance(new LogRecord());
+            }
+
+            lastAllocationTime = System.currentTimeMillis();
+        }
+
+        // Remove object from end of free pool.
+        result = _freeStack[--_countFree];
+
+        // Initialize the object to the specified state.
+        result._millis = System.currentTimeMillis();
+        result._type = MsgType.UNKNOWN;
+        result._sequenceNumber = getNextId();
+        return result;
+    }
+
 
     //--------------------------------------------------------------------------
     //   Public Methods:
     //--------------------------------------------------------------------------
+
+    public static synchronized void freeInstance(LogRecord lr) {
+        if (_countFree < MAX_FREE_POOL_SIZE) {
+            _freeStack[_countFree++] = lr;
+        }
+    }
 
     /**
      * Get the type of this LogRecord.
@@ -82,19 +128,40 @@ public abstract class LogRecord implements java.io.Serializable {
      * Set the type of this LogRecord.
      *
      * @param type The MsgType for this record.
-     * @see #gettype()
      * @see MsgType
      */
     public void setType(MsgType type) {
         _type = type;
     }
 
-    /**
-     * Abstract method. Must be overridden to indicate what log type
-     * to show in red.
-     */
-    public abstract boolean isSevereType();
+    public String getTrackingID() {
+        return _trackingID.toString();
+    }
+    public StringBuffer getTrackingIDStringBuffer(){
+        return _trackingID;
+    }
 
+    public void setTrackingID(String trackingID) {
+        _trackingID.setLength(0);
+        _trackingID.append(trackingID);
+    }
+
+    /**
+     * Determines which <code>Type</code> levels will
+     * be displayed
+     *
+     * @return true if the log level is Severe.
+     */
+    public boolean isSevereType() {
+        boolean isSevere = false;
+
+        if (MsgType.ERROR.equals(getType()) ||
+                MsgType.ERROR.equals(getType())) {
+            isSevere = true;
+        }
+
+        return isSevere;
+    }
 
 
     /**
@@ -109,10 +176,13 @@ public abstract class LogRecord implements java.io.Serializable {
      * description of what a subject is see setSubject().
      *
      * @return The subject of this record.
-     * @see #setSubject(String)
      */
     public String getSubject() {
-        return (_sSubject);
+        return _sSubject.toString();
+    }
+
+    public StringBuffer getSubjectAsStringBuffer() {
+        return _sSubject;
     }
 
     /**
@@ -121,20 +191,11 @@ public abstract class LogRecord implements java.io.Serializable {
      * The definition of a subject is application specific, but a common convention
      * is as follows:
      *
-     * <p>
-     * When logging messages
-     * for a particluar class you can use its class name:
-     * com.thoughtworks.framework.servlet.ServletServiceBroker.<br><br>
-     * Futhermore, to log a message for a particular method in a class
-     * add the method name:
-     * com.thoughtworks.framework.servlet.ServletServiceBroker.init().
-     * </p>
-     *
      * @param subject The subject for this record.
-     * @see #getSubject()
      */
     public void setSendSubject(String subject) {
-        _sSubject = subject;
+        _sSubject.setLength(0);
+        _sSubject.append(subject);
     }
 
     /**
@@ -144,7 +205,11 @@ public abstract class LogRecord implements java.io.Serializable {
      * @see #setMessage(String)
      */
     public String getMessage() {
-        return (_message);
+        return _message.toString();
+    }
+
+    public StringBuffer getMessageAsStringBuffer() {
+        return _message;
     }
 
     /**
@@ -154,7 +219,8 @@ public abstract class LogRecord implements java.io.Serializable {
      * @see #getMessage()
      */
     public void setMessage(String message) {
-        _message = message;
+        _message.setLength(0);
+        _message.append(message);
     }
 
     /**
@@ -207,104 +273,36 @@ public abstract class LogRecord implements java.io.Serializable {
 
 
 
-    /**
-     * Get the stack trace in a String-based format for the associated Throwable
-     * of this LogRecord.  The stack trace in a String-based format is set
-     * when the setThrown(Throwable) method is called.
-     *
-     * <p>
-     * Why do we need this method considering that we
-     * have the getThrown() and setThrown() methods?
-     * A Throwable object may not be serializable, however, a String representation
-     * of it is.  Users of LogRecords should generally call this method over
-     * getThrown() for the reasons of serialization.
-     * </p>
-     *
-     * @return The Stack Trace for the asscoiated Throwable of this LogRecord.
-     * @see #setThrown(Throwable)
-     * @see #getThrown()
-     */
-    public String getThrownStackTrace() {
-        return (_thrownStackTrace);
-    }
 
-    /**
-     * Set the ThrownStackTrace for the log record.
-     *
-     * @param trace A String to associate with this LogRecord
-     * @see #getThrownStackTrace()
-     */
-    public void setThrownStackTrace(String trace) {
-        _thrownStackTrace = trace;
-    }
 
-    /**
-     * Get the Throwable associated with this LogRecord.
-     *
-     * @return The MsgType of this record.
-     * @see #setThrown(Throwable)
-     * @see #getThrownStackTrace()
-     */
-    public Throwable getThrown() {
-        return (_thrown);
-    }
 
-    /**
-     * Set the Throwable associated with this LogRecord.  When this method
-     * is called, the stack trace in a String-based format is made
-     * available via the getThrownStackTrace() method.
-     *
-     * @param thrown A Throwable to associate with this LogRecord.
-     * @see #getThrown()
-     * @see #getThrownStackTrace()
-     */
-    public void setThrown(Throwable thrown) {
-        if (thrown == null) {
-            return;
-        }
-        _thrown = thrown;
-        StringWriter sw = new StringWriter();
-        PrintWriter out = new PrintWriter(sw);
-        thrown.printStackTrace(out);
-        out.flush();
-        _thrownStackTrace = sw.toString();
-        try {
-            out.close();
-            sw.close();
-        }
-        catch (IOException e) {
-            // Do nothing, this should not happen as it is StringWriter.
-        }
-        out = null;
-        sw = null;
-    }
+
+
 
     /**
      * Return a String representation of this LogRecord.
      */
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        buf.append("LogRecord: [" + _type + ", " + _message + "]");
+        buf.append("LogRecord: [");
+        buf.append(_type);
+        buf.append(",");
+        buf.append(_message);
+        buf.append("]");
         return (buf.toString());
     }
 
 
-    /**
-     * Get the location in code where this LogRecord originated.
-     *
-     * @return The string containing the location information.
-     */
-    public String getLocation() {
-        return _replySubject;
-    }
+
 
     /**
      * Set the replysubject
      *
-     * @param replysub A string containing location information.
+     * @param replysub A string containing subject information.
      */
     public void setReplySubject(String replysub) {
-        _replySubject = replysub;
+        _replySubject.setLength(0);
+        _replySubject.append(replysub);
     }
 
     /**

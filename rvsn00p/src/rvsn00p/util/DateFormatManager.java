@@ -10,9 +10,11 @@ package rvsn00p.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.text.FieldPosition;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.Calendar;
 
 /**
  * Date format manager.
@@ -47,12 +49,11 @@ import java.util.TimeZone;
  *  '        escape for text         (Delimiter)
  *  ''       single quote            (Literal)           '
  *
+ * @author orjan Lundberg
  * @author Robert Shaw
  * @author Michael J. Sikorsky
+ * Contributed by ThoughtWorks Inc.
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class DateFormatManager {
     //--------------------------------------------------------------------------
     //   Constants:
@@ -69,7 +70,11 @@ public class DateFormatManager {
     private Locale _locale = null;
 
     private String _pattern = null;
-    private DateFormat _dateFormat = null;
+    final private static DateFormat _dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.FULL,
+                                                           DateFormat.FULL,
+                                                           Locale.getDefault());
+    final private static FieldPosition _fieldPosition = new FieldPosition(0);
+
 
     //--------------------------------------------------------------------------
     //   Constructors:
@@ -150,7 +155,7 @@ public class DateFormatManager {
         configure();
     }
 
-    public synchronized Locale getLocale() {
+/*    public synchronized Locale getLocale() {
         if (_locale == null) {
             return Locale.getDefault();
         } else {
@@ -161,7 +166,7 @@ public class DateFormatManager {
     public synchronized void setLocale(Locale locale) {
         _locale = locale;
         configure();
-    }
+    }*/
 
     public synchronized String getPattern() {
         return _pattern;
@@ -197,13 +202,17 @@ public class DateFormatManager {
         return _dateFormat;
     }
 
-    public synchronized void setDateFormatInstance(DateFormat dateFormat) {
+ /*   public synchronized void setDateFormatInstance(DateFormat dateFormat) {
         _dateFormat = dateFormat;
         // No reconfiguration necessary!
-    }
+    }*/
 
     public String format(Date date) {
         return getDateFormatInstance().format(date);
+    }
+
+    public StringBuffer format(Date date,  StringBuffer toAppendTo) {
+       return getDateFormatInstance().format(date,toAppendTo,_fieldPosition );
     }
 
     public String format(Date date, String pattern) {
@@ -244,15 +253,15 @@ public class DateFormatManager {
     //   Private Methods:
     //--------------------------------------------------------------------------
     private synchronized void configure() {
-        _dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.FULL,
-                                                           DateFormat.FULL,
-                                                           getLocale());
+
         _dateFormat.setTimeZone(getTimeZone());
 
         if (_pattern != null) {
             ((SimpleDateFormat) _dateFormat).applyPattern(_pattern);
         }
+
     }
+
 
     //--------------------------------------------------------------------------
     //   Nested Top-Level Classes or Interfaces:
