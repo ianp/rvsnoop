@@ -235,7 +235,6 @@ public class FilteredLogTableModel
                  if (i == 5) {
                      // message
                      buf.append("<code>");
-                     buf.append(HTMLEncoder.encodeString( obj.toString() ) );
                      buf.append("</code>");
                  } else {
                     buf.append(obj.toString());
