@@ -2,6 +2,15 @@ Changes to RvSnoop
 
 Number refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
 
+Changes up to version 1.1.10 Wed Oct 30 22:26:19 CET 2002
+Added: 
+-title <title> argument to set the banner name 
+ For example 
+ .. -title DEV "tcp:7500|7500||>" 
+Fixed:
+631239 Removed annoying error dialog that showed once per message in some conditions
+
+
 Changes up to version 1.1.9 Sun Oct 27 21:28:46 CET 2002
 Added: 
 629013 Save table/message to rvscript file

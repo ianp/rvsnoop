@@ -57,14 +57,15 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.9";
+    public static final String VERSION = "RvSn00p v1.1.10";
     public static final String URL = "http://rvsn00p.sf.net";
-    public static final String NAME = "RvSn00p";
+
 
 
     //--------------------------------------------------------------------------
     //   Protected Variables:
     //--------------------------------------------------------------------------
+    protected String _name = null;
     protected JFrame _logMonitorFrame;
     protected int _logMonitorFrameWidth = 550;
     protected int _logMonitorFrameHeight = 500;
@@ -117,11 +118,13 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     /**
      * Construct a RvSnooperGUI.
      */
-    public RvSnooperGUI(List MsgTypes, Set listeners) {
+    public RvSnooperGUI(List MsgTypes, Set listeners, String name) {
 
         _levels = MsgTypes;
         _columns = LogTableColumn.getLogTableColumns();
         _columns = LogTableColumn.getLogTableColumns();
+        _name = name;
+
 
         initComponents();
 
@@ -203,15 +206,19 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
         try {
             r.setMessage(MarshalRvToString.rvmsgToString(msg));
-        } catch (NullPointerException ex) {
-            //ex.printStackTrace(System.out);
-            // ignored
-        } catch (Exception ex) {
-            ex.printStackTrace(System.out);
-            RvSnooperErrorDialog error;
-            error = new RvSnooperErrorDialog(
-                    getBaseFrame(), "Check that you have included the TIBCO JAR Files " +
-                    ex.getMessage());
+        }  catch (Exception ex) {
+            ex.printStackTrace();
+            _statusLabel.setText(ex.getMessage() );
+            try {
+                // sometimes rvscript generates strange error messages such as
+                //   KeyError: INVALID
+                //   Traceback (innermost last):
+                //   File "/home/stefan/tprojects/rvscript/work/tibrvXmlConvert.py", line 0, in rvmsgToXml
+                // try to use the msg.toString instead of an error dialog
+                r.setMessage(msg.toString() );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         r.setSendSubject(msg.getSendSubject());
@@ -229,67 +236,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
     }
 
-    protected boolean isPaused() {
-        return _isPaused;
-    }
-
-
-    protected void pauseListeners() {
-        _pauseButton.setText("Continue all listeners");
-        _pauseButton.setToolTipText("Unpause listeners");
-        _statusLabel.setText("All listeners are now paused");
-
-
-        ImageIcon pbIcon = null;
-        URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/restart.gif");
-
-        if (pbIconURL != null) {
-            pbIcon = new ImageIcon(pbIconURL);
-        }
-
-        if (pbIcon != null) {
-            _pauseButton.setIcon(pbIcon);
-        }
-
-        _isPaused = true;
-    }
-
-    protected void unPauseListeners() {
-        _pauseButton.setText("Pause all listeners");
-        _pauseButton.setToolTipText("Put listeners on hold");
-        _statusLabel.setText("All listeners are now active");
-
-        ImageIcon pbIcon = null;
-        URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/pauseon.gif");
-
-        if (pbIconURL != null) {
-            pbIcon = new ImageIcon(pbIconURL);
-        }
-
-        if (pbIcon != null) {
-            _pauseButton.setIcon(pbIcon);
-        }
-        _isPaused = false;
-    }
-
-
-    protected boolean filterRvMsg(final TibrvMsg msg) {
-        if (_displaySystemMsgs == false) {
-            if (msg.getSendSubject().startsWith("_")) {
-                // do not log anyting
-                return false;
-            }
-        }
-
-        if (_displayIMMsgs == false) {
-            if (msg.getSendSubject().startsWith("im")) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
 
 
     /**
@@ -316,8 +262,20 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     }
 
     public void updateBanner() {
+        String sBanner;
 
-        this.setTitle(VERSION + " " + RvController.getTransports().toString());
+        if(_name != null ){
+          sBanner = _name;
+          sBanner += " ";
+          sBanner += RvController.getTransports().toString();
+        } else {
+          sBanner = RvController.getTransports().toString();
+        }
+
+        sBanner += " ";
+        sBanner += VERSION;
+
+        this.setTitle(sBanner );
 
     }
 
@@ -455,6 +413,69 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
     //   Protected Methods:
     //--------------------------------------------------------------------------
+
+    protected boolean isPaused() {
+        return _isPaused;
+    }
+
+
+    protected void pauseListeners() {
+        _pauseButton.setText("Continue all listeners");
+        _pauseButton.setToolTipText("Unpause listeners");
+        _statusLabel.setText("All listeners are now paused");
+
+
+        ImageIcon pbIcon = null;
+        URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/restart.gif");
+
+        if (pbIconURL != null) {
+            pbIcon = new ImageIcon(pbIconURL);
+        }
+
+        if (pbIcon != null) {
+            _pauseButton.setIcon(pbIcon);
+        }
+
+        _isPaused = true;
+    }
+
+    protected void unPauseListeners() {
+        _pauseButton.setText("Pause all listeners");
+        _pauseButton.setToolTipText("Put listeners on hold");
+        _statusLabel.setText("All listeners are now active");
+
+        ImageIcon pbIcon = null;
+        URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/pauseon.gif");
+
+        if (pbIconURL != null) {
+            pbIcon = new ImageIcon(pbIconURL);
+        }
+
+        if (pbIcon != null) {
+            _pauseButton.setIcon(pbIcon);
+        }
+        _isPaused = false;
+    }
+
+
+    protected boolean filterRvMsg(final TibrvMsg msg) {
+        if (_displaySystemMsgs == false) {
+            if (msg.getSendSubject().startsWith("_")) {
+                // do not log anyting
+                return false;
+            }
+        }
+
+        if (_displayIMMsgs == false) {
+            if (msg.getSendSubject().startsWith("im")) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
 
     protected void setSearchText(String text) {
         _searchText = text;
@@ -613,7 +634,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         //
         // Configure the Frame.
         //
-        _logMonitorFrame = new JFrame(NAME);
+        _logMonitorFrame = new JFrame(_name);
 
         _logMonitorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
