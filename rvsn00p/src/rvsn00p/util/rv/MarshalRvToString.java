@@ -60,8 +60,8 @@ public class MarshalRvToString {
 
     }
 
-    public static String rvmsgToString(TibrvMsg msg) {
-        return _impl.rvmsgToString(msg);
+    public static String rvmsgToString(TibrvMsg msg, String name) {
+        return _impl.rvmsgToString(msg, name);
     }
 
     public static TibrvMsg stringToRvmsg(String s) throws Exception {

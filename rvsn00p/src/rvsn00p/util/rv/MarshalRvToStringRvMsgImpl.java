@@ -20,7 +20,7 @@ class MarshalRvToStringRvMsgImpl implements IMarshalRvToStringImpl {
         new TibrvMsg();
     }
 
-    public String rvmsgToString(TibrvMsg msg){
+    public String rvmsgToString(TibrvMsg msg,String name){
 
         return msg.toString();
 

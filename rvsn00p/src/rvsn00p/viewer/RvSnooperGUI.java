@@ -57,7 +57,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.10";
+    public static final String VERSION = "RvSn00p v1.1.11";
     public static final String URL = "http://rvsn00p.sf.net";
 
 
@@ -204,8 +204,19 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
         LogRecord r = new RvSnooperLogRecord();
 
+        String name;
+        name = msg.getSendSubject();
         try {
-            r.setMessage(MarshalRvToString.rvmsgToString(msg));
+            // try to extract the two last nameparts
+            int ix = name.lastIndexOf(".");
+            int ix2 = name.substring(0,ix).lastIndexOf(".");
+            name = name.substring(ix2+1,name.length());
+        } catch (Exception e) {
+        }
+
+
+        try {
+            r.setMessage(MarshalRvToString.rvmsgToString(msg, name) );
         }  catch (Exception ex) {
             ex.printStackTrace();
             _statusLabel.setText(ex.getMessage() );

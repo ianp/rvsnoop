@@ -19,8 +19,8 @@ import  com.tibco.rvscript.tibrvXmlConvert;
 class MarshalRvToStringRvScriptImpl implements IMarshalRvToStringImpl {
 
     static tibrvXmlConvert _tx = new tibrvXmlConvert();
-    public String rvmsgToString(TibrvMsg msg){
-        return _tx.rvmsgToXml(msg);
+    public String rvmsgToString(TibrvMsg msg, String name){
+        return _tx.rvmsgToXml(msg,name);
     }
 
     public TibrvMsg stringToRvmsg(String s) throws Exception{

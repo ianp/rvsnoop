@@ -16,7 +16,7 @@ import  com.tibco.tibrv.TibrvCmMsg;
  */
 interface IMarshalRvToStringImpl {
 
-    public String rvmsgToString(TibrvMsg msg);
+    public String rvmsgToString(TibrvMsg msg, String name);
 
     public TibrvMsg stringToRvmsg(String s) throws Exception;
 
