@@ -12,7 +12,7 @@ import com.tibco.tibrv.TibrvMsg;
 
 /**
  * MarshalRvToString state class
- * @author �rjan Lundberg
+ * @author orjan Lundberg
  */
 public class MarshalRvToString {
 
@@ -25,6 +25,18 @@ public class MarshalRvToString {
         boolean bHasException = true;
         Error lastError = new Error("");
 
+        if (bHasException == true) {
+            try {
+
+                _impl = new MarshalRvToStringRvTestImpl();
+                _sImplementationUsed = "RvTest";
+                bHasException = false;
+            } catch (Error ex) {
+                bHasException = true;
+                lastError = ex;
+            }
+
+        }
 
         if (bHasException == true) {
             try {

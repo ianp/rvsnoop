@@ -12,12 +12,24 @@ import  com.tibco.tibrv.TibrvCmMsg;
 
 /**
  * Interface for  MarshalRvToString impementations
- * @author Örjan Lundberg
+ * @author <a href="mailto:lundberg@home.se">Orjan Lundberg</a>
  */
-interface IMarshalRvToStringImpl {
+public interface IMarshalRvToStringImpl {
 
-    public String rvmsgToString(TibrvMsg msg, String name);
+    /**
+     *
+     * @param rvMsg the Rendezvous message to convert to a string
+     * @param name a name for the message
+     * @return string containing the converted Rendezvous message
+     */
+    public String rvmsgToString(TibrvMsg rvMsg, String name);
 
-    public TibrvMsg stringToRvmsg(String s) throws Exception;
+    /**
+     *
+     * @param rvMsgString the string containing the message
+     * @return the converted message
+     * @throws Exception
+     */
+    public TibrvMsg stringToRvmsg(String rvMsgString) throws Exception;
 
 }
