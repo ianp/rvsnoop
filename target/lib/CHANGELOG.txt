@@ -2,6 +2,13 @@ Changes to RvSnoop
 
 Request ID Numbers refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
 
+Changes up to version 1.2.4
+
+* Added: 
+  - Operation "Edit->Filter by selected subject" with accelerator key ctrl-y
+  - Operation "Edit->Filter by subject" with accelerator key ctrl-shift-y
+
+
 Changes up to version 1.2.3 Tue Dec  3 21:40:22 CET 2002
 * "Configure -> Save" will now save:                                                                                                   
     - window position                                                                                       
