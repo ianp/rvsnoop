@@ -1490,7 +1490,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         JMenu helpMenu = new JMenu("Help");
         helpMenu.setMnemonic('h');
         helpMenu.add(createHelpAbout());
-        helpMenu.add(createHelpDateFormat());
         helpMenu.add(createHelpBugReport());
         helpMenu.add(createHelpDownload());
         helpMenu.add(createHelpGotoHomepage());
@@ -1635,17 +1634,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return result;
     }
 
-    protected JMenuItem createHelpDateFormat() {
-        final String title = "DateFormat Help";
-        final JMenuItem result = new JMenuItem(title);
-        result.setMnemonic('d');
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showDateFormatDialog(title);
-            }
-        });
-        return result;
-    }
+
 
     protected void showPropertiesDialog(String title) {
         JOptionPane.showMessageDialog(
@@ -1684,14 +1673,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         );
     }
 
-      protected void showDateFormatDialog(String title) {
-        JOptionPane.showMessageDialog(
-                _logMonitorFrame,
-                dateFormatHelp,
-                title,
-                JOptionPane.PLAIN_MESSAGE
-        );
-    }
+
     protected JMenu createEditMenu() {
         JMenu editMenu = new JMenu("Edit");
         editMenu.setMnemonic('e');
