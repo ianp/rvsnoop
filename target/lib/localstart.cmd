@@ -7,9 +7,12 @@ set _cp=%_cp%;c:\tibco\rvscript\rvscript.jar
 set _cp=%_cp%;c:\tibco\tibrv\lib\tibrvj.jar
 set _cp=%_cp%;%classpath%
 
+set l1="tcp:7500|7500||>"
+set alllisteners=%l1%
+
 rem start rvsn00p
 rem echo Classpath =  %_cp%
-java -Xincgc -classpath "%_cp%" rvsn00p.StartRvSnooper %*
+java -Xincgc -Dfile.encoding=UTF8 -classpath "%_cp%" rvsn00p.StartRvSnooper %l1% %*
 echo remove the pause in the start script to get rid of this screen
 pause
 

@@ -1,5 +1,13 @@
-
 Changes to RvSnoop
+
+Number refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
+
+Changes up to version 1.1.9 Sun Oct 27 21:28:46 CET 2002
+Added: 
+629013 Save table/message to rvscript file
+Display of java "file.encoding" in status bar
+Added -Dfile.encoding=UTF8 in startup script
+Added ico file that you can select as an icon in windows when you create a shortcut
 
 Changes up to version 1.1.8 Thu Oct 17 07:50:23 CEST 2002
 Added:

@@ -31,9 +31,6 @@ import java.util.List;
  * @author Richard Wan
  * @author Brent Sprecher
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class FilteredLogTableModel
         extends AbstractTableModel {
     //--------------------------------------------------------------------------
@@ -75,7 +72,7 @@ public class FilteredLogTableModel
 
     public void setDateFormatManager(DateFormatManager dfm) {
         if( dfm != null)
-          this._dfm = _dfm;
+          this._dfm = dfm;
     }
 
     public DateFormatManager getDateFormatManager() {
@@ -181,12 +178,12 @@ public class FilteredLogTableModel
 
      /**
      * Returns a HTML table representation of the filtered records
-     * @parameter dfMgr the date formt manager used
+     * @param dfMgr the date formt manager used
      */
     public StringBuffer createFilteredHTMLTable(DateFormatManager dfMgr) {
         //use a buffer with the same size as the last used one
-        StringBuffer strbuf = new StringBuffer(_lastHTMLBufLength);
-        Iterator records = _filteredRecords.iterator();
+        final StringBuffer strbuf = new StringBuffer(_lastHTMLBufLength);
+        final Iterator records = _filteredRecords.iterator();
         LogRecord current;
         addHtmlTableHeaderString(strbuf,dfMgr);
         while (records.hasNext()) {
@@ -205,9 +202,28 @@ public class FilteredLogTableModel
     }
 
      /**
-     * Adda a HTML <td> String representation of this LogRecord to the buf parameter
-     * @parameter buf the stringbuffer to add the <td> string representation
-     * @parameter dfMgr the date formt manager used
+     * createFilteredTextFromMsg.
+     * Returns a text string containing all message fields delimite
+     */
+    public StringBuffer createFilteredTextFromMsg() {
+        final StringBuffer strbuf = new StringBuffer();
+        final Iterator records = _filteredRecords.iterator();
+        LogRecord current;
+        while (records.hasNext()) {
+            current = (LogRecord) records.next();
+            strbuf.append("\n");
+            strbuf.append(current.getMessage() );
+        }
+        strbuf.append("\n");
+
+        return strbuf;
+    }
+
+     /**
+     * Adda a HTML <td> String representation of this LogRecord to the buf parameter.
+     * @param lr the logrecord
+     * @param buf the stringbuffer to add the <td> string representation
+     * @param dfMgr the date formt manager used
      */
      protected void addHTMLTDString(LogRecord lr, StringBuffer buf, DateFormatManager dfMgr) {
 
@@ -218,7 +234,6 @@ public class FilteredLogTableModel
                  if (i == 4) {
                      // message
                      buf.append("<code>");
-                     String strMsg =  obj.toString();
                      buf.append(HTMLEncoder.encodeString( obj.toString() ) );
                      buf.append("</code>");
                  } else {
@@ -255,8 +270,8 @@ public class FilteredLogTableModel
     }
 
     protected LogRecord getFilteredRecord(int row) {
-        List records = getFilteredRecords();
-        int size = records.size();
+        final List records = getFilteredRecords();
+        final int size = records.size();
         if (row < size) {
             return (LogRecord) records.get(row);
         }
@@ -315,7 +330,7 @@ public class FilteredLogTableModel
 
     protected void trimOldestRecords() {
         synchronized (_allRecords) {
-            int trim = numberOfRecordsToTrim();
+            final int trim = numberOfRecordsToTrim();
             if (trim > 1) {
                 List oldRecords =
                         _allRecords.subList(0, trim);
