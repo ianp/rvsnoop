@@ -1,5 +1,46 @@
-
 Changes to RvSnoop
+
+Number refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
+
+Changes up to version 1.1.9 Sun Oct 27 21:28:46 CET 2002
+Added: 
+629013 Save table/message to rvscript file
+Display of java "file.encoding" in status bar
+Added -Dfile.encoding=UTF8 in startup script
+Added ico file that you can select as an icon in windows when you create a shortcut
+
+Changes up to version 1.1.8 Thu Oct 17 07:50:23 CEST 2002
+Added:
+620936 HTML Save option, saves the presented log entries
+"Pause all button"
+
+Changes up to version 1.1.7 Tue Oct 15 21:17:32 CEST 2002
+Added:
+Better windows start ".cmd" script.
+
+Fixed: 
+Bug when selecting the first found of the string serialization classes
+Error messages
+
+Changes up to version 1.1.6 Thu Oct 10 22:22:26 CEST 2002
+
+Added:
+New help about options: Licence information
+Changed implementation of RvMsg string serialization to allow later implemetation 
+of editing and resending messages. 
+
+Rvsn00p now uses the first found of: 
+- Tibco Rvscript tibrvXmlConvert
+- MTree.toString()
+- TibRvMsg.toString()
+
+This means that if the rvscript.jar is in the classpath tibrvXmlConvert will be used as 
+string serializer. If it is not found the serializer will be downgraded to the Tibco SDK 
+AE Mtree format and if that is not not fount the standard RV API TibRvMsg will be used. 
+
+
+Fixed 
+
 
 Changes up to version 1.1.5 Tue Oct  8 21:48:54 CEST 2002
 
@@ -9,7 +50,7 @@ New help about options
 
 Fixed 
 Cleaned up code
-Took away annoying "null" network display in menu bar
+Removed annoying "null" network display in menu bar
 
 
 Changes up to version 1.1.4 Sun Oct  6 14:36:12 CEST 2002
