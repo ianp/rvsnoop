@@ -1,5 +1,6 @@
 /*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
+ * Copyright (C) The Apache Soft
+ ware Foundation. All rights reserved.
  *
  * This software is published under the terms of the Apache Software
  * License version 1.1, a copy of which has been included with this
@@ -35,7 +36,7 @@ import rvsn00p.sender.MsgSender;
 /**
  *
  * RvSnooperGUI
- * @author Örjan Lundberg
+ * @author ï¿½rjan Lundberg
  *
  * Based on Logfactor5 By
  * @author Michael J. Sikorsky
@@ -52,7 +53,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.2.3";
+    public static final String VERSION = "RvSn00p v1.2.4";
     public static final String URL = "http://rvsn00p.sf.net";
 
 
@@ -104,39 +105,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     protected ClassLoader _cl = null;
 
     protected static String _trackingIDTextFilter = "";
+    protected static String _subjectTextFilter = "";
     protected static boolean useMtrackingInfo = true;
-
-    final String[] dateFormatHelp = {
-            "  Symbol   Meaning                 Presentation        Example              ",
-            "  ------   -------                 ------------        -------              " ,
-            "  G        era designator          (Text)                                   ",
-            "  AD y     year                 (Number)            1996                    " ,
-            "  M        month in year           (Text & Number)     July & 07            " ,
-            "  d        day in month            (Number)            10                   " ,
-            "  h        hour in am/pm (1~12)    (Number)            12                   " ,
-            "  H        hour in day (0~23)      (Number)            0                    " ,
-            "  m        minute in hour          (Number)            30                   " ,
-            "  s        second in minute        (Number)            55                   " ,
-            "  S        millisecond             (Number)            978                  " ,
-            "  E        day in week             (Text)              Tuesday              " ,
-            "  D        day in year             (Number)            189                  " ,
-            "  F        day of week in month    (Number)            2 (2nd Wed in July)  " ,
-            "  w        week in year            (Number)            27                   " ,
-            "  W        week in month           (Number)            2                    " ,
-            "  a        am/pm marker            (Text)              PM                   " ,
-            "  k        hour in day (1~24)      (Number)            24                   " ,
-            "  K        hour in am/pm (0~11)    (Number)            0                    ",
-            "  z        time zone               (Text)              Pacific Standard Time" ,
-            "  '        escape for text         (Delimiter)                              " ,
-            "  ''       single quote            (Literal)           '                    " };
-
-
-
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
     //--------------------------------------------------------------------------
     //   Constructors:
     //--------------------------------------------------------------------------
@@ -219,6 +189,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
      * swing thread.
      */
     public void onMsg(TibrvListener listener, TibrvMsg msg) {
+
 
         if (isPaused()) {
             return;
@@ -798,10 +769,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         //
         _logMonitorFrame.getRootPane().setJMenuBar(createMenuBar());
         _logMonitorFrame.getContentPane().add(splitPane, BorderLayout.CENTER);
-        _logMonitorFrame.getContentPane().add(createToolBar(),
-                BorderLayout.NORTH);
-        _logMonitorFrame.getContentPane().add(createStatusArea(),
-                BorderLayout.SOUTH);
+        _logMonitorFrame.getContentPane().add(createToolBar(),BorderLayout.NORTH);
+        _logMonitorFrame.getContentPane().add(createStatusArea(),BorderLayout.SOUTH);
 
         makeLogTableListenToCategoryExplorer();
         addTableModelProperties();
@@ -809,7 +778,13 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         //
         // Configure ConfigurationManager
         //
-        _configurationManager = new ConfigurationManager(this, _table);
+        final RvSnooperGUI gui = this;
+        SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                             _configurationManager = new ConfigurationManager(gui, _table);
+                        }
+          });
+
 
         unPauseListeners();
         _statusLabel.setText("Started @ " + new Date() );
@@ -1650,12 +1625,12 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                 _logMonitorFrame,
                 new String[]{VERSION,
                              " ",
-                             "Constructed by Örjan Lundberg <orjan.lundberg@netresult.se>",
+                             "Constructed by Orjan Lundberg <orjan.lundberg@netresult.se>",
                              " ",
                              "This product includes software developed by the Apache Software Foundation (http://www.apache.org/). ",
                              " ",
                              "Thanks goes to (in no special order):",
-                             "Stephanie Lundberg, Thomas Bonderud, Anders Lindlöf",
+                             "Stephanie Lundberg, Thomas Bonderud, Anders Lindlof",
                              "Stefan Axelsson, Linda Lundberg, Johan Hjort",
                              "Magnus L Johansson, Eric Albert (browserLauncher.sf.net)",
                              "Richard Valk, Joe Jensen, Stefan Farestam  ",
@@ -1682,7 +1657,9 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         editMenu.addSeparator();
         editMenu.add(createEditFilterTIDMI());
         editMenu.add(createEditFilterBySelectedTIDMI());
-        editMenu.add(createEditRestoreAllTIDMI());
+        editMenu.add(createEditFilterBySelectedSubjectMI());
+        editMenu.add(createEditFilterBySubjectMI());
+        editMenu.add(createEditRemoveAllFiltersTIDMI());
         return editMenu;
     }
 
@@ -1747,11 +1724,35 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return editFilterNDCMI;
     }
 
+    protected JMenuItem createEditFilterBySubjectMI() {
+        JMenuItem editFilterSubjectMI = new JMenuItem("Filter by subject");
+        editFilterSubjectMI.setAccelerator(KeyStroke.getKeyStroke("control shift Y"));
+        editFilterSubjectMI.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        String inputValue =
+                                JOptionPane.showInputDialog(
+                                        _logMonitorFrame,
+                                        "Filter by this subject ",
+                                        "Filter Log Records by subject",
+                                        JOptionPane.QUESTION_MESSAGE
+                                );
+                        setTIDTextFilter(inputValue);
+                        filterBySubject();
+                        _table.getFilteredLogTableModel().refresh();
+                        updateStatusLabel();
+                    }
+                }
+
+        );
+        return editFilterSubjectMI;
+    }
+
     protected JMenuItem createEditFilterBySelectedTIDMI() {
-        JMenuItem editFilterNDCMI = new JMenuItem("Filter by selected tracking id");
-        editFilterNDCMI.setMnemonic('s');
-        editFilterNDCMI.setAccelerator(KeyStroke.getKeyStroke("control T"));
-        editFilterNDCMI.addActionListener(new ActionListener() {
+        JMenuItem editFilterTIDMI = new JMenuItem("Filter by selected tracking id");
+        editFilterTIDMI.setMnemonic('s');
+        editFilterTIDMI.setAccelerator(KeyStroke.getKeyStroke("control T"));
+        editFilterTIDMI.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
 
@@ -1770,7 +1771,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                     if (sTID != null) {
                         setTIDTextFilter(sTID);
                         filterByTID();
-                        _table.getFilteredLogTableModel().refresh();
+                        ftm.refresh();
                     }
                 }
 
@@ -1779,7 +1780,41 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         );
 
 
-        return editFilterNDCMI;
+        return editFilterTIDMI;
+    }
+
+    protected JMenuItem createEditFilterBySelectedSubjectMI() {
+        JMenuItem editFilterSubjectMI = new JMenuItem("Filter by selected subject");
+        editFilterSubjectMI.setMnemonic('y');
+        editFilterSubjectMI.setAccelerator(KeyStroke.getKeyStroke("control Y"));
+        editFilterSubjectMI.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                ListSelectionModel lsm = _table.getSelectionModel();
+
+                if (lsm.isSelectionEmpty()) {
+                    //no rows are selected
+                } else {
+                    int selectedRow = lsm.getMinSelectionIndex();
+
+                    FilteredLogTableModel ftm;
+                    ftm = _table.getFilteredLogTableModel();
+
+
+                    final String s = (String) _table.getModel().getValueAt(selectedRow, _table.getSubjectColumnID());
+                    if (s != null) {
+                        setSubjectTextFilter(s);
+                        filterBySubject();
+                        ftm.refresh();
+                    }
+                }
+
+            }
+        }
+        );
+
+
+        return editFilterSubjectMI;
     }
 
     protected void setTIDTextFilter(String text) {
@@ -1789,6 +1824,16 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             _trackingIDTextFilter = "";
         } else {
             _trackingIDTextFilter = text;
+        }
+    }
+
+    protected void setSubjectTextFilter(String text) {
+        // if no value is set, set it to a blank string
+        // otherwise use the value provided
+        if (text == null) {
+            _subjectTextFilter = "";
+        } else {
+            _subjectTextFilter = text;
         }
     }
 
@@ -1804,17 +1849,30 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         _statusLabel.setText("Filtered by tracking id " + text);
     }
 
+    protected void filterBySubject() {
+        String text = _subjectTextFilter;
+        if (text == null || text.length() == 0) {
+            return;
+        }
+
+        // Use new NDC filter
+        _table.getFilteredLogTableModel().
+                setLogRecordFilter(createSubjectLogRecordFilter(text));
+        _statusLabel.setText("Filtered by subject  " + text);
+    }
+
     protected LogRecordFilter createTIDLogRecordFilter(String text) {
         _trackingIDTextFilter = text;
         LogRecordFilter result = new LogRecordFilter() {
             public boolean passes(LogRecord record) {
                 String trackingID = record.getTrackingID();
-                CategoryPath path = new CategoryPath(record.getSubject());
+
                 if (trackingID == null || _trackingIDTextFilter == null) {
                     return false;
                 } else if (trackingID.indexOf(_trackingIDTextFilter) == -1) {
                     return false;
                 } else {
+                    CategoryPath path = new CategoryPath(record.getSubject());
                     return getMenuItem(record.getType()).isSelected() &&
                             _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
                 }
@@ -1824,8 +1882,28 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return result;
     }
 
-    protected JMenuItem createEditRestoreAllTIDMI() {
-        JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove tracking id filter");
+    protected LogRecordFilter createSubjectLogRecordFilter(String text) {
+        _trackingIDTextFilter = text;
+        LogRecordFilter result = new LogRecordFilter() {
+            public boolean passes(LogRecord record) {
+                String subject = record.getSubject();
+                if (subject == null || _subjectTextFilter == null) {
+                    return false;
+                } else if (subject.indexOf(_subjectTextFilter) == -1) {
+                    return false;
+                } else {
+                    CategoryPath path = new CategoryPath(subject);
+                    return getMenuItem(record.getType()).isSelected() &&
+                            _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
+                }
+            }
+        };
+
+        return result;
+    }
+
+    protected JMenuItem createEditRemoveAllFiltersTIDMI() {
+        JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove all filters");
         editRestoreAllNDCMI.setMnemonic('r');
         editRestoreAllNDCMI.setAccelerator(KeyStroke.getKeyStroke("control R"));
         editRestoreAllNDCMI.addActionListener(
