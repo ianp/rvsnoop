@@ -51,13 +51,15 @@ public class TrackingAdjustmentListener implements AdjustmentListener {
     public void adjustmentValueChanged(AdjustmentEvent e) {
         Adjustable bar = e.getAdjustable();
         int currentMaximum = bar.getMaximum();
-        if (bar.getMaximum() == _lastMaximum) {
+        if (currentMaximum == _lastMaximum) {
             return; // nothing to do, the adjustable has not expanded
         }
-        int bottom = bar.getValue() + bar.getVisibleAmount();
+        int bottom = bar.getValue();
+        bottom += bar.getVisibleAmount();
+        bottom += bar.getUnitIncrement();
 
-        if (bottom + bar.getUnitIncrement() >= _lastMaximum) {
-            bar.setValue(bar.getMaximum()); // use the most recent maximum
+        if (bottom  >= _lastMaximum) {
+            bar.setValue(currentMaximum); // use the most recent maximum
         }
         _lastMaximum = currentMaximum;
     }

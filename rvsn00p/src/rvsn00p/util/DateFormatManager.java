@@ -10,9 +10,11 @@ package rvsn00p.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.text.FieldPosition;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.Calendar;
 
 /**
  * Date format manager.
@@ -47,12 +49,11 @@ import java.util.TimeZone;
  *  '        escape for text         (Delimiter)
  *  ''       single quote            (Literal)           '
  *
+ * @author orjan Lundberg
  * @author Robert Shaw
  * @author Michael J. Sikorsky
+ * Contributed by ThoughtWorks Inc.
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class DateFormatManager {
     //--------------------------------------------------------------------------
     //   Constants:
@@ -70,6 +71,8 @@ public class DateFormatManager {
 
     private String _pattern = null;
     private DateFormat _dateFormat = null;
+    final private FieldPosition _fieldPosition = new FieldPosition(0);
+
 
     //--------------------------------------------------------------------------
     //   Constructors:
@@ -206,6 +209,10 @@ public class DateFormatManager {
         return getDateFormatInstance().format(date);
     }
 
+    public StringBuffer format(Date date,  StringBuffer toAppendTo) {
+       return getDateFormatInstance().format(date,toAppendTo,_fieldPosition );
+    }
+
     public String format(Date date, String pattern) {
         DateFormat formatter = null;
         formatter = getDateFormatInstance();
@@ -244,7 +251,7 @@ public class DateFormatManager {
     //   Private Methods:
     //--------------------------------------------------------------------------
     private synchronized void configure() {
-        _dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.FULL,
+        _dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL,
                                                            DateFormat.FULL,
                                                            getLocale());
         _dateFormat.setTimeZone(getTimeZone());
@@ -252,7 +259,9 @@ public class DateFormatManager {
         if (_pattern != null) {
             ((SimpleDateFormat) _dateFormat).applyPattern(_pattern);
         }
+
     }
+
 
     //--------------------------------------------------------------------------
     //   Nested Top-Level Classes or Interfaces:
