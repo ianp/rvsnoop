@@ -55,7 +55,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.5";
+    public static final String VERSION = "RvSn00p v1.1.6B";
     public static final String URL = "http://rvsn00p.sf.net";
     public static final String NAME = "RvSn00p";
 
@@ -1176,18 +1176,35 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         helpMenu.add(createHelpDownload());
         helpMenu.add(createHelpGotoHomepage());
         helpMenu.add(createHelpProperties());
-
+        helpMenu.add(createHelpLICENSE());
 
         return helpMenu;
     }
 
-    protected JMenuItem createHelpProperties() {
-        final String title = "Rendevous Sn00per Properties";
+
+     protected JMenuItem createHelpProperties() {
+        final String title = "Show Properties";
+        final JMenuItem result = new JMenuItem(title);
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showPropertiesDialog(title);
+            }
+        });
+        return result;
+    }
+
+    protected JMenuItem createHelpLICENSE() {
+        final String title = "License information";
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('l');
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                showPropertiesDialog(title);
+                try {
+                    BrowserLauncher.openURL("http://www.apache.org/licenses/LICENSE");
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
+                }
             }
         });
         return result;
@@ -1294,6 +1311,10 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                              "Based on Jakarta log4J LogFactor5 ",
                              " ",
                              "Copyright (C) The Apache Software Foundation. All rights reserved.",
+                             " ",
+                             "This software is published under the terms of the Apache Software",
+                             "License version 1.1, a copy of which has been included with this",
+                             "distribution in the LICENSE.txt file. ",
                              " "},
                 title,
                 JOptionPane.PLAIN_MESSAGE
