@@ -21,9 +21,9 @@ class MarshalRvToStringMtreeImpl implements IMarshalRvToStringImpl {
         new MTree("dummy");
     }
 
-    public String rvmsgToString(TibrvMsg msg){
+    public String rvmsgToString(TibrvMsg msg,String name){
 
-        MTree a = new MTree("");
+        MTree a = new MTree(name);
         a.use_tibrvMsg(msg);
         return a.toString();
 
