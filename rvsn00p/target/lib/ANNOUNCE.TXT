@@ -1,0 +1,67 @@
+[ANNOUNCE] Release of RvSnoop-1.1.3, A free swing based GUI trace tool for Tibrv
+
+What is RvSnoop? 
+RvSnoop is a Swing based GUI that provides developers and operations support personnel 
+with a sophisticated, feature-rich interface for tracing rendezvous messages. 
+
+Benefits:
+Filter out only the subjects that you are interested in. 
+Reduce the time required to locate specific messages. 
+
+Where do I download it?
+http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-latest.zip?download
+
+Features: 
+Real-time subject filtering
+Customizable logging table view. 
+Subject tree with navigation and filtering. 
+Full text searching of logged messages and subjects. 
+Save configuration for later sessions. 
+Configure the number of log records to be displayed simutaneously. 
+Customizable record colors. 
+Configurable font face and size. 
+Customizable log table column layout. 
+
+Please visit the RvSn00p home page at
+http://rvsn00p.databasefocus.com for more documentation, and
+information on how to obtain RvSnoop.
+
+Please use the RvSn00p Source Forge Home page to submit change 
+request, downloads, support requests and bugs reports. 
+
+The RvSn00p Source Forge URL is: 
+http://sourceforge.net/projects/rvsn00p/ 
+
+<A href="http://sourceforge.net"> <IMG src="http://sourceforge.net/sflogo.php?group_id=63447&amp;type=5" width="210" height="62" border="0" alt="SourceForge Logo"></A> 
+
+System Requirements:
+RvSn00p requires Java (TM) Virtual Machine 1.2.2 
+
+Acknowledgements 
+This product includes  software developed  by the  Apache Software Foundation  (http://www.apache.org/).
+Rvsn00p is based on log4J Logfactor5 released by the Apache Software Foundation. 
+Logfactor5 was contributed to the Apache Jakarta Log4j project by ThoughtWorks Inc.
+
+Licensing information: 
+
+Copyright (C) The Apache Software Foundation. All rights reserved.
+
+This software is published under the terms of the Apache Software
+License version 1.1, a copy of which has been included with this
+distribution in the LICENSE.txt file.
+
+TIB, TIBCO,TIB/Rendezvous (Rv), TIB/ActiveEnterprise, Information Bus, and InConcert are registered 
+trademarks in the US and internationally of Tibco Inc. (TIBX). 
+
+All brand and product names are trademarks or registered trademarks of their respective holders. 
+
+--
+Örjan Lundberg
+Consultant
+Net Result Consulting AB
+http://www.netresult.se/eng/
+Stockholm, Sweden
+Email: lundberg@home.se
+http://www.ludd.luth.se/users/olu/
+
+
