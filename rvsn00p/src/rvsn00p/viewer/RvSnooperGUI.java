@@ -14,6 +14,7 @@ import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.MsgType;
 import rvsn00p.RvSnooperLogRecord;
+import rvsn00p.sender.MsgSender;
 import rvsn00p.util.DateFormatManager;
 import rvsn00p.util.rv.RvController;
 import rvsn00p.util.rv.RvParameters;
@@ -36,6 +37,7 @@ import java.util.*;
 import java.util.List;
 
 import rvsn00p.util.BrowserLauncher;
+import rvsn00p.sender.MsgSender;
 
 /**
  *
@@ -57,7 +59,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.6";
+    public static final String VERSION = "RvSn00p v1.1.7";
     public static final String URL = "http://rvsn00p.sf.net";
     public static final String NAME = "RvSn00p";
 
@@ -126,12 +128,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
         _logMonitorFrame.addWindowListener(
                 new LogBrokerMonitorWindowAdaptor(this));
-
-        if (System.getProperty("use.sdk", "true").compareToIgnoreCase("false") == 0) {
-            _useSDK = false;
-            System.out.println("Disabling use of SDK classes");
-        }
-
 
         initTibco();
         startListeners(listeners);
@@ -204,8 +200,10 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
         try {
            r.setMessage(MarshalRvToString.rvmsgToString(msg));
-        }
-        catch (Exception ex) {
+        } catch (NullPointerException ex) {
+           ex.printStackTrace(System.out);
+          // ignored
+        } catch (Exception ex) {
             ex.printStackTrace(System.out);
             RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                     getBaseFrame(), "Check that you have included the TIBCO JAR Files " +
@@ -748,6 +746,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
+        //menuBar.add(createMessageMenu());
         menuBar.add(createMsgTypeMenu());
         menuBar.add(createViewMenu());
         menuBar.add(createConfigureMenu());
@@ -756,9 +755,53 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return (menuBar);
     }
 
+    protected JMenu createMessageMenu() {
+        JMenu result = new JMenu("Message");
+        result.setMnemonic('m');
+        result.add(createResendMenuItem());
+
+        return result;
+    }
+
+    protected JMenuItem createResendMenuItem() {
+        JMenuItem result = new JMenuItem("Resend selected");
+        result.setMnemonic('r');
+
+
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+
+                ListSelectionModel lsm = _table.getSelectionModel();
+
+                if (lsm.isSelectionEmpty()) {
+                    //no rows are selected
+                } else {
+                    int selectedRow = lsm.getMinSelectionIndex();
+
+
+                    final String sMsg = (String) _table.getModel().getValueAt(selectedRow, _table.getMsgColumnID());
+                    final String sSubject = (String) _table.getModel().getValueAt(selectedRow,
+                            _table.getSubjectColumnID());
+
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            MsgSender s = new MsgSender(_logMonitorFrame, VERSION, sSubject, sMsg,
+                                    _lastUsedRvParameters.getDaemon(), _lastUsedRvParameters.getService(),
+                                    _lastUsedRvParameters.getNetwork());
+                            s.show();
+                        }
+                    });
+
+                }
+            }
+        });
+        return result;
+    }
+
     protected JMenu createMsgTypeMenu() {
         JMenu result = new JMenu("Msg Type");
-        result.setMnemonic('m');
+        result.setMnemonic('t');
         Iterator imsgtypes = getMsgTypes();
         while (imsgtypes.hasNext()) {
             result.add(getMenuItem((MsgType) imsgtypes.next()));
