@@ -45,11 +45,12 @@ public class LogRecord implements java.io.Serializable {
     protected StringBuffer _replySubject = new StringBuffer();
     protected StringBuffer _trackingID = new StringBuffer();
 
-    private static final int FREE_POOL_SIZE = 100;  // Free pool capacity.
+    private static final int MAX_FREE_POOL_SIZE = 2000;  // Free pool capacity.
 
     // Pool owned by class.
-    private static LogRecord[] _freeStack = new LogRecord[FREE_POOL_SIZE];
+    private static LogRecord[] _freeStack = new LogRecord[MAX_FREE_POOL_SIZE];
     private static int _countFree = 0;
+    private static long lastAllocationTime = System.currentTimeMillis()-3000 ;
 
     //--------------------------------------------------------------------------
     //   Private Variables:
@@ -67,12 +68,28 @@ public class LogRecord implements java.io.Serializable {
 
         LogRecord result;
         // Check if the pool is empty.
+
         if (_countFree == 0) {
 
+            long timeSinceLastAlloc =  System.currentTimeMillis() - lastAllocationTime ;
+
+            int noToAlloc = 0;
+            if( timeSinceLastAlloc < 200 ) {
+                noToAlloc =  MAX_FREE_POOL_SIZE;
+            } else if( timeSinceLastAlloc < 1000 ) {
+                noToAlloc =  MAX_FREE_POOL_SIZE/2;
+            } else if( timeSinceLastAlloc < 3000 ) {
+                noToAlloc =  MAX_FREE_POOL_SIZE/4;
+            } else {
+                noToAlloc = 100;
+            }
+
             // Fill the pool if so.
-            for(int i = 0; i < FREE_POOL_SIZE; ++i ){
+            for(int i = 0; i < noToAlloc; ++i ){
               freeInstance(new LogRecord());
             }
+
+            lastAllocationTime = System.currentTimeMillis();
         }
 
         // Remove object from end of free pool.
@@ -91,7 +108,7 @@ public class LogRecord implements java.io.Serializable {
     //--------------------------------------------------------------------------
 
     public static synchronized void freeInstance(LogRecord lr) {
-        if (_countFree < FREE_POOL_SIZE) {
+        if (_countFree < MAX_FREE_POOL_SIZE) {
             _freeStack[_countFree++] = lr;
         }
     }
