@@ -30,10 +30,8 @@ import java.util.Vector;
  * @author Robert Shaw
  * @author Brad Marlborough
  * @author Brent Sprecher
+ * Contributed by ThoughtWorks Inc.
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class LogTable extends JTable {
     //--------------------------------------------------------------------------
     //   Constants:
@@ -48,7 +46,7 @@ public class LogTable extends JTable {
     // For the columns:
     protected int _numCols = 6;
     protected TableColumn[] _tableColumns = new TableColumn[_numCols];
-    protected int[] _colWidths = {43, 10, 40, 100, 40,100};
+    protected int[] _colWidths = {27, 1, 30, 150, 40,100};
     protected LogTableColumn[] _colNames = LogTableColumn.getLogTableColumnArray();
     protected int _colDate = 0;
     protected int _colMessageNum = 1;

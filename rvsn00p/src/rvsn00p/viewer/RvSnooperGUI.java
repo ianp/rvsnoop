@@ -8,8 +8,6 @@
 package rvsn00p.viewer;
 
 import com.tibco.tibrv.*;
-import com.tibco.sdk.MTree;
-import com.tibco.sdk.MTrackingInfo;
 import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.MsgType;
@@ -1254,17 +1252,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         result.setAccelerator(KeyStroke.getKeyStroke("control Q"));
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    RvController.shutdownAll();
-                } catch (TibrvException ex) {
-                    RvSnooperErrorDialog error;
-                    error = new RvSnooperErrorDialog(
-                            getBaseFrame(), "Tibco Listener " + ex.getMessage());
-                }
-
-                updateBanner();
-
-
+                RvController.shutdownAll();
+                 updateBanner();
             }
         });
         return result;
@@ -1648,7 +1637,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     return result;
   }
   protected JMenuItem createEditRestoreAllTIDMI() {
-    JMenuItem editRestoreAllNDCMI = new JMenuItem("Restore all tracing ids");
+    JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove tracking id filter");
     editRestoreAllNDCMI.setMnemonic('r');
     editRestoreAllNDCMI.addActionListener(
         new ActionListener() {
