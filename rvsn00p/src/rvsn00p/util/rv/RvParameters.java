@@ -191,16 +191,17 @@ public class RvParameters implements Cloneable, Serializable {
 
     public String toString() {
         String sRetval = new String(this._deamon);
-        sRetval += "|";
-        if (_network != null) {
-            sRetval += _network;
-        }
 
         sRetval += "|";
 
         if (_service != null) {
             sRetval += _service;
         }
+                sRetval += "|";
+        if (_network != null) {
+            sRetval += _network;
+        }
+
         sRetval += "|";
         if (_subjects != null) {
             boolean first = true;
