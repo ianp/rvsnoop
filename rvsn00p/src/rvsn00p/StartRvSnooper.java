@@ -84,15 +84,12 @@ public class StartRvSnooper {
             System.out.println(" " + System.getProperty("os.version"));
         }
 
-        if( checkJavaVersion() == false){
+        if (checkJavaVersion() == false) {
             System.err.println("Warning: Java JRE Version 1.4.1 or higher is required");
         }
 
         RvSnooperGUI gui = new RvSnooperGUI(
                 MsgType.getAllDefaultLevels(), setRvListenersParam, title);
-
-        //gui.setFrameSize(getDefaultMonitorWidth(),
-        //                    getDefaultMonitorHeight());
 
         gui.show();
 
@@ -146,28 +143,31 @@ public class StartRvSnooper {
         String ver;
         ver = System.getProperty("java.version");
         retVal = false;
+        try {
+            StringTokenizer st = new StringTokenizer(ver, "._-");
+            int a,b;
+            a = b = -1;
 
-        StringTokenizer st = new StringTokenizer(ver, "._");
-        int a,b;
-        a = b = -1;
+            a = Integer.parseInt(st.nextToken());
+            b = Integer.parseInt(st.nextToken());
 
-        a = Integer.parseInt(st.nextToken());
-        b = Integer.parseInt(st.nextToken());
+            retVal = (a >= 1 && b >= 4);
+            if (a == 1 && b == 4) {
+                if (st.hasMoreTokens() == true) {
+                    int c;
+                    c = Integer.parseInt(st.nextToken());
+                    if (Integer.parseInt(st.nextToken()) >= 1) {
+                        retVal = true;
+                    } else {
+                        retVal = false;
+                    }
+                } else {
+                    retVal = false;
+                }
 
-        retVal = (a >= 1 && b >= 4 );
-        if( a == 1 && b == 4 ){
-          if( st.hasMoreTokens() == true ){
-              int c;
-              c = Integer.parseInt(st.nextToken());
-              if( Integer.parseInt(st.nextToken()) >= 1  ){
-                  retVal = true;
-              } else {
-                  retVal = false;
-              }
-          } else {
-              retVal = false;
-          }
-
+            }
+        }catch(Exception ex){
+            retVal = true;
         }
 
         return retVal;
