@@ -23,8 +23,8 @@ public class RvController {
     //--------------------------------------------------------------------------
     //   Protected Variables:
     //--------------------------------------------------------------------------
-    protected static Map _mapTibrvListeners = new HashMap();
-    protected static Map _mapTibrvTransports = new HashMap();
+    protected final static Map _mapTibrvListeners = new HashMap();
+    protected final static Map _mapTibrvTransports = new HashMap();
     protected static TibrvQueue _queue;
     protected static TibrvListener _ignore;
     protected static TibrvListener _error;
@@ -46,13 +46,13 @@ public class RvController {
     /**
      * Open the Tibrv connection
      */
-    public static void open(TibrvErrorCallback errCallBack) throws TibrvException {
+    public static void open(final TibrvErrorCallback errCallBack) throws TibrvException {
         try {
             Tibrv.open(Tibrv.IMPL_NATIVE);
             _queue = new TibrvQueue();
             _queue.setName("rvsn00pQueue");
             _errCallBack = errCallBack;
-            TibrvDispatcher rvd = new TibrvDispatcher(_queue);
+            final TibrvDispatcher rvd = new TibrvDispatcher(_queue);
 
             Tibrv.setErrorCallback(_errCallBack);
 
@@ -61,10 +61,6 @@ public class RvController {
                     Tibrv.processTransport(),
                     "_RV.WARN.SYSTEM.QUEUE.LIMIT_EXCEEDED",
                     null);
-
-
-
-
 
         } catch (TibrvException e) {
             throw e;
@@ -115,16 +111,15 @@ public class RvController {
     }
 
 
-    public static synchronized void startRvListener(final RvParameters p, TibrvMsgCallback callback)
+    public static synchronized void startRvListener(final RvParameters p, final TibrvMsgCallback callback)
             throws TibrvException {
-
 
         if (_mapTibrvTransports.containsKey(p)) {
             // update subjects
-            Iterator i = _mapTibrvTransports.keySet().iterator();
+            final Iterator i = _mapTibrvTransports.keySet().iterator();
 
             while (i.hasNext()) {
-                RvParameters par;
+                final RvParameters par;
                 par = (RvParameters) i.next();
                 if (par.equals(p)) {
                     par.setSubjects(p.getSubjects());
@@ -132,12 +127,12 @@ public class RvController {
             }
         }
 
-        Set s = p.getSubjects();
-        Iterator i = s.iterator();
+        final Set s = p.getSubjects();
+        final Iterator i = s.iterator();
         while (i.hasNext()) {
-            String n = (String) i.next();
-            String id = String.valueOf(getRvTransport(p).hashCode() + n);
-            TibrvListener lsnr;
+            final String n = (String) i.next();
+            final String id = String.valueOf(getRvTransport(p).hashCode() + n);
+            final TibrvListener lsnr;
             if (!_mapTibrvListeners.containsKey(id)) {
                 lsnr = new TibrvListener(_queue,
                         callback,
@@ -145,13 +140,9 @@ public class RvController {
                         n,
                         null);
 
-
-
                 _mapTibrvListeners.put(id, lsnr);
             }
         }
-
-
     }
 
     public static synchronized Set getListeners() {
@@ -166,7 +157,7 @@ public class RvController {
 
         if (_mapTibrvListeners.containsKey(p)) {
 
-            TibrvListener lsnr = (TibrvListener) _mapTibrvListeners.get(p);
+            final TibrvListener lsnr = (TibrvListener) _mapTibrvListeners.get(p);
             lsnr.destroy();
 
 
@@ -219,7 +210,7 @@ public class RvController {
      *  Used to hide ADV_NAME="QUEUE.LIMIT_EXCEEDED".
      */
     static class IgnoreListenersCallBack implements TibrvMsgCallback {
-        public void onMsg(TibrvListener tibrvListener, TibrvMsg tibrvMsg) {
+        public void onMsg(final TibrvListener tibrvListener, final TibrvMsg tibrvMsg) {
         }
     }
 
@@ -228,11 +219,11 @@ public class RvController {
      */
     static class DisplayErrorCallBack implements TibrvMsgCallback {
          protected TibrvErrorCallback _errCallBack;
-         public DisplayErrorCallBack(TibrvErrorCallback errCallBack) {
+         public DisplayErrorCallBack(final TibrvErrorCallback errCallBack) {
              this._errCallBack = errCallBack;
          }
 
-        public void onMsg(TibrvListener tibrvListener, TibrvMsg tibrvMsg) {
+        public void onMsg(final TibrvListener tibrvListener, final TibrvMsg tibrvMsg) {
             _errCallBack.onError(tibrvListener,1," - Connection to Tib Rendezvous daemon lost",null);
         }
     }

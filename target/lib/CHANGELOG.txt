@@ -2,6 +2,19 @@ Changes to RvSnoop
 
 Request ID Numbers refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
 
+Changes up to version 1.3
+* The configuration is saved and opened with File->Open File->Save
+* Listeners are stored in the configuration file
+
+
+Changes up to version 1.2.6
+* Since 1.2.1 Java 1.4.1 or later is required
+* Added Raccoon msg serializer, if the racoon Jar file is added to the classpath this serialiser is used
+* Added Reuters RvTest serializer RvTest Jar file is added to the classpath this serialiser is used
+* Rvsn00p now supports the Raccoon, RvScript and RvTest serializers
+* Other minor changes
+
+
 Changes up to version 1.2.4
 
 * Added: 

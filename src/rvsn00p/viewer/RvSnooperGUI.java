@@ -1,6 +1,5 @@
 /*
- * Copyright (C) The Apache Soft
- ware Foundation. All rights reserved.
+ * Copyright (C) The Apache Software Foundation. All rights reserved.
  *
  * This software is published under the terms of the Apache Software
  * License version 1.1, a copy of which has been included with this
@@ -31,7 +30,7 @@ import rvsn00p.util.BrowserLauncher;
 /**
  *
  * RvSnooperGUI
- * @author �rjan Lundberg
+ * @author orjan Lundberg
  *
  * Based on Logfactor5 By
  * @author Michael J. Sikorsky
@@ -48,9 +47,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.2.6";
+    public static final String VERSION = "RvSn00p v1.3.0";
     public static final String URL = "http://rvsn00p.sf.net";
-
 
     //--------------------------------------------------------------------------
     //   Protected Variables:
@@ -108,13 +106,12 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     /**
      * Construct a RvSnooperGUI.
      */
-    public RvSnooperGUI(List MsgTypes, Set listeners, String name) {
+    public RvSnooperGUI(final List MsgTypes, final Set listeners, final String name) {
 
         _levels = MsgTypes;
         _columns = LogTableColumn.getLogTableColumns();
         _columns = LogTableColumn.getLogTableColumns();
         _name = name;
-
 
         initComponents();
 
@@ -130,14 +127,14 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * Start a set of listeners.
      * @param listeners set containing  RvParameters
      */
-    protected void startListeners(Set listeners) {
+    protected void startListeners(final Set listeners) {
 
-        Iterator itrl = listeners.iterator();
+        final Iterator itrl = listeners.iterator();
 
         while (itrl.hasNext()) {
             try {
 
-                RvParameters p = (RvParameters) itrl.next();
+                final RvParameters p = (RvParameters) itrl.next();
 
                 p.setDescription(" <a href=\"" + URL + "\">" + VERSION + "</a> ");
 
@@ -146,10 +143,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
                 _lastUsedRvParameters = p;
 
             } catch (ClassCastException ex) {
-                RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                         getBaseFrame(), ex.getMessage());
             } catch (TibrvException ex) {
-                RvSnooperErrorDialog error;
+                final RvSnooperErrorDialog error;
                 error = new RvSnooperErrorDialog(
                         getBaseFrame(), "Tibco Listener " + ex.getMessage());
 
@@ -172,7 +169,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
             s += "is found within you PATH (win) or LD_LIBRARY_PATH (unix/linux) ";
 
             System.err.println(s);
-            RvSnooperErrorDialog error;
+            final RvSnooperErrorDialog error;
             error = new RvSnooperErrorDialog(
                     getBaseFrame(), s);
             System.exit(1);
@@ -193,8 +190,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * @param message  printable string describing the error.
      * @param throwable   java eception "cause"
      */
-    public void onError(Object tibrvObject, int errorCode, String message, Throwable throwable) {
-        RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+    public void onError(final Object tibrvObject, final int errorCode, final String message, final Throwable throwable) {
+        final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                 getBaseFrame(), "A System error occured " + message);
     }
 
@@ -204,20 +201,20 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * @param listener   TibrvListener
      * @param msg     TibrvMsg
      */
-    public void onMsg(TibrvListener listener, TibrvMsg msg) {
+    public void onMsg(final TibrvListener listener, final TibrvMsg msg) {
 
         if (isPaused()) {
             return;
         }
 
-        LogRecord r = LogRecord.getInstance();
+        final LogRecord r = LogRecord.getInstance();
 
         String name;
         name = msg.getSendSubject();
         try {
             // try to extract the two last subject parts
-            int ix = name.lastIndexOf(".");
-            int ix2 = name.substring(0, ix).lastIndexOf(".");
+            final int ix = name.lastIndexOf(".");
+            final int ix2 = name.substring(0, ix).lastIndexOf(".");
             name = name.substring(ix2 + 1, name.length());
         } catch (Exception e) {
         }
@@ -247,7 +244,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         r.setSendSubject(msg.getSendSubject());
         r.setReplySubject(msg.getReplySubject());
 
-        String sMsg = msg.getSendSubject();
+        final String sMsg = msg.getSendSubject();
 
         if (sMsg.startsWith("_") || sMsg.startsWith("im")) {
             if (sMsg.lastIndexOf("ERROR") != -1 ) {
@@ -358,17 +355,17 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     /**
      * Set the date format manager for formatting dates.
      */
-    void setDateFormatManager(DateFormatManager dfm) {
+    void setDateFormatManager(final DateFormatManager dfm) {
         _table.setDateFormatManager(dfm);
     }
 
     public String getDateFormat() {
-        DateFormatManager dfm = getDateFormatManager();
+        final DateFormatManager dfm = getDateFormatManager();
         return dfm.getPattern();
     }
 
-    public String setDateFormat(String pattern) {
-        DateFormatManager dfm = new DateFormatManager(pattern);
+    public String setDateFormat(final String pattern) {
+        final DateFormatManager dfm = new DateFormatManager(pattern);
         setDateFormatManager(dfm);
         return pattern;
     }
@@ -385,7 +382,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * Set the value of whether or not System.exit() will be called
      * when the RvSnooperGUI is closed.
      */
-    public void setCallSystemExitOnClose(boolean callSystemExitOnClose) {
+    public void setCallSystemExitOnClose(final boolean callSystemExitOnClose) {
         _callSystemExitOnClose = callSystemExitOnClose;
     }
 
@@ -401,16 +398,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
             return;
         }
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                _subjectExplorerTree.getExplorerModel().addLogRecord(lr);
-                _table.getFilteredLogTableModel().addLogRecord(lr); // update table
-                updateStatusLabel(); // show updated counts
-            }
-        });
+        SwingUtilities.invokeLater(new AddLogRecordRunnable(lr));
     }
 
-    public void setMaxNumberOfLogRecords(int maxNumberOfLogRecords) {
+    public void setMaxNumberOfLogRecords(final int maxNumberOfLogRecords) {
         _table.getFilteredLogTableModel().setMaxNumberOfLogRecords(maxNumberOfLogRecords);
     }
 
@@ -418,12 +409,12 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return _logMonitorFrame;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         _logMonitorFrame.setTitle(title);
     }
 
-    public void setFrameSize(int width, int height) {
-        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+    public void setFrameSize(final int width, final int height) {
+        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         if (0 < width && width < screen.width) {
             _logMonitorFrameWidth = width;
         }
@@ -433,13 +424,13 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         updateFrameSize();
     }
 
-    void setFontSize(int fontSize) {
+    void setFontSize(final int fontSize) {
         changeFontSizeCombo(_fontSizeCombo, fontSize);
         // setFontSizeSilently(actualFontSize); - changeFontSizeCombo fires event
         // refreshDetailTextArea();
     }
 
-    public void addDisplayedProperty(Object messageLine) {
+    public void addDisplayedProperty(final Object messageLine) {
         _displayedLogBrokerProperties.add(messageLine);
     }
 
@@ -451,15 +442,13 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return _logTableColumnMenuItems;
     }
 
-    public JCheckBoxMenuItem getTableColumnMenuItem(LogTableColumn column) {
+    public JCheckBoxMenuItem getTableColumnMenuItem(final LogTableColumn column) {
         return getLogTableColumnMenuItem(column);
     }
 
     public CategoryExplorerTree getCategoryExplorerTree() {
         return _subjectExplorerTree;
     }
-
-
 
 
     //--------------------------------------------------------------------------
@@ -484,7 +473,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         _statusLabel.setText("All listeners are now paused");
 
         ImageIcon pbIcon = null;
-        URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/restart.gif");
+        final URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/restart.gif");
 
         if (pbIconURL != null) {
             pbIcon = new ImageIcon(pbIconURL);
@@ -511,7 +500,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         _statusLabel.setText("All listeners are now active");
 
         ImageIcon pbIcon = null;
-        URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/pauseon.gif");
+        final URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/pauseon.gif");
 
         if (pbIconURL != null) {
             pbIcon = new ImageIcon(pbIconURL);
@@ -541,18 +530,18 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
 
-    protected void setSearchText(String text) {
+    protected void setSearchText(final String text) {
         _searchText = text;
     }
 
 
     protected void findSearchText() {
-        String text = _searchText;
+        final String text = _searchText;
         if (text == null || text.length() == 0) {
             return;
         }
-        int startRow = getFirstSelectedRow();
-        int foundRow = findRecord(
+        final int startRow = getFirstSelectedRow();
+        final int foundRow = findRecord(
                 startRow,
                 text,
                 _table.getFilteredLogTableModel().getFilteredRecords()
@@ -564,9 +553,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return _table.getSelectionModel().getMinSelectionIndex();
     }
 
-    protected void selectRow(int foundRow) {
+    protected void selectRow(final int foundRow) {
         if (foundRow == -1) {
-            String message = _searchText + " not found.";
+            final String message = _searchText + " not found.";
             JOptionPane.showMessageDialog(
                     _logMonitorFrame,
                     message,
@@ -580,8 +569,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
     protected int findRecord(
             int startRow,
-            String searchText,
-            List records
+            final String searchText,
+            final List records
             ) {
         if (startRow < 0) {
             startRow = 0; // start at first element if no rows are selected
@@ -609,12 +598,13 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     /**
      * Check to see if the any records contain the search string.
      */
-    protected static boolean matches(LogRecord record, String text) {
-        String message = record.getMessage();
+    protected static boolean matches(final LogRecord record, final String text) {
+        final String message = record.getMessage();
 
         if (message == null && _trackingIDTextFilter == null || text == null) {
             return false;
         }
+
         if (message.toLowerCase().indexOf(text.toLowerCase()) == -1 &&
                 _trackingIDTextFilter.indexOf(text.toLowerCase()) == -1) {
             return false;
@@ -628,8 +618,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * may become garbled.  This method clears and resets the text of the
      * text area.
      */
-    protected static void refresh(JTextArea textArea) {
-        String text = textArea.getText();
+    protected static void refresh(final JTextArea textArea) {
+        final String text = textArea.getText();
         textArea.setText("");
         textArea.setText(text);
     }
@@ -647,8 +637,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * size actually selected.
      * @return -1 if unable to select an appropriate font
      */
-    public static int changeFontSizeCombo(JComboBox box, int requestedSize) {
-        int len = box.getItemCount();
+    public static int changeFontSizeCombo(final JComboBox box, final int requestedSize) {
+        final int len = box.getItemCount();
         int currentValue;
         Object currentObject;
         Object selectedObject = box.getItemAt(0);
@@ -670,8 +660,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * type that is actually selected.
      * @return null if unable to select an appropriate font
      */
-    public static String changeFontNameCombo(JComboBox box, String requestedName) {
-        int len = box.getItemCount();
+    public static String changeFontNameCombo(final JComboBox box, final String requestedName) {
+        final int len = box.getItemCount();
         String currentValue;
         currentValue = null;
         Object currentObject;
@@ -690,16 +680,16 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     /**
      * Does not update gui or cause any events to be fired.
      */
-    protected void setFontSizeSilently(int fontSize) {
+    protected void setFontSizeSilently(final int fontSize) {
         setFontSize(fontSize);
         setFontSize(_table._detailTextArea, fontSize);
         selectRow(0);
         setFontSize(_table, fontSize);
     }
 
-    protected static void setFontSize(Component component, int fontSize) {
-        Font oldFont = component.getFont();
-        Font newFont =
+    protected static void setFontSize(final Component component, final int fontSize) {
+        final Font oldFont = component.getFont();
+        final Font newFont =
                 new Font(oldFont.getFontName(), oldFont.getStyle(), fontSize);
         component.setFont(newFont);
     }
@@ -709,7 +699,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         centerFrame(_logMonitorFrame);
     }
 
-    protected static void pause(int millis) {
+    protected static void pause(final int millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -725,9 +715,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
         _logMonitorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        String resource =
+        final String resource =
                 "/rvsn00p/viewer/images/eye.gif";
-        URL iconURL = getClass().getResource(resource);
+        final URL iconURL = getClass().getResource(resource);
 
         if (iconURL != null) {
             _logMonitorFrame.setIconImage(new ImageIcon(iconURL).getImage());
@@ -737,8 +727,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         //
         // Configure the LogTable.
         //
-        JTextArea detailTA = createDetailTextArea();
-        JScrollPane detailTAScrollPane = new JScrollPane(detailTA);
+        final JTextArea detailTA = createDetailTextArea();
+        final JScrollPane detailTAScrollPane = new JScrollPane(detailTA);
         _table = new LogTable(detailTA);
         setView(_currentView, _table);
         _table.setFont(new Font(getFontName(), Font.PLAIN, getFontSize()));
@@ -754,7 +744,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         // Configure the SplitPane between the LogTable & DetailTextArea
         //
 
-        JSplitPane tableViewerSplitPane = new JSplitPane();
+        final JSplitPane tableViewerSplitPane = new JSplitPane();
         tableViewerSplitPane.setOneTouchExpandable(true);
         tableViewerSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         tableViewerSplitPane.setLeftComponent(_logTableScrollPane);
@@ -779,7 +769,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
         _table.getFilteredLogTableModel().setLogRecordFilter(createLogRecordFilter());
 
-        JScrollPane categoryExplorerTreeScrollPane =
+        final JScrollPane categoryExplorerTreeScrollPane =
                 new JScrollPane(_subjectExplorerTree);
         categoryExplorerTreeScrollPane.setPreferredSize(new Dimension(130, 400));
 
@@ -790,7 +780,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         // Configure the SplitPane between the CategoryExplorer & (LogTable/Detail)
         //
 
-        JSplitPane splitPane = new JSplitPane();
+        final JSplitPane splitPane = new JSplitPane();
         splitPane.setOneTouchExpandable(true);
         splitPane.setRightComponent(tableViewerSplitPane);
         splitPane.setLeftComponent(categoryExplorerTreeScrollPane);
@@ -823,9 +813,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected LogRecordFilter createLogRecordFilter() {
-        LogRecordFilter result = new LogRecordFilter() {
-            public boolean passes(LogRecord record) {
-                CategoryPath path = new CategoryPath(record.getSubject());
+        final LogRecordFilter result = new LogRecordFilter() {
+            public boolean passes(final LogRecord record) {
+                final CategoryPath path = new CategoryPath(record.getSubject());
                 return
                         getMenuItem(record.getType()).isSelected() &&
                         _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
@@ -837,19 +827,19 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
     protected void updateStatusLabel() {
 
-        StringBuffer sb = new StringBuffer(100);
+        final StringBuffer sb = new StringBuffer(100);
         getRecordsDisplayedMessage(sb);
         getFileEncodingMessage(sb);
 
         _statusLabel.setText(sb.toString() );
     }
 
-    protected void getRecordsDisplayedMessage(StringBuffer sb) {
-        FilteredLogTableModel model = _table.getFilteredLogTableModel();
+    protected void getRecordsDisplayedMessage(final StringBuffer sb) {
+        final FilteredLogTableModel model = _table.getFilteredLogTableModel();
         getStatusText(model.getRowCount(), model.getTotalRowCount(), sb);
     }
 
-    protected void getFileEncodingMessage(StringBuffer sb) {
+    protected void getFileEncodingMessage(final StringBuffer sb) {
         sb.append("  Encoding:");
         sb.append(System.getProperty("file.encoding") );
     }
@@ -859,7 +849,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
         addDisplayedProperty(new Object() {
             public String toString() {
-                StringBuffer sb = new StringBuffer(40);
+                final StringBuffer sb = new StringBuffer(40);
                 getRecordsDisplayedMessage(sb);
                 return sb.toString();
             }
@@ -872,7 +862,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         });
     }
 
-    protected static void getStatusText(int displayedRows, int totalRows,StringBuffer sb) {
+    protected static void getStatusText(final int displayedRows, final int totalRows,final StringBuffer sb) {
         sb.append("Displaying: ");
         sb.append(displayedRows);
         sb.append(" records out of a total of: ");
@@ -884,8 +874,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected void makeLogTableListenToCategoryExplorer() {
-        ActionListener listener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        final ActionListener listener = new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
                 _table.getFilteredLogTableModel().refresh();
                 updateStatusLabel();
             }
@@ -894,9 +884,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JPanel createStatusArea() {
-        JPanel statusArea = new JPanel();
-        JLabel status =
-                new JLabel("No log records to display.");
+        final JPanel statusArea = new JPanel();
+        final JLabel status =
+                new JLabel("No records to display.");
         _statusLabel = status;
         status.setHorizontalAlignment(JLabel.LEFT);
 
@@ -908,7 +898,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected static JTextArea createDetailTextArea() {
-        JTextArea detailTA = new JTextArea();
+        final JTextArea detailTA = new JTextArea();
         detailTA.setFont(new Font("Monospaced", Font.PLAIN, 14));
         detailTA.setTabSize(3);
         detailTA.setLineWrap(true);
@@ -917,7 +907,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuBar createMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
+        final JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
 
@@ -933,19 +923,19 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected JMenuItem createSaveSelectedAsTextFileMenuItem() {
-        JMenuItem result = new JMenuItem("Save selected as txt");
+        final JMenuItem result = new JMenuItem("Save selected as txt");
         result.setMnemonic('r');
 
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
 
-                ListSelectionModel lsm = _table.getSelectionModel();
+                final ListSelectionModel lsm = _table.getSelectionModel();
                 if (lsm.isSelectionEmpty()) {
                     _statusLabel.setText("No rows are selected.");
                 } else {
-                    int selectedRow = lsm.getMinSelectionIndex();
+                    final int selectedRow = lsm.getMinSelectionIndex();
 
-                    FilteredLogTableModel ftm;
+                    final FilteredLogTableModel ftm;
                     ftm = _table.getFilteredLogTableModel();
 
                     final String sMsg = (String) _table.getModel().getValueAt(selectedRow, _table.getMsgColumnID());
@@ -970,9 +960,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected JMenu createMsgTypeMenu() {
-        JMenu result = new JMenu("Msg Type");
+        final JMenu result = new JMenu("Msg Type");
         result.setMnemonic('t');
-        Iterator imsgtypes = getMsgTypes();
+        final Iterator imsgtypes = getMsgTypes();
         while (imsgtypes.hasNext()) {
             result.add(getMenuItem((MsgType) imsgtypes.next()));
         }
@@ -988,10 +978,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createAllMsgTypesMenuItem() {
-        JMenuItem result = new JMenuItem("Show all Msg Types");
+        final JMenuItem result = new JMenuItem("Show all Msg Types");
         result.setMnemonic('a');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 selectAllMsgTypes(true);
                 _table.getFilteredLogTableModel().refresh();
                 updateStatusLabel();
@@ -1001,10 +991,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createNoMsgTypesMenuItem() {
-        JMenuItem result = new JMenuItem("Hide all MsgTypes");
+        final JMenuItem result = new JMenuItem("Hide all MsgTypes");
         result.setMnemonic('h');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 selectAllMsgTypes(false);
                 _table.getFilteredLogTableModel().refresh();
                 updateStatusLabel();
@@ -1014,9 +1004,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenu createLogLevelColorMenu() {
-        JMenu colorMenu = new JMenu("Configure MsgType Colors");
+        final JMenu colorMenu = new JMenu("Configure MsgType Colors");
         colorMenu.setMnemonic('c');
-        Iterator levels = getMsgTypes();
+        final Iterator levels = getMsgTypes();
         while (levels.hasNext()) {
             colorMenu.add(createSubMenuItem((MsgType) levels.next()));
         }
@@ -1025,10 +1015,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createResetLogLevelColorMenuItem() {
-        JMenuItem result = new JMenuItem("Reset MsgType Colors");
+        final JMenuItem result = new JMenuItem("Reset MsgType Colors");
         result.setMnemonic('r');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 // reset the level colors in the map
                 MsgType.resetLogLevelColorMap();
 
@@ -1039,14 +1029,14 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return result;
     }
 
-    protected void selectAllMsgTypes(boolean selected) {
-        Iterator levels = getMsgTypes();
+    protected void selectAllMsgTypes(final boolean selected) {
+        final Iterator levels = getMsgTypes();
         while (levels.hasNext()) {
             getMenuItem((MsgType) levels.next()).setSelected(selected);
         }
     }
 
-    protected JCheckBoxMenuItem getMenuItem(MsgType level) {
+    protected JCheckBoxMenuItem getMenuItem(final MsgType level) {
         JCheckBoxMenuItem result = (JCheckBoxMenuItem) (_logLevelMenuItems.get(level));
         if (result == null) {
             result = createMenuItem(level);
@@ -1055,12 +1045,12 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return result;
     }
 
-    protected JMenuItem createSubMenuItem(MsgType level) {
+    protected JMenuItem createSubMenuItem(final MsgType level) {
         final JMenuItem result = new JMenuItem(level.toString());
         final MsgType logLevel = level;
         result.setMnemonic(level.toString().charAt(0));
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 showLogLevelColorChangeDialog(result, logLevel);
             }
         });
@@ -1069,9 +1059,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
     }
 
-    protected void showLogLevelColorChangeDialog(JMenuItem result, MsgType level) {
-        JMenuItem menuItem = result;
-        Color newColor = JColorChooser.showDialog(
+    protected void showLogLevelColorChangeDialog(final JMenuItem result, final MsgType level) {
+        final JMenuItem menuItem = result;
+        final Color newColor = JColorChooser.showDialog(
                 _logMonitorFrame,
                 "Choose MsgType Color",
                 result.getForeground());
@@ -1084,12 +1074,12 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
     }
 
-    protected JCheckBoxMenuItem createMenuItem(MsgType level) {
-        JCheckBoxMenuItem result = new JCheckBoxMenuItem(level.toString());
+    protected JCheckBoxMenuItem createMenuItem(final MsgType level) {
+        final JCheckBoxMenuItem result = new JCheckBoxMenuItem(level.toString());
         result.setSelected(true);
         result.setMnemonic(level.toString().charAt(0));
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 _table.getFilteredLogTableModel().refresh();
                 updateStatusLabel();
             }
@@ -1099,9 +1089,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
     // view menu
     protected JMenu createViewMenu() {
-        JMenu result = new JMenu("View");
+        final JMenu result = new JMenu("View");
         result.setMnemonic('v');
-        Iterator columns = getLogTableColumns();
+        final Iterator columns = getLogTableColumns();
         while (columns.hasNext()) {
             result.add(getLogTableColumnMenuItem((LogTableColumn) columns.next()));
         }
@@ -1112,7 +1102,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return result;
     }
 
-    protected JCheckBoxMenuItem getLogTableColumnMenuItem(LogTableColumn column) {
+    protected JCheckBoxMenuItem getLogTableColumnMenuItem(final LogTableColumn column) {
         JCheckBoxMenuItem result = (JCheckBoxMenuItem) (_logTableColumnMenuItems.get(column));
         if (result == null) {
             result = createLogTableColumnMenuItem(column);
@@ -1121,15 +1111,15 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return result;
     }
 
-    protected JCheckBoxMenuItem createLogTableColumnMenuItem(LogTableColumn column) {
-        JCheckBoxMenuItem result = new JCheckBoxMenuItem(column.toString());
+    protected JCheckBoxMenuItem createLogTableColumnMenuItem(final LogTableColumn column) {
+        final JCheckBoxMenuItem result = new JCheckBoxMenuItem(column.toString());
 
         result.setSelected(true);
         result.setMnemonic(column.toString().charAt(0));
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 // update list of columns and reset the view
-                List selectedColumns = updateView();
+                final List selectedColumns = updateView();
                 _table.setView(selectedColumns);
             }
         });
@@ -1137,11 +1127,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected List updateView() {
-        ArrayList updatedList = new ArrayList();
-        Iterator columnIterator = _columns.iterator();
+        final ArrayList updatedList = new ArrayList();
+        final Iterator columnIterator = _columns.iterator();
         while (columnIterator.hasNext()) {
-            LogTableColumn column = (LogTableColumn) columnIterator.next();
-            JCheckBoxMenuItem result = getLogTableColumnMenuItem(column);
+            final LogTableColumn column = (LogTableColumn) columnIterator.next();
+            final JCheckBoxMenuItem result = getLogTableColumnMenuItem(column);
             // check and see if the checkbox is checked
             if (result.isSelected()) {
                 updatedList.add(column);
@@ -1152,13 +1142,13 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createAllLogTableColumnsMenuItem() {
-        JMenuItem result = new JMenuItem("Show all Columns");
+        final JMenuItem result = new JMenuItem("Show all Columns");
         result.setMnemonic('s');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 selectAllLogTableColumns(true);
                 // update list of columns and reset the view
-                List selectedColumns = updateView();
+                final List selectedColumns = updateView();
                 _table.setView(selectedColumns);
             }
         });
@@ -1166,10 +1156,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createNoLogTableColumnsMenuItem() {
-        JMenuItem result = new JMenuItem("Hide all Columns");
+        final JMenuItem result = new JMenuItem("Hide all Columns");
         result.setMnemonic('h');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 selectAllLogTableColumns(false);
                 // update list of columns and reset the view
                 final List selectedColumns = updateView();
@@ -1179,23 +1169,27 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return result;
     }
 
-    protected void selectAllLogTableColumns(boolean selected) {
-        Iterator columns = getLogTableColumns();
+    protected void selectAllLogTableColumns(final boolean selected) {
+        final Iterator columns = getLogTableColumns();
         while (columns.hasNext()) {
             getLogTableColumnMenuItem((LogTableColumn) columns.next()).setSelected(selected);
         }
     }
 
     protected JMenu createFileMenu() {
-        JMenu fileMenu = new JMenu("File");
+        final JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic('f');
         JMenuItem exitMI;
         fileMenu.add(createOpenMI());
+        fileMenu.addSeparator();
         fileMenu.add(createSaveHTML());
         fileMenu.add(createSaveSelectedAsTextFileMenuItem());
-        fileMenu.add(createSaveAsText());
+        fileMenu.add(createSaveAsTextMI());
         fileMenu.addSeparator();
         fileMenu.add(createCloseListener());
+        fileMenu.addSeparator();
+        fileMenu.add(createFileSaveConfigMI());
+        fileMenu.add(createFileLoadConfigMI());
         //createMRUListnerListMI(fileMenu);
         fileMenu.addSeparator();
         fileMenu.add(createExitMI());
@@ -1208,25 +1202,90 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      *
      */
     protected JMenuItem createSaveHTML() {
-        JMenuItem result = new JMenuItem("Save Table to HTML file");
+        final JMenuItem result = new JMenuItem("Save Table to HTML file");
         result.setMnemonic('h');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 RvSnooperFileHandler.saveTableToHtml(VERSION, URL, getBaseFrame(), _statusLabel, _table);
             }
         });
         return result;
     }
 
+
+     /**
+     * Menu item allows save of configuration to file
+     *
+     */
+     protected JMenuItem createFileSaveConfigMI() {
+         final JMenuItem result = new JMenuItem("Save configuration to file");
+         result.setMnemonic('c');
+         result.addActionListener(new ActionListener() {
+             public void actionPerformed(final ActionEvent e) {
+                 try {
+                     FileDialog fd = new FileDialog(getBaseFrame(), "Save config File", FileDialog.SAVE);
+                     fd.setDirectory(_configurationManager.getFilename());
+                     fd.setFile("*.rs0");
+                     fd.show();
+
+                     String fileName = fd.getDirectory() + fd.getFile();
+                     _configurationManager.setFilename(fileName);
+                     _configurationManager.save();
+                     _statusLabel.setText("Saved configuration in "+ fileName);
+                 } catch (Exception ex) {
+                     final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                             getBaseFrame(),
+                             ex.getMessage());
+                 }
+             }
+         });
+         return result;
+     }
+
+        /**
+     * Menu item allows save of configuration to file
+     *
+     */
+     protected JMenuItem createFileLoadConfigMI() {
+         final JMenuItem result = new JMenuItem("Load configuration from file");
+         result.setMnemonic('c');
+         result.addActionListener(new ActionListener() {
+             public void actionPerformed(final ActionEvent e) {
+                 try {
+                     FileDialog fd = new FileDialog(getBaseFrame(), "Open config File", FileDialog.LOAD);
+                     fd.setDirectory(_configurationManager.getFilename());
+                     fd.setFile("*.rs0");
+                     fd.show();
+
+                     String fileName = fd.getDirectory() + fd.getFile();
+                     _configurationManager.setFilename(fileName);
+                     _configurationManager.load();
+                     _statusLabel.setText("Loaded configuration from "+ fileName);
+                 } catch (Exception ex) {
+                     final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                             getBaseFrame(),
+                             ex.getMessage());
+                 }
+             }
+         });
+         return result;
+     }
+
     /**
      * Menu item added to allow save of filtered table contents to rvscript file.
      *
      */
-    protected JMenuItem createSaveAsText() {
-        JMenuItem result = new JMenuItem("Save Table to text file");
+    protected JMenuItem createSaveAsTextMI() {
+        final JMenuItem result = new JMenuItem("Save Table to text file");
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                RvSnooperFileHandler.saveTableToTextFile(VERSION + " " + URL, getBaseFrame(), _statusLabel, _table);
+            public void actionPerformed(final ActionEvent e) {
+                try {
+                    RvSnooperFileHandler.saveTableToTextFile(VERSION + " " + URL, getBaseFrame(), _statusLabel, _table);
+                } catch (Exception ex) {
+                    final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                    getBaseFrame(),
+                    ex.getMessage());
+                }
             }
         });
         return result;
@@ -1238,11 +1297,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * the  GUI.
      */
     protected JMenuItem createOpenMI() {
-        JMenuItem result = new JMenuItem("New Listener...");
+        final JMenuItem result = new JMenuItem("New Listener...");
         result.setMnemonic('n');
         result.setAccelerator(KeyStroke.getKeyStroke("control N"));
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 requestNewRvListener(null);
             }
         });
@@ -1251,10 +1310,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected JMenuItem createSaveConfigMI() {
-        JMenuItem result = new JMenuItem("Save Listeners to file");
+        final JMenuItem result = new JMenuItem("Save Listeners to file");
         result.setMnemonic('s');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 requestNewRvListener(null);
             }
         });
@@ -1262,10 +1321,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createOpenConfigMI() {
-        JMenuItem result = new JMenuItem("Open Listeners from file");
+        final JMenuItem result = new JMenuItem("Open Listeners from file");
         result.setMnemonic('o');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 requestNewRvListener(null);
             }
         });
@@ -1274,11 +1333,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected JMenuItem createCloseListener() {
-        JMenuItem result = new JMenuItem("Close All Listeners");
+        final JMenuItem result = new JMenuItem("Close All Listeners");
         result.setMnemonic('c');
         result.setAccelerator(KeyStroke.getKeyStroke("control Q"));
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 RvController.shutdownAll();
                 updateBanner();
             }
@@ -1290,18 +1349,18 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * Creates a Most Recently Used file list to be
      * displayed in the File menu
      */
-    protected void createMRUListnerListMI(JMenu menu) {
+    protected void createMRUListnerListMI(final JMenu menu) {
 
-        String[] parameters = _mruListnerManager.getMRUFileList();
+        final String[] parameters = _mruListnerManager.getMRUFileList();
 
         if (parameters != null) {
             menu.addSeparator();
             for (int i = 0; i < parameters.length; ++i) {
 
-                JMenuItem result = new JMenuItem((i + 1) + " " + parameters[i]);
+                final JMenuItem result = new JMenuItem((i + 1) + " " + parameters[i]);
                 result.setMnemonic(i + 1);
                 result.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(final ActionEvent e) {
                         requestOpenMRU(e);
                     }
                 });
@@ -1311,10 +1370,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createExitMI() {
-        JMenuItem result = new JMenuItem("Exit");
+        final JMenuItem result = new JMenuItem("Exit");
         result.setMnemonic('x');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 requestExit();
             }
         });
@@ -1322,7 +1381,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenu createConfigureMenu() {
-        JMenu configureMenu = new JMenu("Configure");
+        final JMenu configureMenu = new JMenu("Configure");
         configureMenu.setMnemonic('c');
         configureMenu.add(createConfigureSave());
         configureMenu.add(createConfigureReset());
@@ -1333,10 +1392,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createConfigureSave() {
-        JMenuItem result = new JMenuItem("Save");
+        final JMenuItem result = new JMenuItem("Save");
         result.setMnemonic('s');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
 
                 saveConfiguration();
             }
@@ -1346,10 +1405,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createConfigureReset() {
-        JMenuItem result = new JMenuItem("Reset");
+        final JMenuItem result = new JMenuItem("Reset");
         result.setMnemonic('r');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 resetConfiguration();
             }
         });
@@ -1359,16 +1418,16 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
     protected JMenuItem createConfigureMaxRecords() {
 
-        JMenuItem result = new JMenuItem("Set Max Number of Records");
+        final JMenuItem result = new JMenuItem("Set Max Number of Records");
         result.setMnemonic('m');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 setMaxRecordConfiguration();
             }
         });
 
         result.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
+            public void keyPressed(final KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     hide();
                 }
@@ -1380,11 +1439,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
     protected JMenuItem createConfigureDateFormat() {
 
-        JMenuItem result = new JMenuItem("Configure Date Format");
+        final JMenuItem result = new JMenuItem("Configure Date Format");
         result.setMnemonic('d');
 
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 setDateConfiguration();
             }
         });
@@ -1396,7 +1455,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         try {
             _configurationManager.save();
         } catch (Exception ex) {
-            RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                     getBaseFrame(),
                     ex.getMessage());
         }
@@ -1407,16 +1466,16 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected void setMaxRecordConfiguration() {
-        RvSnooperInputDialog inputDialog = new RvSnooperInputDialog(
+        final RvSnooperInputDialog inputDialog = new RvSnooperInputDialog(
                 getBaseFrame(), "Set Max Number of Records", "", 10);
 
-        String temp = inputDialog.getText();
+        final String temp = inputDialog.getText();
 
         if (temp != null) {
             try {
                 setMaxNumberOfLogRecords(Integer.parseInt(temp));
             } catch (NumberFormatException e) {
-                RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                         getBaseFrame(),
                         "'" + temp + "' is an invalid parameter.\nPlease try again.");
                 setMaxRecordConfiguration();
@@ -1425,24 +1484,24 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected void setDateConfiguration() {
-        RvSnooperInputDialog inputDialog = new RvSnooperInputDialog(
+        final RvSnooperInputDialog inputDialog = new RvSnooperInputDialog(
                 getBaseFrame(), "Set DateFormat", "", 10);
 
         inputDialog.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
+            public void keyPressed(final KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     hide();
                 }
             }
         });
 
-        String temp = inputDialog.getText();
+        final String temp = inputDialog.getText();
 
         if (temp != null) {
             try {
                 setDateFormat(temp);
             } catch (NumberFormatException e) {
-                RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                         getBaseFrame(),
                         "'" + temp + "' is an invalid parameter.\nPlease try again.");
                 setMaxRecordConfiguration();
@@ -1452,7 +1511,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected JMenu createHelpMenu() {
-        JMenu helpMenu = new JMenu("Help");
+        final JMenu helpMenu = new JMenu("Help");
         helpMenu.setMnemonic('h');
         helpMenu.add(createHelpAbout());
         helpMenu.add(createHelpBugReport());
@@ -1462,7 +1521,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         helpMenu.add(createHelpSupport());
         helpMenu.add(createHelpProperties());
         helpMenu.add(createHelpLICENSE());
-        StringBuffer a = new StringBuffer();
+        final StringBuffer a = new StringBuffer();
         a.toString();
         return helpMenu;
     }
@@ -1472,7 +1531,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         final String title = "Show Properties";
         final JMenuItem result = new JMenuItem(title);
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 showPropertiesDialog(title);
             }
         });
@@ -1484,11 +1543,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('l');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://www.apache.org/licenses/LICENSE");
                 } catch (Exception ex) {
-                    RvSnooperErrorDialog error;
+                    final RvSnooperErrorDialog error;
                     error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
@@ -1503,11 +1562,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('b');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://sf.net/tracker/?group_id=63447");
                 } catch (Exception ex) {
-                    RvSnooperErrorDialog error;
+                    final RvSnooperErrorDialog error;
                     error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
@@ -1521,11 +1580,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('b');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://sf.net/project/showfiles.php?group_id=63447");
                 } catch (Exception ex) {
-                    RvSnooperErrorDialog error;
+                    final RvSnooperErrorDialog error;
                     error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
@@ -1540,11 +1599,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         result.setMnemonic('t');
         result.setAccelerator(KeyStroke.getKeyStroke("F1"));
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://rvsn00p.sf.net");
                 } catch (Exception ex) {
-                    RvSnooperErrorDialog error;
+                    final RvSnooperErrorDialog error;
                     error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
@@ -1557,11 +1616,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         final String title = "Subscribe to update messages";
         final JMenuItem result = new JMenuItem(title);
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://sourceforge.net/project/filemodule_monitor.php?filemodule_id=60335");
                 } catch (Exception ex) {
-                    RvSnooperErrorDialog error;
+                    final RvSnooperErrorDialog error;
                     error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
@@ -1574,11 +1633,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         final String title = "My wish list";
         final JMenuItem result = new JMenuItem(title);
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://www.amazon.co.uk/exec/obidos/wishlist/14PROST9BIEH3/ref%3Dwl%5Fs%5F3/202-8721721-7832646");
                 } catch (Exception ex) {
-                    RvSnooperErrorDialog error;
+                    final RvSnooperErrorDialog error;
                     error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
@@ -1592,7 +1651,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('a');
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 showAboutDialog(title);
             }
         });
@@ -1600,7 +1659,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
 
-    protected void showPropertiesDialog(String title) {
+    protected void showPropertiesDialog(final String title) {
         JOptionPane.showMessageDialog(
                 _logMonitorFrame,
                 _displayedLogBrokerProperties.toArray(),
@@ -1609,7 +1668,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         );
     }
 
-    protected void showAboutDialog(String title) {
+    protected void showAboutDialog(final String title) {
         JOptionPane.showMessageDialog(
                 _logMonitorFrame,
                 new String[]{VERSION,
@@ -1640,7 +1699,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected JMenu createEditMenu() {
-        JMenu editMenu = new JMenu("Edit");
+        final JMenu editMenu = new JMenu("Edit");
         editMenu.setMnemonic('e');
         editMenu.add(createEditFindMI());
         editMenu.add(createEditFindNextMI());
@@ -1654,11 +1713,11 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createEditFindNextMI() {
-        JMenuItem editFindNextMI = new JMenuItem("Find Next");
+        final JMenuItem editFindNextMI = new JMenuItem("Find Next");
         editFindNextMI.setMnemonic('n');
         editFindNextMI.setAccelerator(KeyStroke.getKeyStroke("F3"));
         editFindNextMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 findSearchText();
             }
         });
@@ -1666,14 +1725,14 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createEditFindMI() {
-        JMenuItem editFindMI = new JMenuItem("Find");
+        final JMenuItem editFindMI = new JMenuItem("Find");
         editFindMI.setMnemonic('f');
         editFindMI.setAccelerator(KeyStroke.getKeyStroke("control F"));
 
         editFindMI.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        String inputValue =
+                    public void actionPerformed(final ActionEvent e) {
+                        final String inputValue =
                                 JOptionPane.showInputDialog(
                                         _logMonitorFrame,
                                         "Find text: ",
@@ -1690,13 +1749,13 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createEditFilterTIDMI() {
-        JMenuItem editFilterNDCMI = new JMenuItem("Filter by tracking id");
+        final JMenuItem editFilterNDCMI = new JMenuItem("Filter by tracking id");
         editFilterNDCMI.setMnemonic('t');
         editFilterNDCMI.setAccelerator(KeyStroke.getKeyStroke("control shift T"));
         editFilterNDCMI.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        String inputValue =
+                    public void actionPerformed(final ActionEvent e) {
+                        final String inputValue =
                                 JOptionPane.showInputDialog(
                                         _logMonitorFrame,
                                         "Filter by this tracking id: ",
@@ -1715,12 +1774,12 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createEditFilterBySubjectMI() {
-        JMenuItem editFilterSubjectMI = new JMenuItem("Filter by subject");
+        final JMenuItem editFilterSubjectMI = new JMenuItem("Filter by subject");
         editFilterSubjectMI.setAccelerator(KeyStroke.getKeyStroke("control shift Y"));
         editFilterSubjectMI.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        String inputValue =
+                    public void actionPerformed(final ActionEvent e) {
+                        final String inputValue =
                                 JOptionPane.showInputDialog(
                                         _logMonitorFrame,
                                         "Filter by this subject ",
@@ -1739,21 +1798,21 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createEditFilterBySelectedTIDMI() {
-        JMenuItem editFilterTIDMI = new JMenuItem("Filter by selected tracking id");
+        final JMenuItem editFilterTIDMI = new JMenuItem("Filter by selected tracking id");
         editFilterTIDMI.setMnemonic('s');
         editFilterTIDMI.setAccelerator(KeyStroke.getKeyStroke("control T"));
         editFilterTIDMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
 
 
-                ListSelectionModel lsm = _table.getSelectionModel();
+                final ListSelectionModel lsm = _table.getSelectionModel();
 
                 if (lsm.isSelectionEmpty()) {
                     //no rows are selected
                 } else {
-                    int selectedRow = lsm.getMinSelectionIndex();
+                    final int selectedRow = lsm.getMinSelectionIndex();
 
-                    FilteredLogTableModel ftm;
+                    final FilteredLogTableModel ftm;
                     ftm = _table.getFilteredLogTableModel();
 
 
@@ -1774,20 +1833,20 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createEditFilterBySelectedSubjectMI() {
-        JMenuItem editFilterSubjectMI = new JMenuItem("Filter by selected subject");
+        final JMenuItem editFilterSubjectMI = new JMenuItem("Filter by selected subject");
         editFilterSubjectMI.setMnemonic('y');
         editFilterSubjectMI.setAccelerator(KeyStroke.getKeyStroke("control Y"));
         editFilterSubjectMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
 
-                ListSelectionModel lsm = _table.getSelectionModel();
+                final ListSelectionModel lsm = _table.getSelectionModel();
 
                 if (lsm.isSelectionEmpty()) {
                     //no rows are selected
                 } else {
-                    int selectedRow = lsm.getMinSelectionIndex();
+                    final int selectedRow = lsm.getMinSelectionIndex();
 
-                    FilteredLogTableModel ftm;
+                    final FilteredLogTableModel ftm;
                     ftm = _table.getFilteredLogTableModel();
 
 
@@ -1807,7 +1866,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return editFilterSubjectMI;
     }
 
-    protected void setTIDTextFilter(String text) {
+    protected void setTIDTextFilter(final String text) {
         // if no value is set, set it to a blank string
         // otherwise use the value provided
         if (text == null) {
@@ -1817,7 +1876,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         }
     }
 
-    protected void setSubjectTextFilter(String text) {
+    protected void setSubjectTextFilter(final String text) {
         // if no value is set, set it to a blank string
         // otherwise use the value provided
         if (text == null) {
@@ -1828,7 +1887,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected void filterByTID() {
-        String text = _trackingIDTextFilter;
+        final String text = _trackingIDTextFilter;
         if (text == null || text.length() == 0) {
             return;
         }
@@ -1840,7 +1899,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected void filterBySubject() {
-        String text = _subjectTextFilter;
+        final String text = _subjectTextFilter;
         if (text == null || text.length() == 0) {
             return;
         }
@@ -1851,18 +1910,18 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         _statusLabel.setText("Filtered by subject  " + text);
     }
 
-    protected LogRecordFilter createTIDLogRecordFilter(String text) {
+    protected LogRecordFilter createTIDLogRecordFilter(final String text) {
         _trackingIDTextFilter = text;
-        LogRecordFilter result = new LogRecordFilter() {
-            public boolean passes(LogRecord record) {
-                String trackingID = record.getTrackingID();
+        final LogRecordFilter result = new LogRecordFilter() {
+            public boolean passes(final LogRecord record) {
+                final String trackingID = record.getTrackingID();
 
                 if (trackingID == null || _trackingIDTextFilter == null) {
                     return false;
                 } else if (trackingID.indexOf(_trackingIDTextFilter) == -1) {
                     return false;
                 } else {
-                    CategoryPath path = new CategoryPath(record.getSubject());
+                    final CategoryPath path = new CategoryPath(record.getSubject());
                     return getMenuItem(record.getType()).isSelected() &&
                             _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
                 }
@@ -1872,17 +1931,17 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return result;
     }
 
-    protected LogRecordFilter createSubjectLogRecordFilter(String text) {
+    protected LogRecordFilter createSubjectLogRecordFilter(final String text) {
         _trackingIDTextFilter = text;
-        LogRecordFilter result = new LogRecordFilter() {
-            public boolean passes(LogRecord record) {
-                String subject = record.getSubject();
+        final LogRecordFilter result = new LogRecordFilter() {
+            public boolean passes(final LogRecord record) {
+                final String subject = record.getSubject();
                 if (subject == null || _subjectTextFilter == null) {
                     return false;
                 } else if (subject.indexOf(_subjectTextFilter) == -1) {
                     return false;
                 } else {
-                    CategoryPath path = new CategoryPath(subject);
+                    final CategoryPath path = new CategoryPath(subject);
                     return getMenuItem(record.getType()).isSelected() &&
                             _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
                 }
@@ -1893,12 +1952,12 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected JMenuItem createEditRemoveAllFiltersTIDMI() {
-        JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove all filters");
+        final JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove all filters");
         editRestoreAllNDCMI.setMnemonic('r');
         editRestoreAllNDCMI.setAccelerator(KeyStroke.getKeyStroke("control R"));
         editRestoreAllNDCMI.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(final ActionEvent e) {
                         _table.getFilteredLogTableModel().setLogRecordFilter(createLogRecordFilter());
                         // reset the text filter
                         setTIDTextFilter("");
@@ -1912,10 +1971,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected JToolBar createToolBar() {
-        JToolBar tb = new JToolBar();
+        final JToolBar tb = new JToolBar();
         tb.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-        JComboBox fontCombo = new JComboBox();
-        JComboBox fontSizeCombo = new JComboBox();
+        final JComboBox fontCombo = new JComboBox();
+        final JComboBox fontSizeCombo = new JComboBox();
         _fontSizeCombo = fontSizeCombo;
         _fontNameCombo = fontCombo;
 
@@ -1923,7 +1982,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         if (_cl == null) {
             _cl = ClassLoader.getSystemClassLoader();
         }
-        URL newIconURL = _cl.getResource("rvsn00p/viewer/images/channelexplorer_new.gif");
+        final URL newIconURL = _cl.getResource("rvsn00p/viewer/images/channelexplorer_new.gif");
 
         ImageIcon newIcon = null;
 
@@ -1931,7 +1990,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
             newIcon = new ImageIcon(newIconURL);
         }
 
-        JButton listenerButton = new JButton("Add Listener");
+        final JButton listenerButton = new JButton("Add Listener");
 
         if (newIcon != null) {
             listenerButton.setIcon(newIcon);
@@ -1941,17 +2000,17 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
         listenerButton.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(final ActionEvent e) {
                         requestNewRvListener(null);
                     }
                 }
         );
 
 
-        JButton newButton = new JButton("Clear Log Table");
+        final JButton newButton = new JButton("Clear Log Table");
 
 
-        URL tcIconURL = _cl.getResource("rvsn00p/viewer/images/trash.gif");
+        final URL tcIconURL = _cl.getResource("rvsn00p/viewer/images/trash.gif");
 
         ImageIcon tcIcon = null;
 
@@ -1967,7 +2026,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
         newButton.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(final ActionEvent e) {
                         _table.clearLogRecords();
                         _subjectExplorerTree.getExplorerModel().resetAllNodeCounts();
                         updateStatusLabel();
@@ -1983,7 +2042,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
         _pauseButton.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(final ActionEvent e) {
                         if (isPaused()) {
                             unPauseListeners();
                         } else {
@@ -1994,17 +2053,13 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         );
 
 
-        Toolkit tk = Toolkit.getDefaultToolkit();
+        final Toolkit tk = Toolkit.getDefaultToolkit();
         // This will actually grab all the fonts
 
-        String[] fonts;
+        final String[] fonts;
 
-        if (_loadSystemFonts) {
-            fonts = GraphicsEnvironment.
+        fonts = GraphicsEnvironment.
                     getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-        } else {
-            fonts = tk.getFontList();
-        }
 
         for (int j = 0; j < fonts.length; ++j) {
             fontCombo.addItem(fonts[j]);
@@ -2015,9 +2070,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         fontCombo.addActionListener(
 
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        JComboBox box = (JComboBox) e.getSource();
-                        String font = (String) box.getSelectedItem();
+                    public void actionPerformed(final ActionEvent e) {
+                        final JComboBox box = (JComboBox) e.getSource();
+                        final String font = (String) box.getSelectedItem();
 
                         setFontName(font);
                     }
@@ -2036,10 +2091,10 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         fontSizeCombo.setSelectedItem(String.valueOf(getFontSize()));
         fontSizeCombo.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        JComboBox box = (JComboBox) e.getSource();
-                        String size = (String) box.getSelectedItem();
-                        int s = Integer.valueOf(size).intValue();
+                    public void actionPerformed(final ActionEvent e) {
+                        final JComboBox box = (JComboBox) e.getSource();
+                        final String size = (String) box.getSelectedItem();
+                        final int s = Integer.valueOf(size).intValue();
 
                         setFontSizeSilently(s);
                         refreshDetailTextArea();
@@ -2070,28 +2125,28 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return (tb);
     }
 
-    protected void setView(String viewString, LogTable table) {
+    protected void setView(final String viewString, final LogTable table) {
         if (DETAILED_VIEW.equals(viewString)) {
             table.setDetailedView();
         } else {
-            String message = viewString + "does not match a supported view.";
+            final String message = viewString + "does not match a supported view.";
             throw new IllegalArgumentException(message);
         }
         _currentView = viewString;
     }
 
     protected JComboBox createLogLevelCombo() {
-        JComboBox result = new JComboBox();
-        Iterator levels = getMsgTypes();
+        final JComboBox result = new JComboBox();
+        final Iterator levels = getMsgTypes();
         while (levels.hasNext()) {
             result.addItem(levels.next());
         }
         result.setSelectedItem(_leastSevereDisplayedMsgType);
 
         result.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JComboBox box = (JComboBox) e.getSource();
-                MsgType level = (MsgType) box.getSelectedItem();
+            public void actionPerformed(final ActionEvent e) {
+                final JComboBox box = (JComboBox) e.getSource();
+                final MsgType level = (MsgType) box.getSelectedItem();
                 setLeastSevereDisplayedLogLevel(level);
             }
         });
@@ -2099,7 +2154,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return result;
     }
 
-    protected void setLeastSevereDisplayedLogLevel(MsgType level) {
+    protected void setLeastSevereDisplayedLogLevel(final MsgType level) {
         if (level == null || _leastSevereDisplayedMsgType == level) {
             return; // nothing to do
         }
@@ -2109,9 +2164,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
 
-    protected static void centerFrame(JFrame frame) {
-        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension comp = frame.getSize();
+    protected static void centerFrame(final JFrame frame) {
+        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        final Dimension comp = frame.getSize();
 
         frame.setLocation(((screen.width - comp.width) / 2),
                 ((screen.height - comp.height) / 2));
@@ -2123,7 +2178,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
     }
 
-    void setWindowBounds(Rectangle r) {
+    void setWindowBounds(final Rectangle r) {
         this.getBaseFrame().setBounds(r);
     }
 
@@ -2132,7 +2187,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * Uses a Dialog box to accept a URL to a file to be opened
      * with the  GUI.
      */
-    protected void requestNewRvListener(RvParameters p) {
+    protected void requestNewRvListener(final RvParameters p) {
 
         try {
 
@@ -2158,7 +2213,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
             }
 
         } catch (TibrvException ex) {
-            RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                     getBaseFrame(), "Error creating listener : " + ex.getMessage());
         }
 
@@ -2169,7 +2224,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * with the updated MRU list.
      */
     protected void updateMRUList() {
-        JMenu menu = _logMonitorFrame.getJMenuBar().getMenu(0);
+        final JMenu menu = _logMonitorFrame.getJMenuBar().getMenu(0);
         menu.removeAll();
         menu.add(createOpenMI());
         menu.addSeparator();
@@ -2193,18 +2248,18 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     /**
      * Opens a file in the MRU list.
      */
-    protected void requestOpenMRU(ActionEvent e) {
+    protected void requestOpenMRU(final ActionEvent e) {
 
         //todo
         String file = e.getActionCommand();
-        StringTokenizer st = new StringTokenizer(file);
-        String num = st.nextToken().trim();
+        final StringTokenizer st = new StringTokenizer(file);
+        final String num = st.nextToken().trim();
         file = st.nextToken("\n");
 
         try {
-            int index = Integer.parseInt(num) - 1;
+            final int index = Integer.parseInt(num) - 1;
 
-            InputStream in = _mruListnerManager.getInputStream(index);
+            final InputStream in = _mruListnerManager.getInputStream(index);
             /*LogFileParser lfp = new LogFileParser(in);
             lfp.parse(this);*/
 
@@ -2212,7 +2267,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
             updateMRUList();
 
         } catch (Exception me) {
-            RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            final RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                     getBaseFrame(), "Unable to load file " + file);
         }
 
@@ -2225,13 +2280,13 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
     protected void closeAfterConfirm() {
-        StringBuffer message = new StringBuffer();
+        final StringBuffer message = new StringBuffer();
 
         message.append("Are you sure you want to exit?\n");
 
-        String title = "Are you sure you want to exit?";
+        final String title = "Are you sure you want to exit?";
 
-        int value = JOptionPane.showConfirmDialog(
+        final int value = JOptionPane.showConfirmDialog(
                 _logMonitorFrame,
                 message.toString(),
                 title,
@@ -2253,11 +2308,15 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return _columns.iterator();
     }
 
+    Iterator getSubscriptions(){
+        return RvController.getTransports().iterator();
+    }
+
     /**
      * Loads and parses a log file.
      */
-    protected static boolean loadLogFile(File file) {
-        boolean ok;
+    protected static boolean loadLogFile(final File file) {
+        final boolean ok;
 
         /*LogFileParser lfp = new LogFileParser(file);
         lfp.parse(this);*/
@@ -2270,8 +2329,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     /**
      * Loads a parses a log file running on a server.
      */
-    protected static boolean loadLogFile(URL url) {
-        boolean ok;
+    protected static boolean loadLogFile(final URL url) {
+        final boolean ok;
 
         /*LogFileParser lfp = new LogFileParser(url.openStream());
         lfp.parse(this);*/
@@ -2288,14 +2347,14 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return _fontName;
     }
 
-    void setFontName(String fontName) {
+    void setFontName(final String fontName) {
         this._fontName = fontName;
         _table.setFont(new Font(fontName, Font.PLAIN, getFontSize()));
         changeFontNameCombo(_fontNameCombo, fontName);
     }
 
 
-    protected void setSplitPaneVertical(JSplitPane _splitPaneVertical) {
+    protected void setSplitPaneVertical(final JSplitPane _splitPaneVertical) {
         this._splitPaneVertical = _splitPaneVertical;
     }
 
@@ -2303,7 +2362,7 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         return _splitPaneVertical.getDividerLocation();
     }
 
-    void setSplitPaneVerticalPos(int location) {
+    void setSplitPaneVerticalPos(final int location) {
         _splitPaneVertical.setDividerLocation(location);
     }
 
@@ -2312,12 +2371,12 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     }
 
 
-    void setSplitPaneTableViewer(JSplitPane _splitPaneTableViewer) {
+    void setSplitPaneTableViewer(final JSplitPane _splitPaneTableViewer) {
         this._splitPaneTableViewer = _splitPaneTableViewer;
     }
 
 
-    void setSplitPaneTableViewerPos(int location) {
+    void setSplitPaneTableViewerPos(final int location) {
         this._splitPaneTableViewer.setDividerLocation(location);
     }
 
@@ -2334,12 +2393,26 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     class LogBrokerMonitorWindowAdaptor extends WindowAdapter {
         protected RvSnooperGUI _monitor;
 
-        public LogBrokerMonitorWindowAdaptor(RvSnooperGUI monitor) {
+        public LogBrokerMonitorWindowAdaptor(final RvSnooperGUI monitor) {
             _monitor = monitor;
         }
 
-        public void windowClosing(WindowEvent ev) {
+        public void windowClosing(final WindowEvent ev) {
             _monitor.requestClose();
+        }
+    }
+
+    private class AddLogRecordRunnable implements Runnable {
+        private final LogRecord lr;
+
+        public AddLogRecordRunnable(LogRecord lr) {
+            this.lr = lr;
+        }
+
+        public void run() {
+            _subjectExplorerTree.getExplorerModel().addLogRecord(lr);
+            _table.getFilteredLogTableModel().addLogRecord(lr); // update table
+            updateStatusLabel(); // show updated counts
         }
     }
 }

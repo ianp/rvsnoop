@@ -7,13 +7,11 @@
  */
 package rvsn00p.viewer;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import rvsn00p.MsgType;
 import rvsn00p.MsgTypeFormatException;
 import rvsn00p.util.DateFormatManager;
+import rvsn00p.util.rv.RvParameters;
 import rvsn00p.viewer.LogTable;
 import rvsn00p.viewer.LogTableColumn;
 import rvsn00p.viewer.LogTableColumnFormatException;
@@ -38,15 +36,15 @@ import java.util.List;
 /**
  * <p>ConfigurationManager handles the storage and retrival of the state of
  * the CategoryExplorer
- * @author Örjan Lundberg
+ * @author orjan Lundberg
  *
  * Based on Logfactor5 By
  *
  * @author Richard Hurst
  * @author Brad Marlborough
+ * Contributed by ThoughtWorks Inc.
  */
 
-// Contributed by ThoughtWorks Inc.
 
 public class ConfigurationManager extends Object {
     //--------------------------------------------------------------------------
@@ -83,6 +81,14 @@ public class ConfigurationManager extends Object {
     private static final String WINDOWY = "windowy";
     private static final String WINDOWWIDTH = "windowwidth";
     private static final String WINDOWHEIGHT = "windowheight";
+    private static final String LSNRSUBSCRIPTIONS = "SUBSCRIPTIONS";
+    private static final String LSNRTIBLISTENER = "TIBLISTENER";
+    private static final String LSNRTIBSERVICE = "SERVICE";
+    private static final String LSNRTIBNETWORK = "NETWORK";
+    private static final String LSNRTIBDAEMON = "DAEMON";
+    private static final String LSNRTIBSUBJECT = "SUBJECT";
+    private static final String LSNRTIBSUBJECTID = "ID";
+
 
     //--------------------------------------------------------------------------
     //   Protected Variables:
@@ -93,6 +99,7 @@ public class ConfigurationManager extends Object {
     //--------------------------------------------------------------------------
     private RvSnooperGUI _gui = null;
     private LogTable _table = null;
+    private String _fileName;
 
 
     //--------------------------------------------------------------------------
@@ -102,6 +109,15 @@ public class ConfigurationManager extends Object {
         super();
         _gui = gui;
         _table = table;
+        _fileName = getDefaultFilename();
+        load();
+    }
+
+    public ConfigurationManager(RvSnooperGUI gui, LogTable table, String fileName) {
+        super();
+        _gui = gui;
+        _table = table;
+        _fileName = fileName;
         load();
     }
     //--------------------------------------------------------------------------
@@ -132,9 +148,44 @@ public class ConfigurationManager extends Object {
 
         processWindowPosition(_gui, xml);
 
+        processListeners(_gui.getSubscriptions(), xml);
+
 
         closeConfigurationXML(xml);
         store(xml.toString());
+    }
+
+    private void processListeners(final Iterator it, StringBuffer xml) {
+
+        if (it == null) {
+            return;
+        }
+        xml.append("\t<").append(LSNRSUBSCRIPTIONS).append(">\n");
+
+        while (it.hasNext()) {
+            exportListener((RvParameters) it.next(), xml);
+        }
+
+        xml.append("\t</").append(LSNRSUBSCRIPTIONS).append(">\n");
+
+    }
+
+    private void exportListener(RvParameters rvParam, StringBuffer xml) {
+        xml.append("\t\t<").append(LSNRTIBLISTENER).append(" ");
+        xml.append(LSNRTIBSERVICE).append("=\"").append(rvParam.getService() == null ? "" : rvParam.getService()).append("\" ");
+        xml.append(LSNRTIBNETWORK).append("=\"").append(rvParam.getNetwork() == null ? "" : rvParam.getNetwork()).append("\" ");
+        xml.append(LSNRTIBDAEMON).append("=\"").append(rvParam.getDaemon() == null ? "" : rvParam.getDaemon()).append("\" >\n");
+        //xml.append("DESCRIPTION").append("=\"").append(rvParam.getDescription()).append("\" >");
+
+        final Set s = rvParam.getSubjects();
+        if (s != null) {
+            final Iterator it = s.iterator();
+            while (it.hasNext()) {
+                xml.append("\t\t\t<").append(LSNRTIBSUBJECT).append(" ");
+                xml.append(LSNRTIBSUBJECTID).append("=\"<![CDATA[ ").append(it.next()).append("]]>\" />\n");
+            }
+        }
+        xml.append("\t\t</").append(LSNRTIBLISTENER).append(">\n");
     }
 
     private void processWindowPosition(RvSnooperGUI gui, StringBuffer xml) {
@@ -230,6 +281,7 @@ public class ConfigurationManager extends Object {
                         newInstance();
                 DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
                 Document doc = docBuilder.parse(file);
+                doc.normalize();
                 processCategories(doc);
                 processMsgTypes(doc);
                 processLogLevelColors(doc);
@@ -238,6 +290,8 @@ public class ConfigurationManager extends Object {
                 processDateFormat(doc);
                 processSplitPanes(doc);
                 processWindowPosition(doc);
+
+                processListeners(doc);
 
 
             } catch (Exception e) {
@@ -251,6 +305,86 @@ public class ConfigurationManager extends Object {
         } else {
             _table.setDateFormatManager(new DateFormatManager("HH:mm:ss.S"));
         }
+
+    }
+
+    /**
+     * Read configured tib listeners from configuration file
+     *
+     * @param doc  DOM object
+     */
+    private void processListeners(Document doc) {
+
+        try {
+            Node n;
+            NodeList tiblisternodes = doc.getElementsByTagName("SUBSCRIPTIONS");
+
+            if (tiblisternodes == null) {
+                return;
+            }
+
+            // for-each configured tiblisttner
+            NodeList ln = tiblisternodes.item(0).getChildNodes();
+            Set setRvParameters = new HashSet();
+            int len = ln.getLength();
+            for (int i = 0; i < len; ++i) {
+                RvParameters p = new RvParameters();
+                Node listener = ln.item(i);
+                if (listener.getNodeType() == 3) {
+                    //ignore whitespace
+                    continue;
+                }
+
+                if (listener.hasAttributes()) {
+                    NamedNodeMap nnm;
+                    Node service;
+                    Node network;
+                    Node daemon;
+
+                    nnm = listener.getAttributes();
+
+                    service = nnm.getNamedItem(LSNRTIBSERVICE);
+                    network = nnm.getNamedItem(LSNRTIBNETWORK);
+                    daemon = nnm.getNamedItem(LSNRTIBDAEMON);
+
+                    p.setService(service.getNodeValue());
+                    p.setNetwork(network.getNodeValue());
+                    p.setDeamon(daemon.getNodeValue());
+
+                }
+
+                // collect the listeners
+                NodeList subs = listener.getChildNodes();
+                int leni = subs.getLength();
+                Set setRvListeners = new HashSet();
+                for (int iSubscription = 0; iSubscription < leni; ++iSubscription) {
+                    Node subscription = subs.item(iSubscription);
+
+                    if (subscription.getNodeType() == 3) {
+                        //ignore whitespace
+                        continue;
+                    }
+
+                    if (subscription.hasAttributes()) {
+                        NamedNodeMap nnm;
+                        Node id;
+                        nnm = subscription.getAttributes();
+                        id = nnm.getNamedItem(LSNRTIBSUBJECTID);
+
+                        setRvListeners.add(id.getNodeValue());
+                    }
+                     p.setSubjects(setRvListeners);
+                }
+
+                setRvParameters.add(p);
+
+            }
+            // start the configured listeners
+            _gui.startListeners(setRvParameters);
+        } catch (DOMException e) {
+            System.err.println(e.getLocalizedMessage());
+        }
+
 
     }
 
@@ -472,33 +606,33 @@ public class ConfigurationManager extends Object {
             }
         }
 
-            if (selectedColumns.isEmpty()) {
-                _table.setDetailedView();
-            } else {
-                _table.setView(selectedColumns);
-            }
-
-            for (int i = 0; i < nodeList.getLength(); ++i) {
-                Node n = nodeList.item(i);
-
-                if (n == null) {
-                    return;
-                }
-                NamedNodeMap map = n.getAttributes();
-                String width;
-                String name;
-                try {
-                    name = getValue(map, NAME);
-                    width = getValue(map, COLUMWIDTH);
-
-                     _table.setColumnWidth(name, Integer.parseInt(width));
-
-                } catch (Exception e) {
-                    // ignore it will be on by default.
-                }
-
-            }
+        if (selectedColumns.isEmpty()) {
+            _table.setDetailedView();
+        } else {
+            _table.setView(selectedColumns);
         }
+
+        for (int i = 0; i < nodeList.getLength(); ++i) {
+            Node n = nodeList.item(i);
+
+            if (n == null) {
+                return;
+            }
+            NamedNodeMap map = n.getAttributes();
+            String width;
+            String name;
+            try {
+                name = getValue(map, NAME);
+                width = getValue(map, COLUMWIDTH);
+
+                _table.setColumnWidth(name, Integer.parseInt(width));
+
+            } catch (Exception e) {
+                // ignore it will be on by default.
+            }
+
+        }
+    }
 
     protected String getValue(NamedNodeMap map, String attr) {
         Node n = map.getNamedItem(attr);
@@ -578,11 +712,17 @@ public class ConfigurationManager extends Object {
         }
     }
 
-    protected String getFilename() {
+    protected String getDefaultFilename() {
         String home = System.getProperty("user.home");
-
-
         return home + SEP + CONFIG_DIR_NAME + SEP + CONFIG_FILE_NAME;
+    }
+
+    public String getFilename() {
+        return _fileName;
+    }
+
+    public void setFilename(String fileName) {
+        this._fileName = fileName;
     }
 
     //--------------------------------------------------------------------------

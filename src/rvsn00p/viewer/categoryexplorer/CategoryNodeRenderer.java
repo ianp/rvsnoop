@@ -117,9 +117,9 @@ public class CategoryNodeRenderer extends DefaultTreeCellRenderer {
 
     protected String buildToolTip(CategoryNode node) {
         StringBuffer result = new StringBuffer();
-        result.append(node.getTitle()).append(" contains a total of ");
         result.append(node.getTotalNumberOfRecords());
-        result.append(" LogRecords.");
+        result.append(" ");
+        result.append(" records has been registered by this node.");
         result.append(" Right-click for more info.");
         return result.toString();
     }

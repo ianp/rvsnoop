@@ -16,7 +16,7 @@ import com.tibco.tibrv.TibrvMsg;
  */
 public class MarshalRvToString {
 
-    static IMarshalRvToStringImpl _impl = null;
+    static final IMarshalRvToStringImpl _impl;
     static String _sImplementationUsed = null;
 
     // selects the "best" possible implementation
@@ -24,11 +24,12 @@ public class MarshalRvToString {
 
         boolean bHasException = true;
         Error lastError = new Error("");
+        IMarshalRvToStringImpl tempImpl = null;
 
         if (bHasException == true) {
             try {
 
-                _impl = new MarshalRvToStringRvTestImpl();
+                tempImpl = new MarshalRvToStringRvTestImpl();
                 _sImplementationUsed = "RvTest";
                 bHasException = false;
             } catch (Error ex) {
@@ -41,7 +42,7 @@ public class MarshalRvToString {
         if (bHasException == true) {
             try {
 
-                _impl = new MarshalRvToStringRacoonImpl();
+                tempImpl = new MarshalRvToStringRacoonImpl();
                 _sImplementationUsed = "Raccoon";
                 bHasException = false;
             } catch (Error ex) {
@@ -55,7 +56,7 @@ public class MarshalRvToString {
         if (bHasException == true) {
             try {
 
-                _impl = new MarshalRvToStringRvScriptImpl();
+                tempImpl = new MarshalRvToStringRvScriptImpl();
                 _sImplementationUsed = "Rvscript";
                 bHasException = false;
             } catch (Error ex) {
@@ -68,7 +69,7 @@ public class MarshalRvToString {
         if (bHasException == true) {
             try {
 
-                _impl = new MarshalRvToStringMtreeImpl();
+                tempImpl = new MarshalRvToStringMtreeImpl();
                 bHasException = false;
                 _sImplementationUsed = "Mtree";
             } catch (Error ex) {
@@ -78,10 +79,12 @@ public class MarshalRvToString {
         }
 
         if (bHasException == true) {
-            _impl = new MarshalRvToStringRvMsgImpl();
+            tempImpl = new MarshalRvToStringRvMsgImpl();
             bHasException = false;
             _sImplementationUsed = "RvMsg";
         }
+
+        _impl = tempImpl;
 
     }
 
