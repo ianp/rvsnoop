@@ -54,15 +54,15 @@ FAQ</strong></a> </font> </td>
             <blockquote>
               <p> <b>Q: What does the command line argument
 "tcp:7500|7500||subjecta,subjectb" mean? </b><br>
-A: It is one or more "daemon|service|network|subject" RvSn00p should 
+A: It is one or more "daemon|service|network|subject" RvSn00p should
 listen to. You can enter multiple listener definitions on the command
 line. I use different start scripts to start &nbsp;RvSn00p in different
 environments. The "-title" parameter can be used to give the listner
 session a name.</p>
-              <p><b>Q: I cannot start RvSn00p or I get strange errors  
+              <p><b>Q: I cannot start RvSn00p or I get strange errors
 when starting RvSn00p, what is wrong?&nbsp;</b><br>
 A: First check that you have the appropriate classpath set for the Java
- JAR libraries that are required.&nbsp;<br>
+ JAR libraries that are required.<br>
 &nbsp; &nbsp; &nbsp;The required libraries are: <br>
               </p>
               <ul>
@@ -82,6 +82,234 @@ formating of the captured rendezvous message;<br>
 Maverick4   can be found whithin the TIBCO Adapter SDK installation or
 within any Tibco   Java Adapter, Integration Manager or Message Broker
 Installation. <br>
+              <br>
+              <b>Q: How do I specify the date format configuration
+string?</b><br>
+A: This table lists the&nbsp; symbols that can be used in the date
+format string. <br>
+              <table cellpadding="2" cellspacing="2" border="0"
+ style="text-align: left; width: 100%;">
+                <tbody>
+                  <tr>
+                    <td
+ style="vertical-align: top; text-decoration: underline;">Symbol<br>
+                    </td>
+                    <td
+ style="vertical-align: top; text-decoration: underline;">Meaning<br>
+                    </td>
+                    <td
+ style="vertical-align: top; text-decoration: underline;">Presentation<br>
+                    </td>
+                    <td
+ style="vertical-align: top; text-decoration: underline;">Example<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">G<br>
+                    </td>
+                    <td style="vertical-align: top;">era designator<br>
+                    </td>
+                    <td style="vertical-align: top;">(Text)<br>
+                    </td>
+                    <td style="vertical-align: top;"><br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">AD y<br>
+                    </td>
+                    <td style="vertical-align: top;">year<br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">1996<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">M<br>
+                    </td>
+                    <td style="vertical-align: top;">month in year <br>
+                    </td>
+                    <td style="vertical-align: top;">(Text &amp; Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">July&nbsp; 07<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">d<br>
+                    </td>
+                    <td style="vertical-align: top;">day in month <br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">10<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">h<br>
+                    </td>
+                    <td style="vertical-align: top;">hour in am/pm
+(1~12)<br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">12<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">H<br>
+                    </td>
+                    <td style="vertical-align: top;">hour in day (0~23) <br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">0<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">m<br>
+                    </td>
+                    <td style="vertical-align: top;">minute in hour <br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">30<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">s<br>
+                    </td>
+                    <td style="vertical-align: top;">second in minute<br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)</td>
+                    <td style="vertical-align: top;">55<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">S<br>
+                    </td>
+                    <td style="vertical-align: top;">millisecond<br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">978<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">E<br>
+                    </td>
+                    <td style="vertical-align: top;">day in week&nbsp; <br>
+                    </td>
+                    <td style="vertical-align: top;">(Text)<br>
+                    </td>
+                    <td style="vertical-align: top;">Tuesday<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">D<br>
+                    </td>
+                    <td style="vertical-align: top;">day in year <br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">189<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">F<br>
+                    </td>
+                    <td style="vertical-align: top;">day of week in
+month <br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">2 (2nd Wed in July)<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">w<br>
+                    </td>
+                    <td style="vertical-align: top;">week in year<br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">27<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">W<br>
+                    </td>
+                    <td style="vertical-align: top;">week in month<br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">2<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">a<br>
+                    </td>
+                    <td style="vertical-align: top;">am/pm marker <br>
+                    </td>
+                    <td style="vertical-align: top;">(Text)<br>
+                    </td>
+                    <td style="vertical-align: top;">PM<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">k<br>
+                    </td>
+                    <td style="vertical-align: top;">hour in day (1~24)<br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">24<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">K<br>
+                    </td>
+                    <td style="vertical-align: top;">hour in am/pm
+(0~11) <br>
+                    </td>
+                    <td style="vertical-align: top;">(Number)<br>
+                    </td>
+                    <td style="vertical-align: top;">0<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">z<br>
+                    </td>
+                    <td style="vertical-align: top;">time zone <br>
+                    </td>
+                    <td style="vertical-align: top;">(Text)<br>
+                    </td>
+                    <td style="vertical-align: top;">Pacific Standard
+Time<br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">'<br>
+                    </td>
+                    <td style="vertical-align: top;">escape for text<br>
+                    </td>
+                    <td style="vertical-align: top;">(Delimiter)<br>
+                    </td>
+                    <td style="vertical-align: top;"><br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="vertical-align: top;">''<br>
+                    </td>
+                    <td style="vertical-align: top;">single quote&nbsp; <br>
+                    </td>
+                    <td style="vertical-align: top;">&nbsp;(Literal)&nbsp;<br>
+                    </td>
+                    <td style="vertical-align: top;">'<br>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <br>
               <br>
               <b>Q: My Scrolling wheel on my mouse does not work? </b><br>
 A: If you upgrade your <a href="http://java.sun.com/">Java runtime</a>
