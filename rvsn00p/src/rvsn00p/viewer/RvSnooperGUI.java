@@ -19,15 +19,11 @@ import rvsn00p.util.rv.MarshalRvToString;
 import rvsn00p.util.rv.RvScriptInfo;
 import rvsn00p.viewer.categoryexplorer.CategoryExplorerTree;
 import rvsn00p.viewer.categoryexplorer.CategoryPath;
-import rvsn00p.viewer.configure.ConfigurationManager;
 import rvsn00p.viewer.configure.MRUListnerManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -56,9 +52,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.2.1";
+    public static final String VERSION = "RvSn00p v1.2.2";
     public static final String URL = "http://rvsn00p.sf.net";
-
 
 
     //--------------------------------------------------------------------------
@@ -76,10 +71,11 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     protected JScrollPane _logTableScrollPane;
     protected JLabel _statusLabel;
     protected JComboBox _fontSizeCombo;
+    protected JComboBox _fontNameCombo;
     protected JButton _pauseButton = null;
 
-    protected int _fontSize = 10;
-    protected String _fontName = "Dialog";
+    private int _fontSize = 10;
+    private String _fontName = "Dialog";
     protected String _currentView = DETAILED_VIEW;
 
     protected boolean _loadSystemFonts = false;
@@ -105,6 +101,30 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
     protected static String _trackingIDTextFilter = "";
     protected static boolean useMtrackingInfo = true;
+
+    final String[] dateFormatHelp = {
+            "  Symbol   Meaning                 Presentation        Example              ",
+            "  ------   -------                 ------------        -------              " ,
+            "  G        era designator          (Text)                                   ",
+            "  AD y     year                 (Number)            1996                    " ,
+            "  M        month in year           (Text & Number)     July & 07            " ,
+            "  d        day in month            (Number)            10                   " ,
+            "  h        hour in am/pm (1~12)    (Number)            12                   " ,
+            "  H        hour in day (0~23)      (Number)            0                    " ,
+            "  m        minute in hour          (Number)            30                   " ,
+            "  s        second in minute        (Number)            55                   " ,
+            "  S        millisecond             (Number)            978                  " ,
+            "  E        day in week             (Text)              Tuesday              " ,
+            "  D        day in year             (Number)            189                  " ,
+            "  F        day of week in month    (Number)            2 (2nd Wed in July)  " ,
+            "  w        week in year            (Number)            27                   " ,
+            "  W        week in month           (Number)            2                    " ,
+            "  a        am/pm marker            (Text)              PM                   " ,
+            "  k        hour in day (1~24)      (Number)            24                   " ,
+            "  K        hour in am/pm (0~11)    (Number)            0                    ",
+            "  z        time zone               (Text)              Pacific Standard Time" ,
+            "  '        escape for text         (Delimiter)                              " ,
+            "  ''       single quote            (Literal)           '                    " };
 
 
 
@@ -210,24 +230,24 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         try {
             // try to extract the two last nameparts
             int ix = name.lastIndexOf(".");
-            int ix2 = name.substring(0,ix).lastIndexOf(".");
-            name = name.substring(ix2+1,name.length());
+            int ix2 = name.substring(0, ix).lastIndexOf(".");
+            name = name.substring(ix2 + 1, name.length());
         } catch (Exception e) {
         }
 
 
         try {
-            r.setMessage(MarshalRvToString.rvmsgToString(msg, name) );
-        }  catch (Exception ex) {
+            r.setMessage(MarshalRvToString.rvmsgToString(msg, name));
+        } catch (Exception ex) {
             ex.printStackTrace();
-            _statusLabel.setText(ex.getMessage() );
+            _statusLabel.setText(ex.getMessage());
             try {
                 // sometimes rvscript generates strange error messages such as
                 //   KeyError: INVALID
                 //   Traceback (innermost last):
                 //   File "/home/stefan/tprojects/rvscript/work/tibrvXmlConvert.py", line 0, in rvmsgToXml
                 // try to use the msg.toString instead of an error dialog
-                r.setMessage(msg.toString() );
+                r.setMessage(msg.toString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -259,7 +279,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     }
 
 
-
     /**
      * Show the frame for the RvSnooperGUI. Dispatched to the
      * swing thread.
@@ -286,18 +305,18 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     public void updateBanner() {
         String sBanner;
 
-        if(_name != null ){
-          sBanner = _name;
-          sBanner += " ";
-          sBanner += RvController.getTransports().toString();
+        if (_name != null) {
+            sBanner = _name;
+            sBanner += " ";
+            sBanner += RvController.getTransports().toString();
         } else {
-          sBanner = RvController.getTransports().toString();
+            sBanner = RvController.getTransports().toString();
         }
 
         sBanner += " ";
         sBanner += VERSION;
 
-        this.setTitle(sBanner );
+        this.setTitle(sBanner);
 
     }
 
@@ -332,15 +351,26 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     /**
      * Get the DateFormatManager for formatting dates.
      */
-    public DateFormatManager getDateFormatManager() {
+    DateFormatManager getDateFormatManager() {
         return _table.getDateFormatManager();
     }
 
     /**
      * Set the date format manager for formatting dates.
      */
-    public void setDateFormatManager(DateFormatManager dfm) {
+    void setDateFormatManager(DateFormatManager dfm) {
         _table.setDateFormatManager(dfm);
+    }
+
+    public String getDateFormat(){
+        DateFormatManager dfm = getDateFormatManager();
+        return dfm.getPattern();
+    }
+
+    public String setDateFormat(String pattern){
+        DateFormatManager dfm = new DateFormatManager(pattern);
+        setDateFormatManager(dfm);
+        return pattern;
     }
 
     /**
@@ -403,7 +433,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         updateFrameSize();
     }
 
-    public void setFontSize(int fontSize) {
+    void setFontSize(int fontSize) {
         changeFontSizeCombo(_fontSizeCombo, fontSize);
         // setFontSizeSilently(actualFontSize); - changeFontSizeCombo fires event
         // refreshDetailTextArea();
@@ -574,7 +604,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             return false;
         }
         if (message.toLowerCase().indexOf(text.toLowerCase()) == -1 &&
-           _trackingIDTextFilter.indexOf(text.toLowerCase()) == -1) {
+                _trackingIDTextFilter.indexOf(text.toLowerCase()) == -1) {
             return false;
         }
 
@@ -605,7 +635,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
      * size actually selected.
      * @return -1 if unable to select an appropriate font
      */
-    protected static int changeFontSizeCombo(JComboBox box, int requestedSize) {
+    public static int changeFontSizeCombo(JComboBox box, int requestedSize) {
         int len = box.getItemCount();
         int currentValue;
         Object currentObject;
@@ -624,10 +654,32 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     }
 
     /**
+     * Changes the font selection in the combo box and returns the
+     * type that is actually selected.
+     * @return null if unable to select an appropriate font
+     */
+    public static String changeFontNameCombo(JComboBox box, String requestedName) {
+        int len = box.getItemCount();
+        String currentValue;
+        currentValue = null;
+        Object currentObject;
+        Object selectedObject = box.getItemAt(0);
+        for (int i = 0; i < len; ++i) {
+            currentObject = box.getItemAt(i);
+            currentValue = String.valueOf(currentObject);
+            if (currentValue.compareToIgnoreCase(requestedName) == 0) {
+                selectedObject = currentObject;
+            }
+        }
+        box.setSelectedItem(selectedObject);
+        return currentValue;
+    }
+
+    /**
      * Does not update gui or cause any events to be fired.
      */
     protected void setFontSizeSilently(int fontSize) {
-        _fontSize = fontSize;
+        setFontSize(fontSize);
         setFontSize(_table._detailTextArea, fontSize);
         selectRow(0);
         setFontSize(_table, fontSize);
@@ -677,7 +729,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         JScrollPane detailTAScrollPane = new JScrollPane(detailTA);
         _table = new LogTable(detailTA);
         setView(_currentView, _table);
-        _table.setFont(new Font(_fontName, Font.PLAIN, _fontSize));
+        _table.setFont(new Font(getFontName(), Font.PLAIN, getFontSize()));
         _logTableScrollPane = new JScrollPane(_table);
 
         if (_trackTableScrollPane) {
@@ -1250,7 +1302,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 RvController.shutdownAll();
-                 updateBanner();
+                updateBanner();
             }
         });
         return result;
@@ -1297,6 +1349,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         configureMenu.add(createConfigureSave());
         configureMenu.add(createConfigureReset());
         configureMenu.add(createConfigureMaxRecords());
+        configureMenu.add(createConfigureDateFormat());
 
         return configureMenu;
     }
@@ -1336,6 +1389,28 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             }
         });
 
+        result.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    hide();
+                }
+            }
+        });
+
+        return result;
+    }
+
+    protected JMenuItem createConfigureDateFormat() {
+
+        JMenuItem result = new JMenuItem("Configure Date Format");
+        result.setMnemonic('d');
+
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setDateConfiguration();
+            }
+        });
+
         return result;
     }
 
@@ -1371,19 +1446,46 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         }
     }
 
+    protected void setDateConfiguration() {
+        RvSnooperInputDialog inputDialog = new RvSnooperInputDialog(
+                getBaseFrame(), "Set DateFormat", "", 10);
+
+        inputDialog.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    hide();
+                }
+            }
+        });
+
+        String temp = inputDialog.getText();
+
+        if (temp != null) {
+            try {
+                setDateFormat(temp);
+            } catch (NumberFormatException e) {
+                RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                        getBaseFrame(),
+                        "'" + temp + "' is an invalid parameter.\nPlease try again.");
+                setMaxRecordConfiguration();
+            }
+        }
+    }
+
 
     protected JMenu createHelpMenu() {
         JMenu helpMenu = new JMenu("Help");
         helpMenu.setMnemonic('h');
         helpMenu.add(createHelpAbout());
+        helpMenu.add(createHelpDateFormat());
         helpMenu.add(createHelpBugReport());
         helpMenu.add(createHelpDownload());
         helpMenu.add(createHelpGotoHomepage());
-        helpMenu.add(createHelpSubscribe() );
-        helpMenu.add(createHelpSupport() );
+        helpMenu.add(createHelpSubscribe());
+        helpMenu.add(createHelpSupport());
         helpMenu.add(createHelpProperties());
         helpMenu.add(createHelpLICENSE());
-            StringBuffer a = new StringBuffer();
+        StringBuffer a = new StringBuffer();
         a.toString();
         return helpMenu;
     }
@@ -1474,7 +1576,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return result;
     }
 
-        protected JMenuItem createHelpSubscribe() {
+    protected JMenuItem createHelpSubscribe() {
         final String title = "Subscribe to update messages";
         final JMenuItem result = new JMenuItem(title);
         result.addActionListener(new ActionListener() {
@@ -1491,7 +1593,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return result;
     }
 
-     protected JMenuItem createHelpSupport() {
+    protected JMenuItem createHelpSupport() {
         final String title = "My wish list";
         final JMenuItem result = new JMenuItem(title);
         result.addActionListener(new ActionListener() {
@@ -1515,6 +1617,18 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 showAboutDialog(title);
+            }
+        });
+        return result;
+    }
+
+    protected JMenuItem createHelpDateFormat() {
+        final String title = "DateFormat Help";
+        final JMenuItem result = new JMenuItem(title);
+        result.setMnemonic('d');
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showDateFormatDialog(title);
             }
         });
         return result;
@@ -1562,6 +1676,14 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         );
     }
 
+      protected void showDateFormatDialog(String title) {
+        JOptionPane.showMessageDialog(
+                _logMonitorFrame,
+                dateFormatHelp,
+                title,
+                JOptionPane.PLAIN_MESSAGE
+        );
+    }
     protected JMenu createEditMenu() {
         JMenu editMenu = new JMenu("Edit");
         editMenu.setMnemonic('e');
@@ -1569,7 +1691,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         editMenu.add(createEditFindNextMI());
         editMenu.addSeparator();
         editMenu.add(createEditFilterTIDMI());
-        editMenu.add(createEditFilterBySelectedTIDMI() );
+        editMenu.add(createEditFilterBySelectedTIDMI());
         editMenu.add(createEditRestoreAllTIDMI());
         return editMenu;
     }
@@ -1611,120 +1733,124 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     }
 
     protected JMenuItem createEditFilterTIDMI() {
-    JMenuItem editFilterNDCMI = new JMenuItem("Filter by tracking id");
-    editFilterNDCMI.setMnemonic('t');
-    editFilterNDCMI.setAccelerator(KeyStroke.getKeyStroke("control shift T"));
-    editFilterNDCMI.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            String inputValue =
-                JOptionPane.showInputDialog(
-                    _logMonitorFrame,
-                    "Filter by this tracking id: ",
-                    "Filter Log Records by tracking id",
-                    JOptionPane.QUESTION_MESSAGE
-                );
-            setTIDTextFilter(inputValue);
-            filterByTID();
-            _table.getFilteredLogTableModel().refresh();
-            updateStatusLabel();
-          }
+        JMenuItem editFilterNDCMI = new JMenuItem("Filter by tracking id");
+        editFilterNDCMI.setMnemonic('t');
+        editFilterNDCMI.setAccelerator(KeyStroke.getKeyStroke("control shift T"));
+        editFilterNDCMI.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        String inputValue =
+                                JOptionPane.showInputDialog(
+                                        _logMonitorFrame,
+                                        "Filter by this tracking id: ",
+                                        "Filter Log Records by tracking id",
+                                        JOptionPane.QUESTION_MESSAGE
+                                );
+                        setTIDTextFilter(inputValue);
+                        filterByTID();
+                        _table.getFilteredLogTableModel().refresh();
+                        updateStatusLabel();
+                    }
+                }
+
+        );
+        return editFilterNDCMI;
+    }
+
+    protected JMenuItem createEditFilterBySelectedTIDMI() {
+        JMenuItem editFilterNDCMI = new JMenuItem("Filter by selected tracking id");
+        editFilterNDCMI.setMnemonic('s');
+        editFilterNDCMI.setAccelerator(KeyStroke.getKeyStroke("control T"));
+        editFilterNDCMI.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+
+                ListSelectionModel lsm = _table.getSelectionModel();
+
+                if (lsm.isSelectionEmpty()) {
+                    //no rows are selected
+                } else {
+                    int selectedRow = lsm.getMinSelectionIndex();
+
+                    FilteredLogTableModel ftm;
+                    ftm = _table.getFilteredLogTableModel();
+
+
+                    final String sTID = (String) _table.getModel().getValueAt(selectedRow, _table.getTIDColumnID());
+                    if (sTID != null) {
+                        setTIDTextFilter(sTID);
+                        filterByTID();
+                        _table.getFilteredLogTableModel().refresh();
+                    }
+                }
+
+            }
         }
-
-    );
-    return editFilterNDCMI;
-  }
-
-  protected JMenuItem createEditFilterBySelectedTIDMI() {
-      JMenuItem editFilterNDCMI = new JMenuItem("Filter by selected tracking id");
-      editFilterNDCMI.setMnemonic('s');
-      editFilterNDCMI.setAccelerator(KeyStroke.getKeyStroke("control T"));
-      editFilterNDCMI.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
+        );
 
 
-              ListSelectionModel lsm = _table.getSelectionModel();
-
-              if (lsm.isSelectionEmpty()) {
-                  //no rows are selected
-              } else {
-                  int selectedRow = lsm.getMinSelectionIndex();
-
-                  FilteredLogTableModel ftm;
-                  ftm = _table.getFilteredLogTableModel();
-
-
-                  final String sTID = (String) _table.getModel().getValueAt(selectedRow, _table.getTIDColumnID());
-                  if( sTID != null )  {
-                     setTIDTextFilter(sTID);
-                     filterByTID();
-                     _table.getFilteredLogTableModel().refresh();
-                  }
-              }
-
-          }}
-      );
-
-
-      return editFilterNDCMI;
-  }
-
-   protected void setTIDTextFilter(String text) {
-    // if no value is set, set it to a blank string
-    // otherwise use the value provided
-    if (text == null) {
-      _trackingIDTextFilter = "";
-    } else {
-      _trackingIDTextFilter = text;
-    }
-  }
-  protected void filterByTID() {
-    String text = _trackingIDTextFilter;
-    if (text == null || text.length() == 0) {
-      return;
+        return editFilterNDCMI;
     }
 
-    // Use new NDC filter
-    _table.getFilteredLogTableModel().
-        setLogRecordFilter(createTIDLogRecordFilter(text));
-    _statusLabel.setText("Filtered by tracking id " + text );
-  }
-   protected LogRecordFilter createTIDLogRecordFilter(String text) {
-    _trackingIDTextFilter = text;
-    LogRecordFilter result = new LogRecordFilter() {
-      public boolean passes(LogRecord record) {
-        String trackingID = record.getTrackingID();
-        CategoryPath path = new CategoryPath(record.getSubject() );
-        if (trackingID == null || _trackingIDTextFilter == null) {
-          return false;
-        } else if (trackingID.indexOf(_trackingIDTextFilter) == -1) {
-          return false;
+    protected void setTIDTextFilter(String text) {
+        // if no value is set, set it to a blank string
+        // otherwise use the value provided
+        if (text == null) {
+            _trackingIDTextFilter = "";
         } else {
-          return getMenuItem(record.getType()).isSelected() &&
-              _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
+            _trackingIDTextFilter = text;
         }
-      }
-    };
+    }
 
-    return result;
-  }
-  protected JMenuItem createEditRestoreAllTIDMI() {
-    JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove tracking id filter");
-    editRestoreAllNDCMI.setMnemonic('r');
-    editRestoreAllNDCMI.setAccelerator(KeyStroke.getKeyStroke("control R"));
-    editRestoreAllNDCMI.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            _table.getFilteredLogTableModel().setLogRecordFilter(createLogRecordFilter());
-            // reset the text filter
-            setTIDTextFilter("");
-            _table.getFilteredLogTableModel().refresh();
-            updateStatusLabel();
-          }
+    protected void filterByTID() {
+        String text = _trackingIDTextFilter;
+        if (text == null || text.length() == 0) {
+            return;
         }
-    );
-    return editRestoreAllNDCMI;
-  }
+
+        // Use new NDC filter
+        _table.getFilteredLogTableModel().
+                setLogRecordFilter(createTIDLogRecordFilter(text));
+        _statusLabel.setText("Filtered by tracking id " + text);
+    }
+
+    protected LogRecordFilter createTIDLogRecordFilter(String text) {
+        _trackingIDTextFilter = text;
+        LogRecordFilter result = new LogRecordFilter() {
+            public boolean passes(LogRecord record) {
+                String trackingID = record.getTrackingID();
+                CategoryPath path = new CategoryPath(record.getSubject());
+                if (trackingID == null || _trackingIDTextFilter == null) {
+                    return false;
+                } else if (trackingID.indexOf(_trackingIDTextFilter) == -1) {
+                    return false;
+                } else {
+                    return getMenuItem(record.getType()).isSelected() &&
+                            _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
+                }
+            }
+        };
+
+        return result;
+    }
+
+    protected JMenuItem createEditRestoreAllTIDMI() {
+        JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove tracking id filter");
+        editRestoreAllNDCMI.setMnemonic('r');
+        editRestoreAllNDCMI.setAccelerator(KeyStroke.getKeyStroke("control R"));
+        editRestoreAllNDCMI.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        _table.getFilteredLogTableModel().setLogRecordFilter(createLogRecordFilter());
+                        // reset the text filter
+                        setTIDTextFilter("");
+                        _table.getFilteredLogTableModel().refresh();
+                        updateStatusLabel();
+                    }
+                }
+        );
+        return editRestoreAllNDCMI;
+    }
 
 
     protected JToolBar createToolBar() {
@@ -1733,6 +1859,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         JComboBox fontCombo = new JComboBox();
         JComboBox fontSizeCombo = new JComboBox();
         _fontSizeCombo = fontSizeCombo;
+        _fontNameCombo = fontCombo;
 
         _cl = this.getClass().getClassLoader();
         if (_cl == null) {
@@ -1825,7 +1952,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             fontCombo.addItem(fonts[j]);
         }
 
-        fontCombo.setSelectedItem(_fontName);
+        fontCombo.setSelectedItem(getFontName());
 
         fontCombo.addActionListener(
 
@@ -1833,8 +1960,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                     public void actionPerformed(ActionEvent e) {
                         JComboBox box = (JComboBox) e.getSource();
                         String font = (String) box.getSelectedItem();
-                        _table.setFont(new Font(font, Font.PLAIN, _fontSize));
-                        _fontName = font;
+
+                        setFontName(font);
                     }
                 }
         );
@@ -1848,7 +1975,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         fontSizeCombo.addItem("18");
         fontSizeCombo.addItem("24");
 
-        fontSizeCombo.setSelectedItem(String.valueOf(_fontSize));
+        fontSizeCombo.setSelectedItem(String.valueOf(getFontSize()));
         fontSizeCombo.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
@@ -1858,7 +1985,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
                         setFontSizeSilently(s);
                         refreshDetailTextArea();
-                        _fontSize = s;
+                        setFontSize(s);
+
                     }
                 }
         );
@@ -2082,6 +2210,20 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         ok = true;
 
         return ok;
+    }
+
+    int getFontSize() {
+        return _fontSize;
+    }
+
+    String getFontName() {
+        return _fontName;
+    }
+
+    void setFontName(String fontName) {
+        this._fontName = fontName;
+        _table.setFont(new Font(fontName, Font.PLAIN, getFontSize()));
+        changeFontNameCombo(_fontNameCombo, fontName);
     }
     //--------------------------------------------------------------------------
     //   Private Methods:
