@@ -1382,6 +1382,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         helpMenu.add(createHelpBugReport());
         helpMenu.add(createHelpDownload());
         helpMenu.add(createHelpGotoHomepage());
+        helpMenu.add(createHelpSubscribe() );
         helpMenu.add(createHelpProperties());
         helpMenu.add(createHelpLICENSE());
 
@@ -1463,6 +1464,23 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             public void actionPerformed(ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://rvsn00p.sf.net");
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error;
+                    error = new RvSnooperErrorDialog(
+                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
+                }
+            }
+        });
+        return result;
+    }
+
+        protected JMenuItem createHelpSubscribe() {
+        final String title = "Subscribe to update messages";
+        final JMenuItem result = new JMenuItem(title);
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    BrowserLauncher.openURL("http://sourceforge.net/project/filemodule_monitor.php?filemodule_id=60335");
                 } catch (Exception ex) {
                     RvSnooperErrorDialog error;
                     error = new RvSnooperErrorDialog(
