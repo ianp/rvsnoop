@@ -7,11 +7,11 @@
  */
 package rvsn00p.util.rv;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.StringTokenizer;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class RvParameters implements Cloneable, Serializable {
 
@@ -31,10 +31,10 @@ public class RvParameters implements Cloneable, Serializable {
     protected String _service;
     protected String _deamon;
     protected boolean _displayRvParameters;
-    protected String _subject;
+    protected Set _subjects;
     protected String _description;
 
-     //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     //   Private Variables:
     //--------------------------------------------------------------------------
 
@@ -48,19 +48,33 @@ public class RvParameters implements Cloneable, Serializable {
         this._service = "7500";
         this._deamon = "tcp:7500";
         this._displayRvParameters = true;
-        this._subject = "DEV.>";
+        this._subjects = new HashSet();
         this._description = "";
 
         calcHashCode();
     }
 
-    public RvParameters(String _subject, String _service, String _network, boolean _displayRvParameters, String _deamon, String _description) {
-        this._subject = _subject;
-        this._service = _service;
-        this._network = _network;
-        this._displayRvParameters = _displayRvParameters;
-        this._deamon = _deamon;
-        this._description = _description;
+    public RvParameters(String subject, String service, String network, boolean displayRvParameters, String deamon, String description) {
+        this._subjects = new HashSet();
+        this._service = service;
+        this._network = network;
+        this._displayRvParameters = displayRvParameters;
+        this._deamon = deamon;
+        this._description = description;
+
+        calcHashCode();
+    }
+
+    public RvParameters(Set subjects, String service, String network, boolean displayRvParameters, String deamon, String description) {
+        this._subjects = new HashSet();
+        _subjects.addAll(subjects);
+
+
+        this._service = service;
+        this._network = network;
+        this._displayRvParameters = displayRvParameters;
+        this._deamon = deamon;
+        this._description = description;
 
         calcHashCode();
     }
@@ -72,7 +86,7 @@ public class RvParameters implements Cloneable, Serializable {
 
     public String getDescription() {
 
-          return _description;
+        return _description;
     }
 
     public void setDescription(String description) {
@@ -81,6 +95,7 @@ public class RvParameters implements Cloneable, Serializable {
 
     /**
      * Calculates an hascode using the Network, Service and Deamon values
+     * Does not use the subjects
      */
     protected void calcHashCode() {
         String hcstr = new String();
@@ -97,17 +112,12 @@ public class RvParameters implements Cloneable, Serializable {
             hcstr += _deamon;
         }
 
-          if (_subject != null) {
-            hcstr += _subject;
-        }
-
         _hashCode = hcstr.hashCode();
     }
 
     public String getNetwork() {
         return _network;
     }
-
 
 
     public void setNetwork(String _network) {
@@ -142,13 +152,12 @@ public class RvParameters implements Cloneable, Serializable {
         StringTokenizer st = new StringTokenizer(lineString, "|", true);
 
         int i = 0;
-        // stuff each token into the current user
         while (st.hasMoreTokens()) {
             String s = st.nextToken();
             if ("|".equals(s)) {
                 if (i++ >= 4)
                     throw new IllegalArgumentException("Input line " +
-                                                       lineString + " has too many fields");
+                            lineString + " has too many fields");
                 continue;
             }
             if (s != null) {
@@ -158,29 +167,52 @@ public class RvParameters implements Cloneable, Serializable {
             }
         }
 
-        this._deamon =  results[0] ;
-        this._service = results[1] ;
-        this._network = results[2] ;
-        this._subject = results[3] ;
+        this._deamon = results[0];
+        this._service = results[1];
+        this._network = results[2];
+        String subjects = results[3];
+
+        StringTokenizer subjectTokenizer;
+        subjectTokenizer = new StringTokenizer(subjects, ",", true);
+
+
+        while (subjectTokenizer.hasMoreTokens()) {
+            String sto = subjectTokenizer.nextToken();
+            if (",".equals(sto)) {
+                continue;
+            }
+
+            _subjects.add(sto);
+        }
+
 
         calcHashCode();
     }
 
     public String toString() {
         String sRetval = new String(this._deamon);
-        sRetval += "|";
-        if (_network != null) {
-            sRetval += _network;
-        }
 
         sRetval += "|";
 
         if (_service != null) {
             sRetval += _service;
         }
+                sRetval += "|";
+        if (_network != null) {
+            sRetval += _network;
+        }
+
         sRetval += "|";
-        if (_subject != null) {
-            sRetval += _subject;
+        if (_subjects != null) {
+            boolean first = true;
+            Iterator i = _subjects.iterator();
+            while (i.hasNext()) {
+                if (!first) {
+                    sRetval += ",";
+                }
+                sRetval += (String) i.next();
+                first = false;
+            }
         }
 
         return sRetval;
@@ -195,26 +227,63 @@ public class RvParameters implements Cloneable, Serializable {
     }
 
     public String getSubject() {
-        return _subject;
+        String sRetVal = new String();
+
+        boolean first = true;
+        Iterator i = _subjects.iterator();
+        while (i.hasNext()) {
+            if (!first) {
+                sRetVal += ",";
+            }
+            sRetVal += (String) i.next();
+            first = false;
+        }
+        return sRetVal;
     }
 
+    public Set getSubjects(){
+         return _subjects;
+    }
 
+    public void setSubjects(Set subjects){
+
+        _subjects.addAll(subjects);
+    }
+
+    /**
+     *
+     * @param subjects list of subjects separated with ","
+     */
+    public void setSubjects(String subjects){
+        if (_subjects == null) {
+            throw new IllegalArgumentException("Subjects may not be null");
+        }
+
+
+        StringTokenizer subjectTokenizer;
+        subjectTokenizer = new StringTokenizer(subjects, ",", true);
+
+
+        while (subjectTokenizer.hasMoreTokens()) {
+            String sto = subjectTokenizer.nextToken();
+            if (",".equals(sto)) {
+                continue;
+            }
+
+            _subjects.add(sto);
+        }
+
+
+    }
 
     public Object clone() throws CloneNotSupportedException {
-        return new RvParameters(_network, _service, _deamon, _displayRvParameters, _subject);
+        return new RvParameters(_subjects, _service,_network,_displayRvParameters, _deamon,  _deamon);
     }
 
-    public RvParameters(String _network, String _service, String _deamon, boolean displayRvParameters, String _subject) {
-        this._network = _network;
-        this._service = _service;
-        this._deamon = _deamon;
-        this._displayRvParameters = displayRvParameters;
-        this._subject = _subject;
+
+    public void addSubject(String _subject) {
+        this._subjects.add(_subject);
         calcHashCode();
-    }
-
-    public void setSubject(String _subject) {
-        this._subject = _subject;
     }
 
     /**
@@ -228,32 +297,32 @@ public class RvParameters implements Cloneable, Serializable {
     /**
      * Write out RVParameters
      */
-    private void writeObject(ObjectOutputStream s)
+ /*   private void writeObject(ObjectOutputStream s)
 
             throws IOException {
-           // Call even if there is no default serializable fields.
+        // Call even if there is no default serializable fields.
         s.defaultWriteObject();
 
         s.writeUTF(_deamon);
         s.writeUTF(_network);
         s.writeUTF(_service);
-        s.writeUTF(_subject);
+        s.writeUTF(_subjects);
         s.writeBoolean(_displayRvParameters);
     }
-
+   */
 
     /**
      * Read in the RvParameters
      */
-    private void readObject(ObjectInputStream s)
+  /* private void readObject(ObjectInputStream s)
             throws IOException, ClassNotFoundException {
-/*  Call even if there is no default serializable fields.
- *  Enables default serializable fields to be added in future versions
- *  and skipped by this version which has no default serializable fields.
- */
+//  Call even if there is no default serializable fields.
+//  Enables default serializable fields to be added in future versions
+//   and skipped by this version which has no default serializable fields.
+
         s.defaultReadObject();
 
-// restore
+
         _deamon = s.readUTF();
         _network = s.readUTF();
         _service = s.readUTF();
@@ -261,14 +330,14 @@ public class RvParameters implements Cloneable, Serializable {
         _displayRvParameters = s.readBoolean();
         calcHashCode();
     }
+     */
 
     public boolean equals(Object o) {
 
         boolean equals = false;
 
         if (o instanceof RvParameters) {
-            if (this.hashCode() ==
-                    ((RvParameters) o).hashCode()) {
+            if (this.hashCode() == o.hashCode()) {
                 equals = true;
             }
         }
