@@ -57,7 +57,7 @@ public class StartRvSnooper {
         if (args.length != 0){
             if (args[0].compareToIgnoreCase("-h") == 0) {
                 System.err.println(RvSnooperGUI.VERSION);
-                System.err.println("Usage: rvsnoop.StartRvSnooper [Daemon|Service|Network|Subject] ...  ");
+                System.err.println("Usage: rvsnoop.StartRvSnooper [-title t] [Daemon|Service|Network|Subject] ...  ");
                 System.err.println("Example: rvsnoop.StartRvSnooper \"tcp:7500|||a.>\" \"tcp:7500|||b.>\"  ");
                 System.exit(-1);
             }  else if( args[0].compareToIgnoreCase("-title") == 0) {
