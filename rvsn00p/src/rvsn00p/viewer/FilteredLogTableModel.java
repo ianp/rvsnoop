@@ -11,6 +11,7 @@ import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.PassingLogRecordFilter;
 import rvsn00p.util.DateFormatManager;
+import rvsn00p.util.HTMLEncoder;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -19,8 +20,13 @@ import java.util.Iterator;
 import java.util.List;
 
 
+
 /**
  * A TableModel for LogRecords which includes filtering support.
+ *
+ * @author Örjan Lundberg
+ *
+ * Based on Logfactor5 By
  *
  * @author Richard Wan
  * @author Brent Sprecher
@@ -49,6 +55,7 @@ public class FilteredLogTableModel
                                     "Message"};
 
     protected DateFormatManager _dfm  = new DateFormatManager("HH:mm:ss.S");
+    static int _lastHTMLBufLength = 1000;
 
     //--------------------------------------------------------------------------
     //   Private Variables:
@@ -172,6 +179,81 @@ public class FilteredLogTableModel
         return result;
     }
 
+     /**
+     * Returns a HTML table representation of the filtered records
+     * @parameter dfMgr the date formt manager used
+     */
+    public StringBuffer createFilteredHTMLTable(DateFormatManager dfMgr) {
+        //use a buffer with the same size as the last used one
+        StringBuffer strbuf = new StringBuffer(_lastHTMLBufLength);
+        Iterator records = _filteredRecords.iterator();
+        LogRecord current;
+        addHtmlTableHeaderString(strbuf,dfMgr);
+        while (records.hasNext()) {
+            current = (LogRecord) records.next();
+
+            strbuf.append("<tr>\n\t");
+            addHTMLTDString(current,strbuf,dfMgr);
+            strbuf.append("\n</tr>\n");
+        }
+        strbuf.append("</table>");
+
+        //remember last buffer size
+        _lastHTMLBufLength = strbuf.length()+2;
+
+        return strbuf;
+    }
+
+     /**
+     * Adda a HTML <td> String representation of this LogRecord to the buf parameter
+     * @parameter buf the stringbuffer to add the <td> string representation
+     * @parameter dfMgr the date formt manager used
+     */
+     protected void addHTMLTDString(LogRecord lr, StringBuffer buf, DateFormatManager dfMgr) {
+
+         for (int i = 0; i < getColumnCount(); ++i) {
+             Object obj = getColumn(i, lr, dfMgr);
+             if (obj != null) {
+                 buf.append("<td>");
+                 if (i == 4) {
+                     // message
+                     buf.append("<code>");
+                     String strMsg =  obj.toString();
+                     buf.append(HTMLEncoder.encodeString( obj.toString() ) );
+                     buf.append("</code>");
+                 } else {
+                    buf.append(obj.toString());
+                 }
+                 buf.append("</td>");
+             } else {
+                 buf.append("<td></td>");
+             }
+         }
+     }
+
+
+    protected void  addHtmlTableHeaderString(StringBuffer buf, DateFormatManager dfMgr) {
+            // table parameters
+            buf.append("<table border=\"1\" width=\"100%\">\n");
+            buf.append("<tr>\n");
+
+            // print the column headers
+            for (int i = 0; i < getColumnCount() ; ++i) {
+                buf.append("\t<th align=\"left\" bgcolor=\"#C0C0C0\" bordercolor=\"#FFFFFF\">");
+
+                buf.append( getColumnName(i) );
+
+                //date format
+                if( i == 0) {
+                   buf.append("<br>(");
+                   buf.append(dfMgr.getPattern() );
+                   buf.append(")");
+                }
+                buf.append("</th>\n");
+             }
+             buf.append("</tr>\n");
+    }
+
     protected LogRecord getFilteredRecord(int row) {
         List records = getFilteredRecords();
         int size = records.size();
@@ -186,16 +268,14 @@ public class FilteredLogTableModel
 
     }
 
-    protected Object getColumn(int col, LogRecord lr) {
+    protected Object getColumn(int col, LogRecord lr, DateFormatManager dfm) {
         if (lr == null) {
             return "NULL Column";
         }
 
-
-
-        String date = _dfm.format(new Date(lr.getMillis())).toString();
         switch (col) {
             case 0:
+                String date = dfm.format(new Date(lr.getMillis())).toString();
                 return date;
             case 1:
                 return new Long(lr.getSequenceNumber());
@@ -206,10 +286,16 @@ public class FilteredLogTableModel
             case 4:
                    return lr.getMessage();
             default:
-                String message = "The column number " + col + " must be between 0 and 5";
+                String message = "The column number " + col + " must be between 0 and 4";
                 throw new IllegalArgumentException(message);
         }
     }
+
+    protected Object getColumn(int col, LogRecord lr) {
+           return getColumn(col,lr,_dfm);
+    }
+
+
 
     // We don't want the amount of rows to grow without bound,
     // leading to a out-of-memory-exception.  Especially not good
