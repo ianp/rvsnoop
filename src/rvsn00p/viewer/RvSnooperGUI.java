@@ -1792,7 +1792,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             if (inputDialog.isOK()) {
                 _lastUsedRvParameters = inputDialog.getRvParameters();
 
-                _lastUsedRvParameters.setDescription(VERSION + " <a href=\"" + URL + "\">" + VERSION + "</a> ");
+                _lastUsedRvParameters.setDescription("<a href=\"" + URL + "\">" + VERSION + "</a> ");
                 RvController.startRvListener(_lastUsedRvParameters, this);
                 updateBanner();
 
