@@ -235,6 +235,7 @@ public class FilteredLogTableModel
                  if (i == 5) {
                      // message
                      buf.append("<code>");
+                     buf.append(HTMLEncoder.encodeString(obj.toString()));
                      buf.append("</code>");
                  } else {
                     buf.append(obj.toString());
@@ -295,13 +296,13 @@ public class FilteredLogTableModel
             case 1:
                 return new Long(lr.getSequenceNumber());
             case 2:
-                   return lr.getType();
+                return lr.getType();
             case 3:
-                  return lr.getSubject();
+                return lr.getSubject();
             case 4:
-                   return lr.getTrackingID();
+                return lr.getTrackingID();
             case 5:
-                   return lr.getMessage();
+                return lr.getMessage();
             default:
                 String message = "The column number " + col + " must be between 0 and 5";
                 throw new IllegalArgumentException(message);
