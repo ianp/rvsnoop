@@ -1,9 +1,9 @@
 @echo off
 TITLE RvSnoop_Start_Script
-set _cp=C:\temp\rvsn00p\target\lib\rvsn00p.jar
+set _cp=C:\cvs\rvsn00p\target\lib\rvsn00p.jar
 set _cp=%_cp%;c:\tibco\adapter\sdk\java\Maverick4.jar
-set _cp=%_cp%;c:\tibco\im\java\crimson.jar
-rem set _cp=%_cp%;c:\tibco\rvscript\rvscript.jar
+set _cp=%_cp%;C:\cvs\rvsn00p\target\lib\crimson.jar
+set _cp=%_cp%;c:\tibco\rvscript\rvscript.jar
 set _cp=%_cp%;c:\tibco\tibrv\lib\tibrvj.jar
 set _cp=%_cp%;%classpath%
 
