@@ -52,7 +52,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.2.2";
+    public static final String VERSION = "RvSn00p v1.2.3";
     public static final String URL = "http://rvsn00p.sf.net";
 
 
@@ -85,6 +85,10 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
     protected Map _logLevelMenuItems = new HashMap();
     protected Map _logTableColumnMenuItems = new HashMap();
+    protected JSplitPane _splitPaneVertical;
+    protected  JSplitPane _splitPaneTableViewer;
+
+
 
     protected List _levels = null;
     protected List _columns = null;
@@ -293,6 +297,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                 Thread.yield();
                 pause(delay);
                 _logMonitorFrame.setVisible(true);
+                changeFontNameCombo(_fontNameCombo, _fontName);
+                changeFontSizeCombo(_fontSizeCombo,_fontSize);
             }
         });
     }
@@ -300,6 +306,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     public void show() {
         show(0);
         updateBanner();
+
     }
 
     public void updateBanner() {
@@ -756,6 +763,9 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         // and closed in 1.3
         tableViewerSplitPane.setDividerLocation(350);
 
+
+        setSplitPaneTableViewer(tableViewerSplitPane);
+
         //
         // Configure the CategoryExplorer
         //
@@ -781,6 +791,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         splitPane.setLeftComponent(categoryExplorerTreeScrollPane);
         // Do this last.
         splitPane.setDividerLocation(130);
+        setSplitPaneVertical(splitPane);
         //
         // Add the MenuBar, StatusArea, CategoryExplorer|LogTable to the
         // LogMonitorFrame.
@@ -801,6 +812,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         _configurationManager = new ConfigurationManager(this, _table);
 
         unPauseListeners();
+        _statusLabel.setText("Started @ " + new Date() );
 
     }
 
@@ -855,6 +867,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         result.append(" records.");
         return result.toString();
     }
+
 
     protected void makeLogTableListenToCategoryExplorer() {
         ActionListener listener = new ActionListener() {
@@ -1611,7 +1624,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     }
 
     protected JMenuItem createHelpAbout() {
-        final String title = "About Rendevous Sn00per";
+        final String title = "About Rendezvous Sn00per";
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('a');
         result.addActionListener(new ActionListener() {
@@ -1653,15 +1666,10 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                              "This product includes software developed by the Apache Software Foundation (http://www.apache.org/). ",
                              " ",
                              "Thanks goes to (in no special order):",
-                             "Stephanie Lundberg",
-                             "Thomas Bonderud",
-                             "Anders Lindlöf",
-                             "Stefan Axelsson",
-                             "Linda Lundberg",
-                             "Johan Hjort",
-                             "Magnus L Johansson",
-                             "Eric Albert (browserLauncher.sf.net)",
-                             "Richard Valk",
+                             "Stephanie Lundberg, Thomas Bonderud, Anders Lindlöf",
+                             "Stefan Axelsson, Linda Lundberg, Johan Hjort",
+                             "Magnus L Johansson, Eric Albert (browserLauncher.sf.net)",
+                             "Richard Valk, Joe Jensen, Stefan Farestam  ",
                              " ",
                              "Based on Jakarta log4J LogFactor5 ",
                              " ",
@@ -2060,6 +2068,16 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
     }
 
+    Rectangle getWindowBounds() {
+       return this.getBaseFrame().getBounds();
+
+    }
+
+    void setWindowBounds(Rectangle r){
+        this.getBaseFrame().setBounds(r);
+    }
+
+
     /**
      * Uses a Dialog box to accept a URL to a file to be opened
      * with the  GUI.
@@ -2225,6 +2243,35 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         _table.setFont(new Font(fontName, Font.PLAIN, getFontSize()));
         changeFontNameCombo(_fontNameCombo, fontName);
     }
+
+
+    protected void setSplitPaneVertical(JSplitPane _splitPaneVertical) {
+        this._splitPaneVertical = _splitPaneVertical;
+    }
+
+     int getSplitPaneVerticalPos() {
+        return _splitPaneVertical.getDividerLocation();
+    }
+
+    void setSplitPaneVerticalPos(int location) {
+        _splitPaneVertical.setDividerLocation(location);
+    }
+
+    int getSplitPaneTableViewerPos() {
+        return _splitPaneTableViewer.getDividerLocation();
+    }
+
+
+
+    void setSplitPaneTableViewer(JSplitPane _splitPaneTableViewer) {
+        this._splitPaneTableViewer = _splitPaneTableViewer;
+    }
+
+
+    void setSplitPaneTableViewerPos(int location) {
+        this._splitPaneTableViewer.setDividerLocation(location);
+    }
+
     //--------------------------------------------------------------------------
     //   Private Methods:
     //--------------------------------------------------------------------------
