@@ -46,15 +46,16 @@ public class LogTable extends JTable {
     protected JTextArea _detailTextArea;
 
     // For the columns:
-    protected int _numCols = 5;
+    protected int _numCols = 6;
     protected TableColumn[] _tableColumns = new TableColumn[_numCols];
-    protected int[] _colWidths = {43, 10, 40, 100, 260};
+    protected int[] _colWidths = {43, 10, 40, 100, 40,100};
     protected LogTableColumn[] _colNames = LogTableColumn.getLogTableColumnArray();
     protected int _colDate = 0;
     protected int _colMessageNum = 1;
     protected int _colLevel = 2;
     protected int _colSubject = 3;
-    protected int _colMessage = 4;
+    protected int _colTrackingID = 4;
+    protected int _colMessage = 5;
 
 
     //--------------------------------------------------------------------------
@@ -122,6 +123,9 @@ public class LogTable extends JTable {
      return _colDate;
     }
 
+    public int getTIDColumnID(){
+        return _colTrackingID;
+    }
 
     public synchronized void clearLogRecords() {
         //For JDK1.3

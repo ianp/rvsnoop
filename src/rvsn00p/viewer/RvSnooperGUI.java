@@ -8,6 +8,8 @@
 package rvsn00p.viewer;
 
 import com.tibco.tibrv.*;
+import com.tibco.sdk.MTree;
+import com.tibco.sdk.MTrackingInfo;
 import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.MsgType;
@@ -103,6 +105,9 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     protected RvParameters _lastUsedRvParameters = new RvParameters();
     protected boolean _isPaused = false;
     protected ClassLoader _cl = null;
+
+    protected static String _trackingIDTextFilter = "";
+    protected static boolean useMtrackingInfo = true;
 
 
 
@@ -204,6 +209,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
         LogRecord r = new RvSnooperLogRecord();
 
+
         String name;
         name = msg.getSendSubject();
         try {
@@ -230,6 +236,16 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        try {
+            TibrvMsgField f = null;
+            f = msg.getField("^tracking^");
+            if (f != null) {
+                TibrvMsg tid = (TibrvMsg) f.data;
+                r.setTrackingID((String) tid.get("^id^"));
+            }
+        } catch (TibrvException e) {
         }
 
         r.setSendSubject(msg.getSendSubject());
@@ -559,10 +575,11 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     protected static boolean matches(LogRecord record, String text) {
         String message = record.getMessage();
 
-        if (message == null || text == null) {
+        if (message == null && _trackingIDTextFilter == null || text == null) {
             return false;
         }
-        if (message.toLowerCase().indexOf(text.toLowerCase()) == -1) {
+        if (message.toLowerCase().indexOf(text.toLowerCase()) == -1 &&
+           _trackingIDTextFilter.indexOf(text.toLowerCase()) == -1) {
             return false;
         }
 
@@ -1526,6 +1543,9 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         editMenu.setMnemonic('e');
         editMenu.add(createEditFindMI());
         editMenu.add(createEditFindNextMI());
+        editMenu.addSeparator();
+        editMenu.add(createEditFilterTIDMI());
+        editMenu.add(createEditRestoreAllTIDMI());
         return editMenu;
     }
 
@@ -1564,6 +1584,85 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         );
         return editFindMI;
     }
+
+    protected JMenuItem createEditFilterTIDMI() {
+    JMenuItem editFilterNDCMI = new JMenuItem("Filter by tracking id");
+    editFilterNDCMI.setMnemonic('t');
+    editFilterNDCMI.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            String inputValue =
+                JOptionPane.showInputDialog(
+                    _logMonitorFrame,
+                    "Filter by this tracking id: ",
+                    "Filter Log Records by tracking id",
+                    JOptionPane.QUESTION_MESSAGE
+                );
+            setTIDTextFilter(inputValue);
+            filterByTID();
+            _table.getFilteredLogTableModel().refresh();
+            updateStatusLabel();
+          }
+        }
+
+    );
+    return editFilterNDCMI;
+  }
+
+   protected void setTIDTextFilter(String text) {
+    // if no value is set, set it to a blank string
+    // otherwise use the value provided
+    if (text == null) {
+      _trackingIDTextFilter = "";
+    } else {
+      _trackingIDTextFilter = text;
+    }
+  }
+  protected void filterByTID() {
+    String text = _trackingIDTextFilter;
+    if (text == null || text.length() == 0) {
+      return;
+    }
+
+    // Use new NDC filter
+    _table.getFilteredLogTableModel().
+        setLogRecordFilter(createTIDLogRecordFilter(text));
+  }
+   protected LogRecordFilter createTIDLogRecordFilter(String text) {
+    _trackingIDTextFilter = text;
+    LogRecordFilter result = new LogRecordFilter() {
+      public boolean passes(LogRecord record) {
+        String trackingID = record.getTrackingID();
+        CategoryPath path = new CategoryPath(record.getSubject() );
+        if (trackingID == null || _trackingIDTextFilter == null) {
+          return false;
+        } else if (trackingID.indexOf(_trackingIDTextFilter) == -1) {
+          return false;
+        } else {
+          return getMenuItem(record.getType()).isSelected() &&
+              _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
+        }
+      }
+    };
+
+    return result;
+  }
+  protected JMenuItem createEditRestoreAllTIDMI() {
+    JMenuItem editRestoreAllNDCMI = new JMenuItem("Restore all tracing ids");
+    editRestoreAllNDCMI.setMnemonic('r');
+    editRestoreAllNDCMI.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            _table.getFilteredLogTableModel().setLogRecordFilter(createLogRecordFilter());
+            // reset the text filter
+            setTIDTextFilter("");
+            _table.getFilteredLogTableModel().refresh();
+            updateStatusLabel();
+          }
+        }
+    );
+    return editRestoreAllNDCMI;
+  }
 
 
     protected JToolBar createToolBar() {

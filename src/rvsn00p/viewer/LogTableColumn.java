@@ -14,7 +14,9 @@ import java.util.Map;
 
 /**
  * LogTableColumn
+ * @author Örjan Lundberg
  *
+ * Based on Logfactor5 by
  * @author Michael J. Sikorsky
  * @author Brad Marlborough
  */
@@ -28,6 +30,7 @@ public class LogTableColumn implements java.io.Serializable {
     public final static LogTableColumn MESSAGE_NUM = new LogTableColumn("Msg#");
     public final static LogTableColumn LEVEL = new LogTableColumn("Type");
     public final static LogTableColumn SUBJECT = new LogTableColumn("Subject");
+    public final static LogTableColumn TID = new LogTableColumn("Tracking ID");
     public final static LogTableColumn MESSAGE = new LogTableColumn("Message");
 
     //--------------------------------------------------------------------------
@@ -45,8 +48,7 @@ public class LogTableColumn implements java.io.Serializable {
     //   Constructors:
     //--------------------------------------------------------------------------
     static {
-        _log4JColumns = new LogTableColumn[]{DATE, MESSAGE_NUM, LEVEL, SUBJECT,
-                                             MESSAGE};
+        _log4JColumns = new LogTableColumn[]{DATE, MESSAGE_NUM, LEVEL, SUBJECT, TID, MESSAGE};
 
         _logTableColumnMap = new HashMap();
 
