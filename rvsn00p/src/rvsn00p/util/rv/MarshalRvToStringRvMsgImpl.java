@@ -15,6 +15,10 @@ import  com.tibco.tibrv.TibrvCmMsg;
  * @author Örjan Lundberg
  */
 class MarshalRvToStringRvMsgImpl implements IMarshalRvToStringImpl {
+    public MarshalRvToStringRvMsgImpl() {
+        // check that the class exists in the classpath
+        new TibrvMsg();
+    }
 
     public String rvmsgToString(TibrvMsg msg){
 

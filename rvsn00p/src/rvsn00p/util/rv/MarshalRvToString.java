@@ -16,6 +16,7 @@ import com.tibco.tibrv.TibrvMsg;
 public class MarshalRvToString {
 
     static IMarshalRvToStringImpl _impl = null;
+    static String _sImplementationUsed = null;
 
     // selects the "best" possible implementation
     static {
@@ -28,6 +29,7 @@ public class MarshalRvToString {
             try {
 
                 _impl = new MarshalRvToStringRvScriptImpl();
+                _sImplementationUsed = "Rvscript";
                 bHasException = false;
             }
             catch (Error ex) {
@@ -42,6 +44,7 @@ public class MarshalRvToString {
 
                 _impl = new MarshalRvToStringMtreeImpl();
                 bHasException = false;
+                _sImplementationUsed = "Mtree";
             }
             catch (Error ex) {
                 bHasException = true;
@@ -50,15 +53,9 @@ public class MarshalRvToString {
         }
 
         if (bHasException == true) {
-            try {
-
-                _impl = new MarshalRvToStringRvMsgImpl();
-                bHasException = false;
-            }
-            catch (Error ex) {
-                bHasException = true;
-                lastError = ex;
-            }
+            _impl = new MarshalRvToStringRvMsgImpl();
+            bHasException = false;
+            _sImplementationUsed = "RvMsg";
         }
 
     }
