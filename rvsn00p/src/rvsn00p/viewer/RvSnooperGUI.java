@@ -57,7 +57,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.12";
+    public static final String VERSION = "RvSn00p v1.1.13";
     public static final String URL = "http://rvsn00p.sf.net";
 
 
