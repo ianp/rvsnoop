@@ -1,6 +1,21 @@
 Changes to RvSnoop
 
-Number refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
+Request ID Numbers refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
+
+Changes up to version 1.2.1 Wed Nov 27 23:16:33 CET 2002
+* Minimized number of objects sent to garbage collection (more work on this to follow)
+  I used "Compuware DevPartner Java Edition" (NuMega) for this
+  see http://www.compuware.com/products/devpartner/previews/java.htm 
+
+  (Remember to use the Configure->Set Max Number of records" to limit the number
+   of records contained in memory ) 
+
+* Batched creation of new log information objects, thus increasing performence under high load
+ 
+  
+* Changed HTML output format to include intendation of rvscript XML
+
+
 
 Changes up to version 1.1.13 Wed Nov 13 00:15:44 CET 2002
 Fixed 
