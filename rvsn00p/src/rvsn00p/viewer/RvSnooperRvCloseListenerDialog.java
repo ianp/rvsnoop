@@ -64,7 +64,6 @@ public class RvSnooperRvCloseListenerDialog extends RvSnooperDialog {
         pservice.setLayout(new FlowLayout());
         pservice.add(new JLabel("Service"));
         _tService = new JTextField(5);
-        // TODO: configure default
         _tService.setText(defaultParameters.getService());
         pservice.add(_tService);
         main.add(pservice);
@@ -136,7 +135,7 @@ public class RvSnooperRvCloseListenerDialog extends RvSnooperDialog {
         p.setDeamon(_tDaemon.getText());
         p.setNetwork(_tNetwork.getText());
         p.setService(_tService.getText());
-        p.setSubject(_tSubject.getText());
+        //p.setSubject(_tSubject.getText());
 
         return p;
     }
