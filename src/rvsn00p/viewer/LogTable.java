@@ -86,9 +86,6 @@ public class LogTable extends JTable {
         }
 
 
-
-
-
         ListSelectionModel rowSM = getSelectionModel();
         rowSM.addListSelectionListener(new LogTableListSelectionListener(this));
 
@@ -205,6 +202,35 @@ public class LogTable extends JTable {
         }
         return columnNameAndNumber;
     }
+
+    protected int getColumnWidth(String name) {
+        try {
+            for (int i = 0; i < _numCols; ++i) {
+                if (_colNames[i].getLabel().equalsIgnoreCase(name)) {
+                    TableColumnModel model = getColumnModel();
+                    return model.getColumn(i).getPreferredWidth();
+                }
+            }
+        } catch (Exception ex) {
+            return 0;
+        }
+
+        return 0;
+    }
+
+    void setColumnWidth(String name, int width) {
+        try {
+            for (int i = 0; i < _numCols; ++i) {
+                if (_colNames[i].getLabel().equalsIgnoreCase(name)) {
+                    TableColumnModel model = getColumnModel();
+                    model.getColumn(i).setPreferredWidth(width);
+                }
+            }
+        } catch (Exception ex) {
+
+        }
+    }
+
 
     //--------------------------------------------------------------------------
     //   Private Methods:

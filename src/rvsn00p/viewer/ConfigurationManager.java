@@ -11,7 +11,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Element;
 import rvsn00p.MsgType;
 import rvsn00p.MsgTypeFormatException;
 import rvsn00p.util.DateFormatManager;
@@ -58,6 +57,7 @@ public class ConfigurationManager extends Object {
     private static final String NAME = "name";
     private static final String PATH = "path";
     private static final String SELECTED = "selected";
+    private static final String COLUMWIDTH = "columnsize";
     private static final String EXPANDED = "expanded";
     private static final String CATEGORY = "subject";
     private static final String FIRST_CATEGORY_NAME = "Subjects";
@@ -75,6 +75,15 @@ public class ConfigurationManager extends Object {
     private static final String FONTSTYLE = "style";
     private static final String DATEFORMAT = "dateformat";
     private static final String DATEPATTERN = "pattern";
+    private static final String SPLITPANEPOS = "splitpanepos";
+    private static final String SPLITPANEPOSH = "horizontal";
+    private static final String SPLITPANEPOSV = "vertical";
+    private static final String WINDOWPOS = "windowpos";
+    private static final String WINDOWX = "windowsx";
+    private static final String WINDOWY = "windowy";
+    private static final String WINDOWWIDTH = "windowwidth";
+    private static final String WINDOWHEIGHT = "windowheight";
+
     //--------------------------------------------------------------------------
     //   Protected Variables:
     //--------------------------------------------------------------------------
@@ -109,6 +118,7 @@ public class ConfigurationManager extends Object {
         processMsgTypes(_gui.getLogLevelMenuItems(), xml);
         processMsgTypesColors(_gui.getLogLevelMenuItems(),
                 MsgType.getLogLevelColorMap(), xml);
+
         processLogTableColumns(LogTableColumn.getLogTableColumns(), xml);
 
 
@@ -118,14 +128,43 @@ public class ConfigurationManager extends Object {
 
         processDateFormat(_gui, xml);
 
+        processSplitPanes(_gui, xml);
+
+        processWindowPosition(_gui, xml);
+
 
         closeConfigurationXML(xml);
         store(xml.toString());
     }
 
+    private void processWindowPosition(RvSnooperGUI gui, StringBuffer xml) {
+
+        exportWindowPosition(gui.getWindowBounds(), xml);
+    }
+
+    private void exportWindowPosition(Rectangle r, StringBuffer xml) {
+        xml.append("\t<").append(WINDOWPOS).append(" ");
+        xml.append(WINDOWX).append("=\"").append(String.valueOf((int) r.getX())).append("\"").append(" ");
+        xml.append(WINDOWY).append("=\"").append(String.valueOf((int) r.getY())).append("\"").append(" ");
+        xml.append(WINDOWWIDTH).append("=\"").append(String.valueOf((int) r.getWidth())).append("\"").append(" ");
+        xml.append(WINDOWHEIGHT).append("=\"").append(String.valueOf((int) r.getHeight())).append("\"").append(" ");
+        xml.append("/>\n\r");
+    }
+
+    private void processSplitPanes(RvSnooperGUI gui, StringBuffer xml) {
+        exportSplitPanes(gui.getSplitPaneTableViewerPos(), gui.getSplitPaneVerticalPos(), xml);
+    }
+
+    private void exportSplitPanes(int horizontal, int vertical, StringBuffer xml) {
+        xml.append("\t<").append(SPLITPANEPOS).append(" ");
+        xml.append(SPLITPANEPOSH).append("=\"").append(String.valueOf(horizontal)).append("\"").append(" ");
+        xml.append(SPLITPANEPOSV).append("=\"").append(String.valueOf(vertical)).append("\"").append(" ");
+        xml.append("/>\n\r");
+    }
+
     private void processDateFormat(RvSnooperGUI gui, StringBuffer xml) {
 
-        exportDateFormatPattern(gui.getDateFormat(),xml);
+        exportDateFormatPattern(gui.getDateFormat(), xml);
 
     }
 
@@ -135,7 +174,7 @@ public class ConfigurationManager extends Object {
         xml.append("/>\n\r");
     }
 
-       protected void processDateFormat(Document doc) {
+    protected void processDateFormat(Document doc) {
 
         try {
             Node n;
@@ -147,8 +186,8 @@ public class ConfigurationManager extends Object {
             NamedNodeMap map = n.getAttributes();
             dateFormatPattern = getValue(map, DATEPATTERN);
 
-            if (dateFormatPattern != null ) {
-              _gui.setDateFormat(dateFormatPattern);
+            if (dateFormatPattern != null) {
+                _gui.setDateFormat(dateFormatPattern);
             }
 
         } catch (Exception e1) {
@@ -196,8 +235,9 @@ public class ConfigurationManager extends Object {
                 processLogLevelColors(doc);
                 processLogTableColumns(doc);
                 processFont(doc);
-
                 processDateFormat(doc);
+                processSplitPanes(doc);
+                processWindowPosition(doc);
 
 
             } catch (Exception e) {
@@ -205,7 +245,79 @@ public class ConfigurationManager extends Object {
                 // configuration xml file but do report a message
                 System.err.println("Unable process configuration file at " +
                         getFilename() + ". Error Message=" + e.getMessage());
+
+
             }
+        } else {
+            _table.setDateFormatManager(new DateFormatManager("HH:mm:ss.S"));
+        }
+
+    }
+
+    private void processWindowPosition(Document doc) {
+        try {
+            Node n;
+            NodeList nodes = doc.getElementsByTagName(WINDOWPOS);
+
+            String windowY;
+            String windowHeight;
+            String windowWidth;
+            String windowX;
+
+            n = nodes.item(0);
+            NamedNodeMap map = n.getAttributes();
+            windowHeight = getValue(map, WINDOWHEIGHT);
+            windowWidth = getValue(map, WINDOWWIDTH);
+            windowX = getValue(map, WINDOWX);
+            windowY = getValue(map, WINDOWY);
+
+            if (windowHeight != null && windowWidth != null
+                    && windowX != null && windowY != null) {
+                Rectangle r = new Rectangle(Integer.parseInt(windowX),
+                        Integer.parseInt(windowY),
+                        Integer.parseInt(windowWidth),
+                        Integer.parseInt(windowHeight));
+                _gui.setWindowBounds(r);
+
+            } else {
+
+                throw new Exception("");
+            }
+
+        } catch (Exception e1) {
+            //  if not there
+            e1.printStackTrace();
+            System.out.println(e1.getMessage());
+            _gui.updateFrameSize();
+        }
+
+    }
+
+    protected void processSplitPanes(Document doc) {
+        try {
+            Node n;
+            NodeList nodes = doc.getElementsByTagName(SPLITPANEPOS);
+
+            String sizeHorizontal;
+            String sizeVertical;
+
+            n = nodes.item(0);
+            NamedNodeMap map = n.getAttributes();
+            sizeHorizontal = getValue(map, SPLITPANEPOSH);
+            sizeVertical = getValue(map, SPLITPANEPOSV);
+
+            if (sizeHorizontal != null && sizeHorizontal != null) {
+                _gui.setSplitPaneTableViewerPos(Integer.parseInt(sizeHorizontal));
+                _gui.setSplitPaneVerticalPos(Integer.parseInt(sizeVertical));
+            } else {
+
+                throw new Exception("");
+            }
+
+        } catch (Exception e1) {
+            //  if not there
+            _gui.setSplitPaneVerticalPos(130);
+            _gui.setSplitPaneTableViewerPos(350);
         }
 
     }
@@ -295,7 +407,7 @@ public class ConfigurationManager extends Object {
             NamedNodeMap map = n.getAttributes();
             fontName = getValue(map, FONTNAME);
             fontSize = getValue(map, FONTSIZE);
-            fontStyle = getValue(map,FONTSTYLE);
+            fontStyle = getValue(map, FONTSTYLE);
 
             if (fontName != null && fontSize != null) {
                 _gui.setFontSize(Integer.parseInt(fontStyle));
@@ -309,11 +421,11 @@ public class ConfigurationManager extends Object {
     }
 
     private void processFont(Font f, StringBuffer xml) {
-        exportFont(f.getFontName(),f.getStyle(),f.getSize(), xml);
+        exportFont(f.getFontName(), f.getStyle(), f.getSize(), xml);
 
     }
 
-    private void exportFont(String fontName,int style, int size, StringBuffer xml) {
+    private void exportFont(String fontName, int style, int size, StringBuffer xml) {
         xml.append("\t<").append(FONTINFO).append(" ");
         xml.append(FONTNAME).append("=\"").append(fontName).append("\"").append(" ");
         xml.append(FONTSTYLE).append("=\"").append(style).append("\"").append(" ");
@@ -345,6 +457,7 @@ public class ConfigurationManager extends Object {
             }
             NamedNodeMap map = n.getAttributes();
             String name = getValue(map, NAME);
+
             try {
                 LogTableColumn column = LogTableColumn.valueOf(name);
                 JCheckBoxMenuItem item =
@@ -357,6 +470,7 @@ public class ConfigurationManager extends Object {
             } catch (LogTableColumnFormatException e) {
                 // ignore it will be on by default.
             }
+        }
 
             if (selectedColumns.isEmpty()) {
                 _table.setDetailedView();
@@ -364,8 +478,27 @@ public class ConfigurationManager extends Object {
                 _table.setView(selectedColumns);
             }
 
+            for (int i = 0; i < nodeList.getLength(); ++i) {
+                Node n = nodeList.item(i);
+
+                if (n == null) {
+                    return;
+                }
+                NamedNodeMap map = n.getAttributes();
+                String width;
+                String name;
+                try {
+                    name = getValue(map, NAME);
+                    width = getValue(map, COLUMWIDTH);
+
+                     _table.setColumnWidth(name, Integer.parseInt(width));
+
+                } catch (Exception e) {
+                    // ignore it will be on by default.
+                }
+
+            }
         }
-    }
 
     protected String getValue(NamedNodeMap map, String attr) {
         Node n = map.getNamedItem(attr);
@@ -501,7 +634,8 @@ public class ConfigurationManager extends Object {
         while (it.hasNext()) {
             LogTableColumn column = (LogTableColumn) it.next();
             JCheckBoxMenuItem item = _gui.getTableColumnMenuItem(column);
-            exportLogTableColumnXMLElement(column.getLabel(), item.isSelected(), xml);
+            int size = _table.getColumnWidth(column.getLabel());
+            exportLogTableColumnXMLElement(column.getLabel(), item.isSelected(), size, xml);
         }
 
         xml.append("\t</logtablecolumns>\r\n");
@@ -509,7 +643,7 @@ public class ConfigurationManager extends Object {
 
 
     private void openXMLDocument(StringBuffer xml) {
-        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n");
+        xml.append("<?xml version=\"1.0\" encoding=\"" + System.getProperty("file.encoding") + "\" ?>\r\n");
     }
 
     private void openConfigurationXML(StringBuffer xml) {
@@ -546,10 +680,11 @@ public class ConfigurationManager extends Object {
         xml.append("\"/>\r\n");
     }
 
-    private void exportLogTableColumnXMLElement(String label, boolean selected, StringBuffer xml) {
+    private void exportLogTableColumnXMLElement(String label, boolean selected, int size, StringBuffer xml) {
         xml.append("\t\t<").append(COLUMN).append(" ").append(NAME);
         xml.append("=\"").append(label).append("\" ");
-        xml.append(SELECTED).append("=\"").append(selected);
+        xml.append(SELECTED).append("=\"").append(selected).append("\" ");
+        xml.append(COLUMWIDTH).append("=\"").append(String.valueOf(size));
         xml.append("\"/>\r\n");
     }
     //--------------------------------------------------------------------------
