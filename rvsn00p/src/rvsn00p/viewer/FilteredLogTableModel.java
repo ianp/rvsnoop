@@ -55,6 +55,7 @@ public class FilteredLogTableModel
     static int _lastHTMLBufLength = 1000;
     final protected Date _conversionDate = new Date();
     final protected StringBuffer _conversionStrBuf = new StringBuffer(15);
+    final protected StringBuffer _outStrBuf = new StringBuffer(15);
 
     //--------------------------------------------------------------------------
     //   Private Variables:
@@ -299,8 +300,9 @@ public class FilteredLogTableModel
                 synchronized (_conversionDate) {
                     _conversionDate.setTime(lr.getMillis());
                     _conversionStrBuf.setLength(0);
-                    StringBuffer output = dfm.format(_conversionDate, _conversionStrBuf);
-                    return output.toString();
+                    _outStrBuf.setLength(0);
+                    _outStrBuf.append(dfm.format(_conversionDate, _conversionStrBuf));
+                    return _outStrBuf.toString();
                 }
             case 1:
                 return String.valueOf(lr.getSequenceNumber());
