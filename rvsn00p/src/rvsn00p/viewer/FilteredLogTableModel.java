@@ -54,6 +54,7 @@ public class FilteredLogTableModel
 
     protected DateFormatManager _dfm  = new DateFormatManager("HH:mm:ss.S");
     static int _lastHTMLBufLength = 1000;
+    protected Date _conversionDate = new Date();
 
     //--------------------------------------------------------------------------
     //   Private Variables:
@@ -284,17 +285,19 @@ public class FilteredLogTableModel
 
     }
 
-    protected Object getColumn(int col, LogRecord lr, DateFormatManager dfm) {
+    protected  Object getColumn(int col, LogRecord lr, DateFormatManager dfm) {
         if (lr == null) {
             return "NULL Column";
         }
 
         switch (col) {
             case 0:
-                String date = dfm.format(new Date(lr.getMillis())).toString();
-                return date;
+                synchronized (_conversionDate){
+                    _conversionDate.setTime(lr.getMillis());
+                    return dfm.format(_conversionDate).toString();
+                }
             case 1:
-                return new Long(lr.getSequenceNumber());
+                return String.valueOf(lr.getSequenceNumber() ) ;
             case 2:
                 return lr.getType();
             case 3:
