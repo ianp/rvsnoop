@@ -5,12 +5,13 @@
  * License version 1.1, a copy of which has been included with this
  * distribution in the LICENSE.txt file.
  */
-package rvsn00p.viewer.configure;
+package rvsn00p.viewer;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
 import rvsn00p.MsgType;
 import rvsn00p.MsgTypeFormatException;
 import rvsn00p.util.DateFormatManager;
@@ -53,7 +54,7 @@ public class ConfigurationManager extends Object {
     //   Constants:
     //--------------------------------------------------------------------------
     private static final String CONFIG_FILE_NAME = "conf.xml";
-    public static final  String CONFIG_DIR_NAME  = ".rvsnoop";
+    public static final String CONFIG_DIR_NAME = ".rvsnoop";
     private static final String NAME = "name";
     private static final String PATH = "path";
     private static final String SELECTED = "selected";
@@ -68,6 +69,10 @@ public class ConfigurationManager extends Object {
     private static final String BLUE = "blue";
     private static final String COLUMN = "column";
     private static final String SEP = System.getProperty("file.separator");
+    private static final String FONTINFO = "fontinfo";
+    private static final String FONTNAME = "name";
+    private static final String FONTSIZE = "size";
+    private static final String FONTSTYLE = "style";
     //--------------------------------------------------------------------------
     //   Protected Variables:
     //--------------------------------------------------------------------------
@@ -75,15 +80,16 @@ public class ConfigurationManager extends Object {
     //--------------------------------------------------------------------------
     //   Private Variables:
     //--------------------------------------------------------------------------
-    private RvSnooperGUI _monitor = null;
+    private RvSnooperGUI _gui = null;
     private LogTable _table = null;
+
 
     //--------------------------------------------------------------------------
     //   Constructors:
     //--------------------------------------------------------------------------
-    public ConfigurationManager(RvSnooperGUI monitor, LogTable table) {
+    public ConfigurationManager(RvSnooperGUI gui, LogTable table) {
         super();
-        _monitor = monitor;
+        _gui = gui;
         _table = table;
         load();
     }
@@ -92,24 +98,27 @@ public class ConfigurationManager extends Object {
     //--------------------------------------------------------------------------
 
     public void save() throws IOException {
-        CategoryExplorerModel model = _monitor.getCategoryExplorerTree().getExplorerModel();
+        CategoryExplorerModel model = _gui.getCategoryExplorerTree().getExplorerModel();
         CategoryNode root = model.getRootCategoryNode();
 
         StringBuffer xml = new StringBuffer(2048);
         openXMLDocument(xml);
         openConfigurationXML(xml);
-        processMsgTypes(_monitor.getLogLevelMenuItems(), xml);
-        processMsgTypesColors(_monitor.getLogLevelMenuItems(),
-                              MsgType.getLogLevelColorMap(), xml);
+        processMsgTypes(_gui.getLogLevelMenuItems(), xml);
+        processMsgTypesColors(_gui.getLogLevelMenuItems(),
+                MsgType.getLogLevelColorMap(), xml);
         processLogTableColumns(LogTableColumn.getLogTableColumns(), xml);
 
 
         processConfigurationNode(root, xml);
 
+        processFont(_table.getFont(), xml);
+
 
         closeConfigurationXML(xml);
         store(xml.toString());
     }
+
 
     public void reset() {
         deleteConfigurationFile();
@@ -147,16 +156,16 @@ public class ConfigurationManager extends Object {
                 processMsgTypes(doc);
                 processLogLevelColors(doc);
                 processLogTableColumns(doc);
+                processFont(doc);
 
                 //todo make configurable
                 DateFormatManager dfm = new DateFormatManager("HH:mm:ss.S");
                 _table.setDateFormatManager(dfm);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // ignore all error and just continue as if there was no
                 // configuration xml file but do report a message
                 System.err.println("Unable process configuration file at " +
-                                   getFilename() + ". Error Message=" + e.getMessage());
+                        getFilename() + ". Error Message=" + e.getMessage());
             }
         }
 
@@ -164,7 +173,7 @@ public class ConfigurationManager extends Object {
 
 
     protected void processCategories(Document doc) {
-        CategoryExplorerTree tree = _monitor.getCategoryExplorerTree();
+        CategoryExplorerTree tree = _gui.getCategoryExplorerTree();
         CategoryExplorerModel model = tree.getExplorerModel();
         NodeList nodeList = doc.getElementsByTagName(CATEGORY);
 
@@ -186,7 +195,7 @@ public class ConfigurationManager extends Object {
 
     protected void processMsgTypes(Document doc) {
         NodeList nodeList = doc.getElementsByTagName(LEVEL);
-        Map menuItems = _monitor.getLogLevelMenuItems();
+        Map menuItems = _gui.getLogLevelMenuItems();
 
         for (int i = 0; i < nodeList.getLength(); ++i) {
             Node n = nodeList.item(i);
@@ -196,8 +205,7 @@ public class ConfigurationManager extends Object {
                 JCheckBoxMenuItem item =
                         (JCheckBoxMenuItem) menuItems.get(MsgType.valueOf(name));
                 item.setSelected(getValue(map, SELECTED).equalsIgnoreCase("true"));
-            }
-            catch (MsgTypeFormatException e) {
+            } catch (MsgTypeFormatException e) {
                 // ignore it will be on by default.
             }
         }
@@ -226,16 +234,69 @@ public class ConfigurationManager extends Object {
                     level.setLogLevelColorMap(level, c);
                 }
 
-            }
-            catch (MsgTypeFormatException e) {
+            } catch (MsgTypeFormatException e) {
                 // ignore it will be on by default.
             }
         }
     }
 
+    protected void processFont(Document doc) {
+
+        try {
+            Node n;
+            NodeList nodes = doc.getElementsByTagName(FONTINFO);
+            System.out.println(nodes.toString() );
+
+            String fontSize;
+            String fontStyle;
+            String fontName;
+            fontSize = null;
+            fontName = null;
+
+            n = nodes.item(0);
+            NamedNodeMap map = n.getAttributes();
+            fontName = getValue(map, FONTNAME);
+            fontSize = getValue(map, FONTSIZE);
+            fontStyle = getValue(map,FONTSTYLE);
+
+            if (fontName != null && fontSize != null) {
+                _gui.setFontSize(Integer.parseInt(fontStyle));
+                _gui.setFontName(fontName);
+            }
+
+        } catch (Exception e1) {
+            // ignore if not there
+        }
+    }
+
+    private void processFont(Font f, StringBuffer xml) {
+        exportFont(f.getFontName(),f.getStyle(),f.getSize(), xml);
+
+    }
+
+    private void exportFont(String fontName,int style, int size, StringBuffer xml) {
+        xml.append("\t<").append(FONTINFO).append(" ");
+        xml.append(FONTNAME).append("=\"").append(fontName).append("\"").append(" ");
+        xml.append(FONTSTYLE).append("=\"").append(style).append("\"").append(" ");
+        xml.append(FONTSIZE).append("=\"").append(size).append("\"").append(" ");
+        xml.append("/>\n\r");
+    }
+
+    private void appendStartTag(StringBuffer s, String tag) {
+        s.append("\t<");
+        s.append(tag);
+        s.append(">\r\n");
+    }
+
+    private void appendCloseTag(StringBuffer s, String tag) {
+        s.append("\n</");
+        s.append(tag);
+        s.append(">\r\n");
+    }
+
     protected void processLogTableColumns(Document doc) {
         NodeList nodeList = doc.getElementsByTagName(COLUMN);
-        Map menuItems = _monitor.getLogTableColumnMenuItems();
+        Map menuItems = _gui.getLogTableColumnMenuItems();
         List selectedColumns = new ArrayList();
         for (int i = 0; i < nodeList.getLength(); ++i) {
             Node n = nodeList.item(i);
@@ -254,8 +315,7 @@ public class ConfigurationManager extends Object {
                 if (item.isSelected()) {
                     selectedColumns.add(column);
                 }
-            }
-            catch (LogTableColumnFormatException e) {
+            } catch (LogTableColumnFormatException e) {
                 // ignore it will be on by default.
             }
 
@@ -275,14 +335,14 @@ public class ConfigurationManager extends Object {
 
     protected void collapseTree() {
         // collapse everything except the first category
-        CategoryExplorerTree tree = _monitor.getCategoryExplorerTree();
+        CategoryExplorerTree tree = _gui.getCategoryExplorerTree();
         for (int i = tree.getRowCount() - 1; i > 0; i--) {
             tree.collapseRow(i);
         }
     }
 
     protected void selectAllNodes() {
-        CategoryExplorerModel model = _monitor.getCategoryExplorerTree().getExplorerModel();
+        CategoryExplorerModel model = _gui.getCategoryExplorerTree().getExplorerModel();
         CategoryNode root = model.getRootCategoryNode();
         Enumeration all = root.breadthFirstEnumeration();
         CategoryNode n = null;
@@ -298,8 +358,7 @@ public class ConfigurationManager extends Object {
         if (!f.exists()) {
             try {
                 f.mkdirs();
-            }
-            catch (SecurityException e) {
+            } catch (SecurityException e) {
                 throw e;
             }
         }
@@ -316,23 +375,19 @@ public class ConfigurationManager extends Object {
             if (!f.exists()) {
                 try {
                     f.createNewFile();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
 
-                }
-                finally {
-                  f = null;
+                } finally {
+                    f = null;
                 }
             }
-
 
 
             PrintWriter writer = new PrintWriter(new FileWriter(getFilename()));
 
             writer.print(s);
             writer.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             // do something with this error.
             throw e;
         }
@@ -345,10 +400,9 @@ public class ConfigurationManager extends Object {
             if (f.exists()) {
                 f.delete();
             }
-        }
-        catch (SecurityException e) {
+        } catch (SecurityException e) {
             System.err.println("Cannot delete " + getFilename() +
-                               " because a security violation occured.");
+                    " because a security violation occured.");
         }
     }
 
@@ -363,7 +417,7 @@ public class ConfigurationManager extends Object {
     //   Private Methods:
     //--------------------------------------------------------------------------
     private void processConfigurationNode(CategoryNode node, StringBuffer xml) {
-        CategoryExplorerModel model = _monitor.getCategoryExplorerTree().getExplorerModel();
+        CategoryExplorerModel model = _gui.getCategoryExplorerTree().getExplorerModel();
 
         Enumeration all = node.breadthFirstEnumeration();
         CategoryNode n = null;
@@ -407,7 +461,7 @@ public class ConfigurationManager extends Object {
         Iterator it = logTableColumnMenuItems.iterator();
         while (it.hasNext()) {
             LogTableColumn column = (LogTableColumn) it.next();
-            JCheckBoxMenuItem item = _monitor.getTableColumnMenuItem(column);
+            JCheckBoxMenuItem item = _gui.getTableColumnMenuItem(column);
             exportLogTableColumnXMLElement(column.getLabel(), item.isSelected(), xml);
         }
 
@@ -428,7 +482,7 @@ public class ConfigurationManager extends Object {
     }
 
     private void exportXMLElement(CategoryNode node, TreePath path, StringBuffer xml) {
-        CategoryExplorerTree tree = _monitor.getCategoryExplorerTree();
+        CategoryExplorerTree tree = _gui.getCategoryExplorerTree();
 
         xml.append("\t<").append(CATEGORY).append(" ");
         xml.append(NAME).append("=\"").append(node.getTitle()).append("\" ");
