@@ -23,6 +23,9 @@ import java.util.Vector;
 /**
  * LogTable.
  *
+ * @author Örjan Lundberg
+ *
+ * Based on Logfactor5 By
  * @author Michael J. Sikorsky
  * @author Robert Shaw
  * @author Brad Marlborough
@@ -45,13 +48,13 @@ public class LogTable extends JTable {
     // For the columns:
     protected int _numCols = 5;
     protected TableColumn[] _tableColumns = new TableColumn[_numCols];
-    protected int[] _colWidths = {40, 40, 40, 70, 360};
+    protected int[] _colWidths = {43, 10, 40, 100, 260};
     protected LogTableColumn[] _colNames = LogTableColumn.getLogTableColumnArray();
     protected int _colDate = 0;
     protected int _colMessageNum = 1;
-    protected int _colLevel = 3;
-    protected int _colSubject = 4;
-    protected int _colMessage = 5;
+    protected int _colLevel = 2;
+    protected int _colSubject = 3;
+    protected int _colMessage = 4;
 
 
     //--------------------------------------------------------------------------
@@ -105,6 +108,14 @@ public class LogTable extends JTable {
     public void setDateFormatManager(DateFormatManager dfm) {
         //_dateFormatManager = dfm;
         getFilteredLogTableModel().setDateFormatManager(dfm);
+    }
+
+    public int getMsgColumnID(){
+     return _colMessage;
+    }
+
+    public int getSubjectColumnID(){
+     return _colSubject;
     }
 
     public synchronized void clearLogRecords() {
@@ -162,8 +173,6 @@ public class LogTable extends JTable {
             _rowHeight = height + height / 3;
             setRowHeight(_rowHeight);
         }
-
-
     }
 
 
