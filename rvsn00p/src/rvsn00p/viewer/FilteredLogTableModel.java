@@ -245,7 +245,7 @@ public class FilteredLogTableModel
 
                 //date format
                 if( i == 0) {
-                   buf.append(" (");
+                   buf.append("<br>(");
                    buf.append(dfMgr.getPattern() );
                    buf.append(")");
                 }
