@@ -84,7 +84,7 @@ public class StartRvSnooper {
 
         gui.setFrameSize(getDefaultMonitorWidth(),
                              getDefaultMonitorHeight());
-        gui.setFontSize(12);
+
         gui.show();
 
     }

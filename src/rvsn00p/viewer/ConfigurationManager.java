@@ -73,6 +73,8 @@ public class ConfigurationManager extends Object {
     private static final String FONTNAME = "name";
     private static final String FONTSIZE = "size";
     private static final String FONTSTYLE = "style";
+    private static final String DATEFORMAT = "dateformat";
+    private static final String DATEPATTERN = "pattern";
     //--------------------------------------------------------------------------
     //   Protected Variables:
     //--------------------------------------------------------------------------
@@ -114,9 +116,46 @@ public class ConfigurationManager extends Object {
 
         processFont(_table.getFont(), xml);
 
+        processDateFormat(_gui, xml);
+
 
         closeConfigurationXML(xml);
         store(xml.toString());
+    }
+
+    private void processDateFormat(RvSnooperGUI gui, StringBuffer xml) {
+
+        exportDateFormatPattern(gui.getDateFormat(),xml);
+
+    }
+
+    private void exportDateFormatPattern(String pattern, StringBuffer xml) {
+        xml.append("\t<").append(DATEFORMAT).append(" ");
+        xml.append(DATEPATTERN).append("=\"").append(pattern).append("\"").append(" ");
+        xml.append("/>\n\r");
+    }
+
+       protected void processDateFormat(Document doc) {
+
+        try {
+            Node n;
+            NodeList nodes = doc.getElementsByTagName(DATEFORMAT);
+
+            String dateFormatPattern;
+
+            n = nodes.item(0);
+            NamedNodeMap map = n.getAttributes();
+            dateFormatPattern = getValue(map, DATEPATTERN);
+
+            if (dateFormatPattern != null ) {
+              _gui.setDateFormat(dateFormatPattern);
+            }
+
+        } catch (Exception e1) {
+            //  if not there
+            _gui.setDateFormat("HH:mm:ss.S");
+
+        }
     }
 
 
@@ -158,9 +197,9 @@ public class ConfigurationManager extends Object {
                 processLogTableColumns(doc);
                 processFont(doc);
 
-                //todo make configurable
-                DateFormatManager dfm = new DateFormatManager("HH:mm:ss.S");
-                _table.setDateFormatManager(dfm);
+                processDateFormat(doc);
+
+
             } catch (Exception e) {
                 // ignore all error and just continue as if there was no
                 // configuration xml file but do report a message
@@ -245,7 +284,6 @@ public class ConfigurationManager extends Object {
         try {
             Node n;
             NodeList nodes = doc.getElementsByTagName(FONTINFO);
-            System.out.println(nodes.toString() );
 
             String fontSize;
             String fontStyle;
@@ -265,7 +303,8 @@ public class ConfigurationManager extends Object {
             }
 
         } catch (Exception e1) {
-            // ignore if not there
+            //  if not there
+            _gui.setFontSize(12);
         }
     }
 

@@ -51,7 +51,7 @@ public class FilteredLogTableModel
                                     "Tracking ID",
                                     "Message"};
 
-    protected DateFormatManager _dfm = new DateFormatManager("HH:mm:ss.S");
+    protected DateFormatManager _dfm = null;
     static int _lastHTMLBufLength = 1000;
     final protected Date _conversionDate = new Date();
     final protected StringBuffer _conversionStrBuf = new StringBuffer(15);
