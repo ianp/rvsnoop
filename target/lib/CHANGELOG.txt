@@ -2,6 +2,20 @@ Changes to RvSnoop
 
 Number refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
 
+Changes up to version 1.1.11 Sun Nov 10 12:54:30 CET 2002
+Added: 
+Tracking id column in table. If a MTrackingInfo class is found in the message its
+tracking id is put into this field. 
+
+Operation "Edit->Filter by tracking id" 
+Operation "Edit->Remove tracking id filter" 
+
+Added ability to supply multiple subjects when setting up listeners
+ie the command line argument "tcp:7500|7500||subja,subjb" vill listen for
+subja and subjb on the daemon tcp:7500 on servce 7500. Adding another subject
+subjc is done by just using the "Add listener". 
+
+
 Changes up to version 1.1.10 Wed Oct 30 22:26:19 CET 2002
 Added: 
 -title <title> argument to set the banner name 
