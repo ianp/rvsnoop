@@ -50,18 +50,27 @@ public class StartRvSnooper {
      * the console settings.
      */
     public final static void main(String[] args) {
+        int startAt = 0;
+        String title;
+        title = null;
 
-        if (args.length != 0)
+        if (args.length != 0){
             if (args[0].compareToIgnoreCase("-h") == 0) {
                 System.err.println(RvSnooperGUI.VERSION);
-                System.err.println("Usage: rvsnoop.StartRvSnooper [Daemon|Service|Network|Subject] ...  ");
+                System.err.println("Usage: rvsnoop.StartRvSnooper [-title t] [Daemon|Service|Network|Subject] ...  ");
                 System.err.println("Example: rvsnoop.StartRvSnooper \"tcp:7500|||a.>\" \"tcp:7500|||b.>\"  ");
                 System.exit(-1);
+            }  else if( args[0].compareToIgnoreCase("-title") == 0) {
+                title = args[1];
+                startAt = 2;
             }
+        }
+
+
 
         Set setRvListenersParam = new HashSet();
         if (args.length > 0) {
-            for ( int iarg = 0; args.length > iarg;++iarg) {
+            for ( int iarg = startAt; args.length > iarg;++iarg) {
                 RvParameters p = new RvParameters();
                 p.configureByLineString(args[iarg]);
                 setRvListenersParam.add(p);
@@ -70,13 +79,13 @@ public class StartRvSnooper {
             System.out.println(RvSnooperGUI.VERSION);
         }
 
-        RvSnooperGUI monitor = new RvSnooperGUI(
-                MsgType.getAllDefaultLevels(), setRvListenersParam);
+        RvSnooperGUI gui = new RvSnooperGUI(
+                MsgType.getAllDefaultLevels(), setRvListenersParam, title);
 
-        monitor.setFrameSize(getDefaultMonitorWidth(),
+        gui.setFrameSize(getDefaultMonitorWidth(),
                              getDefaultMonitorHeight());
-        monitor.setFontSize(12);
-        monitor.show();
+        gui.setFontSize(12);
+        gui.show();
 
     }
 
