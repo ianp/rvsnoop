@@ -1117,7 +1117,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
             fd.setFile("*.html");
             fd.show();
-            String filename = fd.getFile();
+            String filename = fd.getDirectory() + fd.getFile();
 
             if (filename != null) {
 
