@@ -17,7 +17,7 @@
   <!-- prefixed with "env". -->
   <property environment="env"/>
 
-  <property name="version" value="1.1.5"/>
+  <property name="version" value="1.1.11"/>
 
   <!-- The base directory relative to which most targets are built -->
   <property name="base" value="."/>
@@ -72,6 +72,7 @@
     <pathelement location="${build.home}/classes"/>
     <pathelement location="${jaxp.parser.jar}"/>
     <pathelement location="${tibcorv.home}/lib/tibrvj.jar"/>
+    <pathelement location="${tibcorvscript.home}/rvscript.jar"/>
     <fileset dir="${tibcosdk.home}/java">
       <include name="*.jar"/>
     </fileset>

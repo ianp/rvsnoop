@@ -7,9 +7,12 @@
  */
 package rvsn00p;
 
+import rvsn00p.util.DateFormatManager;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * LogRecord.  A LogRecord encapsulates the details of your desired log
@@ -43,6 +46,10 @@ public abstract class LogRecord implements java.io.Serializable {
     protected String _thrownStackTrace;
     protected Throwable _thrown;
     protected String _replySubject;
+
+
+
+    protected String _trackingID;
 
     //--------------------------------------------------------------------------
     //   Private Variables:
@@ -82,11 +89,18 @@ public abstract class LogRecord implements java.io.Serializable {
      * Set the type of this LogRecord.
      *
      * @param type The MsgType for this record.
-     * @see #gettype()
      * @see MsgType
      */
     public void setType(MsgType type) {
         _type = type;
+    }
+
+       public String getTrackingID() {
+        return _trackingID;
+    }
+
+    public void setTrackingID(String _trackingID) {
+        this._trackingID = _trackingID;
     }
 
     /**
@@ -109,7 +123,6 @@ public abstract class LogRecord implements java.io.Serializable {
      * description of what a subject is see setSubject().
      *
      * @return The subject of this record.
-     * @see #setSubject(String)
      */
     public String getSubject() {
         return (_sSubject);
@@ -284,9 +297,15 @@ public abstract class LogRecord implements java.io.Serializable {
      */
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        buf.append("LogRecord: [" + _type + ", " + _message + "]");
+        buf.append("LogRecord: [");
+        buf.append(_type);
+        buf.append(",");
+        buf.append(_message);
+        buf.append("]");
         return (buf.toString());
     }
+
+
 
 
     /**

@@ -7,15 +7,17 @@
  */
 package rvsn00p.viewer;
 
-import com.tibco.sdk.MTree;
 import com.tibco.tibrv.*;
 import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.MsgType;
 import rvsn00p.RvSnooperLogRecord;
+import rvsn00p.sender.MsgSender;
 import rvsn00p.util.DateFormatManager;
 import rvsn00p.util.rv.RvController;
 import rvsn00p.util.rv.RvParameters;
+import rvsn00p.util.rv.MarshalRvToString;
+import rvsn00p.util.rv.RvScriptInfo;
 import rvsn00p.viewer.categoryexplorer.CategoryExplorerTree;
 import rvsn00p.viewer.categoryexplorer.CategoryPath;
 import rvsn00p.viewer.configure.ConfigurationManager;
@@ -27,13 +29,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
 
 import rvsn00p.util.BrowserLauncher;
+import rvsn00p.sender.MsgSender;
 
 /**
  *
@@ -55,14 +57,15 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.5";
+    public static final String VERSION = "RvSn00p v1.1.11";
     public static final String URL = "http://rvsn00p.sf.net";
-    public static final String NAME = "RvSn00p";
+
 
 
     //--------------------------------------------------------------------------
     //   Protected Variables:
     //--------------------------------------------------------------------------
+    protected String _name = null;
     protected JFrame _logMonitorFrame;
     protected int _logMonitorFrameWidth = 550;
     protected int _logMonitorFrameHeight = 500;
@@ -73,8 +76,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
     protected JScrollPane _logTableScrollPane;
     protected JLabel _statusLabel;
-    protected Object _lock = new Object();
     protected JComboBox _fontSizeCombo;
+    protected JButton _pauseButton = null;
 
     protected int _fontSize = 10;
     protected String _fontName = "Dialog";
@@ -82,7 +85,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
     protected boolean _loadSystemFonts = false;
     protected boolean _trackTableScrollPane = true;
-    protected Dimension _lastTableViewportSize;
     protected boolean _callSystemExitOnClose = true;
     protected List _displayedLogBrokerProperties = new Vector();
 
@@ -95,12 +97,17 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
     protected ConfigurationManager _configurationManager = null;
     protected MRUListnerManager _mruListnerManager = null;
-    protected File _fileLocation = null;
 
     protected boolean _displaySystemMsgs = true;
     protected boolean _displayIMMsgs = true;
     protected RvParameters _lastUsedRvParameters = new RvParameters();
-    protected boolean _useSDK = true;
+    protected boolean _isPaused = false;
+    protected ClassLoader _cl = null;
+
+    protected static String _trackingIDTextFilter = "";
+    protected static boolean useMtrackingInfo = true;
+
+
 
 
     //--------------------------------------------------------------------------
@@ -114,22 +121,18 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     /**
      * Construct a RvSnooperGUI.
      */
-    public RvSnooperGUI(List MsgTypes, Set listeners) {
+    public RvSnooperGUI(List MsgTypes, Set listeners, String name) {
 
         _levels = MsgTypes;
         _columns = LogTableColumn.getLogTableColumns();
         _columns = LogTableColumn.getLogTableColumns();
+        _name = name;
+
 
         initComponents();
 
         _logMonitorFrame.addWindowListener(
                 new LogBrokerMonitorWindowAdaptor(this));
-
-        if (System.getProperty("use.sdk", "true").compareToIgnoreCase("false") == 0) {
-            _useSDK = false;
-            System.out.println("Disabling use of SDK classes");
-        }
-
 
         initTibco();
         startListeners(listeners);
@@ -146,20 +149,20 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
                 RvParameters p = (RvParameters) itrl.next();
 
-                p.setDescription(" <a href=\"" + URL + "\">" + VERSION + "</a> " + p.getDescription() );
+                p.setDescription(" <a href=\"" + URL + "\">" + VERSION + "</a> ");
 
                 RvController.startRvListener(p, this);
 
                 _lastUsedRvParameters = p;
 
-            }
-            catch (ClassCastException ex) {
+            } catch (ClassCastException ex) {
                 RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                         getBaseFrame(), ex.getMessage());
-            }
-            catch (TibrvException ex) {
-                RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            } catch (TibrvException ex) {
+                RvSnooperErrorDialog error;
+                error = new RvSnooperErrorDialog(
                         getBaseFrame(), "Tibco Listener " + ex.getMessage());
+
             }
         }
 
@@ -169,16 +172,17 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     protected void initTibco() {
         try {
             RvController.open();
-        }
-        catch (TibrvException e) {
+        } catch (TibrvException e) {
             String s = "Failed to open Tibrv : ";
             s += e.getMessage();
             s += "\nCheck that the \"tibrv\\bin\" (win) and  \"tibrv\\lib\" \n ";
             s += "is found within you PATH (win) or LD_LIBRARY_PATH (unix/linux) ";
 
-            RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            System.err.println(s);
+            RvSnooperErrorDialog error;
+            error = new RvSnooperErrorDialog(
                     getBaseFrame(), s);
-            System.exit(0);
+            System.exit(1);
         }
     }
 
@@ -193,25 +197,53 @@ public class RvSnooperGUI implements TibrvMsgCallback {
      */
     public void onMsg(TibrvListener listener, TibrvMsg msg) {
 
+        if (isPaused()) {
+            return;
+        }
         if (filterRvMsg(msg) == false) {
             return;
         }
 
+
         LogRecord r = new RvSnooperLogRecord();
 
-        if (_useSDK == true) {
+
+        String name;
+        name = msg.getSendSubject();
+        try {
+            // try to extract the two last nameparts
+            int ix = name.lastIndexOf(".");
+            int ix2 = name.substring(0,ix).lastIndexOf(".");
+            name = name.substring(ix2+1,name.length());
+        } catch (Exception e) {
+        }
+
+
+        try {
+            r.setMessage(MarshalRvToString.rvmsgToString(msg, name) );
+        }  catch (Exception ex) {
+            ex.printStackTrace();
+            _statusLabel.setText(ex.getMessage() );
             try {
-                MTree t1 = new MTree("");
-                t1.use_tibrvMsg(msg);
-                r.setMessage(t1.toString());
-            } catch (Exception ex) {
-                ex.printStackTrace(System.out);
-                RvSnooperErrorDialog error = new RvSnooperErrorDialog(
-                        getBaseFrame(), "Check that you have included the TIBCO SDK Classes " +
-                                        ex.getMessage());
+                // sometimes rvscript generates strange error messages such as
+                //   KeyError: INVALID
+                //   Traceback (innermost last):
+                //   File "/home/stefan/tprojects/rvscript/work/tibrvXmlConvert.py", line 0, in rvmsgToXml
+                // try to use the msg.toString instead of an error dialog
+                r.setMessage(msg.toString() );
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } else {
-            r.setMessage(msg.toString());
+        }
+
+        try {
+            TibrvMsgField f = null;
+            f = msg.getField("^tracking^");
+            if (f != null) {
+                TibrvMsg tid = (TibrvMsg) f.data;
+                r.setTrackingID((String) tid.get("^id^"));
+            }
+        } catch (TibrvException e) {
         }
 
         r.setSendSubject(msg.getSendSubject());
@@ -229,24 +261,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
     }
 
-
-    protected boolean filterRvMsg(final TibrvMsg msg) {
-        if (_displaySystemMsgs == false) {
-            if (msg.getSendSubject().startsWith("_")) {
-                // do not log anyting
-                return false;
-            }
-        }
-
-        if (_displayIMMsgs == false) {
-            if (msg.getSendSubject().startsWith("im")) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
 
 
     /**
@@ -273,8 +287,20 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     }
 
     public void updateBanner() {
+        String sBanner;
 
-        this.setTitle(VERSION + " " + RvController.getTransports().toString());
+        if(_name != null ){
+          sBanner = _name;
+          sBanner += " ";
+          sBanner += RvController.getTransports().toString();
+        } else {
+          sBanner = RvController.getTransports().toString();
+        }
+
+        sBanner += " ";
+        sBanner += VERSION;
+
+        this.setTitle(sBanner );
 
     }
 
@@ -289,8 +315,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         try {
             RvController.shutdownAll();
             RvController.close();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
 
@@ -414,6 +439,69 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //   Protected Methods:
     //--------------------------------------------------------------------------
 
+    protected boolean isPaused() {
+        return _isPaused;
+    }
+
+
+    protected void pauseListeners() {
+        _pauseButton.setText("Continue all listeners");
+        _pauseButton.setToolTipText("Unpause listeners");
+        _statusLabel.setText("All listeners are now paused");
+
+
+        ImageIcon pbIcon = null;
+        URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/restart.gif");
+
+        if (pbIconURL != null) {
+            pbIcon = new ImageIcon(pbIconURL);
+        }
+
+        if (pbIcon != null) {
+            _pauseButton.setIcon(pbIcon);
+        }
+
+        _isPaused = true;
+    }
+
+    protected void unPauseListeners() {
+        _pauseButton.setText("Pause all listeners");
+        _pauseButton.setToolTipText("Put listeners on hold");
+        _statusLabel.setText("All listeners are now active");
+
+        ImageIcon pbIcon = null;
+        URL pbIconURL = _cl.getResource("rvsn00p/viewer/images/pauseon.gif");
+
+        if (pbIconURL != null) {
+            pbIcon = new ImageIcon(pbIconURL);
+        }
+
+        if (pbIcon != null) {
+            _pauseButton.setIcon(pbIcon);
+        }
+        _isPaused = false;
+    }
+
+
+    protected boolean filterRvMsg(final TibrvMsg msg) {
+        if (_displaySystemMsgs == false) {
+            if (msg.getSendSubject().startsWith("_")) {
+                // do not log anyting
+                return false;
+            }
+        }
+
+        if (_displayIMMsgs == false) {
+            if (msg.getSendSubject().startsWith("im")) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+
     protected void setSearchText(String text) {
         _searchText = text;
     }
@@ -482,13 +570,14 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     /**
      * Check to see if the any records contain the search string.
      */
-    protected boolean matches(LogRecord record, String text) {
+    protected static boolean matches(LogRecord record, String text) {
         String message = record.getMessage();
 
-        if (message == null || text == null) {
+        if (message == null && _trackingIDTextFilter == null || text == null) {
             return false;
         }
-        if (message.toLowerCase().indexOf(text.toLowerCase()) == -1) {
+        if (message.toLowerCase().indexOf(text.toLowerCase()) == -1 &&
+           _trackingIDTextFilter.indexOf(text.toLowerCase()) == -1) {
             return false;
         }
 
@@ -500,7 +589,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
      * may become garbled.  This method clears and resets the text of the
      * text area.
      */
-    protected void refresh(JTextArea textArea) {
+    protected static void refresh(JTextArea textArea) {
         String text = textArea.getText();
         textArea.setText("");
         textArea.setText(text);
@@ -519,7 +608,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
      * size actually selected.
      * @return -1 if unable to select an appropriate font
      */
-    protected int changeFontSizeCombo(JComboBox box, int requestedSize) {
+    protected static int changeFontSizeCombo(JComboBox box, int requestedSize) {
         int len = box.getItemCount();
         int currentValue;
         Object currentObject;
@@ -547,7 +636,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         setFontSize(_table, fontSize);
     }
 
-    protected void setFontSize(Component component, int fontSize) {
+    protected static void setFontSize(Component component, int fontSize) {
         Font oldFont = component.getFont();
         Font newFont =
                 new Font(oldFont.getFontName(), oldFont.getStyle(), fontSize);
@@ -559,11 +648,10 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         centerFrame(_logMonitorFrame);
     }
 
-    protected void pause(int millis) {
+    protected static void pause(int millis) {
         try {
             Thread.sleep(millis);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
 
         }
     }
@@ -572,7 +660,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         //
         // Configure the Frame.
         //
-        _logMonitorFrame = new JFrame(NAME);
+        _logMonitorFrame = new JFrame(_name);
 
         _logMonitorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -651,9 +739,9 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         _logMonitorFrame.getRootPane().setJMenuBar(createMenuBar());
         _logMonitorFrame.getContentPane().add(splitPane, BorderLayout.CENTER);
         _logMonitorFrame.getContentPane().add(createToolBar(),
-                                              BorderLayout.NORTH);
+                BorderLayout.NORTH);
         _logMonitorFrame.getContentPane().add(createStatusArea(),
-                                              BorderLayout.SOUTH);
+                BorderLayout.SOUTH);
 
         makeLogTableListenToCategoryExplorer();
         addTableModelProperties();
@@ -662,6 +750,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         // Configure ConfigurationManager
         //
         _configurationManager = new ConfigurationManager(this, _table);
+
+        unPauseListeners();
 
     }
 
@@ -679,12 +769,16 @@ public class RvSnooperGUI implements TibrvMsgCallback {
 
 
     protected void updateStatusLabel() {
-        _statusLabel.setText(getRecordsDisplayedMessage());
+        _statusLabel.setText(getRecordsDisplayedMessage() + getFileEncodingMessage());
     }
 
     protected String getRecordsDisplayedMessage() {
         FilteredLogTableModel model = _table.getFilteredLogTableModel();
         return getStatusText(model.getRowCount(), model.getTotalRowCount());
+    }
+
+    protected String getFileEncodingMessage() {
+        return "  Encoding:" + System.getProperty("file.encoding");
     }
 
     protected void addTableModelProperties() {
@@ -703,7 +797,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         });
     }
 
-    protected String getStatusText(int displayedRows, int totalRows) {
+    protected static String getStatusText(int displayedRows, int totalRows) {
         StringBuffer result = new StringBuffer();
         result.append("Displaying: ");
         result.append(displayedRows);
@@ -737,7 +831,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return (statusArea);
     }
 
-    protected JTextArea createDetailTextArea() {
+    protected static JTextArea createDetailTextArea() {
         JTextArea detailTA = new JTextArea();
         detailTA.setFont(new Font("Monospaced", Font.PLAIN, 14));
         detailTA.setTabSize(3);
@@ -750,6 +844,9 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
+
+        //menuBar.add(createMessageMenu());
+
         menuBar.add(createMsgTypeMenu());
         menuBar.add(createViewMenu());
         menuBar.add(createConfigureMenu());
@@ -758,9 +855,92 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return (menuBar);
     }
 
+    protected JMenu createMessageMenu() {
+        JMenu result = new JMenu("Message");
+        result.setMnemonic('m');
+        result.add(createResendMenuItem());
+
+        return result;
+    }
+
+    protected JMenuItem createSaveSelectedAsRvscriptMenuItem() {
+        JMenuItem result = new JMenuItem("Save selected as rvscript");
+        result.setMnemonic('r');
+
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                ListSelectionModel lsm = _table.getSelectionModel();
+                if (lsm.isSelectionEmpty()) {
+                    _statusLabel.setText("No rows are selected.");
+                } else {
+                    int selectedRow = lsm.getMinSelectionIndex();
+
+                    FilteredLogTableModel ftm;
+                    ftm = _table.getFilteredLogTableModel();
+
+                    final String sMsg = (String) _table.getModel().getValueAt(selectedRow, _table.getMsgColumnID());
+                    final String sSubject = (String) _table.getModel().getValueAt(selectedRow,
+                            _table.getSubjectColumnID());
+
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            RvSnooperFileHandler.saveMsgAsRvScript(sSubject, sMsg, VERSION + " " + URL, getBaseFrame(),
+                                    _statusLabel);
+                        }
+                    });
+                }
+            }
+        });
+
+        if (!RvScriptInfo.isAvaliable()) {
+            result.setEnabled(false);
+        }
+        return result;
+    }
+
+    protected JMenuItem createResendMenuItem() {
+        JMenuItem result = new JMenuItem("Resend selected");
+        result.setMnemonic('r');
+
+
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+
+                ListSelectionModel lsm = _table.getSelectionModel();
+
+                if (lsm.isSelectionEmpty()) {
+                    //no rows are selected
+                } else {
+                    int selectedRow = lsm.getMinSelectionIndex();
+
+                    FilteredLogTableModel ftm;
+                    ftm = _table.getFilteredLogTableModel();
+
+
+                    final String sMsg = (String) _table.getModel().getValueAt(selectedRow, _table.getMsgColumnID());
+                    final String sSubject = (String) _table.getModel().getValueAt(selectedRow,
+                            _table.getSubjectColumnID());
+
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            MsgSender s = new MsgSender(_logMonitorFrame, VERSION, sSubject, sMsg,
+                                    _lastUsedRvParameters.getDaemon(), _lastUsedRvParameters.getService(),
+                                    _lastUsedRvParameters.getNetwork());
+                            s.show();
+                        }
+                    });
+
+                }
+            }
+        });
+        return result;
+    }
+
     protected JMenu createMsgTypeMenu() {
         JMenu result = new JMenu("Msg Type");
-        result.setMnemonic('m');
+        result.setMnemonic('t');
         Iterator imsgtypes = getMsgTypes();
         while (imsgtypes.hasNext()) {
             result.add(getMenuItem((MsgType) imsgtypes.next()));
@@ -961,7 +1141,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             public void actionPerformed(ActionEvent e) {
                 selectAllLogTableColumns(false);
                 // update list of columns and reset the view
-                List selectedColumns = updateView();
+                final List selectedColumns = updateView();
                 _table.setView(selectedColumns);
             }
         });
@@ -980,6 +1160,9 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         fileMenu.setMnemonic('f');
         JMenuItem exitMI;
         fileMenu.add(createOpenMI());
+        fileMenu.add(createSaveHTML());
+        fileMenu.add(createSaveSelectedAsRvscriptMenuItem());
+        fileMenu.add(createSaveRvScript());
         fileMenu.addSeparator();
         fileMenu.add(createCloseListener());
         //createMRUListnerListMI(fileMenu);
@@ -987,6 +1170,41 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         fileMenu.add(createExitMI());
         return fileMenu;
     }
+
+
+    /**
+     * Menu item added to allow save of filtered table contents to html file
+     *
+     */
+    protected JMenuItem createSaveHTML() {
+        JMenuItem result = new JMenuItem("Save Table to HTML file");
+        result.setMnemonic('h');
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                RvSnooperFileHandler.saveTableToHtml(VERSION, URL, getBaseFrame(), _statusLabel, _table);
+            }
+        });
+        return result;
+    }
+
+    /**
+     * Menu item added to allow save of filtered table contents to rvscript file.
+     *
+     */
+    protected JMenuItem createSaveRvScript() {
+        JMenuItem result = new JMenuItem("Save Table to rvscript file");
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                RvSnooperFileHandler.saveTableToRvScript(VERSION + " " + URL, getBaseFrame(), _statusLabel, _table);
+            }
+        });
+
+        if (!RvScriptInfo.isAvaliable()) {
+            result.setEnabled(false);
+        }
+        return result;
+    }
+
 
     /**
      * Menu item added to allow log files to be opened with
@@ -1034,17 +1252,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         result.setAccelerator(KeyStroke.getKeyStroke("control Q"));
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    RvController.shutdownAll();
-                }
-                catch (TibrvException ex) {
-                    RvSnooperErrorDialog error = new RvSnooperErrorDialog(
-                            getBaseFrame(), "Tibco Listener " + ex.getMessage());
-                }
-
-                updateBanner();
-
-
+                RvController.shutdownAll();
+                 updateBanner();
             }
         });
         return result;
@@ -1136,8 +1345,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     protected void saveConfiguration() {
         try {
             _configurationManager.save();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                     getBaseFrame(),
                     ex.getMessage());
@@ -1157,8 +1365,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         if (temp != null) {
             try {
                 setMaxNumberOfLogRecords(Integer.parseInt(temp));
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                         getBaseFrame(),
                         "'" + temp + "' is an invalid parameter.\nPlease try again.");
@@ -1175,16 +1382,17 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         helpMenu.add(createHelpBugReport());
         helpMenu.add(createHelpDownload());
         helpMenu.add(createHelpGotoHomepage());
+        helpMenu.add(createHelpSubscribe() );
         helpMenu.add(createHelpProperties());
-
+        helpMenu.add(createHelpLICENSE());
 
         return helpMenu;
     }
 
+
     protected JMenuItem createHelpProperties() {
-        final String title = "Rendevous Sn00per Properties";
+        final String title = "Show Properties";
         final JMenuItem result = new JMenuItem(title);
-        result.setMnemonic('l');
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 showPropertiesDialog(title);
@@ -1193,8 +1401,26 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return result;
     }
 
+    protected JMenuItem createHelpLICENSE() {
+        final String title = "License information";
+        final JMenuItem result = new JMenuItem(title);
+        result.setMnemonic('l');
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    BrowserLauncher.openURL("http://www.apache.org/licenses/LICENSE");
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error;
+                    error = new RvSnooperErrorDialog(
+                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
+                }
+            }
+        });
+        return result;
+    }
 
-       protected JMenuItem createHelpBugReport() {
+
+    protected JMenuItem createHelpBugReport() {
         final String title = "Submit bug report or Feature Request";
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('b');
@@ -1202,17 +1428,17 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             public void actionPerformed(ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://sf.net/tracker/?group_id=63447");
-                }
-                catch (Exception ex) {
-                    RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error;
+                    error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
             }
         });
-           return result;
-       }
+        return result;
+    }
 
-           protected JMenuItem createHelpDownload() {
+    protected JMenuItem createHelpDownload() {
         final String title = "Download latest version";
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('b');
@@ -1220,20 +1446,17 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             public void actionPerformed(ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://sf.net/project/showfiles.php?group_id=63447");
-                }
-                catch (Exception ex) {
-                    RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error;
+                    error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
             }
         });
-           return result;
-       }
+        return result;
+    }
 
-
-
-
-   protected JMenuItem createHelpGotoHomepage() {
+    protected JMenuItem createHelpGotoHomepage() {
         final String title = "Help topics";
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('t');
@@ -1241,9 +1464,26 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             public void actionPerformed(ActionEvent e) {
                 try {
                     BrowserLauncher.openURL("http://rvsn00p.sf.net");
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error;
+                    error = new RvSnooperErrorDialog(
+                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
-                catch (Exception ex) {
-                    RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            }
+        });
+        return result;
+    }
+
+        protected JMenuItem createHelpSubscribe() {
+        final String title = "Subscribe to update messages";
+        final JMenuItem result = new JMenuItem(title);
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    BrowserLauncher.openURL("http://sourceforge.net/project/filemodule_monitor.php?filemodule_id=60335");
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error;
+                    error = new RvSnooperErrorDialog(
                             getBaseFrame(), "Could not open browser : " + ex.getMessage());
                 }
             }
@@ -1290,10 +1530,15 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                              "Johan Hjort",
                              "Magnus L Johansson",
                              "Eric Albert (browserLauncher.sf.net)",
+                             "Richard Valk",
                              " ",
                              "Based on Jakarta log4J LogFactor5 ",
                              " ",
                              "Copyright (C) The Apache Software Foundation. All rights reserved.",
+                             " ",
+                             "This software is published under the terms of the Apache Software",
+                             "License version 1.1, a copy of which has been included with this",
+                             "distribution in the LICENSE.txt file. ",
                              " "},
                 title,
                 JOptionPane.PLAIN_MESSAGE
@@ -1305,6 +1550,9 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         editMenu.setMnemonic('e');
         editMenu.add(createEditFindMI());
         editMenu.add(createEditFindNextMI());
+        editMenu.addSeparator();
+        editMenu.add(createEditFilterTIDMI());
+        editMenu.add(createEditRestoreAllTIDMI());
         return editMenu;
     }
 
@@ -1344,6 +1592,85 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return editFindMI;
     }
 
+    protected JMenuItem createEditFilterTIDMI() {
+    JMenuItem editFilterNDCMI = new JMenuItem("Filter by tracking id");
+    editFilterNDCMI.setMnemonic('t');
+    editFilterNDCMI.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            String inputValue =
+                JOptionPane.showInputDialog(
+                    _logMonitorFrame,
+                    "Filter by this tracking id: ",
+                    "Filter Log Records by tracking id",
+                    JOptionPane.QUESTION_MESSAGE
+                );
+            setTIDTextFilter(inputValue);
+            filterByTID();
+            _table.getFilteredLogTableModel().refresh();
+            updateStatusLabel();
+          }
+        }
+
+    );
+    return editFilterNDCMI;
+  }
+
+   protected void setTIDTextFilter(String text) {
+    // if no value is set, set it to a blank string
+    // otherwise use the value provided
+    if (text == null) {
+      _trackingIDTextFilter = "";
+    } else {
+      _trackingIDTextFilter = text;
+    }
+  }
+  protected void filterByTID() {
+    String text = _trackingIDTextFilter;
+    if (text == null || text.length() == 0) {
+      return;
+    }
+
+    // Use new NDC filter
+    _table.getFilteredLogTableModel().
+        setLogRecordFilter(createTIDLogRecordFilter(text));
+  }
+   protected LogRecordFilter createTIDLogRecordFilter(String text) {
+    _trackingIDTextFilter = text;
+    LogRecordFilter result = new LogRecordFilter() {
+      public boolean passes(LogRecord record) {
+        String trackingID = record.getTrackingID();
+        CategoryPath path = new CategoryPath(record.getSubject() );
+        if (trackingID == null || _trackingIDTextFilter == null) {
+          return false;
+        } else if (trackingID.indexOf(_trackingIDTextFilter) == -1) {
+          return false;
+        } else {
+          return getMenuItem(record.getType()).isSelected() &&
+              _subjectExplorerTree.getExplorerModel().isCategoryPathActive(path);
+        }
+      }
+    };
+
+    return result;
+  }
+  protected JMenuItem createEditRestoreAllTIDMI() {
+    JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove tracking id filter");
+    editRestoreAllNDCMI.setMnemonic('r');
+    editRestoreAllNDCMI.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            _table.getFilteredLogTableModel().setLogRecordFilter(createLogRecordFilter());
+            // reset the text filter
+            setTIDTextFilter("");
+            _table.getFilteredLogTableModel().refresh();
+            updateStatusLabel();
+          }
+        }
+    );
+    return editRestoreAllNDCMI;
+  }
+
 
     protected JToolBar createToolBar() {
         JToolBar tb = new JToolBar();
@@ -1352,11 +1679,11 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         JComboBox fontSizeCombo = new JComboBox();
         _fontSizeCombo = fontSizeCombo;
 
-        ClassLoader cl = this.getClass().getClassLoader();
-        if (cl == null) {
-            cl = ClassLoader.getSystemClassLoader();
+        _cl = this.getClass().getClassLoader();
+        if (_cl == null) {
+            _cl = ClassLoader.getSystemClassLoader();
         }
-        URL newIconURL = cl.getResource("rvsn00p/viewer/images/channelexplorer_new.gif");
+        URL newIconURL = _cl.getResource("rvsn00p/viewer/images/channelexplorer_new.gif");
 
         ImageIcon newIcon = null;
 
@@ -1384,7 +1711,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         JButton newButton = new JButton("Clear Log Table");
 
 
-        URL tcIconURL = cl.getResource("rvsn00p/viewer/images/trash.gif");
+        URL tcIconURL = _cl.getResource("rvsn00p/viewer/images/trash.gif");
 
         ImageIcon tcIcon = null;
 
@@ -1397,7 +1724,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         }
 
         newButton.setToolTipText("Clear Log Table.");
-        //newButton.setBorder(BorderFactory.createEtchedBorder());
 
         newButton.addActionListener(
                 new ActionListener() {
@@ -1407,6 +1733,22 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                         updateStatusLabel();
                         clearDetailTextArea();
                         LogRecord.resetSequenceNumber();
+                    }
+                }
+        );
+
+
+        _pauseButton = new JButton("Pause all listeners");
+
+
+        _pauseButton.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        if (isPaused()) {
+                            unPauseListeners();
+                        } else {
+                            pauseListeners();
+                        }
                     }
                 }
         );
@@ -1474,6 +1816,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         tb.add(listenerButton);
         tb.addSeparator();
         tb.add(newButton);
+        tb.addSeparator();
+        tb.add(_pauseButton);
 
         newButton.setAlignmentY(0.5f);
         newButton.setAlignmentX(0.5f);
@@ -1523,29 +1867,15 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         updateStatusLabel();
     }
 
-    /**
-     * Ensures that the Table's ScrollPane Viewport will "track" with updates
-     * to the Table.  When the vertical scroll bar is at its bottom anchor
-     * and tracking is enabled then viewport will stay at the bottom most
-     * point of the component.  The purpose of this feature is to allow
-     * a developer to watch the table as messages arrive and not have to
-     * scroll after each new message arrives.  When the vertical scroll bar
-     * is at any other location, then no tracking will happen.
-     * @deprecated tracking is now done automatically.
-     */
-    protected void trackTableScrollPane() {
-        // do nothing
-    }
 
-    protected void centerFrame(JFrame frame) {
+    protected static void centerFrame(JFrame frame) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension comp = frame.getSize();
 
         frame.setLocation(((screen.width - comp.width) / 2),
-                          ((screen.height - comp.height) / 2));
+                ((screen.height - comp.height) / 2));
 
     }
-
 
     /**
      * Uses a Dialog box to accept a URL to a file to be opened
@@ -1568,7 +1898,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             if (inputDialog.isOK()) {
                 _lastUsedRvParameters = inputDialog.getRvParameters();
 
-                _lastUsedRvParameters.setDescription(VERSION + " <a href=\"" + URL + "\">" + VERSION + "</a> " );
+                _lastUsedRvParameters.setDescription("<a href=\"" + URL + "\">" + VERSION + "</a> ");
                 RvController.startRvListener(_lastUsedRvParameters, this);
                 updateBanner();
 
@@ -1576,8 +1906,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                 //updateMRUList();
             }
 
-        }
-        catch (TibrvException ex) {
+        } catch (TibrvException ex) {
             RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                     getBaseFrame(), "Error creating listener : " + ex.getMessage());
         }
@@ -1602,8 +1931,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     }
 
     protected void requestCloseListener() {
-        Set s = RvController.getListeners();
-
         updateBanner();
     }
 
@@ -1633,8 +1960,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             _mruListnerManager.moveToTop(index);
             updateMRUList();
 
-        }
-        catch (Exception me) {
+        } catch (Exception me) {
             RvSnooperErrorDialog error = new RvSnooperErrorDialog(
                     getBaseFrame(), "Unable to load file " + file);
         }
@@ -1679,8 +2005,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     /**
      * Loads and parses a log file.
      */
-    protected boolean loadLogFile(File file) {
-        boolean ok = false;
+    protected static boolean loadLogFile(File file) {
+        boolean ok;
 
         /*LogFileParser lfp = new LogFileParser(file);
         lfp.parse(this);*/
@@ -1693,8 +2019,8 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     /**
      * Loads a parses a log file running on a server.
      */
-    protected boolean loadLogFile(URL url) {
-        boolean ok = false;
+    protected static boolean loadLogFile(URL url) {
+        boolean ok;
 
         /*LogFileParser lfp = new LogFileParser(url.openStream());
         lfp.parse(this);*/

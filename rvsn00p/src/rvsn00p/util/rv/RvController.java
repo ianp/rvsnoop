@@ -39,14 +39,13 @@ public class RvController {
      */
     public static void open() throws TibrvException {
         try {
-                Tibrv.open(Tibrv.IMPL_NATIVE);
-            }
-            catch (TibrvException e) {
-                // Try the java implementation instead
-                Tibrv.open(Tibrv.IMPL_JAVA);
-                throw e;
-            }
-            new TibrvDispatcher(Tibrv.defaultQueue());
+            Tibrv.open(Tibrv.IMPL_NATIVE);
+        } catch (TibrvException e) {
+            // Try the java implementation instead
+            Tibrv.open(Tibrv.IMPL_JAVA);
+            throw e;
+        }
+        new TibrvDispatcher(Tibrv.defaultQueue());
     }
 
     /**
@@ -71,19 +70,15 @@ public class RvController {
             }
 
             transport = new TibrvRvdTransport(p.getService(),
-                                              p.getNetwork(),
-                                              p.getDaemon());
+                    p.getNetwork(),
+                    p.getDaemon());
 
             transport.setDescription(p.getDescription());
             _mapTibrvTransports.put(p, transport);
 
-
-
-
             return transport;
 
-        }
-        catch (TibrvException ex) {
+        } catch (TibrvException ex) {
             throw ex;
         }
     }
@@ -93,23 +88,47 @@ public class RvController {
             throws TibrvException {
 
 
-        if ( (!_mapTibrvListeners.containsKey(p.getSubject()) || !_mapTibrvTransports.containsKey(p) )) {
+        if (_mapTibrvTransports.containsKey(p)) {
+            // update subjects
+            Iterator i = _mapTibrvTransports.keySet().iterator();
 
-            TibrvListener lsnr = new TibrvListener(Tibrv.defaultQueue(), callback, getRvTransport(p), p.getSubject(), null);
-            _mapTibrvListeners.put(p.getSubject(), lsnr);
+            while (i.hasNext()) {
+                RvParameters par;
+                par = (RvParameters) i.next();
+                if (par.equals(p)) {
+                    par.setSubjects(p.getSubjects());
+                }
+            }
         }
+
+        Set s = p.getSubjects();
+        Iterator i = s.iterator();
+        while (i.hasNext()) {
+            String n = (String) i.next();
+            String id = String.valueOf(getRvTransport(p).hashCode() + n);
+            TibrvListener lsnr;
+            if (!_mapTibrvListeners.containsKey(id)) {
+                lsnr = new TibrvListener(Tibrv.defaultQueue(),
+                        callback,
+                        getRvTransport(p),
+                        n,
+                        null);
+                _mapTibrvListeners.put(id, lsnr);
+            }
+        }
+
+
     }
 
     public static synchronized Set getListeners() {
         return _mapTibrvListeners.keySet();
     }
 
-      public static synchronized Set getTransports() {
+    public static synchronized Set getTransports() {
         return _mapTibrvTransports.keySet();
     }
 
-    public static synchronized void stopRvListener(final RvParameters p)
-            throws TibrvException {
+    public static synchronized void stopRvListener(final RvParameters p) {
 
         if (_mapTibrvListeners.containsKey(p)) {
 
@@ -121,8 +140,7 @@ public class RvController {
         }
     }
 
-    public static synchronized void shutdownAll()
-            throws TibrvException {
+    public static synchronized void shutdownAll() {
 
         Iterator i = _mapTibrvListeners.keySet().iterator();
 
