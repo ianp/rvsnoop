@@ -7,9 +7,12 @@
  */
 package rvsn00p;
 
+import rvsn00p.util.DateFormatManager;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 /**
  * LogRecord.  A LogRecord encapsulates the details of your desired log
@@ -284,9 +287,15 @@ public abstract class LogRecord implements java.io.Serializable {
      */
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        buf.append("LogRecord: [" + _type + ", " + _message + "]");
+        buf.append("LogRecord: [");
+        buf.append(_type);
+        buf.append(",");
+        buf.append(_message);
+        buf.append("]");
         return (buf.toString());
     }
+
+
 
 
     /**

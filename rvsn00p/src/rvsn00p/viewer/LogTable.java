@@ -118,6 +118,11 @@ public class LogTable extends JTable {
      return _colSubject;
     }
 
+    public int getDateColumnID(){
+     return _colDate;
+    }
+
+
     public synchronized void clearLogRecords() {
         //For JDK1.3
         //((DefaultTableModel)getModel()).setRowCount(0);
