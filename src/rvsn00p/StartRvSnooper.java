@@ -82,8 +82,8 @@ public class StartRvSnooper {
         RvSnooperGUI gui = new RvSnooperGUI(
                 MsgType.getAllDefaultLevels(), setRvListenersParam, title);
 
-        gui.setFrameSize(getDefaultMonitorWidth(),
-                             getDefaultMonitorHeight());
+        //gui.setFrameSize(getDefaultMonitorWidth(),
+         //                    getDefaultMonitorHeight());
 
         gui.show();
 
