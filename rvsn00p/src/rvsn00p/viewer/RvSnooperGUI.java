@@ -57,7 +57,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.11";
+    public static final String VERSION = "RvSn00p v1.1.12";
     public static final String URL = "http://rvsn00p.sf.net";
 
 
@@ -1460,6 +1460,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         final String title = "Help topics";
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('t');
+        result.setAccelerator(KeyStroke.getKeyStroke("F1"));
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -1552,6 +1553,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         editMenu.add(createEditFindNextMI());
         editMenu.addSeparator();
         editMenu.add(createEditFilterTIDMI());
+        editMenu.add(createEditFilterBySelectedTIDMI() );
         editMenu.add(createEditRestoreAllTIDMI());
         return editMenu;
     }
@@ -1595,6 +1597,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     protected JMenuItem createEditFilterTIDMI() {
     JMenuItem editFilterNDCMI = new JMenuItem("Filter by tracking id");
     editFilterNDCMI.setMnemonic('t');
+    editFilterNDCMI.setAccelerator(KeyStroke.getKeyStroke("control shift T"));
     editFilterNDCMI.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -1616,6 +1619,40 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     return editFilterNDCMI;
   }
 
+  protected JMenuItem createEditFilterBySelectedTIDMI() {
+      JMenuItem editFilterNDCMI = new JMenuItem("Filter by selected tracking id");
+      editFilterNDCMI.setMnemonic('s');
+      editFilterNDCMI.setAccelerator(KeyStroke.getKeyStroke("control T"));
+      editFilterNDCMI.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+
+
+              ListSelectionModel lsm = _table.getSelectionModel();
+
+              if (lsm.isSelectionEmpty()) {
+                  //no rows are selected
+              } else {
+                  int selectedRow = lsm.getMinSelectionIndex();
+
+                  FilteredLogTableModel ftm;
+                  ftm = _table.getFilteredLogTableModel();
+
+
+                  final String sTID = (String) _table.getModel().getValueAt(selectedRow, _table.getTIDColumnID());
+                  if( sTID != null )  {
+                     setTIDTextFilter(sTID);
+                     filterByTID();
+                     _table.getFilteredLogTableModel().refresh();
+                  }
+              }
+
+          }}
+      );
+
+
+      return editFilterNDCMI;
+  }
+
    protected void setTIDTextFilter(String text) {
     // if no value is set, set it to a blank string
     // otherwise use the value provided
@@ -1634,6 +1671,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     // Use new NDC filter
     _table.getFilteredLogTableModel().
         setLogRecordFilter(createTIDLogRecordFilter(text));
+    _statusLabel.setText("Filtered by tracking id " + text );
   }
    protected LogRecordFilter createTIDLogRecordFilter(String text) {
     _trackingIDTextFilter = text;
@@ -1657,6 +1695,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
   protected JMenuItem createEditRestoreAllTIDMI() {
     JMenuItem editRestoreAllNDCMI = new JMenuItem("Remove tracking id filter");
     editRestoreAllNDCMI.setMnemonic('r');
+    editRestoreAllNDCMI.setAccelerator(KeyStroke.getKeyStroke("control R"));
     editRestoreAllNDCMI.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
