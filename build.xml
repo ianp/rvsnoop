@@ -1,0 +1,317 @@
+
+<!-- This file is an ANT build script. ANT is a Java based build tool. -->
+<!-- It is availale from http://jakarta.apache.org/ant/                -->
+
+
+<!-- ================================================================= -->
+<!-- NOTE: all directories are relative to rvsnoop/              -->
+<!-- the parent of build/                                              -->
+<!-- ================================================================= -->
+<project name="rvsn00p" default="usage" basedir="." >
+
+
+  <!-- The build.properties file defines the parth to local jar files -->
+  <property file="build.properties"/>
+
+  <!-- Read the system environment variables and stores them in properties, -->
+  <!-- prefixed with "env". -->
+  <property environment="env"/>
+
+  <property name="version" value="1.1.5"/>
+
+  <!-- The base directory relative to which most targets are built -->
+  <property name="base" value="."/>
+
+  <!-- The directory where source files are stored. -->
+  <property name="java.source.dir" value="src/"/>
+
+  <!-- The directory where the package-list file is found, ./ or -->
+  <!-- target/ -->
+  <property name="packaging.dir" value="target"/>
+
+  <!-- Destination for compiled files -->
+  <property name="javac.dest" value="target/classes"/>
+
+  <!-- Destination for generated jar files -->
+  <property name="jar.dest" value="target/lib"/>
+
+  <!-- The jar file that the jar task will generate -->
+  <property name="jar.filename" value="rvsn00p-${version}.jar"/>
+  <property name="jar.filename.latests" value="rvsn00p.jar"/>
+
+  <!-- Destination for documentation files -->
+  <property name="docs.dest" value="./docs"/>
+  <!-- Source directory for xml docs -->
+  <property name="xdocs.src" value="./src/xdocs"/>
+
+
+  <!-- Destination for javadoc generated files -->
+  <property name="javadoc.dest" value="docs/api"/>
+
+  <!-- Icons source directory. -->
+  <property name="icons.source" value="icons"/>
+
+  <!-- The stem where most log4j source code is located. -->
+  <property name="stem" value="rvsn00p"/>
+
+  <!-- Some targets needs a more precise stem. -->
+  <property name="BSTEM" value="${java.source.dir}/${stem}"/>
+
+  <!-- Original manifest.mf file before filtering. -->
+  <property name="manifest.src" value="target/manifest.mf"/>
+
+  <!-- Directory where release images go. -->
+  <property name="dist.images"  value="target/images"/>
+
+  <!-- Directory for temporary files. -->
+  <property name="dist.tmp" value="target/tmp"/>
+
+
+  <!-- Construct compile classpath -->
+  <path id="compile.classpath">
+    <pathelement location="${build.home}/classes"/>
+    <pathelement location="${jaxp.parser.jar}"/>
+    <pathelement location="${tibcorv.home}/lib/tibrvj.jar"/>
+    <fileset dir="${tibcosdk.home}/java">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+
+
+  <!-- ================================================================= -->
+  <!-- Default target                                                    -->
+  <!-- ================================================================= -->
+
+  <target name="usage">
+    <echo>
+
+    These are the targets supported by this ANT build scpript:
+
+    build   - compile all project files, if a certain library is missing,
+	      then the compilation of its dependents are skipped.
+
+    javadoc - build project javadoc files
+
+    jar     - build rvsn00p jar files
+
+    dist    - will create a complete distribution in dist/
+              Setting the env variable NO_JAVADOC will build the distribution
+              without running the javadoc target.
+    </echo>
+  </target>
+
+  <target name="jaxpCheck">
+    <available classname="javax.xml.parsers.DocumentBuilderFactory"
+                          property="jaxp-present"/>
+  </target>
+
+  <target name="jaxp" depends="jaxpCheck" if="jaxp-present">
+    <echo message="JAXP present."/>
+  </target>
+
+
+  <!-- ================================================================= -->
+  <!-- Initialize variables                                              -->
+  <!-- NOTE: all directories are relative to rvsn00p/              -->
+  <!-- ================================================================= -->
+  <target name="init">
+    <tstamp />
+  </target>
+
+  <target name="build" depends="init, build.core"/>
+
+<target name="build.core" depends="init">
+    <mkdir dir="${javac.dest}" />
+    <javac srcdir="${java.source.dir}"
+	   destdir="${javac.dest}"
+	   includes="${stem}/**/*.java,"
+  	    deprecation="${deprecation}"
+	    debug="on">
+      <classpath refid="compile.classpath"/>
+    </javac>
+
+    <copy todir="${javac.dest}">
+      <fileset dir="${java.source.dir}"
+	includes="${stem}/**/*.properties"/>
+      <fileset dir="${java.source.dir}"
+	includes="${stem}/viewer/images/*"/>
+   </copy>
+
+  </target>
+
+
+
+ <!-- ================================================================= -->
+  <!-- Remove all generated (compiled) class files.                      -->
+  <!-- ================================================================= -->
+  <target name="clean" depends="init">
+    <delete dir="${javac.dest}/" />
+  </target>
+
+  <!-- ================================================================= -->
+  <!-- Runs checkstyle. Available from http://checkstyle.sf.net          -->
+  <!-- ================================================================= -->
+  <target name="run_checkstyle" depends="init">
+    <taskdef resource="checkstyletask.properties"
+             classpath="${checkstyle.jar}"/>
+
+    <!-- by default checkstyle supports the Sun coding standard. -->
+    <checkstyle lcurlyMethod="nlow"
+                lcurlyOther="nlow"
+                lcurlyType="nlow"
+                maxMethodLen="500"
+                maxConstructorLen="500">
+      <fileset dir="src/rvsn00p" includes="**/*.java"/>
+    </checkstyle>
+  </target>
+
+  <!-- ================================================================= -->
+  <!-- Runs RvSnooper                                                     -->
+  <!-- ================================================================= -->
+
+  <target name="run_rvsn00per" depends="build">
+    <!-- Need to fork to avoid problems -->
+    <java classname="rvsn00p.StartRvSnooper" fork="yes"
+          classpath="${javac.dest};${compile.classpath}">
+    </java>
+  </target>
+
+
+
+  <!-- ================================================================= -->
+  <!-- Remove the temporary manifest file, actual work is done in the    -->
+  <!-- dependencies.                                                     -->
+  <!-- ================================================================= -->
+  <target name="jar" depends="rvsn00p.jar">
+     <delete file="${jar.dest}/manifest.mf"/>
+  </target>
+
+  <target name="prejar" depends="build">
+    <mkdir dir="${jar.dest}"/>
+    <filter token="version" value="${version}" />
+    <copy file="${manifest.src}" tofile="${jar.dest}/manifest.mf"
+          filtering="true"/>
+  </target>
+
+ <!-- ================================================================= -->
+ <!-- Create log4j.jar, excluding tests and other odds and ends.        -->
+ <!-- ================================================================= -->
+  <target name="rvsn00p.jar" depends="prejar">
+    <delete>
+      <fileset dir="${jar.dest}">
+	<include name="*.jar"/>
+      </fileset>
+    </delete>
+
+    <jar jarfile="${jar.dest}/${jar.filename}" basedir="${javac.dest}"
+      includes="${stem}/**/*.class,
+		${stem}/**/*.properties,
+		${stem}/**/*.gif"
+      manifest="${jar.dest}/manifest.mf"
+    />
+    <jar jarfile="${jar.dest}/${jar.filename.latests}" basedir="${javac.dest}"
+      includes="${stem}/**/*.class,
+		${stem}/**/*.properties,
+		${stem}/**/*.gif"
+      manifest="${jar.dest}/manifest.mf"
+    />
+  </target>
+
+
+
+
+
+  <!-- ================================================================= -->
+  <!-- This target builds the javadoc files.                             -->
+  <!-- ================================================================= -->
+  <target name="javadoc" depends="init" unless="env.NO_JAVADOC">
+
+    <mkdir dir="${javadoc.dest}" />
+
+    <javadoc sourcepath="${java.source.dir}"
+      destdir="${javadoc.dest}"
+	   packagenames="rvsn00p"
+	   version="true"
+	   protected="true"
+	   author="true"
+	   use="true"
+	   overview="${docs.dest}/overview.html"
+	   doctitle="rvsn00p version ${version}&lt;br&gt;Javadoc "
+	   windowtitle="RvSn00p Version ${version}"
+           header="&lt;b&gt;RvSn00p ${version}&lt;/b&gt;"
+	   bottom="Copyright 2000-2002 Apache Software Foundation.">
+
+      <link href="http://java.sun.com/products/jdk/1.3/docs/api"/>
+      <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/"/>
+      <classpath refid="compile.classpath"/>
+    </javadoc>
+  </target>
+
+
+
+ <!-- ================================================================= -->
+ <!-- Build a complete distribution. Results go to ${dist.images}       -->
+ <!-- ================================================================= -->
+  <target name="dist" depends="init, clean,  jar">
+
+    <delete verbose="true">
+      <fileset dir=".">
+        <patternset>
+	   <include name="**/*.bak"/>
+	   <include name="${javac.dest}/*.class"/>
+        </patternset>
+     </fileset>
+    </delete>
+
+    <mkdir  dir="${dist.images}" />
+
+    <mkdir  dir="${dist.tmp}/rvsn00p-${version}" />
+
+    <copy todir="${dist.tmp}/rvsn00p-${version}">
+       <fileset dir="${base}"
+                includes="src/**,
+			              docs/**,
+			              build/*,
+	                      build.xml,
+	                       build.properties.sample,
+                          manifest.mf,
+			  INSTALL,
+			  LICENSE.txt,
+			  dist/lib/rvsn00p*.jar,
+			  dist/classes/**"
+                excludes="make/make.loc,
+		          **/*.bak, **/goEnv.bat,
+		          **/Makefile, **/goEnv.bat,
+	                  docs/pub-support/*,
+	                  dist/classes/rvsn00p/**,
+			  **/.#*"/>
+    </copy>
+
+
+
+    <tar tarfile="${dist.images}/rvsn00p-${version}.tar"
+         basedir="${dist.tmp}"
+         includes="rvsn00p-${version}/**" />
+
+    <gzip src="${dist.images}/rvsn00p-${version}.tar"
+          zipfile="${dist.images}/rvsn00p-${version}.tar.gz" />
+
+    <gzip src="${dist.images}/rvsn00p-${version}.tar"
+          zipfile="${dist.images}/rvsn00p-latests.tar.gz" />
+
+
+    <zip zipfile="${dist.images}/rvsn00p-${version}.zip"
+         basedir="${dist.tmp}"
+         includes="rvsn00p-${version}/**" />
+
+    <zip zipfile="${dist.images}/rvsn00p-latest.zip"
+         basedir="${dist.tmp}"
+         includes="rvsn00p-${version}/**" />
+
+
+    <delete dir="${dist.tmp}" />
+  </target>
+
+</project>
+
