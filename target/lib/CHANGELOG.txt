@@ -2,6 +2,15 @@ Changes to RvSnoop
 
 Request ID Numbers refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
 
+Changes up to version 1.2.3 Tue Dec  3 21:40:22 CET 2002
+* "Configure -> Save" will now save:                                                                                                   
+    - window position                                                                                       
+    - table column width                                                                                          
+    - splitter pane positions                                                                               
+    - date format                                                                                           
+    - font settings                                                                                         
+                                              
+
 Changes up to version 1.2.1 Wed Nov 27 23:16:33 CET 2002
 * Minimized number of objects sent to garbage collection (more work on this to follow)
   I used "Compuware DevPartner Java Edition" (NuMega) for this
