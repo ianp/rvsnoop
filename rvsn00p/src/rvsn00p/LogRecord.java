@@ -47,6 +47,10 @@ public abstract class LogRecord implements java.io.Serializable {
     protected Throwable _thrown;
     protected String _replySubject;
 
+
+
+    protected String _trackingID;
+
     //--------------------------------------------------------------------------
     //   Private Variables:
     //--------------------------------------------------------------------------
@@ -85,11 +89,18 @@ public abstract class LogRecord implements java.io.Serializable {
      * Set the type of this LogRecord.
      *
      * @param type The MsgType for this record.
-     * @see #gettype()
      * @see MsgType
      */
     public void setType(MsgType type) {
         _type = type;
+    }
+
+       public String getTrackingID() {
+        return _trackingID;
+    }
+
+    public void setTrackingID(String _trackingID) {
+        this._trackingID = _trackingID;
     }
 
     /**
@@ -112,7 +123,6 @@ public abstract class LogRecord implements java.io.Serializable {
      * description of what a subject is see setSubject().
      *
      * @return The subject of this record.
-     * @see #setSubject(String)
      */
     public String getSubject() {
         return (_sSubject);

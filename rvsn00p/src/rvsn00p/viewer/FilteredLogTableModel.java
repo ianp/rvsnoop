@@ -49,6 +49,7 @@ public class FilteredLogTableModel
                                     "Msg#",
                                     "Type",
                                     "Subject",
+                                    "Tracking ID",
                                     "Message"};
 
     protected DateFormatManager _dfm  = new DateFormatManager("HH:mm:ss.S");
@@ -299,9 +300,11 @@ public class FilteredLogTableModel
             case 3:
                   return lr.getSubject();
             case 4:
+                   return lr.getTrackingID();
+            case 5:
                    return lr.getMessage();
             default:
-                String message = "The column number " + col + " must be between 0 and 4";
+                String message = "The column number " + col + " must be between 0 and 5";
                 throw new IllegalArgumentException(message);
         }
     }
