@@ -16,6 +16,10 @@ import  com.tibco.sdk.MTree;
  * @author Örjan Lundberg
  */
 class MarshalRvToStringMtreeImpl implements IMarshalRvToStringImpl {
+    public MarshalRvToStringMtreeImpl() {
+        // check that the class exists in the classpath
+        new MTree("dummy");
+    }
 
     public String rvmsgToString(TibrvMsg msg){
 
