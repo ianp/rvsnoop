@@ -70,8 +70,10 @@ public class DateFormatManager {
     private Locale _locale = null;
 
     private String _pattern = null;
-    private DateFormat _dateFormat = null;
-    final private FieldPosition _fieldPosition = new FieldPosition(0);
+    final private static DateFormat _dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.FULL,
+                                                           DateFormat.FULL,
+                                                           Locale.getDefault());
+    final private static FieldPosition _fieldPosition = new FieldPosition(0);
 
 
     //--------------------------------------------------------------------------
@@ -153,7 +155,7 @@ public class DateFormatManager {
         configure();
     }
 
-    public synchronized Locale getLocale() {
+/*    public synchronized Locale getLocale() {
         if (_locale == null) {
             return Locale.getDefault();
         } else {
@@ -164,7 +166,7 @@ public class DateFormatManager {
     public synchronized void setLocale(Locale locale) {
         _locale = locale;
         configure();
-    }
+    }*/
 
     public synchronized String getPattern() {
         return _pattern;
@@ -200,10 +202,10 @@ public class DateFormatManager {
         return _dateFormat;
     }
 
-    public synchronized void setDateFormatInstance(DateFormat dateFormat) {
+ /*   public synchronized void setDateFormatInstance(DateFormat dateFormat) {
         _dateFormat = dateFormat;
         // No reconfiguration necessary!
-    }
+    }*/
 
     public String format(Date date) {
         return getDateFormatInstance().format(date);
@@ -251,9 +253,7 @@ public class DateFormatManager {
     //   Private Methods:
     //--------------------------------------------------------------------------
     private synchronized void configure() {
-        _dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL,
-                                                           DateFormat.FULL,
-                                                           getLocale());
+
         _dateFormat.setTimeZone(getTimeZone());
 
         if (_pattern != null) {
