@@ -84,11 +84,8 @@ public class StartRvSnooper {
             System.out.println(" " + System.getProperty("os.version"));
         }
 
-        System.out.println(System.getProperty("java.vm.version"));
-
-
         if( checkJavaVersion() == false){
-            System.err.println("Warning: Java JRE Version 1.4.1 or higer is required");
+            System.err.println("Warning: Java JRE Version 1.4.1 or higher is required");
         }
 
         RvSnooperGUI gui = new RvSnooperGUI(
