@@ -66,8 +66,11 @@ public class RvSnooperRvTransportInputDialog extends RvSnooperDialog {
 
         createInputField("Service:",defaultParameters.getService(),_tService, main );
         createInputField("Daemon:",defaultParameters.getDaemon(),_tDaemon, main );
-        createInputField("Subject:",defaultParameters.getSubject(),_tSubject, main );
+        createInputField("Subjects:",defaultParameters.getSubject(),_tSubject, main );
         createInputField("Network:",defaultParameters.getNetwork(),_tNetwork , main);
+
+        _tSubject.setToolTipText("Comma (,) separated list of subjects (subject1,subject2)");
+        _tNetwork.setToolTipText("networkcardid;networkaddress");
 
         addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -115,7 +118,7 @@ public class RvSnooperRvTransportInputDialog extends RvSnooperDialog {
         p.setDeamon(_tDaemon.getText());
         p.setNetwork(_tNetwork.getText());
         p.setService(_tService.getText());
-        p.setSubject(_tSubject.getText());
+        p.setSubjects(_tSubject.getText());
 
         return p;
     }

@@ -122,6 +122,16 @@ public class RvSnooperInputDialog extends RvSnooperDialog {
 
     }
 
+    public String setText(String text){
+        _textField.setText(text);
+        return text;
+    }
+
+    public String setToolTipText(String text) {
+        _textField.setToolTipText(text);
+        return text;
+    }
+
     //--------------------------------------------------------------------------
     //   Protected Methods:
     //--------------------------------------------------------------------------
