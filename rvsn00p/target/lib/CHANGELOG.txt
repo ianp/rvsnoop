@@ -1,6 +1,26 @@
 
 Changes to RvSnoop
 
+Changes up to version 1.1.6 Thu Oct 10 22:22:26 CEST 2002
+
+Added:
+New help about options: Licence information
+Changed implementation of RvMsg string serialization to allow later implemetation 
+of editing and resending messages. 
+
+Rvsn00p now uses the first found of: 
+- Tibco Rvscript tibrvXmlConvert
+- MTree.toString()
+- TibRvMsg.toString()
+
+This means that if the rvscript.jar is in the classpath tibrvXmlConvert will be used as 
+string serializer. If it is not found the serializer will be downgraded to the Tibco SDK 
+AE Mtree format and if that is not not fount the standard RV API TibRvMsg will be used. 
+
+
+Fixed 
+
+
 Changes up to version 1.1.5 Tue Oct  8 21:48:54 CEST 2002
 
 Added:
@@ -9,7 +29,7 @@ New help about options
 
 Fixed 
 Cleaned up code
-Took away annoying "null" network display in menu bar
+Removed annoying "null" network display in menu bar
 
 
 Changes up to version 1.1.4 Sun Oct  6 14:36:12 CEST 2002
