@@ -56,7 +56,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.2.0";
+    public static final String VERSION = "RvSn00p v1.2.1";
     public static final String URL = "http://rvsn00p.sf.net";
 
 
@@ -1492,12 +1492,12 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     }
 
      protected JMenuItem createHelpSupport() {
-        final String title = "My wish list - support me";
+        final String title = "My wish list";
         final JMenuItem result = new JMenuItem(title);
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    BrowserLauncher.openURL("http://www.amazon.co.uk/exec/obidos/registry/wishlist/026-3142533-7083625");
+                    BrowserLauncher.openURL("http://www.amazon.co.uk/exec/obidos/wishlist/14PROST9BIEH3/ref%3Dwl%5Fs%5F3/202-8721721-7832646");
                 } catch (Exception ex) {
                     RvSnooperErrorDialog error;
                     error = new RvSnooperErrorDialog(
