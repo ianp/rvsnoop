@@ -232,7 +232,7 @@ public class FilteredLogTableModel
              Object obj = getColumn(i, lr, dfMgr);
              if (obj != null) {
                  buf.append("<td>");
-                 if (i == 4) {
+                 if (i == 5) {
                      // message
                      buf.append("<code>");
                      buf.append(HTMLEncoder.encodeString( obj.toString() ) );
