@@ -10,10 +10,10 @@ RvSnoop is constructed by Örjan Lundberg <lundberg@home.se>
 
 RvSnoop is based on Logfactor5
 
-Project homepage is: http://rvsn00p.databasefocus.com
+Project homepage is: http://rvsn00p.sf.net
 
-Source forge project is avaliable at 
-rvsn00p.sourceforge.net
+Check the home page for updates and documentation. 
+
 
 Please use the source forge page to submit bug reports, support request etc. 
 
