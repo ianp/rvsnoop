@@ -6,12 +6,13 @@
  * distribution in the LICENSE.txt file.
  */
 package rvsn00p.util.rv;
+
 import com.tibco.tibrv.TibrvMsg;
 
 
 /**
  * MarshalRvToString state class
- * @author Örjan Lundberg
+ * @author ï¿½rjan Lundberg
  */
 public class MarshalRvToString {
 
@@ -28,11 +29,24 @@ public class MarshalRvToString {
         if (bHasException == true) {
             try {
 
+                _impl = new MarshalRvToStringRacoonImpl();
+                _sImplementationUsed = "Raccoon";
+                bHasException = false;
+            } catch (Error ex) {
+                bHasException = true;
+                lastError = ex;
+            }
+
+        }
+
+
+        if (bHasException == true) {
+            try {
+
                 _impl = new MarshalRvToStringRvScriptImpl();
                 _sImplementationUsed = "Rvscript";
                 bHasException = false;
-            }
-            catch (Error ex) {
+            } catch (Error ex) {
                 bHasException = true;
                 lastError = ex;
             }
@@ -45,8 +59,7 @@ public class MarshalRvToString {
                 _impl = new MarshalRvToStringMtreeImpl();
                 bHasException = false;
                 _sImplementationUsed = "Mtree";
-            }
-            catch (Error ex) {
+            } catch (Error ex) {
                 bHasException = true;
                 lastError = ex;
             }
