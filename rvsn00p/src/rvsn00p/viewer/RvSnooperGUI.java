@@ -8,14 +8,17 @@
 package rvsn00p.viewer;
 
 import com.tibco.sdk.MTree;
+import com.tibco.sdk.internal.MTreeFormatter;
 import com.tibco.tibrv.*;
 import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.MsgType;
 import rvsn00p.RvSnooperLogRecord;
+import rvsn00p.sender.MsgSender;
 import rvsn00p.util.DateFormatManager;
 import rvsn00p.util.rv.RvController;
 import rvsn00p.util.rv.RvParameters;
+import rvsn00p.util.rv.MarshalRvToString;
 import rvsn00p.viewer.categoryexplorer.CategoryExplorerTree;
 import rvsn00p.viewer.categoryexplorer.CategoryPath;
 import rvsn00p.viewer.configure.ConfigurationManager;
@@ -34,6 +37,7 @@ import java.util.*;
 import java.util.List;
 
 import rvsn00p.util.BrowserLauncher;
+import rvsn00p.sender.MsgSender;
 
 /**
  *
@@ -55,7 +59,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.5";
+    public static final String VERSION = "RvSn00p v1.1.7";
     public static final String URL = "http://rvsn00p.sf.net";
     public static final String NAME = "RvSn00p";
 
@@ -125,12 +129,6 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         _logMonitorFrame.addWindowListener(
                 new LogBrokerMonitorWindowAdaptor(this));
 
-        if (System.getProperty("use.sdk", "true").compareToIgnoreCase("false") == 0) {
-            _useSDK = false;
-            System.out.println("Disabling use of SDK classes");
-        }
-
-
         initTibco();
         startListeners(listeners);
 
@@ -197,21 +195,19 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             return;
         }
 
+
         LogRecord r = new RvSnooperLogRecord();
 
-        if (_useSDK == true) {
-            try {
-                MTree t1 = new MTree("");
-                t1.use_tibrvMsg(msg);
-                r.setMessage(t1.toString());
-            } catch (Exception ex) {
-                ex.printStackTrace(System.out);
-                RvSnooperErrorDialog error = new RvSnooperErrorDialog(
-                        getBaseFrame(), "Check that you have included the TIBCO SDK Classes " +
-                                        ex.getMessage());
-            }
-        } else {
-            r.setMessage(msg.toString());
+        try {
+           r.setMessage(MarshalRvToString.rvmsgToString(msg));
+        } catch (NullPointerException ex) {
+           ex.printStackTrace(System.out);
+          // ignored
+        } catch (Exception ex) {
+            ex.printStackTrace(System.out);
+            RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                    getBaseFrame(), "Check that you have included the TIBCO JAR Files " +
+                                    ex.getMessage());
         }
 
         r.setSendSubject(msg.getSendSubject());
@@ -750,6 +746,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
+        //menuBar.add(createMessageMenu());
         menuBar.add(createMsgTypeMenu());
         menuBar.add(createViewMenu());
         menuBar.add(createConfigureMenu());
@@ -758,9 +755,53 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return (menuBar);
     }
 
+    protected JMenu createMessageMenu() {
+        JMenu result = new JMenu("Message");
+        result.setMnemonic('m');
+        result.add(createResendMenuItem());
+
+        return result;
+    }
+
+    protected JMenuItem createResendMenuItem() {
+        JMenuItem result = new JMenuItem("Resend selected");
+        result.setMnemonic('r');
+
+
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+
+                ListSelectionModel lsm = _table.getSelectionModel();
+
+                if (lsm.isSelectionEmpty()) {
+                    //no rows are selected
+                } else {
+                    int selectedRow = lsm.getMinSelectionIndex();
+
+
+                    final String sMsg = (String) _table.getModel().getValueAt(selectedRow, _table.getMsgColumnID());
+                    final String sSubject = (String) _table.getModel().getValueAt(selectedRow,
+                            _table.getSubjectColumnID());
+
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            MsgSender s = new MsgSender(_logMonitorFrame, VERSION, sSubject, sMsg,
+                                    _lastUsedRvParameters.getDaemon(), _lastUsedRvParameters.getService(),
+                                    _lastUsedRvParameters.getNetwork());
+                            s.show();
+                        }
+                    });
+
+                }
+            }
+        });
+        return result;
+    }
+
     protected JMenu createMsgTypeMenu() {
         JMenu result = new JMenu("Msg Type");
-        result.setMnemonic('m');
+        result.setMnemonic('t');
         Iterator imsgtypes = getMsgTypes();
         while (imsgtypes.hasNext()) {
             result.add(getMenuItem((MsgType) imsgtypes.next()));
@@ -1176,18 +1217,35 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         helpMenu.add(createHelpDownload());
         helpMenu.add(createHelpGotoHomepage());
         helpMenu.add(createHelpProperties());
-
+        helpMenu.add(createHelpLICENSE());
 
         return helpMenu;
     }
 
-    protected JMenuItem createHelpProperties() {
-        final String title = "Rendevous Sn00per Properties";
+
+     protected JMenuItem createHelpProperties() {
+        final String title = "Show Properties";
+        final JMenuItem result = new JMenuItem(title);
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showPropertiesDialog(title);
+            }
+        });
+        return result;
+    }
+
+    protected JMenuItem createHelpLICENSE() {
+        final String title = "License information";
         final JMenuItem result = new JMenuItem(title);
         result.setMnemonic('l');
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                showPropertiesDialog(title);
+                try {
+                    BrowserLauncher.openURL("http://www.apache.org/licenses/LICENSE");
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
+                }
             }
         });
         return result;
@@ -1294,6 +1352,10 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                              "Based on Jakarta log4J LogFactor5 ",
                              " ",
                              "Copyright (C) The Apache Software Foundation. All rights reserved.",
+                             " ",
+                             "This software is published under the terms of the Apache Software",
+                             "License version 1.1, a copy of which has been included with this",
+                             "distribution in the LICENSE.txt file. ",
                              " "},
                 title,
                 JOptionPane.PLAIN_MESSAGE

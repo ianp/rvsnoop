@@ -22,6 +22,10 @@ import java.util.List;
 /**
  * A TableModel for LogRecords which includes filtering support.
  *
+ * @author Örjan Lundberg
+ *
+ * Based on Logfactor5 By
+ *
  * @author Richard Wan
  * @author Brent Sprecher
  */
@@ -206,7 +210,7 @@ public class FilteredLogTableModel
             case 4:
                    return lr.getMessage();
             default:
-                String message = "The column number " + col + " must be between 0 and 5";
+                String message = "The column number " + col + " must be between 0 and 4";
                 throw new IllegalArgumentException(message);
         }
     }
