@@ -12,14 +12,14 @@ import com.reuters.msgtest.XMLConverter ;
 
 
 /***
- * The conversion utility between a TibrvMsg and an XML String for rvsn00p
+ * Rvtest plugin - string serialiser from TibrvMsg to the rvtest XML format for rvsn00p
  * <p>
  * The XML String is rather verbose because it works with any kind of TIB/Rendezvous message, either a TibrvMsg or
  * a MTree or a MInstance.
  *
- * @author <a href="mailto:crouvrais@users.sourceforge.net">Cedric ROUVRAIS</a>
+ * @author <a href="mailto:lundberg@home.se">Oran Lundberg</a>
  * @version $Id$
- * @since Raccoon v0.5. Created 28 janv. 2003 at 20:45:22
+ * @since Rvsn00p v1.2.6
  */
 public class MarshalRvToStringRvTestImpl implements IMarshalRvToStringImpl {
     /*** The TIB/Rendezvous message to XMLConverter */
