@@ -2,15 +2,16 @@ Changes to RvSnoop
 
 Number refer to bug requests or feature requests on the http://rvsn00p.sf.net page.
 
+Changes up to version 1.1.13 Wed Nov 13 00:15:44 CET 2002
+Fixed 
+Request ID 636566 HTML output incorrect
+
 Changes up to version 1.1.12 Mon Nov 11 23:37:56 CET 2002
 Added
 
 Operation "Edit->Filter by selected tracking id" with accelerator key ctrl-t
 Accererator key ctrl-shift-t for Operation "Edit->Filter by tracking id" 
 Accererator key ctrl-r Operation "Edit->Remove tracking id filter" 
-
-Fixed 
-Request ID 636566 HTML output incorrect
 
 
 Changes up to version 1.1.11 Sun Nov 10 12:54:30 CET 2002
