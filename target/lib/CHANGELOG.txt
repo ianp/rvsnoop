@@ -1,6 +1,11 @@
 
 Changes to RvSnoop
 
+Changes up to version 1.1.8 Thu Oct 17 07:50:23 CEST 2002
+Added:
+620936 HTML Save option, saves the presented log entries
+"Pause all button"
+
 Changes up to version 1.1.7 Tue Oct 15 21:17:32 CEST 2002
 Added:
 Better windows start ".cmd" script.
