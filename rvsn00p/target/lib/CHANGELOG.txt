@@ -1,6 +1,14 @@
 
 Changes to RvSnoop
 
+Changes up to version 1.1.7 Tue Oct 15 21:17:32 CEST 2002
+Added:
+Better windows start ".cmd" script.
+
+Fixed: 
+Bug when selecting the first found of the string serialization classes
+Error messages
+
 Changes up to version 1.1.6 Thu Oct 10 22:22:26 CEST 2002
 
 Added:
