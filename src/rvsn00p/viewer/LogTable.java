@@ -46,7 +46,7 @@ public class LogTable extends JTable {
     // For the columns:
     protected int _numCols = 6;
     protected TableColumn[] _tableColumns = new TableColumn[_numCols];
-    protected int[] _colWidths = {27, 1, 30, 150, 40,100};
+    protected int[] _colWidths = {8, 1, 30, 150, 40, 100};
     protected LogTableColumn[] _colNames = LogTableColumn.getLogTableColumnArray();
     protected int _colDate = 0;
     protected int _colMessageNum = 1;
@@ -54,6 +54,7 @@ public class LogTable extends JTable {
     protected int _colSubject = 3;
     protected int _colTrackingID = 4;
     protected int _colMessage = 5;
+    protected StringBuffer _buf = new StringBuffer();
 
 
     //--------------------------------------------------------------------------
@@ -84,6 +85,10 @@ public class LogTable extends JTable {
             ++i;
         }
 
+
+
+
+
         ListSelectionModel rowSM = getSelectionModel();
         rowSM.addListSelectionListener(new LogTableListSelectionListener(this));
 
@@ -109,19 +114,19 @@ public class LogTable extends JTable {
         getFilteredLogTableModel().setDateFormatManager(dfm);
     }
 
-    public int getMsgColumnID(){
-     return _colMessage;
+    public int getMsgColumnID() {
+        return _colMessage;
     }
 
-    public int getSubjectColumnID(){
-     return _colSubject;
+    public int getSubjectColumnID() {
+        return _colSubject;
     }
 
-    public int getDateColumnID(){
-     return _colDate;
+    public int getDateColumnID() {
+        return _colDate;
     }
 
-    public int getTIDColumnID(){
+    public int getTIDColumnID() {
         return _colTrackingID;
     }
 
@@ -226,38 +231,35 @@ public class LogTable extends JTable {
             if (lsm.isSelectionEmpty()) {
                 //no rows are selected
             } else {
-                StringBuffer buf = new StringBuffer();
-                int selectedRow = lsm.getMinSelectionIndex();
+                synchronized (_buf) {
+                    _buf.setLength(0);
+                    int selectedRow = lsm.getMinSelectionIndex();
 
-                for (int i = 0; i < _numCols - 1; ++i) {
-                    String value = "";
-                    Object obj = _table.getModel().getValueAt(selectedRow, i);
+                    for (int i = 0; i < _numCols - 1; ++i) {
+
+                        Object obj = _table.getModel().getValueAt(selectedRow, i);
+
+                        _buf.append(_colNames[i]);
+                        _buf.append(":\t");
+
+                        if (obj != null) {
+                            _buf.append(obj);
+                        } else {
+                            _buf.append("\"NULL MESSAGE\"");
+                        }
+
+                        _buf.append("\n");
+                    }
+
+                    _buf.append(_colNames[_numCols - 1]);
+                    _buf.append(":\n");
+                    Object obj = _table.getModel().getValueAt(selectedRow, _numCols - 1);
                     if (obj != null) {
-                        value = obj.toString();
+                        _buf.append(obj);
                     }
 
-                    buf.append(_colNames[i] + ":");
-                    buf.append("\t");
-
-                    if ( i == _colMessage || i == _colLevel) {
-                        buf.append("\t"); // pad out
-                    }
-
-                    if (i == _colDate) {
-                        buf.append("\t\t"); // pad out
-                    }
-
-
-                    buf.append(value);
-                    buf.append("\n");
+                    _detailTextArea.setText(_buf.toString());
                 }
-                buf.append(_colNames[_numCols - 1] + ":\n");
-                Object obj = _table.getModel().getValueAt(selectedRow, _numCols - 1);
-                if (obj != null) {
-                    buf.append(obj.toString());
-                }
-
-                _detailTextArea.setText(buf.toString());
             }
         }
     }

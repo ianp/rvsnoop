@@ -11,7 +11,6 @@ import com.tibco.tibrv.*;
 import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.MsgType;
-import rvsn00p.RvSnooperLogRecord;
 import rvsn00p.sender.MsgSender;
 import rvsn00p.util.DateFormatManager;
 import rvsn00p.util.rv.RvController;
@@ -57,7 +56,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
     //--------------------------------------------------------------------------
 
     public static final String DETAILED_VIEW = "Detailed";
-    public static final String VERSION = "RvSn00p v1.1.13";
+    public static final String VERSION = "RvSn00p v1.2.0";
     public static final String URL = "http://rvsn00p.sf.net";
 
 
@@ -204,9 +203,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
             return;
         }
 
-
-        LogRecord r = new RvSnooperLogRecord();
-
+        LogRecord r = LogRecord.getInstance();
 
         String name;
         name = msg.getSendSubject();
@@ -1383,9 +1380,11 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         helpMenu.add(createHelpDownload());
         helpMenu.add(createHelpGotoHomepage());
         helpMenu.add(createHelpSubscribe() );
+        helpMenu.add(createHelpSupport() );
         helpMenu.add(createHelpProperties());
         helpMenu.add(createHelpLICENSE());
-
+            StringBuffer a = new StringBuffer();
+        a.toString();
         return helpMenu;
     }
 
@@ -1492,6 +1491,23 @@ public class RvSnooperGUI implements TibrvMsgCallback {
         return result;
     }
 
+     protected JMenuItem createHelpSupport() {
+        final String title = "My wish list - support me";
+        final JMenuItem result = new JMenuItem(title);
+        result.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    BrowserLauncher.openURL("http://www.amazon.co.uk/exec/obidos/registry/wishlist/026-3142533-7083625");
+                } catch (Exception ex) {
+                    RvSnooperErrorDialog error;
+                    error = new RvSnooperErrorDialog(
+                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
+                }
+            }
+        });
+        return result;
+    }
+
     protected JMenuItem createHelpAbout() {
         final String title = "About Rendevous Sn00per";
         final JMenuItem result = new JMenuItem(title);
@@ -1524,7 +1540,7 @@ public class RvSnooperGUI implements TibrvMsgCallback {
                              " ",
                              "Thanks goes to (in no special order):",
                              "Stephanie Lundberg",
-                             "Thomas Bonderud for initial idea",
+                             "Thomas Bonderud",
                              "Anders Lindlöf",
                              "Stefan Axelsson",
                              "Linda Lundberg",

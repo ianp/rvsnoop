@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 
 
-
 /**
  * A TableModel for LogRecords which includes filtering support.
  *
@@ -52,9 +51,10 @@ public class FilteredLogTableModel
                                     "Tracking ID",
                                     "Message"};
 
-    protected DateFormatManager _dfm  = new DateFormatManager("HH:mm:ss.S");
+    protected DateFormatManager _dfm = new DateFormatManager("HH:mm:ss.S");
     static int _lastHTMLBufLength = 1000;
-    protected Date _conversionDate = new Date();
+    final protected Date _conversionDate = new Date();
+    final protected StringBuffer _conversionStrBuf = new StringBuffer(15);
 
     //--------------------------------------------------------------------------
     //   Private Variables:
@@ -73,12 +73,12 @@ public class FilteredLogTableModel
     //--------------------------------------------------------------------------
 
     public void setDateFormatManager(DateFormatManager dfm) {
-        if( dfm != null)
-          this._dfm = dfm;
+        if (dfm != null)
+            this._dfm = dfm;
     }
 
     public DateFormatManager getDateFormatManager() {
-        return   this._dfm;
+        return this._dfm;
     }
 
     public void setLogRecordFilter(LogRecordFilter filter) {
@@ -178,7 +178,7 @@ public class FilteredLogTableModel
         return result;
     }
 
-     /**
+    /**
      * Returns a HTML table representation of the filtered records
      * @param dfMgr the date formt manager used
      */
@@ -186,24 +186,25 @@ public class FilteredLogTableModel
         //use a buffer with the same size as the last used one
         final StringBuffer strbuf = new StringBuffer(_lastHTMLBufLength);
         final Iterator records = _filteredRecords.iterator();
+        final StringBuffer buffer = new StringBuffer();
         LogRecord current;
-        addHtmlTableHeaderString(strbuf,dfMgr);
+        addHtmlTableHeaderString(strbuf, dfMgr);
         while (records.hasNext()) {
             current = (LogRecord) records.next();
 
             strbuf.append("<tr>\n\t");
-            addHTMLTDString(current,strbuf,dfMgr);
+            addHTMLTDString(current, strbuf, dfMgr, buffer);
             strbuf.append("\n</tr>\n");
         }
         strbuf.append("</table>");
 
         //remember last buffer size
-        _lastHTMLBufLength = strbuf.length()+2;
+        _lastHTMLBufLength = strbuf.length() + 2;
 
         return strbuf;
     }
 
-     /**
+    /**
      * createFilteredTextFromMsg.
      * Returns a text string containing all message fields delimite
      */
@@ -214,61 +215,64 @@ public class FilteredLogTableModel
         while (records.hasNext()) {
             current = (LogRecord) records.next();
             strbuf.append("\n");
-            strbuf.append(current.getMessage() );
+            strbuf.append(current.getMessage());
         }
         strbuf.append("\n");
 
         return strbuf;
     }
 
-     /**
+    /**
      * Adda a HTML <td> String representation of this LogRecord to the buf parameter.
      * @param lr the logrecord
      * @param buf the stringbuffer to add the <td> string representation
      * @param dfMgr the date formt manager used
      */
-     protected void addHTMLTDString(LogRecord lr, StringBuffer buf, DateFormatManager dfMgr) {
+    protected void addHTMLTDString(LogRecord lr, StringBuffer buf, DateFormatManager dfMgr, StringBuffer Tbuffer) {
+        if (lr != null) {
+            for (int i = 0; i < getColumnCount(); ++i) {
 
-         for (int i = 0; i < getColumnCount(); ++i) {
-             Object obj = getColumn(i, lr, dfMgr);
-             if (obj != null) {
-                 buf.append("<td>");
-                 if (i == 5) {
-                     // message
-                     buf.append("<code>");
-                     buf.append(HTMLEncoder.encodeString(obj.toString()));
-                     buf.append("</code>");
-                 } else {
-                    buf.append(obj.toString());
-                 }
-                 buf.append("</td>");
-             } else {
-                 buf.append("<td></td>");
-             }
-         }
-     }
-
-
-    protected void  addHtmlTableHeaderString(StringBuffer buf, DateFormatManager dfMgr) {
-            // table parameters
-            buf.append("<table border=\"1\" width=\"100%\">\n");
-            buf.append("<tr>\n");
-
-            // print the column headers
-            for (int i = 0; i < getColumnCount() ; ++i) {
-                buf.append("\t<th align=\"left\" bgcolor=\"#C0C0C0\" bordercolor=\"#FFFFFF\">");
-
-                buf.append( getColumnName(i) );
-
-                //date format
-                if( i == 0) {
-                   buf.append("<br>(");
-                   buf.append(dfMgr.getPattern() );
-                   buf.append(")");
+                buf.append("<td>");
+                if (i == 5) {
+                    // message
+                    StringBuffer sb = new StringBuffer();
+                    buf.append("<code>");
+                    Tbuffer.setLength(0);
+                    addColumnToStringBuffer(Tbuffer, i, lr, dfMgr);
+                    HTMLEncoder.encodeStringBuffer(Tbuffer);
+                    buf.append(Tbuffer);
+                    buf.append("</code>");
+                } else {
+                    addColumnToStringBuffer(buf, i, lr, dfMgr);
                 }
-                buf.append("</th>\n");
-             }
-             buf.append("</tr>\n");
+                buf.append("</td>");
+            }
+        } else {
+            buf.append("<td></td>");
+        }
+    }
+
+
+    protected void addHtmlTableHeaderString(StringBuffer buf, DateFormatManager dfMgr) {
+        // table parameters
+        buf.append("<table border=\"1\" width=\"100%\">\n");
+        buf.append("<tr>\n");
+
+        // print the column headers
+        for (int i = 0; i < getColumnCount(); ++i) {
+            buf.append("\t<th align=\"left\" bgcolor=\"#C0C0C0\" bordercolor=\"#FFFFFF\">");
+
+            buf.append(getColumnName(i));
+
+            //date format
+            if (i == 0) {
+                buf.append("<br>(");
+                buf.append(dfMgr.getPattern());
+                buf.append(")");
+            }
+            buf.append("</th>\n");
+        }
+        buf.append("</tr>\n");
     }
 
     protected LogRecord getFilteredRecord(int row) {
@@ -285,19 +289,21 @@ public class FilteredLogTableModel
 
     }
 
-    protected  Object getColumn(int col, LogRecord lr, DateFormatManager dfm) {
+    protected Object getColumn(int col, LogRecord lr, DateFormatManager dfm) {
         if (lr == null) {
             return "NULL Column";
         }
 
         switch (col) {
             case 0:
-                synchronized (_conversionDate){
+                synchronized (_conversionDate) {
                     _conversionDate.setTime(lr.getMillis());
-                    return dfm.format(_conversionDate).toString();
+                    _conversionStrBuf.setLength(0);
+                    StringBuffer output = dfm.format(_conversionDate, _conversionStrBuf);
+                    return output.toString();
                 }
             case 1:
-                return String.valueOf(lr.getSequenceNumber() ) ;
+                return String.valueOf(lr.getSequenceNumber());
             case 2:
                 return lr.getType();
             case 3:
@@ -312,18 +318,56 @@ public class FilteredLogTableModel
         }
     }
 
+    protected void addColumnToStringBuffer(StringBuffer sb, int col, LogRecord lr, DateFormatManager dfm) {
+        if (lr == null) {
+            sb.append("NULL Column");
+        }
+
+        switch (col) {
+            case 0:
+                synchronized (_conversionDate) {
+                    _conversionDate.setTime(lr.getMillis());
+                    _conversionStrBuf.setLength(0);
+                    sb.append(dfm.format(_conversionDate, _conversionStrBuf));
+                }
+                break;
+            case 1:
+                sb.append(lr.getSequenceNumber());
+                break;
+            case 2:
+                sb.append(lr.getType().toString());
+                break;
+            case 3:
+                sb.append(lr.getSubjectAsStringBuffer());
+                break;
+            case 4:
+                sb.append(lr.getTrackingIDStringBuffer());
+                break;
+            case 5:
+                sb.append(lr.getMessageAsStringBuffer());
+                break;
+            default:
+                String message = "The column number " + col + " must be between 0 and 5";
+                throw new IllegalArgumentException(message);
+        }
+    }
+
+    protected void addColumnToStringBuffer(StringBuffer sb, int col, LogRecord lr) {
+        addColumnToStringBuffer(sb, col, lr, _dfm);
+    }
+
     protected Object getColumn(int col, LogRecord lr) {
-           return getColumn(col,lr,_dfm);
+        return getColumn(col, lr, _dfm);
     }
 
 
-
-    // We don't want the amount of rows to grow without bound,
-    // leading to a out-of-memory-exception.  Especially not good
-    // in a production environment :)
-
-    // This method & clearLogRecords() are synchronized so we don't
-    // delete rows that don't exist.
+    /**
+     * We don't want the amount of rows to grow without bound,
+     * leading to a out-of-memory-exception.  Especially not good
+     * in a production environment :)
+     * This method & clearLogRecords() are synchronized so we don't
+     * delete rows that don't exist.
+     */
     protected void trimRecords() {
         if (needsTrimming()) {
             trimOldestRecords();
@@ -338,8 +382,12 @@ public class FilteredLogTableModel
         synchronized (_allRecords) {
             final int trim = numberOfRecordsToTrim();
             if (trim > 1) {
-                List oldRecords =
-                        _allRecords.subList(0, trim);
+                List oldRecords = _allRecords.subList(0, trim);
+
+                final Iterator records = oldRecords.iterator();
+                while (records.hasNext()) {
+                    LogRecord.freeInstance((LogRecord) records.next());
+                }
                 oldRecords.clear();
                 refresh();
             } else {
