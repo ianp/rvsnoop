@@ -23,7 +23,7 @@ import java.util.Vector;
 /**
  * LogTable.
  *
- * @author Örjan Lundberg
+ * @author ï¿½rjan Lundberg
  *
  * Based on Logfactor5 By
  * @author Michael J. Sikorsky
@@ -260,7 +260,6 @@ public class LogTable extends JTable {
                 synchronized (_buf) {
                     _buf.setLength(0);
                     int selectedRow = lsm.getMinSelectionIndex();
-
                     for (int i = 0; i < _numCols - 1; ++i) {
 
                         Object obj = _table.getModel().getValueAt(selectedRow, i);
@@ -269,6 +268,7 @@ public class LogTable extends JTable {
                         _buf.append(":\t");
 
                         if (obj != null) {
+
                             _buf.append(obj);
                         } else {
                             _buf.append("\"NULL MESSAGE\"");
@@ -283,6 +283,7 @@ public class LogTable extends JTable {
                     if (obj != null) {
                         _buf.append(obj);
                     }
+
 
                     _detailTextArea.setText(_buf.toString());
                 }
