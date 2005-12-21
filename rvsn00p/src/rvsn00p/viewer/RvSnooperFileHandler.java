@@ -1,24 +1,28 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    RvSnooperFileHandler.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
+import java.awt.FileDialog;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Date;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 import rvsn00p.util.DateFormatManager;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-
+import rvsn00p.util.IOUtils;
 
 /**
- *
  * RvSnooperFileHandler
- * @author �rjan Lundberg
+ *
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
 public class RvSnooperFileHandler {
 
@@ -57,28 +61,11 @@ public class RvSnooperFileHandler {
                 statusLabel.setText("Saved text file " + f.toString());
             }
         } catch (Exception ex) {
-            RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            new RvSnooperErrorDialog(
                     jdBase, "File save error " + ex.getMessage());
         } finally {
-
-            if (buf_writer != null) {
-                try {
-                    buf_writer.close();
-                } catch (IOException e1) {
-                }
-            }
-
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e1) {
-                }
-            }
-
-            if (f != null) {
-                f = null;
-            }
-
+            IOUtils.closeQuietly(buf_writer);
+            IOUtils.closeQuietly(writer);
         }
     }
 
@@ -113,29 +100,11 @@ public class RvSnooperFileHandler {
 
             }
         } catch (Exception ex) {
-            RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            new RvSnooperErrorDialog(
                     jdBase, "File save error " + ex.getMessage());
         } finally {
-
-            if (buf_writer != null) {
-                try {
-                    buf_writer.close();
-                } catch (IOException e1) {
-                }
-            }
-
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e1) {
-                }
-            }
-
-
-            if (f != null) {
-                f = null;
-            }
-
+            IOUtils.closeQuietly(buf_writer);
+            IOUtils.closeQuietly(writer);
         }
     }
 
@@ -181,31 +150,12 @@ public class RvSnooperFileHandler {
                 statusLabel.setText("Saved HTML file " + f.toString());
             }
         } catch (Exception ex) {
-            RvSnooperErrorDialog error = new RvSnooperErrorDialog(
+            new RvSnooperErrorDialog(
                     jfBase, "File save error " + ex.getMessage());
         } finally {
-
-            if (buf_writer != null) {
-                try {
-                    buf_writer.close();
-                } catch (IOException e1) {
-                }
-            }
-
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e1) {
-                }
-            }
-
-
-            if (f != null) {
-                f = null;
-            }
-
+            IOUtils.closeQuietly(buf_writer);
+            IOUtils.closeQuietly(writer);
         }
     }
-
 
 }

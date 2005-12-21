@@ -1,12 +1,11 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    LogTableColumn.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,18 +13,17 @@ import java.util.Map;
 
 /**
  * LogTableColumn
- * @author �rjan Lundberg
- *
- * Based on Logfactor5 by
- * @author Michael J. Sikorsky
- * @author Brad Marlborough
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
+ * 
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
+public class LogTableColumn implements Serializable {
 
-// Contributed by ThoughtWorks Inc.
-
-public class LogTableColumn implements java.io.Serializable {
-
-    // log4j table columns.
+    private static final long serialVersionUID = 7160812243483286466L;
+    
     public final static LogTableColumn DATE = new LogTableColumn("Date");
     public final static LogTableColumn MESSAGE_NUM = new LogTableColumn("Msg#");
     public final static LogTableColumn LEVEL = new LogTableColumn("Type");
@@ -33,20 +31,11 @@ public class LogTableColumn implements java.io.Serializable {
     public final static LogTableColumn TID = new LogTableColumn("Tracking ID");
     public final static LogTableColumn MESSAGE = new LogTableColumn("Message");
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
     protected String _label;
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
     private static LogTableColumn[] _log4JColumns;
     private static Map _logTableColumnMap;
 
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
     static {
         _log4JColumns = new LogTableColumn[]{DATE, MESSAGE_NUM, LEVEL, SUBJECT, TID, MESSAGE};
 
@@ -62,10 +51,6 @@ public class LogTableColumn implements java.io.Serializable {
         _label = label;
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
-
     /**
      * Return the Label of the MsgType.
      */
@@ -76,26 +61,12 @@ public class LogTableColumn implements java.io.Serializable {
     /**
      * Convert a column label into a LogTableColumn object.
      *
-     * @param level The label of a level to be converted into a LogTableColumn.
-     * @return LogTableColumn The LogTableColumn with a label equal to column.
-     * @throws LogTableColumnFormatException Is thrown when the column can not be
-     *         converted into a LogTableColumn.
+     * @param label The label to be converted into a column object.
+     * @return The column corresponding to the label string or <code>null</code> if no matching column exists.
      */
-    public static LogTableColumn valueOf(String column)
-            throws LogTableColumnFormatException {
-        LogTableColumn tableColumn = null;
-        if (column != null) {
-            column = column.trim();
-            tableColumn = (LogTableColumn) _logTableColumnMap.get(column);
-        }
-
-        if (tableColumn == null) {
-            StringBuffer buf = new StringBuffer();
-            buf.append("Error while trying to parse (" + column + ") into");
-            buf.append(" a LogTableColumn.");
-            throw new LogTableColumnFormatException(buf.toString());
-        }
-        return tableColumn;
+    public static LogTableColumn valueOf(String label) {
+        if (label == null) return null;
+        return (LogTableColumn) _logTableColumnMap.get(label.trim());
     }
 
 
@@ -131,23 +102,4 @@ public class LogTableColumn implements java.io.Serializable {
     public static LogTableColumn[] getLogTableColumnArray() {
         return _log4JColumns;
     }
-
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
-
 }
-
-
-
-
-
-
