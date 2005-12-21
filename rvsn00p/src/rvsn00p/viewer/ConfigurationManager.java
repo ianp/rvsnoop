@@ -1,840 +1,488 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    ConfigurationManager.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import org.w3c.dom.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.tree.TreePath;
+
+import nu.xom.Attribute;
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Elements;
+import nu.xom.Serializer;
+import nu.xom.Text;
+
 import rvsn00p.MsgType;
-import rvsn00p.MsgTypeFormatException;
 import rvsn00p.util.DateFormatManager;
+import rvsn00p.util.IOUtils;
 import rvsn00p.util.rv.RvParameters;
-import rvsn00p.viewer.LogTable;
-import rvsn00p.viewer.LogTableColumn;
-import rvsn00p.viewer.LogTableColumnFormatException;
-import rvsn00p.viewer.RvSnooperGUI;
 import rvsn00p.viewer.categoryexplorer.CategoryExplorerModel;
 import rvsn00p.viewer.categoryexplorer.CategoryExplorerTree;
 import rvsn00p.viewer.categoryexplorer.CategoryNode;
 import rvsn00p.viewer.categoryexplorer.CategoryPath;
 
-import javax.swing.*;
-import javax.swing.tree.TreePath;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.awt.*;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.List;
-
 /**
- * <p>ConfigurationManager handles the storage and retrival of the state of
- * the CategoryExplorer
- * @author orjan Lundberg
- *
- * Based on Logfactor5 By
- *
- * @author Richard Hurst
- * @author Brad Marlborough
- * Contributed by ThoughtWorks Inc.
+ * Handles the storage and retrival of the state of the Category Explorer.
+ * 
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-
 public class ConfigurationManager extends Object {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-    private static final String CONFIG_FILE_NAME = "conf.xml";
-    public static final String CONFIG_DIR_NAME = ".rvsnoop";
-    private static final String NAME = "name";
-    private static final String PATH = "path";
-    private static final String SELECTED = "selected";
-    private static final String COLUMWIDTH = "columnsize";
-    private static final String EXPANDED = "expanded";
-    private static final String CATEGORY = "subject";
-    private static final String FIRST_CATEGORY_NAME = "Subjects";
-    private static final String LEVEL = "type";
-    private static final String COLORLEVEL = "colorlevel";
-    private static final String COLOR = "color";
-    private static final String RED = "red";
-    private static final String GREEN = "green";
-    private static final String BLUE = "blue";
+
+    private static final String COLOUR = "colour";
+    private static final String COLOUR_BLUE = "blue";
+    private static final String COLOUR_GREEN = "green";
+    private static final String COLOUR_RED = "red";
     private static final String COLUMN = "column";
-    private static final String SEP = System.getProperty("file.separator");
-    private static final String FONTINFO = "fontinfo";
-    private static final String FONTNAME = "name";
-    private static final String FONTSIZE = "size";
-    private static final String FONTSTYLE = "style";
-    private static final String DATEFORMAT = "dateformat";
-    private static final String DATEPATTERN = "pattern";
-    private static final String SPLITPANEPOS = "splitpanepos";
-    private static final String SPLITPANEPOSH = "horizontal";
-    private static final String SPLITPANEPOSV = "vertical";
-    private static final String WINDOWPOS = "windowpos";
-    private static final String WINDOWX = "windowsx";
-    private static final String WINDOWY = "windowy";
-    private static final String WINDOWWIDTH = "windowwidth";
-    private static final String WINDOWHEIGHT = "windowheight";
-    private static final String LSNRSUBSCRIPTIONS = "SUBSCRIPTIONS";
-    private static final String LSNRTIBLISTENER = "TIBLISTENER";
-    private static final String LSNRTIBSERVICE = "SERVICE";
-    private static final String LSNRTIBNETWORK = "NETWORK";
-    private static final String LSNRTIBDAEMON = "DAEMON";
-    private static final String LSNRTIBSUBJECT = "SUBJECT";
-    private static final String LSNRTIBSUBJECTID = "ID";
+    private static final String COLUMN_SELECTED = "selected";
+    private static final String COLUMN_WIDTH = "width";
+    private static final String COLUMNS = "columns";
+    private static final String CONFIG_DIRECTORY = ".rvsnoop";
+    private static final String CONFIG_FILE = "config.xml";
+    private static final String DATE_FORMAT = "dateFormat";
+    private static final String DATE_FORMAT_PATTERN = "HH:mm:ss.S";
+    private static final String FONT = "font";
+    private static final String FONT_NAME = "name";
+    private static final String FONT_SIZE = "size";
+    private static final String ROOT = "rvsnoop";
+    private static final String RV_DAEMON = "daemon";
+    private static final String RV_LISTENER = "listener";
+    private static final String RV_NETWORK = "network";
+    private static final String RV_SERVICE = "service";
+    private static final String SPLIT_H = "h";
+    private static final String SPLIT_POSITION = "splitPosition";
+    private static final String SPLIT_V = "v";
+    private static final String SUBJECT = "subject";
+    private static final String SUBJECT_EXPANDED = "expanded";
+    private static final String SUBJECT_SELECTED = "selected";
+    private static final String SUBJECTS = "subjects";
+    private static final String TYPE = "messageType";
+    private static final String TYPE_NAME = "name";
+    private static final String TYPE_SELECTED = "selected";
+    private static final String WINDOW_HEIGHT = "h";
+    private static final String WINDOW_POSITION = "windowPosition";
+    private static final String WINDOW_WIDTH = "w";
+    private static final String WINDOW_X = "x";
+    private static final String WINDOW_Y = "y";
 
-
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-    private RvSnooperGUI _gui = null;
-    private LogTable _table = null;
-    private String _fileName;
-
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-    public ConfigurationManager(RvSnooperGUI gui, LogTable table) {
-        super();
-        _gui = gui;
-        _table = table;
-        _fileName = getDefaultFilename();
-        load();
+    private static Element appendElement(Element parent, String name) {
+        Element child = new Element(name);
+        parent.appendChild(child);
+        return child;
     }
 
-    public ConfigurationManager(RvSnooperGUI gui, LogTable table, String fileName) {
-        super();
-        _gui = gui;
-        _table = table;
-        _fileName = fileName;
-        load();
-    }
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
-
-    public void save() throws IOException {
-        CategoryExplorerModel model = _gui.getCategoryExplorerTree().getExplorerModel();
-        CategoryNode root = model.getRootCategoryNode();
-
-        StringBuffer xml = new StringBuffer(2048);
-        openXMLDocument(xml);
-        openConfigurationXML(xml);
-        processMsgTypes(_gui.getLogLevelMenuItems(), xml);
-        processMsgTypesColors(_gui.getLogLevelMenuItems(),
-                MsgType.getLogLevelColorMap(), xml);
-
-        processLogTableColumns(LogTableColumn.getLogTableColumns(), xml);
-
-
-        processConfigurationNode(root, xml);
-
-        processFont(_table.getFont(), xml);
-
-        processDateFormat(_gui, xml);
-
-        processSplitPanes(_gui, xml);
-
-        processWindowPosition(_gui, xml);
-
-        processListeners(_gui.getSubscriptions(), xml);
-
-
-        closeConfigurationXML(xml);
-        store(xml.toString());
-    }
-
-    private void processListeners(final Iterator it, StringBuffer xml) {
-
-        if (it == null) {
-            return;
-        }
-        xml.append("\t<").append(LSNRSUBSCRIPTIONS).append(">\n");
-
-        while (it.hasNext()) {
-            exportListener((RvParameters) it.next(), xml);
-        }
-
-        xml.append("\t</").append(LSNRSUBSCRIPTIONS).append(">\n");
-
-    }
-
-    private void exportListener(RvParameters rvParam, StringBuffer xml) {
-        xml.append("\t\t<").append(LSNRTIBLISTENER).append(" ");
-        xml.append(LSNRTIBSERVICE).append("=\"").append(rvParam.getService() == null ? "" : rvParam.getService()).append("\" ");
-        xml.append(LSNRTIBNETWORK).append("=\"").append(rvParam.getNetwork() == null ? "" : rvParam.getNetwork()).append("\" ");
-        xml.append(LSNRTIBDAEMON).append("=\"").append(rvParam.getDaemon() == null ? "" : rvParam.getDaemon()).append("\" >\n");
-        //xml.append("DESCRIPTION").append("=\"").append(rvParam.getDescription()).append("\" >");
-
-        final Set s = rvParam.getSubjects();
-        if (s != null) {
-            final Iterator it = s.iterator();
-            while (it.hasNext()) {
-                xml.append("\t\t\t<").append(LSNRTIBSUBJECT).append(" ");
-                xml.append(LSNRTIBSUBJECTID).append("=\"<![CDATA[ ").append(it.next()).append("]]>\" />\n");
-            }
-        }
-        xml.append("\t\t</").append(LSNRTIBLISTENER).append(">\n");
-    }
-
-    private void processWindowPosition(RvSnooperGUI gui, StringBuffer xml) {
-
-        exportWindowPosition(gui.getWindowBounds(), xml);
-    }
-
-    private void exportWindowPosition(Rectangle r, StringBuffer xml) {
-        xml.append("\t<").append(WINDOWPOS).append(" ");
-        xml.append(WINDOWX).append("=\"").append(String.valueOf((int) r.getX())).append("\"").append(" ");
-        xml.append(WINDOWY).append("=\"").append(String.valueOf((int) r.getY())).append("\"").append(" ");
-        xml.append(WINDOWWIDTH).append("=\"").append(String.valueOf((int) r.getWidth())).append("\"").append(" ");
-        xml.append(WINDOWHEIGHT).append("=\"").append(String.valueOf((int) r.getHeight())).append("\"").append(" ");
-        xml.append("/>\n\r");
-    }
-
-    private void processSplitPanes(RvSnooperGUI gui, StringBuffer xml) {
-        exportSplitPanes(gui.getSplitPaneTableViewerPos(), gui.getSplitPaneVerticalPos(), xml);
-    }
-
-    private void exportSplitPanes(int horizontal, int vertical, StringBuffer xml) {
-        xml.append("\t<").append(SPLITPANEPOS).append(" ");
-        xml.append(SPLITPANEPOSH).append("=\"").append(String.valueOf(horizontal)).append("\"").append(" ");
-        xml.append(SPLITPANEPOSV).append("=\"").append(String.valueOf(vertical)).append("\"").append(" ");
-        xml.append("/>\n\r");
-    }
-
-    private void processDateFormat(RvSnooperGUI gui, StringBuffer xml) {
-
-        exportDateFormatPattern(gui.getDateFormat(), xml);
-
-    }
-
-    private void exportDateFormatPattern(String pattern, StringBuffer xml) {
-        xml.append("\t<").append(DATEFORMAT).append(" ");
-        xml.append(DATEPATTERN).append("=\"").append(pattern).append("\"").append(" ");
-        xml.append("/>\n\r");
-    }
-
-    protected void processDateFormat(Document doc) {
-
+    private static boolean getBoolean(Element parent, String attr, boolean def) {
         try {
-            Node n;
-            NodeList nodes = doc.getElementsByTagName(DATEFORMAT);
-
-            String dateFormatPattern;
-
-            n = nodes.item(0);
-            NamedNodeMap map = n.getAttributes();
-            dateFormatPattern = getValue(map, DATEPATTERN);
-
-            if (dateFormatPattern != null) {
-                _gui.setDateFormat(dateFormatPattern);
-            }
-
-        } catch (Exception e1) {
-            //  if not there
-            _gui.setDateFormat("HH:mm:ss.S");
-
+            String value = parent.getAttributeValue(attr);
+            return Boolean.valueOf(value).booleanValue();
+        } catch (Exception e) {
+            return def;
         }
     }
-
-
-    public void reset() {
-        deleteConfigurationFile();
-        collapseTree();
-        selectAllNodes();
+    
+    private static String getDefaultFilename() {
+        String home = System.getProperty("user.home");
+        String fs = System.getProperty("file.separator");
+        return home + fs + CONFIG_DIRECTORY + fs + CONFIG_FILE;
+    }
+    
+    private static String getString(Element parent, String name) {
+        Element child = parent.getFirstChildElement(name);
+        return child != null ? child.getValue().trim() : null;
+    }
+    
+    /**
+     * @param path The path to convert.
+     * @param buffer The buffer to work with.
+     * @return
+     */
+    private static StringBuffer pathToString(TreePath path, StringBuffer buffer) {
+        buffer.setLength(0);
+        // Begin at one to skip the 'Categories' root node.
+        Object[] nodes = path.getPath();
+        for (int i = 1; i < nodes.length; ++i)
+            buffer.append(((CategoryNode) nodes[i]).getTitle()).append(".");
+        buffer.setLength(buffer.length() - 1);
+        return buffer;
     }
 
-    public static String treePathToString(TreePath path) {
-        // count begins at one so as to not include the 'Categories' - root category
-        StringBuffer sb = new StringBuffer();
-        CategoryNode n = null;
-        Object[] objects = path.getPath();
-        for (int i = 1; i < objects.length; ++i) {
-            n = (CategoryNode) objects[i];
-            if (i > 1) {
-                sb.append(".");
-            }
-            sb.append(n.getTitle());
-        }
-        return sb.toString();
+    private static void setBoolean(Element parent, String name, boolean value) {
+        parent.addAttribute(new Attribute(name, Boolean.toString(value)));
+    }
+    
+    private static Element setString(Element parent, String name, String value) {
+        if (value == null || value.length() == 0) return null;
+        Element child = new Element(name);
+        parent.appendChild(child);
+        child.appendChild(new Text(value));
+        return child;
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-    protected void load() {
-        File file = new File(getFilename());
-        if (file.exists()) {
-            try {
-                DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.
-                        newInstance();
-                DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-                Document doc = docBuilder.parse(file);
-                doc.normalize();
-                processCategories(doc);
-                processMsgTypes(doc);
-                processLogLevelColors(doc);
-                processLogTableColumns(doc);
-                processFont(doc);
-                processDateFormat(doc);
-                processSplitPanes(doc);
-                processWindowPosition(doc);
+    private String filename;
 
-                processListeners(doc);
+    private final RvSnooperGUI gui;
 
+    private final LogTable table;
 
-            } catch (Exception e) {
-                // ignore all error and just continue as if there was no
-                // configuration xml file but do report a message
-                System.err.println("Unable process configuration file at " +
-                        getFilename() + ". Error Message=" + e.getMessage());
+    public ConfigurationManager(RvSnooperGUI gui, LogTable table) {
+        this(gui, table, getDefaultFilename());
+    }
 
+    public ConfigurationManager(RvSnooperGUI gui, LogTable table, String filename) {
+        super();
+        this.gui = gui;
+        this.table = table;
+        this.filename = filename;
+        load();
+    }
 
-            }
-        } else {
-            _table.setDateFormatManager(new DateFormatManager("HH:mm:ss.S"));
-        }
+    private void dateFormatExport(Element parent) {
+        setString(parent, DATE_FORMAT, gui.getDateFormat());
+    }
 
+    private void dateFormatImport(Element parent) {
+        String dateFormat = getString(parent, DATE_FORMAT);
+        gui.setDateFormat(dateFormat != null ? dateFormat : DATE_FORMAT_PATTERN);
     }
 
     /**
-     * Read configured tib listeners from configuration file
-     *
-     * @param doc  DOM object
+     * Delete the saved configuration.
+     * <p>
+     * Whether there was a saved configuration or not, this method will always
+     * reset the state of the subject explorer tree.
      */
-    private void processListeners(Document doc) {
-
+    public void delete() {
         try {
-            Node n;
-            NodeList tiblisternodes = doc.getElementsByTagName("SUBSCRIPTIONS");
-
-            if (tiblisternodes == null) {
-                return;
-            }
-
-            // for-each configured tiblisttner
-            NodeList ln = tiblisternodes.item(0).getChildNodes();
-            Set setRvParameters = new HashSet();
-            int len = ln.getLength();
-            for (int i = 0; i < len; ++i) {
-                RvParameters p = new RvParameters();
-                Node listener = ln.item(i);
-                if (listener.getNodeType() == 3) {
-                    //ignore whitespace
-                    continue;
-                }
-
-                if (listener.hasAttributes()) {
-                    NamedNodeMap nnm;
-                    Node service;
-                    Node network;
-                    Node daemon;
-
-                    nnm = listener.getAttributes();
-
-                    service = nnm.getNamedItem(LSNRTIBSERVICE);
-                    network = nnm.getNamedItem(LSNRTIBNETWORK);
-                    daemon = nnm.getNamedItem(LSNRTIBDAEMON);
-
-                    p.setService(service.getNodeValue());
-                    p.setNetwork(network.getNodeValue());
-                    p.setDeamon(daemon.getNodeValue());
-
-                }
-
-                // collect the listeners
-                NodeList subs = listener.getChildNodes();
-                int leni = subs.getLength();
-                Set setRvListeners = new HashSet();
-                for (int iSubscription = 0; iSubscription < leni; ++iSubscription) {
-                    Node subscription = subs.item(iSubscription);
-
-                    if (subscription.getNodeType() == 3) {
-                        //ignore whitespace
-                        continue;
-                    }
-
-                    if (subscription.hasAttributes()) {
-                        NamedNodeMap nnm;
-                        Node id;
-                        nnm = subscription.getAttributes();
-                        id = nnm.getNamedItem(LSNRTIBSUBJECTID);
-
-                        setRvListeners.add(id.getNodeValue());
-                    }
-                     p.setSubjects(setRvListeners);
-                }
-
-                setRvParameters.add(p);
-
-            }
-            // start the configured listeners
-            _gui.startListeners(setRvParameters);
-        } catch (DOMException e) {
-            System.err.println(e.getLocalizedMessage());
+            File file = new File(filename);
+            if (file.exists())
+                file.delete();
+        } catch (Exception e) {
+            System.err.println("Could not delete configuration from " + filename + " because " + e.getMessage());
         }
-
-
-    }
-
-    private void processWindowPosition(Document doc) {
-        try {
-            Node n;
-            NodeList nodes = doc.getElementsByTagName(WINDOWPOS);
-
-            String windowY;
-            String windowHeight;
-            String windowWidth;
-            String windowX;
-
-            n = nodes.item(0);
-            NamedNodeMap map = n.getAttributes();
-            windowHeight = getValue(map, WINDOWHEIGHT);
-            windowWidth = getValue(map, WINDOWWIDTH);
-            windowX = getValue(map, WINDOWX);
-            windowY = getValue(map, WINDOWY);
-
-            if (windowHeight != null && windowWidth != null
-                    && windowX != null && windowY != null) {
-                Rectangle r = new Rectangle(Integer.parseInt(windowX),
-                        Integer.parseInt(windowY),
-                        Integer.parseInt(windowWidth),
-                        Integer.parseInt(windowHeight));
-                _gui.setWindowBounds(r);
-
-            } else {
-
-                throw new Exception("");
-            }
-
-        } catch (Exception e1) {
-            //  if not there
-            e1.printStackTrace();
-            System.out.println(e1.getMessage());
-            _gui.updateFrameSize();
-        }
-
-    }
-
-    protected void processSplitPanes(Document doc) {
-        try {
-            Node n;
-            NodeList nodes = doc.getElementsByTagName(SPLITPANEPOS);
-
-            String sizeHorizontal;
-            String sizeVertical;
-
-            n = nodes.item(0);
-            NamedNodeMap map = n.getAttributes();
-            sizeHorizontal = getValue(map, SPLITPANEPOSH);
-            sizeVertical = getValue(map, SPLITPANEPOSV);
-
-            if (sizeHorizontal != null && sizeHorizontal != null) {
-                _gui.setSplitPaneTableViewerPos(Integer.parseInt(sizeHorizontal));
-                _gui.setSplitPaneVerticalPos(Integer.parseInt(sizeVertical));
-            } else {
-
-                throw new Exception("");
-            }
-
-        } catch (Exception e1) {
-            //  if not there
-            _gui.setSplitPaneVerticalPos(130);
-            _gui.setSplitPaneTableViewerPos(350);
-        }
-
-    }
-
-
-    protected void processCategories(Document doc) {
-        CategoryExplorerTree tree = _gui.getCategoryExplorerTree();
+        CategoryExplorerTree tree = gui.getCategoryExplorerTree();
         CategoryExplorerModel model = tree.getExplorerModel();
-        NodeList nodeList = doc.getElementsByTagName(CATEGORY);
-
-        // determine where the starting node is
-        NamedNodeMap map = nodeList.item(0).getAttributes();
-        int j = (getValue(map, NAME).equalsIgnoreCase(FIRST_CATEGORY_NAME)) ? 1 : 0;
-        // iterate backwards throught the nodeList so that expansion of the
-        // list can occur
-        for (int i = nodeList.getLength() - 1; i >= j; --i) {
-            Node n = nodeList.item(i);
-            map = n.getAttributes();
-            CategoryNode chnode = model.addCategory(new CategoryPath(getValue(map, PATH)));
-            chnode.setSelected((getValue(map, SELECTED).equalsIgnoreCase("true")) ? true : false);
-            if (getValue(map, EXPANDED).equalsIgnoreCase("true")) ;
-            tree.expandPath(model.getTreePathToRoot(chnode));
-        }
-
+        // Collapse everything except the root node.
+        for (int i = tree.getRowCount() - 1; i != 0; --i)
+            tree.collapseRow(i);
+        Enumeration nodes = model.getRootCategoryNode().breadthFirstEnumeration();
+        while (nodes.hasMoreElements())
+            ((CategoryNode) nodes.nextElement()).setSelected(true);
     }
 
-    protected void processMsgTypes(Document doc) {
-        NodeList nodeList = doc.getElementsByTagName(LEVEL);
-        Map menuItems = _gui.getLogLevelMenuItems();
-
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Node n = nodeList.item(i);
-            NamedNodeMap map = n.getAttributes();
-            String name = getValue(map, NAME);
-            try {
-                JCheckBoxMenuItem item =
-                        (JCheckBoxMenuItem) menuItems.get(MsgType.valueOf(name));
-                item.setSelected(getValue(map, SELECTED).equalsIgnoreCase("true"));
-            } catch (MsgTypeFormatException e) {
-                // ignore it will be on by default.
-            }
-        }
+    private void fontExport(Element parent) {
+        Font font = table.getFont();
+        Element fontElement = appendElement(parent, FONT);
+        setString(fontElement, FONT_NAME, font.getFontName());
+        setString(fontElement, FONT_SIZE, Integer.toString(font.getSize()));
     }
 
-    protected void processLogLevelColors(Document doc) {
-        NodeList nodeList = doc.getElementsByTagName(COLORLEVEL);
-        Map logLevelColors = MsgType.getLogLevelColorMap();
-
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Node n = nodeList.item(i);
-
-            if (n == null) {
-                return;
-            }
-
-            NamedNodeMap map = n.getAttributes();
-            String name = getValue(map, NAME);
-            try {
-                MsgType level = MsgType.valueOf(name);
-                int red = Integer.parseInt(getValue(map, RED));
-                int green = Integer.parseInt(getValue(map, GREEN));
-                int blue = Integer.parseInt(getValue(map, BLUE));
-                Color c = new Color(red, green, blue);
-                if (level != null) {
-                    level.setLogLevelColorMap(level, c);
-                }
-
-            } catch (MsgTypeFormatException e) {
-                // ignore it will be on by default.
-            }
-        }
-    }
-
-    protected void processFont(Document doc) {
-
+    private void fontImport(Element parent) {
         try {
-            Node n;
-            NodeList nodes = doc.getElementsByTagName(FONTINFO);
-
-            String fontSize;
-            String fontStyle;
-            String fontName;
-            fontSize = null;
-            fontName = null;
-
-            n = nodes.item(0);
-            NamedNodeMap map = n.getAttributes();
-            fontName = getValue(map, FONTNAME);
-            fontSize = getValue(map, FONTSIZE);
-            fontStyle = getValue(map, FONTSTYLE);
-
-            if (fontName != null && fontSize != null) {
-                _gui.setFontSize(Integer.parseInt(fontStyle));
-                _gui.setFontName(fontName);
-            }
-
-        } catch (Exception e1) {
-            //  if not there
-            _gui.setFontSize(12);
+            Element font = parent.getFirstChildElement(FONT);
+            String name = getString(font, FONT_NAME);
+            if (name != null) gui.setFontName(name);
+            String size = getString(font, FONT_SIZE);
+            gui.setFontSize(size != null ? Integer.parseInt(size) : 12);
+        } catch (Exception ignored) {
+            // Intentionally ignored.
         }
     }
 
-    private void processFont(Font f, StringBuffer xml) {
-        exportFont(f.getFontName(), f.getStyle(), f.getSize(), xml);
-
+    /**
+     * Get the file that is used to store the configuration.
+     * 
+     * @return The name of the file.
+     */
+    public String getFilename() {
+        return filename;
     }
 
-    private void exportFont(String fontName, int style, int size, StringBuffer xml) {
-        xml.append("\t<").append(FONTINFO).append(" ");
-        xml.append(FONTNAME).append("=\"").append(fontName).append("\"").append(" ");
-        xml.append(FONTSTYLE).append("=\"").append(style).append("\"").append(" ");
-        xml.append(FONTSIZE).append("=\"").append(size).append("\"").append(" ");
-        xml.append("/>\n\r");
+    private void listenersExport(Element parent) {
+        Iterator iter = gui.getSubscriptions();
+        if (iter == null) return;
+        while (iter.hasNext()) {
+            RvParameters params = (RvParameters) iter.next();
+            Element listener = appendElement(parent, RV_LISTENER);
+            setString(listener, RV_SERVICE, params.getService());
+            setString(listener, RV_NETWORK, params.getNetwork());
+            setString(listener, RV_DAEMON, params.getDaemon());
+            Set subjects = params.getSubjects();
+            if (subjects == null) continue;
+            for (Iterator i = subjects.iterator(); i.hasNext(); )
+                setString(listener, SUBJECT, (String) i.next());
+        }
     }
 
-    private void appendStartTag(StringBuffer s, String tag) {
-        s.append("\t<");
-        s.append(tag);
-        s.append(">\r\n");
+    private void listenersImport(Element parent) {
+        Elements listeners = parent.getChildElements(RV_LISTENER);
+        Set params = new HashSet(listeners.size());
+        for (int i = listeners.size(); i != 0;) {
+            Element listener = listeners.get(--i);
+            String service = getString(listener, RV_SERVICE);
+            String network = getString(listener, RV_NETWORK);
+            String daemon = getString(listener, RV_DAEMON);
+            RvParameters param = new RvParameters(service, network, daemon);
+            Elements subjects = listener.getChildElements(SUBJECT);
+            for (int j = subjects.size(); j != 0;)
+                param.addSubject(subjects.get(--j).getValue());
+            params.add(param);
+        }
+        gui.startListeners(params);
     }
 
-    private void appendCloseTag(StringBuffer s, String tag) {
-        s.append("\n</");
-        s.append(tag);
-        s.append(">\r\n");
+    /**
+     * Load a saved configuration from a file.
+     * <p>
+     * If the file does not exist then this just resets the date format.
+     */
+    public void load() {
+        File file = new File(getFilename());
+        if (!file.exists()) {
+            table.setDateFormatManager(new DateFormatManager(DATE_FORMAT_PATTERN));
+            return;
+        }
+        InputStream stream = null;
+        try {
+            stream = new BufferedInputStream(new FileInputStream(file));
+            Document doc = new Builder().build(stream);
+            Element root = doc.getRootElement();
+            subjectTreeImport(root);
+            typesImport(root);
+            tableColumnsImport(root);
+            fontImport(root);
+            dateFormatImport(root);
+            splitPositionImport(root);
+            windowPositionImport(root);
+            listenersImport(root);
+        } catch (Exception e) {
+            System.err.println("Unable to load configuration from " + file.getPath());
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
     }
 
-    protected void processLogTableColumns(Document doc) {
-        NodeList nodeList = doc.getElementsByTagName(COLUMN);
-        Map menuItems = _gui.getLogTableColumnMenuItems();
-        List selectedColumns = new ArrayList();
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Node n = nodeList.item(i);
+    /**
+     * Set the file that is used to store the configuration.
+     * 
+     * @param filename The file name to set.
+     */
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 
-            if (n == null) {
-                return;
-            }
-            NamedNodeMap map = n.getAttributes();
-            String name = getValue(map, NAME);
+    private void splitPositionExport(Element parent) {
+        Element splitPos = appendElement(parent, SPLIT_POSITION);
+        setString(splitPos, SPLIT_H, Integer.toString(gui.getSplitPaneTableViewerPos()));
+        setString(splitPos, SPLIT_V, Integer.toString(gui.getSplitPaneVerticalPos()));
+    }
 
+    private void splitPositionImport(Element parent) {
+        Element splitPos = parent.getFirstChildElement(SPLIT_POSITION);
+        if (splitPos == null) return;
+        try {
+            gui.setSplitPaneTableViewerPos(Integer.parseInt(getString(splitPos, SPLIT_H)));
+            gui.setSplitPaneVerticalPos(Integer.parseInt(getString(splitPos, SPLIT_V)));
+        } catch (Exception ignored) {
+            // Intentionally ignored.
+        }
+    }
+
+    /**
+     * Save the current configuration to file.
+     * 
+     * @throws IOException
+     */
+    public void store() throws IOException {
+        File file = new File(getFilename());
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+        Element config = new Element(ROOT);
+        typesExport(config);
+        tableColumnsExport(config);
+        subjectTreeExport(config);
+        fontExport(config);
+        dateFormatExport(config);
+        splitPositionExport(config);
+        windowPositionExport(config);
+        listenersExport(config);
+        OutputStream stream = null;
+        try {
+            stream = new BufferedOutputStream(new FileOutputStream(file));
+            Serializer ser = new Serializer(stream);
+            ser.setIndent(2);
+            ser.setLineSeparator("\n");
+            ser.write(new Document(config));
+            ser.flush();
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
+    }
+    
+    private void subjectTreeExport(Element parent) {
+        CategoryExplorerTree tree = gui.getCategoryExplorerTree();
+        CategoryExplorerModel model = tree.getExplorerModel();
+        Element subjects = appendElement(parent, SUBJECTS);
+        Enumeration nodes = model.getRootCategoryNode().breadthFirstEnumeration();
+        StringBuffer buffer = new StringBuffer();
+        // Skip the root node, which does not represent a subject name element.
+        nodes.nextElement();
+        while (nodes.hasMoreElements()) {
+            CategoryNode node = (CategoryNode) nodes.nextElement();
+            TreePath path = model.getTreePathToRoot(node);
+            Element subject = setString(subjects, SUBJECT, pathToString(path, buffer).toString());
+            setBoolean(subject, SUBJECT_EXPANDED, tree.isExpanded(path));
+            setBoolean(subject, SUBJECT_SELECTED, node.isSelected());
+        }
+    }
+
+    private void subjectTreeImport(Element parent) {
+        CategoryExplorerTree tree = gui.getCategoryExplorerTree();
+        CategoryExplorerModel model = tree.getExplorerModel();
+        Element subjectsRoot = parent.getFirstChildElement(SUBJECTS);
+        if (subjectsRoot == null) return;
+        Elements subjects = subjectsRoot.getChildElements(SUBJECT);
+        for (int i = subjects.size(); i != 0;) {
+            Element subject = subjects.get(--i);
+            CategoryPath path = new CategoryPath(subject.getValue().trim());
+            CategoryNode node = model.addCategory(path);
+            node.setSelected(getBoolean(subject, SUBJECT_SELECTED, true));
+            if (getBoolean(subject, SUBJECT_EXPANDED, false))
+                tree.expandPath(model.getTreePathToRoot(node));
+        }
+    }
+
+    private void tableColumnsExport(Element parent) {
+        Iterator iter = LogTableColumn.getLogTableColumns().iterator();
+        Element columns = appendElement(parent, COLUMNS);
+        while (iter.hasNext()) {
+            LogTableColumn column = (LogTableColumn) iter.next();
+            JCheckBoxMenuItem item = gui.getTableColumnMenuItem(column);
+            int size = table.getColumnWidth(column.getLabel());
+            Element columnElt = setString(columns, COLUMN, column.getLabel());
+            columnElt.addAttribute(new Attribute(COLUMN_SELECTED, Boolean.toString(item.isSelected())));
+            columnElt.addAttribute(new Attribute(COLUMN_WIDTH, Integer.toString(size)));
+        }
+    }
+
+    private void tableColumnsImport(Element parent) {
+        Map menuItems = gui.getLogTableColumnMenuItems();
+        Elements columns = parent.getChildElements(COLUMNS);
+        int size = columns.size();
+        List selectedColumns = new ArrayList(size);
+        for (int i = 0; i < size; ++i) {
+            Element columnElt = columns.get(i);
+            String name = columnElt.getValue();
+            LogTableColumn column = LogTableColumn.valueOf(name);
+            if (column == null) continue;
             try {
-                LogTableColumn column = LogTableColumn.valueOf(name);
-                JCheckBoxMenuItem item =
-                        (JCheckBoxMenuItem) menuItems.get(column);
-                item.setSelected(getValue(map, SELECTED).equalsIgnoreCase("true"));
-
-                if (item.isSelected()) {
+                String width = columnElt.getAttributeValue(COLUMN_WIDTH);
+                table.setColumnWidth(name, Integer.parseInt(width));
+                Object item = menuItems.get(columnElt);
+                Boolean selected = Boolean.valueOf(columnElt.getAttributeValue(COLUMN_SELECTED));
+                if (selected.booleanValue()) {
+                    ((JCheckBoxMenuItem) item).setSelected(true);
                     selectedColumns.add(column);
                 }
-            } catch (LogTableColumnFormatException e) {
-                // ignore it will be on by default.
+            } catch (Exception ignored) {
+                // Intentionally ignored.
             }
         }
+        if (selectedColumns.isEmpty())
+            table.setDetailedView();
+        else
+            table.setView(selectedColumns);
+    }
 
-        if (selectedColumns.isEmpty()) {
-            _table.setDetailedView();
-        } else {
-            _table.setView(selectedColumns);
+    private void typesExport(Element parent) {
+        Map menuItems = gui.getLogLevelMenuItems();
+        Map colours = MsgType.getLogLevelColorMap();
+        Iterator it = menuItems.keySet().iterator();
+        while (it.hasNext()) {
+            MsgType type = (MsgType) it.next();
+            Element typeElt = appendElement(parent, TYPE);
+            typeElt.addAttribute(new Attribute(TYPE_NAME, type.getLabel()));
+            boolean selected = ((JCheckBoxMenuItem) menuItems.get(type)).isSelected();
+            setBoolean(typeElt, TYPE_SELECTED, selected);
+            Color colour = (Color) colours.get(type);
+            Element colourElt = appendElement(typeElt, COLOUR);
+            setString(colourElt, COLOUR_RED, Integer.toString(colour.getRed()));
+            setString(colourElt, COLOUR_GREEN, Integer.toString(colour.getGreen()));
+            setString(colourElt, COLOUR_BLUE, Integer.toString(colour.getBlue()));
         }
+    }
 
-        for (int i = 0; i < nodeList.getLength(); ++i) {
-            Node n = nodeList.item(i);
-
-            if (n == null) {
-                return;
-            }
-            NamedNodeMap map = n.getAttributes();
-            String width;
-            String name;
+    private void typesImport(Element parent) {
+        Map menuItems = gui.getLogLevelMenuItems();
+        Elements types = parent.getChildElements(TYPE);
+        for (int i = types.size(); i != 0;) {
+            Element typeElt = types.get(--i);
+            String name = typeElt.getAttributeValue(TYPE_NAME);
             try {
-                name = getValue(map, NAME);
-                width = getValue(map, COLUMWIDTH);
-
-                _table.setColumnWidth(name, Integer.parseInt(width));
-
-            } catch (Exception e) {
-                // ignore it will be on by default.
-            }
-
-        }
-    }
-
-    protected String getValue(NamedNodeMap map, String attr) {
-        Node n = map.getNamedItem(attr);
-        return n.getNodeValue();
-    }
-
-    protected void collapseTree() {
-        // collapse everything except the first category
-        CategoryExplorerTree tree = _gui.getCategoryExplorerTree();
-        for (int i = tree.getRowCount() - 1; i > 0; i--) {
-            tree.collapseRow(i);
-        }
-    }
-
-    protected void selectAllNodes() {
-        CategoryExplorerModel model = _gui.getCategoryExplorerTree().getExplorerModel();
-        CategoryNode root = model.getRootCategoryNode();
-        Enumeration all = root.breadthFirstEnumeration();
-        CategoryNode n = null;
-        while (all.hasMoreElements()) {
-            n = (CategoryNode) all.nextElement();
-            n.setSelected(true);
-        }
-    }
-
-    public static void createConfigurationDirectory() {
-        String home = System.getProperty("user.home");
-        File f = new File(home + SEP + CONFIG_DIR_NAME);
-        if (!f.exists()) {
-            try {
-                f.mkdirs();
-            } catch (SecurityException e) {
-                throw e;
+                MsgType type = MsgType.valueOf(name);
+                if (type == null)
+                    continue;
+                JCheckBoxMenuItem item = (JCheckBoxMenuItem) menuItems.get(MsgType.valueOf(name));
+                item.setSelected(getBoolean(typeElt, TYPE_SELECTED, true));
+                Element colour = typeElt.getFirstChildElement(COLOUR);
+                int r = Integer.parseInt(getString(colour, COLOUR_RED));
+                int g = Integer.parseInt(getString(colour, COLOUR_GREEN));
+                int b = Integer.parseInt(getString(colour, COLOUR_BLUE));
+                MsgType.setLogLevelColorMap(type, new Color(r, g, b));
+            } catch (Exception ignored) {
+                // Intentionally ignored.
             }
         }
-
     }
 
-    protected void store(String s) throws IOException {
+    private void windowPositionExport(Element parent) {
+        Rectangle r = gui.getWindowBounds();
+        Element window = appendElement(parent, WINDOW_POSITION);
+        setString(window, WINDOW_X, Integer.toString(r.x));
+        setString(window, WINDOW_Y, Integer.toString(r.y));
+        setString(window, WINDOW_WIDTH, Integer.toString(r.width));
+        setString(window, WINDOW_HEIGHT, Integer.toString(r.height));
+    }
 
+    private void windowPositionImport(Element parent) {
+        Element window = parent.getFirstChildElement(WINDOW_POSITION);
+        if (window == null) return;
+        Rectangle bounds = gui.getWindowBounds();
         try {
-            createConfigurationDirectory();
-
-            File f = new File(getFilename());
-
-            if (!f.exists()) {
-                try {
-                    f.createNewFile();
-                } catch (Exception e) {
-
-                } finally {
-                    f = null;
-                }
-            }
-
-
-            PrintWriter writer = new PrintWriter(new FileWriter(getFilename()));
-
-            writer.print(s);
-            writer.close();
-        } catch (IOException e) {
-            // do something with this error.
-            throw e;
-        }
-
-    }
-
-    protected void deleteConfigurationFile() {
-        try {
-            File f = new File(getFilename());
-            if (f.exists()) {
-                f.delete();
-            }
-        } catch (SecurityException e) {
-            System.err.println("Cannot delete " + getFilename() +
-                    " because a security violation occured.");
+            bounds.x = Integer.parseInt(getString(window, WINDOW_X));
+            bounds.y = Integer.parseInt(getString(window, WINDOW_Y));
+            bounds.width = Integer.parseInt(getString(window, WINDOW_WIDTH));
+            bounds.height = Integer.parseInt(getString(window, WINDOW_HEIGHT));
+            gui.setWindowBounds(bounds);
+            gui.updateFrameSize();
+        } catch (Exception ignored) {
+            // Intentionally ignored.
         }
     }
-
-    protected String getDefaultFilename() {
-        String home = System.getProperty("user.home");
-        return home + SEP + CONFIG_DIR_NAME + SEP + CONFIG_FILE_NAME;
-    }
-
-    public String getFilename() {
-        return _fileName;
-    }
-
-    public void setFilename(String fileName) {
-        this._fileName = fileName;
-    }
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-    private void processConfigurationNode(CategoryNode node, StringBuffer xml) {
-        CategoryExplorerModel model = _gui.getCategoryExplorerTree().getExplorerModel();
-
-        Enumeration all = node.breadthFirstEnumeration();
-        CategoryNode n = null;
-        while (all.hasMoreElements()) {
-            n = (CategoryNode) all.nextElement();
-            exportXMLElement(n, model.getTreePathToRoot(n), xml);
-        }
-
-    }
-
-
-    private void processMsgTypes(Map logLevelMenuItems, StringBuffer xml) {
-        xml.append("\t<msgtypes>\r\n");
-        Iterator it = logLevelMenuItems.keySet().iterator();
-        while (it.hasNext()) {
-            MsgType level = (MsgType) it.next();
-            JCheckBoxMenuItem item = (JCheckBoxMenuItem) logLevelMenuItems.get(level);
-            exportLogLevelXMLElement(level.getLabel(), item.isSelected(), xml);
-        }
-
-        xml.append("\t</msgtypes>\r\n");
-    }
-
-    private void processMsgTypesColors(Map logLevelMenuItems, Map logLevelColors, StringBuffer xml) {
-        xml.append("\t<msgtypescolors>\r\n");
-        // iterate through the list of log levels being used (log4j, jdk1.4, custom levels)
-        Iterator it = logLevelMenuItems.keySet().iterator();
-        while (it.hasNext()) {
-            MsgType level = (MsgType) it.next();
-            // for each level, get the associated color from the log level color map
-            Color color = (Color) logLevelColors.get(level);
-            exportLogLevelColorXMLElement(level.getLabel(), color, xml);
-        }
-
-        xml.append("\t</msgtypescolors>\r\n");
-    }
-
-
-    private void processLogTableColumns(List logTableColumnMenuItems, StringBuffer xml) {
-        xml.append("\t<logtablecolumns>\r\n");
-        Iterator it = logTableColumnMenuItems.iterator();
-        while (it.hasNext()) {
-            LogTableColumn column = (LogTableColumn) it.next();
-            JCheckBoxMenuItem item = _gui.getTableColumnMenuItem(column);
-            int size = _table.getColumnWidth(column.getLabel());
-            exportLogTableColumnXMLElement(column.getLabel(), item.isSelected(), size, xml);
-        }
-
-        xml.append("\t</logtablecolumns>\r\n");
-    }
-
-
-    private void openXMLDocument(StringBuffer xml) {
-        xml.append("<?xml version=\"1.0\" encoding=\"" + System.getProperty("file.encoding") + "\" ?>\r\n");
-    }
-
-    private void openConfigurationXML(StringBuffer xml) {
-        xml.append("<configuration>\r\n");
-    }
-
-    private void closeConfigurationXML(StringBuffer xml) {
-        xml.append("</configuration>\r\n");
-    }
-
-    private void exportXMLElement(CategoryNode node, TreePath path, StringBuffer xml) {
-        CategoryExplorerTree tree = _gui.getCategoryExplorerTree();
-
-        xml.append("\t<").append(CATEGORY).append(" ");
-        xml.append(NAME).append("=\"").append(node.getTitle()).append("\" ");
-        xml.append(PATH).append("=\"").append(treePathToString(path)).append("\" ");
-        xml.append(EXPANDED).append("=\"").append(tree.isExpanded(path)).append("\" ");
-        xml.append(SELECTED).append("=\"").append(node.isSelected()).append("\"/>\r\n");
-    }
-
-    private void exportLogLevelXMLElement(String label, boolean selected, StringBuffer xml) {
-        xml.append("\t\t<").append(LEVEL).append(" ").append(NAME);
-        xml.append("=\"").append(label).append("\" ");
-        xml.append(SELECTED).append("=\"").append(selected);
-        xml.append("\"/>\r\n");
-    }
-
-    private void exportLogLevelColorXMLElement(String label, Color color, StringBuffer xml) {
-        xml.append("\t\t<").append(COLORLEVEL).append(" ").append(NAME);
-        xml.append("=\"").append(label).append("\" ");
-        xml.append(RED).append("=\"").append(color.getRed()).append("\" ");
-        xml.append(GREEN).append("=\"").append(color.getGreen()).append("\" ");
-        xml.append(BLUE).append("=\"").append(color.getBlue());
-        xml.append("\"/>\r\n");
-    }
-
-    private void exportLogTableColumnXMLElement(String label, boolean selected, int size, StringBuffer xml) {
-        xml.append("\t\t<").append(COLUMN).append(" ").append(NAME);
-        xml.append("=\"").append(label).append("\" ");
-        xml.append(SELECTED).append("=\"").append(selected).append("\" ");
-        xml.append(COLUMWIDTH).append("=\"").append(String.valueOf(size));
-        xml.append("\"/>\r\n");
-    }
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
 
 }
-
-
-
-
-
-
