@@ -1,39 +1,28 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    LogRecord.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p;
 
-import rvsn00p.util.DateFormatManager;
+import java.io.Serializable;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Date;
+import com.tibco.tibrv.TibrvMsg;
 
 /**
- * LogRecord.  A LogRecord encapsulates the details of your desired log
- * request.
- * @author �rjan Lundberg
+ * A LogRecord encapsulates the details of your desired log request.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * Based on Logfactor5 By
- *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
- * Contributed by ThoughtWorks Inc.
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-public class LogRecord implements java.io.Serializable {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
+public final class LogRecord implements Serializable {
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
-    protected static long _seqCount = 0;
+    private static final long serialVersionUID = 4866817496310259124L;
+
+    private static long nextSequenceId = 0;
 
     protected MsgType _type;
 
@@ -41,76 +30,15 @@ public class LogRecord implements java.io.Serializable {
     protected long _millis;
 
     protected StringBuffer _sSubject = new StringBuffer();
-    protected StringBuffer _message  = new StringBuffer();
+    protected TibrvMsg _message;
     protected StringBuffer _replySubject = new StringBuffer();
     protected StringBuffer _trackingID = new StringBuffer();
 
-    private static final int MAX_FREE_POOL_SIZE = 2000;  // Free pool capacity.
-
-    // Pool owned by class.
-    private static LogRecord[] _freeStack = new LogRecord[MAX_FREE_POOL_SIZE];
-    private static int _countFree = 0;
-    private static long lastAllocationTime = System.currentTimeMillis()-3000 ;
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
-    protected LogRecord() {
-        super();
-    }
-
-    public static synchronized LogRecord getInstance() {
-
-        LogRecord result;
-        // Check if the pool is empty.
-
-        if (_countFree == 0) {
-
-            long timeSinceLastAlloc =  System.currentTimeMillis() - lastAllocationTime ;
-
-            int noToAlloc = 0;
-            if( timeSinceLastAlloc < 200 ) {
-                noToAlloc =  MAX_FREE_POOL_SIZE;
-            } else if( timeSinceLastAlloc < 1000 ) {
-                noToAlloc =  MAX_FREE_POOL_SIZE/2;
-            } else if( timeSinceLastAlloc < 3000 ) {
-                noToAlloc =  MAX_FREE_POOL_SIZE/4;
-            } else {
-                noToAlloc = 100;
-            }
-
-            // Fill the pool if so.
-            for(int i = 0; i < noToAlloc; ++i ){
-              freeInstance(new LogRecord());
-            }
-
-            lastAllocationTime = System.currentTimeMillis();
-        }
-
-        // Remove object from end of free pool.
-        result = _freeStack[--_countFree];
-
-        // Initialize the object to the specified state.
-        result._millis = System.currentTimeMillis();
-        result._type = MsgType.UNKNOWN;
-        result._sequenceNumber = getNextId();
-        return result;
-    }
-
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
-
-    public static synchronized void freeInstance(LogRecord lr) {
-        if (_countFree < MAX_FREE_POOL_SIZE) {
-            _freeStack[_countFree++] = lr;
-        }
+    public LogRecord(TibrvMsg message) {
+        this._millis = System.currentTimeMillis();
+        this._sequenceNumber = getNextSequenceId();
+        this._type = MsgType.UNKNOWN;
+        this._message = message;
     }
 
     /**
@@ -202,13 +130,9 @@ public class LogRecord implements java.io.Serializable {
      * Get the message asscociated with this LogRecord.
      *
      * @return The message of this record.
-     * @see #setMessage(String)
+     * @see #setMessage(TibrvMsg)
      */
-    public String getMessage() {
-        return _message.toString();
-    }
-
-    public StringBuffer getMessageAsStringBuffer() {
+    public TibrvMsg getMessage() {
         return _message;
     }
 
@@ -218,9 +142,9 @@ public class LogRecord implements java.io.Serializable {
      * @param message The message for this record.
      * @see #getMessage()
      */
-    public void setMessage(String message) {
-        _message.setLength(0);
-        _message.append(message);
+    public void setMessage(TibrvMsg message) {
+        if (message == null) throw new NullPointerException();
+        _message = message;
     }
 
     /**
@@ -270,15 +194,6 @@ public class LogRecord implements java.io.Serializable {
         _millis = millis;
     }
 
-
-
-
-
-
-
-
-
-
     /**
      * Return a String representation of this LogRecord.
      */
@@ -292,9 +207,6 @@ public class LogRecord implements java.io.Serializable {
         return (buf.toString());
     }
 
-
-
-
     /**
      * Set the replysubject
      *
@@ -306,30 +218,14 @@ public class LogRecord implements java.io.Serializable {
     }
 
     /**
-     * Resets that sequence number to 0.
-     *
+     * Resets that sequence number to zero.
      */
-    public static synchronized void resetSequenceNumber() {
-        _seqCount = 0;
+    public static synchronized void resetSequenceId() {
+        nextSequenceId = 0;
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-    protected static synchronized long getNextId() {
-        ++_seqCount;
-        return _seqCount;
+    protected static synchronized long getNextSequenceId() {
+        return nextSequenceId++;
     }
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Type Classes or Interfaces:
-    //--------------------------------------------------------------------------
 
 }
-
-
-
