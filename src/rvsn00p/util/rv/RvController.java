@@ -1,28 +1,37 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    RvController.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.util.rv;
 
-import com.tibco.tibrv.*;
-import com.tibco.tibrv.TibrvQueue;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.*;
+import rvsn00p.RecentListeners;
+
+import com.tibco.tibrv.Tibrv;
+import com.tibco.tibrv.TibrvDispatcher;
+import com.tibco.tibrv.TibrvErrorCallback;
+import com.tibco.tibrv.TibrvException;
+import com.tibco.tibrv.TibrvListener;
+import com.tibco.tibrv.TibrvMsg;
+import com.tibco.tibrv.TibrvMsgCallback;
+import com.tibco.tibrv.TibrvQueue;
+import com.tibco.tibrv.TibrvRvdTransport;
+import com.tibco.tibrv.TibrvTransport;
 
 /**
  * Controls all listeners to the rendezvous bus.
+ *
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
 public class RvController {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
     protected final static Map _mapTibrvListeners = new HashMap();
     protected final static Map _mapTibrvTransports = new HashMap();
     protected static TibrvQueue _queue;
@@ -30,19 +39,6 @@ public class RvController {
     protected static TibrvListener _error;
     protected static TibrvErrorCallback _errCallBack;
 
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
     /**
      * Open the Tibrv connection
      */
@@ -52,7 +48,8 @@ public class RvController {
             _queue = new TibrvQueue();
             _queue.setName("rvsn00pQueue");
             _errCallBack = errCallBack;
-            final TibrvDispatcher rvd = new TibrvDispatcher(_queue);
+            // XXX: Do we need to do anything else with the object reference?
+            new TibrvDispatcher(_queue);
 
             Tibrv.setErrorCallback(_errCallBack);
 
@@ -143,6 +140,7 @@ public class RvController {
                 _mapTibrvListeners.put(id, lsnr);
             }
         }
+        RecentListeners.getInstance().add(p);
     }
 
     public static synchronized Set getListeners() {
@@ -161,7 +159,7 @@ public class RvController {
             lsnr.destroy();
 
 
-            _mapTibrvListeners.remove(p.getSubject());
+            _mapTibrvListeners.remove(p.getSubjectsAsString());
         }
     }
 
@@ -202,15 +200,12 @@ public class RvController {
         }
     }
 
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
-
     /**
      *  Used to hide ADV_NAME="QUEUE.LIMIT_EXCEEDED".
      */
     static class IgnoreListenersCallBack implements TibrvMsgCallback {
         public void onMsg(final TibrvListener tibrvListener, final TibrvMsg tibrvMsg) {
+            // no-op
         }
     }
 
@@ -228,5 +223,3 @@ public class RvController {
         }
     }
 }
-
-
