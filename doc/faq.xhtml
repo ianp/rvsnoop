@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+    <meta http-equiv="Content-Language" content="en-uk" />
+    <meta name="Copyright" content="Copyright © 2002-@year@ Apache Software Foundation." />
+    <meta name="Copyright" content="Copyright © 2005 Ian Phillips." />
+    <meta name="Author" content="Örjan Lundberg" />
+    <meta name="Author" content="Ian Phillips" />
+    <style type="text/css" media="all">@import "style.css";</style>
+    <title>RvSn00p @version@ FAQ</title>
+  </head>
+  <body>
+    <div class="section">
+      <div class="header">
+        <a href="http://sourceforge.net"><img id="sflogo" src="http://sourceforge.net/sflogo.php?group_id=63447&amp;type=5" alt="SourceForge Logo" /></a>
+        <h1>Frequently Asked Questions</h1>
+      </div>
+      <div class="content">
+        <h2>What does the command line argument <code>tcp:7500|7500||subjecta,subjectb</code> mean?</h2>
+        <p>It is one or more sets of <code>daemon|service|network|subject</code> that <em>RvSn00p</em> should listen to. You can enter multiple listener definitions on the command line.</p>
+        <p>This should be treated as a deprecated feature, a forthcoming release will remove it and replace it with a mechanism that uses saved configuration files.</p>
+        <h2>I cannot start RvSn00p or I get strange errors when starting RvSn00p, what is wrong?</h2>
+        <p>First, check that you have the appropriate classpath set for the Java libraries that are required.</p>
+        <p>If the classpath is set correctly it is possible that you need to configure the library path to find the native Rendezvous libraries. The new style launch scripts should give you enough information to locate and set this correctly.</p>
+        <p>If you are still having trouble file a support request via the <a href="http://sourceforge.net/tracker/?atid=504009&amp;group_id=63447&amp;func=browse">SourceForge Tracker</a>.</p>
+        <h2>How do I specify the date format string?</h2>
+        <p>The date format uses the Java <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/text/SimpleDateFormat.html">simple date format</a> facility, full documentation covering all of options can be found in the Java API docs.</p>
+        <h2>How do I get the <code>rvscipt</code> export functionality to work?</h2>
+        <p>You need to add the <code>rvscript.jar</code> file to your classpath. The version of <code>rvscript</code> needs to be 1.23 or later.</p>
+        <h2>How do I get a new feature implemented?</h2>
+        <p>Add a feature request via the <a href="http://sourceforge.net/tracker/?atid=504011&amp;group_id=63447&amp;func=browse">SourceForge Tracker</a>. If you need something major adding, or would like urgent changes made feel free to <a href="mailto:ianp@ianp.org">contact me</a> directly to discuss rates for contract work.</p>
+        <p>Of course you have to remember that this is all open source, so you can always just go ahead and implement you feature yourself! If you do this please <a href="http://sourceforge.net/tracker/?atid=504010&amp;group_id=63447&amp;func=browse">send me the code</a> then I can add it to a released version.</p>
+      </div>
+      <div class="navigation">
+        <ul>
+          <li><a href="index@suffix@">Home</a></li>
+          <li><a href="features@suffix@">Features</a></li>
+          <li><acronym>FAQ</acronym></li>
+          <li><a href="links@suffix@">Links</a></li>
+          <li><a href="changes@suffix@">Change Log</a></li>
+          <li><a href="http://www.sourceforge.net/projects/rvsn00p">Project Page</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-bin.tgz?download">Binary Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-src.tgz?download">Source Download</a></li>
+        </ul>
+      </div>
+      <div class="footer">
+        <p>Copyright © 2002-@year@ <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright © 2005 <a href="http://ianp.org">Ian Phillips</a>. <a href="http://validator.w3.org/check/referer">Valid <acronym>XHTML</acronym></a>.</p>
+        <p>$Id$</p>
+      </div>
+    </div>
+  </body>
+</html>

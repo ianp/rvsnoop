@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+    <meta http-equiv="Content-Language" content="en-uk" />
+    <meta name="Copyright" content="Copyright © 2002-@year@ Apache Software Foundation." />
+    <meta name="Copyright" content="Copyright © 2005 Ian Phillips." />
+    <meta name="Author" content="Örjan Lundberg" />
+    <meta name="Author" content="Ian Phillips" />
+    <style type="text/css" media="all">@import "style.css";</style>
+    <title>RvSn00p @version@ Change Log</title>
+  </head>
+  <body>
+    <div class="section">
+      <div class="header">
+        <a href="http://sourceforge.net"><img id="sflogo" src="http://sourceforge.net/sflogo.php?group_id=63447&amp;type=5" alt="SourceForge Logo" /></a>
+        <h1>Change Log</h1>
+      </div>
+      <div class="content">
+        <p>Request <acronym>ID</acronym> Numbers refer to bug requests or feature requests on the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge</a> page.</p>
+        <h2>Changes up to version 1.3.0</h2>
+        <ul>
+          <li>The configuration is saved and opened with <em>File → Open File → Save</em>.</li>
+          <li>Listeners are stored in the configuration file.</li>
+          <li>A new tree view has been implemented for the message display, this is displayed along with the text view in a tabbed panel. The old style text-only view can be used via the <code>-textonly</code> switch. The tabbed view can be suppressed, displaying only the new style tree, via the <code>-treeonly</code> switch.</li>
+          <li>Finished adding a "recent listeners" facility to the file menu. These are serialized to an <acronym>XML</acronym> file when the application shuts down.</li>
+          <li>Improved the start scripts.</li>
+          <li>Updated <acronym>ASF</acronym> license to use version 2.0.</li>
+          <li>Updated copyright notices for new license.</li>
+          <li>Fixed bug in <code>RvParameters</code> object whereby the hash code could change over the objects life-cycle, thus preventing it from being added to collections.</li>
+          <li>Updated the configuration manager to use <a href="http://xom.nu"><acronym>XOM</acronym></a> to read and write the <acronym>XML</acronym> based configuration files, this ensures that they are always well formed <acronym>XML</acronym>. A <acronym>DTD</acronym> for the configuration file will be added in a later version.</li>
+          <li>A new build system.</li>
+          <li>Cleaned up lots of code so that the Eclipse code checker no longer generates any warnings.</li>
+          <li>Removed the raccoon code as it does not compile against the current version of Raccoon.</li>
+          <li>Corrected some minor spelling mistakes.</li>
+        </ul>
+        <h2>Changes up to version 1.2.6</h2>
+        <ul>
+          <li>Java 1.4.1 or later is required.</li>
+          <li>Added Raccoon message serializer, this will be used if the Raccoon classes are on the classpath.</li>
+          <li>Added Reuters RvTest serializer, this will be used if the RvTest classes are on the classpath.</li>
+          <li>RvSn00p now supports the Raccoon, RvScript and RvTest serializers.</li>
+          <li>Other minor changes.</li>
+        </ul>
+        <h2>Changes up to version 1.2.4</h2>
+        <ul>
+          <li>Added operation <em>Edit → Filter by Selected Subject</em> with accelerator key ctrl-y.</li>
+          <li>Added operation <em>Edit → Filter by Subject</em> with accelerator key ctrl-shift-y.</li>
+        </ul>
+        <h2>Changes up to version 1.2.3</h2>
+        <ul>
+          <li><em>Configure → Save</em> will now save: window position, table column width, splitter pane positions, date format, font settings</li>
+        </ul>
+        <h2>Changes up to version 1.2.1</h2>
+        <ul>
+          <li>Minimized number of objects sent to garbage collection (more work on this to follow). I used <a href="http://www.compuware.com">CompuWare</a> <a href="http://www.compuware.com/products/devpartner/previews/java.htm">DevPartner</a> for this. Remember to use the <em>Configure → Set Max Number of Records</em> to limit the number of records contained in memory.</li>
+          <li>Batched creation of new log information objects, thus increasing performance under high load.</li>
+          <li>Changed HTML output format to include intendation of RvScript XML.</li>
+        </ul>
+        <h2>Changes up to version 1.1.13</h2>
+        <ul>
+          <li>Fixed Request ID 636566 HTML output incorrect</li>
+        </ul>
+        <h2>Changes up to version 1.1.12</h2>
+        <ul>
+          <li>Operation <em>Edit → Filter by Selected Tracking ID</em> with accelerator ctrl-t.</li>
+          <li>Accererator key ctrl-shift-t for operation <em>Edit → Filter by Tracking ID</em>.</li>
+          <li>Accererator key ctrl-r operation <em>Edit → Remove Tracking ID Filter</em>.</li>
+        </ul>
+        <h2>Changes up to version 1.1.11</h2>
+        <ul>
+          <li>Tracking ID column in table. If a MTrackingInfo class is found in the message it's tracking id is put into this field.</li>
+          <li>Operation <em>Edit → Filter by Tracking ID</em>.</li>
+          <li>Operation <em>Edit → Remove Tracking ID Filter</em>.</li>
+          <li>Added ability to supply multiple subjects when setting up listeners, i.e. the command line argument "tcp:7500|7500||subja,subjb" will listen for subja and subjb on the daemon tcp:7500 on servce 7500. Adding another subject subjc is done by just using the "Add listener". </li>
+        </ul>
+        <h2>Changes up to version 1.1.10</h2>
+        <ul>
+          <li>Added <code>-title title</code> argument to set the banner name For example <code>-title DEV "tcp:7500|7500||>"</code></li>
+          <li>Fixed 631239. Removed annoying error dialog that showed once per message in some conditions</li>
+        </ul>
+        <h2>Changes up to version 1.1.9</h2>
+        <ul>
+          <li>Fixed 629013 Save table/message to RvScript file.</li>
+          <li>Display of java file encoding in the status bar.</li>
+          <li>Added <code>-Dfile.encoding=UTF8</code> in startup script.</li>
+          <li>Added ico file that you can select as an icon in windows when you create a shortcut.</li>
+        </ul>
+        <h2>Changes up to version 1.1.8</h2>
+        <ul>
+          <li>Fixed 620936 HTML Save option, saves the presented log entries.</li>
+          <li>‘Pause All’ button</li>
+        </ul>
+        <h2>Changes up to version 1.1.7</h2>
+        <ul>
+          <li>Better windows start command script.</li>
+          <li>Fixed bug when selecting the first found of the string serialization classes error messages.</li>
+        </ul>
+        <h2>Changes up to version 1.1.6</h2>
+        <ul>
+          <li>New help options for licence information.</li>
+          <li>Changed implementation of <code>RvMsg</code> string serialization to allow later implemetation of editing and resending messages.</li>
+          <li>
+            <p>RvSn00p now uses the first found of:</p>
+            <ol>
+              <li><acronym>TIBCO</acronym> RvScript <code>tibrvXmlConvert</code></li>
+              <li><code>MTree.toString</code></li>
+              <li><code>TibRvMsg.toString</code></li>
+            </ol>
+            <p>This means that if the <code>rvscript.jar</code> is in the classpath <code>tibrvXmlConvert</code> will be used as string serializer. If it is not found the serializer will be downgraded to the <acronym>TIBCO SDK AE</acronym> ‘MTree’ format and if that is not not found the standard <acronym>RV API</acronym> <code>TibRvMsg</code> will be used.</p>
+          </li>
+        </ul>
+        <h2>Changes up to version 1.1.5</h2>
+        <ul>
+          <li>New help about options.</li>
+          <li>Cleaned up code.</li>
+          <li>Removed annoying ‘null’ network display in menu bar.</li>
+        </ul>
+        <h2>Changes up to version 1.1.4</h2>
+        <ul>
+          <li>Multible small changes, mostly spelling.</li>
+        </ul>
+        <h2>Changes up to version 1.1.3</h2>
+        <ul>
+          <li>New icons</li>
+          <li>Multible small changes, mostly error messages.</li>
+        </ul>
+        <h2>Changes up to version 1.1.2</h2>
+        <ul>
+          <li>Fixed 618268 No error displayed on connection failure.</li>
+        </ul>
+        <h2>Changes up to version 1.1.1</h2>
+        <ul>
+          <li>Close all listeners menu item.</li>
+          <li>Fixed some minor issues.</li>
+        </ul>
+        <h2>Changes up to version 1.1.0</h2>
+        <ul>
+          <li>Fixed 617159 Show connected subjects in header.</li>
+        </ul>
+        <h2>Changes up to version 1.0.2</h2>
+        <ul>
+          <li>Fixed 617154 Incorrect date format.</li>
+          <li>Fixed 617155 Add Listener: cancel adds new listener.</li>
+        </ul>
+      </div>
+      <div class="navigation">
+        <ul>
+          <li><a href="index@suffix@">Home</a></li>
+          <li><a href="features@suffix@">Features</a></li>
+          <li><a href="faq@suffix@"><acronym>FAQ</acronym></a></li>
+          <li><a href="links@suffix@">Links</a></li>
+          <li>Change Log</li>
+          <li><a href="http://www.sourceforge.net/projects/rvsn00p">Project Page</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-bin.tgz?download">Binary Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-src.tgz?download">Source Download</a></li>
+        </ul>
+      </div>
+      <div class="footer">
+        <p>Copyright © 2002-@year@ <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright © 2005 <a href="http://ianp.org">Ian Phillips</a>. <a href="http://validator.w3.org/check/referer">Valid <acronym>XHTML</acronym></a>.</p>
+        <p>$Id$</p>
+      </div>
+    </div>
+ </body>
+</html>
