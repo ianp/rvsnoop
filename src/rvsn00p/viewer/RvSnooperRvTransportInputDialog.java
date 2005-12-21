@@ -1,73 +1,59 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    RvSnooperRvTransportInputDialog.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import rvsn00p.util.rv.RvParameters;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import rvsn00p.util.rv.RvParameters;
 
 /**
- * RvSnooperInputDialog
+ * An input dialog for entry of Rendezvous parameters and subjects.
  *
- * Creates a popup input dialog box so that users can enter
- * a URL to open a log file from.
- *
- * @author �rjan Lundberg <lundberg@home.se>
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
 public class RvSnooperRvTransportInputDialog extends RvSnooperDialog {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
+    private static final long serialVersionUID = 8834430809279507332L;
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
     private JTextField _tService = new JTextField();
     private JTextField _tNetwork = new JTextField();
-    private JTextField _tDaemon = new JTextField();
+    private JTextField _tDaemon  = new JTextField();
     private JTextField _tSubject = new JTextField();
 
-
-
     private boolean isOK;
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
 
     /**
-     * Retrieves tibco transport information from the user.
-     * param jframe the frame where the dialog will be loaded from.
-     * param title the title of the dialog box.
+     * Create a new instance of this class.
+     * 
+     * @param parent The parent component for the dialog (it is modal).
+     * @param initial The initial parameter values to display.
      */
-    public RvSnooperRvTransportInputDialog(JFrame jframe, String title, RvParameters defaultParameters) {
-        super(jframe, title, true);
+    public RvSnooperRvTransportInputDialog(JFrame parent, RvParameters initial) {
+        super(parent, "New Listener", true);
+        JPanel bottom = new JPanel(new FlowLayout());
+        JPanel main = new JPanel(new GridLayout(8,0));
 
-        JPanel bottom = new JPanel();
-        bottom.setLayout(new FlowLayout());
-        JPanel main = new JPanel();
-        main.setLayout(new GridLayout(8,0));
-
-        createInputField("Service:",defaultParameters.getService(),_tService, main );
-        createInputField("Daemon:",defaultParameters.getDaemon(),_tDaemon, main );
-        createInputField("Subjects:",defaultParameters.getSubject(),_tSubject, main );
-        createInputField("Network:",defaultParameters.getNetwork(),_tNetwork , main);
+        createInputField("Service:", initial.getService(), _tService, main );
+        createInputField("Daemon:", initial.getDaemon(), _tDaemon, main );
+        createInputField("Subjects:", initial.getSubjectsAsString(), _tSubject, main );
+        createInputField("Network:", initial.getNetwork(), _tNetwork, main);
 
         _tSubject.setToolTipText("Comma (,) separated list of subjects (subject1,subject2)");
         _tNetwork.setToolTipText("networkcardid;networkaddress");
@@ -81,7 +67,7 @@ public class RvSnooperRvTransportInputDialog extends RvSnooperDialog {
             }
         });
 
-        JButton ok = new JButton("Ok");
+        JButton ok = new JButton("OK");
         ok.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 hide();
@@ -102,24 +88,21 @@ public class RvSnooperRvTransportInputDialog extends RvSnooperDialog {
         bottom.add(cancel);
         getContentPane().add(main, BorderLayout.CENTER);
         getContentPane().add(bottom, BorderLayout.SOUTH);
-       // minimumSizeDialog(this, 1400, 1400);
         pack();
-        centerWindow(this);
-        show();
+        centerOnScreen();
+        setVisible(true);
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
     public rvsn00p.util.rv.RvParameters getRvParameters() {
 
         RvParameters p = new RvParameters();
 
-        p.setDeamon(_tDaemon.getText());
+        p.setDaemon(_tDaemon.getText());
         p.setNetwork(_tNetwork.getText());
         p.setService(_tService.getText());
-        p.setSubjects(_tSubject.getText());
-
+        String[] subjects = _tSubject.getText().split(",");
+        for (int i = 0, imax = subjects.length; i < imax; ++i)
+            p.addSubject(subjects[i]);
         return p;
     }
 
@@ -127,32 +110,17 @@ public class RvSnooperRvTransportInputDialog extends RvSnooperDialog {
         return isOK;
     }
 
+   protected void createInputField(String label, String initial, JTextField field, JPanel panel){
 
-
-
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-   protected void createInputField(String name, String defaultText, JTextField tf, JPanel addTo){
-
-        JLabel jl =  new JLabel(name);
-
-        addTo.add(jl);
-        tf.setText(defaultText);
-        addTo.add(tf);
-        jl.setLabelFor(tf);
+        JLabel jl =  new JLabel(label);
+        panel.add(jl);
+        field.setText(initial);
+        panel.add(field);
+        jl.setLabelFor(field);
 
    }
 
     protected void setOK(boolean OK) {
         isOK = OK;
     }
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces
-    //--------------------------------------------------------------------------
 }
