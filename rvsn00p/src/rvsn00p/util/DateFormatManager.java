@@ -1,20 +1,17 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    DateFormatManager.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.util;
 
 import java.text.DateFormat;
+import java.text.FieldPosition;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.text.FieldPosition;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.Calendar;
 
 /**
  * Date format manager.
@@ -48,37 +45,23 @@ import java.util.Calendar;
  *  z        time zone               (Text)              Pacific Standard Time
  *  '        escape for text         (Delimiter)
  *  ''       single quote            (Literal)           '
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author orjan Lundberg
- * @author Robert Shaw
- * @author Michael J. Sikorsky
- * Contributed by ThoughtWorks Inc.
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
 public class DateFormatManager {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
     private TimeZone _timeZone = null;
-    private Locale _locale = null;
 
     private String _pattern = null;
-    final private static DateFormat _dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.FULL,
+    final private static DateFormat _dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL,
                                                            DateFormat.FULL,
                                                            Locale.getDefault());
     final private static FieldPosition _fieldPosition = new FieldPosition(0);
 
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
     public DateFormatManager() {
         super();
         configure();
@@ -93,8 +76,6 @@ public class DateFormatManager {
 
     public DateFormatManager(Locale locale) {
         super();
-
-        _locale = locale;
         configure();
     }
 
@@ -107,15 +88,12 @@ public class DateFormatManager {
 
     public DateFormatManager(TimeZone timeZone, Locale locale) {
         super();
-
         _timeZone = timeZone;
-        _locale = locale;
         configure();
     }
 
     public DateFormatManager(TimeZone timeZone, String pattern) {
         super();
-
         _timeZone = timeZone;
         _pattern = pattern;
         configure();
@@ -123,24 +101,16 @@ public class DateFormatManager {
 
     public DateFormatManager(Locale locale, String pattern) {
         super();
-
-        _locale = locale;
         _pattern = pattern;
         configure();
     }
 
     public DateFormatManager(TimeZone timeZone, Locale locale, String pattern) {
         super();
-
         _timeZone = timeZone;
-        _locale = locale;
         _pattern = pattern;
         configure();
     }
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     public synchronized TimeZone getTimeZone() {
         if (_timeZone == null) {
@@ -151,22 +121,8 @@ public class DateFormatManager {
     }
 
     public synchronized void setTimeZone(TimeZone timeZone) {
-        timeZone = timeZone;
         configure();
     }
-
-/*    public synchronized Locale getLocale() {
-        if (_locale == null) {
-            return Locale.getDefault();
-        } else {
-            return _locale;
-        }
-    }
-
-    public synchronized void setLocale(Locale locale) {
-        _locale = locale;
-        configure();
-    }*/
 
     public synchronized String getPattern() {
         return _pattern;
@@ -180,32 +136,9 @@ public class DateFormatManager {
         configure();
     }
 
-
-    /**
-     * This method has been deprecated in favour of getPattern().
-     * @deprecated Use getPattern().
-     */
-    public synchronized String getOutputFormat() {
-        return _pattern;
-    }
-
-    /**
-     * This method has been deprecated in favour of setPattern().
-     * @deprecated Use setPattern().
-     */
-    public synchronized void setOutputFormat(String pattern) {
-        _pattern = pattern;
-        configure();
-    }
-
     public synchronized DateFormat getDateFormatInstance() {
         return _dateFormat;
     }
-
- /*   public synchronized void setDateFormatInstance(DateFormat dateFormat) {
-        _dateFormat = dateFormat;
-        // No reconfiguration necessary!
-    }*/
 
     public String format(Date date) {
         return getDateFormatInstance().format(date);
@@ -245,13 +178,6 @@ public class DateFormatManager {
         return formatter.parse(date);
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
     private synchronized void configure() {
 
         _dateFormat.setTimeZone(getTimeZone());
@@ -261,10 +187,5 @@ public class DateFormatManager {
         }
 
     }
-
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
 
 }

@@ -1,8 +1,6 @@
 package rvsn00p.util;
 
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -123,12 +121,6 @@ public class BrowserLauncher {
 	/** The kAnyTransactionID AppleEvent code */
 	private static Integer kAnyTransactionID;
 
-	/** The linkage object required for JDirect 3 on Mac OS X. */
-	private static Object linkage;
-
-	/** The framework to reference on Mac OS X */
-	private static final String JDirect_MacOSX = "/System/Library/Frameworks/Carbon.framework/Frameworks/HIToolbox.framework/HIToolbox";
-
 	/** JVM constant for MRJ 2.0 */
 	private static final int MRJ_2_0 = 0;
 
@@ -244,7 +236,9 @@ public class BrowserLauncher {
 	/**
 	 * This class should be never be instantiated; this just ensures so.
 	 */
-	private BrowserLauncher() { }
+	private BrowserLauncher() {
+        throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Called by a static initializer to load any classes, fields, and methods required at runtime
@@ -320,7 +314,7 @@ public class BrowserLauncher {
 			    try {
 					Class linker = Class.forName("com.apple.mrj.jdirect.Linker");
 					Constructor constructor = linker.getConstructor(new Class[]{ Class.class });
-					linkage = constructor.newInstance(new Object[] { BrowserLauncher.class });
+					constructor.newInstance(new Object[] { BrowserLauncher.class });
 				} catch (ClassNotFoundException cnfe) {
 					errorMessage = cnfe.getMessage();
 					return false;
@@ -433,7 +427,6 @@ public class BrowserLauncher {
 							}
 						}
 					} catch (IllegalArgumentException iare) {
-						browser = browser;
 						errorMessage = iare.getMessage();
 						return null;
 					} catch (IllegalAccessException iae) {
@@ -583,4 +576,3 @@ public class BrowserLauncher {
 	private native static int ICLaunchURL(int instance, byte[] hint, byte[] data, int len,
 											int[] selectionStart, int[] selectionEnd);
 }
-
