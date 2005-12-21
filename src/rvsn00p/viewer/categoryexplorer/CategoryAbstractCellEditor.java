@@ -1,56 +1,38 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    CategoryAbstractCellEditor.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer.categoryexplorer;
 
-import javax.swing.*;
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.util.EventObject;
+
+import javax.swing.JTable;
+import javax.swing.JTree;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.TableCellEditor;
 import javax.swing.tree.TreeCellEditor;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.util.EventObject;
 
 /**
  * CategoryAbstractCellEditor.  Base class to handle the some common
  * details of cell editing.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class CategoryAbstractCellEditor implements TableCellEditor, TreeCellEditor {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
     protected EventListenerList _listenerList = new EventListenerList();
     protected Object _value;
     protected ChangeEvent _changeEvent = null;
     protected int _clickCountToStart = 1;
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     public Object getCellEditorValue() {
         return _value;
@@ -119,9 +101,6 @@ public class CategoryAbstractCellEditor implements TableCellEditor, TreeCellEdit
         return null;
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
     protected void fireEditingStopped() {
         Object[] listeners = _listenerList.getListenerList();
 
@@ -149,13 +128,5 @@ public class CategoryAbstractCellEditor implements TableCellEditor, TreeCellEdit
             }
         }
     }
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
 
 }

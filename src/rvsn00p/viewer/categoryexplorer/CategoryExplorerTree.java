@@ -1,46 +1,32 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    CategoryExplorerTree.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer.categoryexplorer;
 
-import javax.swing.*;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreePath;
-import java.awt.event.MouseEvent;
 
 /**
  * CategoryExplorerTree
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
- * @author Brent Sprecher
- * @author Brad Marlborough
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class CategoryExplorerTree extends JTree {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
+    private static final long serialVersionUID = 1113355023776035429L;
+
     protected CategoryExplorerModel _model;
+
     protected boolean _rootAlreadyExpanded = false;
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
 
     /**
      * Construct a CategoryExplorerTree with a specific model.
@@ -67,10 +53,6 @@ public class CategoryExplorerTree extends JTree {
         init();
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
-
     public CategoryExplorerModel getExplorerModel() {
         return (_model);
     }
@@ -85,10 +67,6 @@ public class CategoryExplorerTree extends JTree {
         }
 
     }
-
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
 
     protected void init() {
         // Put visible lines on the JTree.
@@ -130,18 +108,4 @@ public class CategoryExplorerTree extends JTree {
         });
     }
 
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
-
 }
-
-
-
-
-
-

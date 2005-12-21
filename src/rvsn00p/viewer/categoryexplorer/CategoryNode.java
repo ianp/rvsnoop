@@ -1,46 +1,31 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    CategoryNode.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer.categoryexplorer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
-import java.util.Enumeration;
 
 /**
  * CategoryNode
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class CategoryNode extends DefaultMutableTreeNode {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
+    private static final long serialVersionUID = -3670587626244234923L;
+
     protected boolean _selected = true;
     protected int _numberOfContainedRecords = 0;
     protected int _numberOfRecordsFromChildren = 0;
     protected boolean _hasFatalChildren = false;
     protected boolean _hasFatalRecords = false;
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
 
     /**
      *
@@ -49,9 +34,7 @@ public class CategoryNode extends DefaultMutableTreeNode {
         setUserObject(title);
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
+
     public String getTitle() {
         return (String) getUserObject();
     }
@@ -64,30 +47,6 @@ public class CategoryNode extends DefaultMutableTreeNode {
 
     public boolean isSelected() {
         return _selected;
-    }
-
-    /**
-     * @deprecated
-     */
-    public void setAllDescendantsSelected() {
-        Enumeration children = children();
-        while (children.hasMoreElements()) {
-            CategoryNode node = (CategoryNode) children.nextElement();
-            node.setSelected(true);
-            node.setAllDescendantsSelected();
-        }
-    }
-
-    /**
-     * @deprecated
-     */
-    public void setAllDescendantsDeSelected() {
-        Enumeration children = children();
-        while (children.hasMoreElements()) {
-            CategoryNode node = (CategoryNode) children.nextElement();
-            node.setSelected(false);
-            node.setAllDescendantsDeSelected();
-        }
     }
 
     public String toString() {
@@ -143,10 +102,6 @@ public class CategoryNode extends DefaultMutableTreeNode {
         _hasFatalChildren = flag;
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
     protected int getTotalNumberOfRecords() {
         return getNumberOfRecordsFromChildren() + getNumberOfContainedRecords();
     }
@@ -170,18 +125,5 @@ public class CategoryNode extends DefaultMutableTreeNode {
         }
         ((CategoryNode) parent).addRecordFromChild();
     }
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
 
 }
-
-
-
-
-
-

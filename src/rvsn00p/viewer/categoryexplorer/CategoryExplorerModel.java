@@ -1,63 +1,43 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    CategoryExplorerModel.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer.categoryexplorer;
 
-import rvsn00p.LogRecord;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.AWTEventMulticaster;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Enumeration;
 
+import javax.swing.SwingUtilities;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+
+import rvsn00p.LogRecord;
+
 /**
  * CategoryExplorerModel
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
- * @author Brent Sprecher
- * @author Richard Hurst
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class CategoryExplorerModel extends DefaultTreeModel {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
-
+    private static final long serialVersionUID = -3629858078509052804L;
     protected boolean _renderFatal = true;
     protected ActionListener _listener = null;
     protected ActionEvent _event = new ActionEvent(this,
                                                    ActionEvent.ACTION_PERFORMED,
                                                    "Nodes Selection changed");
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
     public CategoryExplorerModel(CategoryNode node) {
         super(node);
     }
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     public void addLogRecord(LogRecord lr) {
         CategoryPath path = new CategoryPath(lr.getSubject());
@@ -91,7 +71,7 @@ public class CategoryExplorerModel extends DefaultTreeModel {
     }
 
     /**
-     * returns null if no CategoryNode exists.
+     * @return <code>null</code> if no CategoryNode exists.
      */
     public CategoryNode getCategoryNode(CategoryPath path) {
         CategoryNode root = (CategoryNode) getRoot();
@@ -174,8 +154,8 @@ public class CategoryExplorerModel extends DefaultTreeModel {
      * <p>Method altered by Richard Hurst such that it returns the CategoryNode
      * corresponding to the CategoryPath</p>
      *
-     * @param CategoryPath
-     * @returns CategoryNode
+     * @param path
+     * @return CategoryNode
      */
     public CategoryNode addCategory(CategoryPath path) {
         CategoryNode root = (CategoryNode) getRoot();
@@ -288,8 +268,8 @@ public class CategoryExplorerModel extends DefaultTreeModel {
     /**
      * <p>Returns the CategoryPath to the specified CategoryNode</p>
      *
-     * @param CategoryNode The target CategoryNode
-     * @returns CategoryPath
+     * @param node The target CategoryNode
+     * @return CategoryPath
      */
     public TreePath getTreePathToRoot(CategoryNode node) {
         if (node == null) {
@@ -298,9 +278,6 @@ public class CategoryExplorerModel extends DefaultTreeModel {
         return (new TreePath(getPathToRoot(node)));
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
     protected void notifyActionListeners() {
         if (_listener != null) {
             _listener.actionPerformed(_event);
@@ -318,18 +295,4 @@ public class CategoryExplorerModel extends DefaultTreeModel {
         });
     }
 
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
-
 }
-
-
-
-
-
-
