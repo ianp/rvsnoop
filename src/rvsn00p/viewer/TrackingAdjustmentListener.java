@@ -1,79 +1,43 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    TrackingAdjustmentListener.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import java.awt.*;
+import java.awt.Adjustable;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 
 /**
- * An AdjustmentListener which ensures that an Adjustable (e.g. a Scrollbar)
- * will "track" when the Adjustable expands.
- * For example, when a vertical scroll bar is at its bottom anchor,
- * the scrollbar will remain at the bottom.  When the vertical scroll bar
- * is at any other location, then no tracking will happen.
- * An instance of this class should only listen to one Adjustable as
- * it retains state information about the Adjustable it listens to.
- *
- * @author Richard Wan
+ * A listener which ensures that an adjustable tracks it's maximum position.
+ * <p>
+ * For example when a vertical scroll bar is at its bottom anchor this listener
+ * will force the scroll bar to remain "glued" at the bottom, when the vertical
+ * scroll bar is at any other location, then no tracking will happen.
+ * <p>
+ * An instance of this class should only listen to one Adjustable as it retains
+ * state information about the Adjustable it listens to.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
+ * 
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
+public final class TrackingAdjustmentListener implements AdjustmentListener {
 
-// Contributed by ThoughtWorks Inc.
-
-public class TrackingAdjustmentListener implements AdjustmentListener {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
-
-    protected int _lastMaximum = -1;
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
+    protected int previousMaximum = -1;
 
     public void adjustmentValueChanged(AdjustmentEvent e) {
-        Adjustable bar = e.getAdjustable();
-        int currentMaximum = bar.getMaximum();
-        if (currentMaximum == _lastMaximum) {
-            return; // nothing to do, the adjustable has not expanded
-        }
-        int bottom = bar.getValue();
-        bottom += bar.getVisibleAmount();
-        bottom += bar.getUnitIncrement();
-
-        if (bottom  >= _lastMaximum) {
-            bar.setValue(currentMaximum); // use the most recent maximum
-        }
-        _lastMaximum = currentMaximum;
+        Adjustable a = e.getAdjustable();
+        int maximum = a.getMaximum();
+        if (maximum == previousMaximum)
+            return;
+        int b = a.getValue() + a.getVisibleAmount() + a.getUnitIncrement();
+        if (b >= previousMaximum)
+            a.setValue(maximum);
+        previousMaximum = maximum;
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces
-    //--------------------------------------------------------------------------
 }
-

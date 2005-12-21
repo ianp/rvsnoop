@@ -1,11 +1,16 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    FilteredLogTableModel.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.table.AbstractTableModel;
 
 import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
@@ -13,33 +18,18 @@ import rvsn00p.PassingLogRecordFilter;
 import rvsn00p.util.DateFormatManager;
 import rvsn00p.util.HTMLEncoder;
 
-import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-
 /**
  * A TableModel for LogRecords which includes filtering support.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author �rjan Lundberg
- *
- * Based on Logfactor5 By
- *
- * @author Richard Wan
- * @author Brent Sprecher
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-public class FilteredLogTableModel
-        extends AbstractTableModel {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
+public class FilteredLogTableModel extends AbstractTableModel {
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
-
+    private static final long serialVersionUID = 3614054890778884099L;
     protected LogRecordFilter _filter = new PassingLogRecordFilter();
     protected List _allRecords = new ArrayList();
     protected List _filteredRecords;
@@ -57,21 +47,9 @@ public class FilteredLogTableModel
     final protected StringBuffer _conversionStrBuf = new StringBuffer(15);
     final protected StringBuffer _outStrBuf = new StringBuffer(15);
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
     public FilteredLogTableModel() {
         super();
     }
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     public void setDateFormatManager(DateFormatManager dfm) {
         if (dfm != null)
@@ -155,10 +133,6 @@ public class FilteredLogTableModel
         fireTableDataChanged();
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
     protected List getFilteredRecords() {
         if (_filteredRecords == null) {
             refresh();
@@ -236,7 +210,6 @@ public class FilteredLogTableModel
                 buf.append("<td>");
                 if (i == 5) {
                     // message
-                    StringBuffer sb = new StringBuffer();
                     buf.append("<code>");
                     Tbuffer.setLength(0);
                     addColumnToStringBuffer(Tbuffer, i, lr, dfMgr);
@@ -346,7 +319,7 @@ public class FilteredLogTableModel
                 sb.append(lr.getTrackingIDStringBuffer());
                 break;
             case 5:
-                sb.append(lr.getMessageAsStringBuffer());
+                sb.append("message with ").append(lr.getMessage().getNumFields()).append(" fields");
                 break;
             default:
                 String message = "The column number " + col + " must be between 0 and 5";
@@ -386,10 +359,10 @@ public class FilteredLogTableModel
             if (trim > 1) {
                 List oldRecords = _allRecords.subList(0, trim);
 
-                final Iterator records = oldRecords.iterator();
-                while (records.hasNext()) {
-                    LogRecord.freeInstance((LogRecord) records.next());
-                }
+//                final Iterator records = oldRecords.iterator();
+//                while (records.hasNext()) {
+//                    LogRecord.freeInstance((LogRecord) records.next());
+//                }
                 oldRecords.clear();
                 refresh();
             } else {
@@ -400,15 +373,8 @@ public class FilteredLogTableModel
 
     }
 
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
     private int numberOfRecordsToTrim() {
         return _allRecords.size() - _maxNumberOfLogRecords;
     }
 
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces
-    //--------------------------------------------------------------------------
 }
-

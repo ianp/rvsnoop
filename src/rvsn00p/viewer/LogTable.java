@@ -1,47 +1,49 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    LogTable.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import rvsn00p.util.DateFormatManager;
-
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import java.awt.*;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+
+import rvsn00p.util.DateFormatManager;
+import rvsn00p.util.rv.MarshalRvToString;
+import rvsn00p.util.rv.RvRootNode;
+
+import com.tibco.tibrv.TibrvMsg;
+
 /**
  * LogTable.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author �rjan Lundberg
- *
- * Based on Logfactor5 By
- * @author Michael J. Sikorsky
- * @author Robert Shaw
- * @author Brad Marlborough
- * @author Brent Sprecher
- * Contributed by ThoughtWorks Inc.
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
 public class LogTable extends JTable {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
+    private static final long serialVersionUID = -1119183751891536610L;
     protected int _rowHeight = 30;
-    protected JTextArea _detailTextArea;
 
     // For the columns:
     protected int _numCols = 6;
@@ -56,21 +58,16 @@ public class LogTable extends JTable {
     protected int _colMessage = 5;
     protected StringBuffer _buf = new StringBuffer();
 
+    final JTextArea detailsText;
+    final JTree detailsTree;
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
-    public LogTable(JTextArea detailTextArea) {
+    public LogTable(JTree detailsTree, JTextArea detailsText) {
         super();
 
         init();
 
-        _detailTextArea = detailTextArea;
+        this.detailsText = detailsText;
+        this.detailsTree = detailsTree;
 
         setModel(new FilteredLogTableModel());
 
@@ -87,14 +84,11 @@ public class LogTable extends JTable {
 
 
         ListSelectionModel rowSM = getSelectionModel();
-        rowSM.addListSelectionListener(new LogTableListSelectionListener(this));
+        if (detailsText != null) rowSM.addListSelectionListener(new DetailsTextListener());
+        if (detailsTree != null) rowSM.addListSelectionListener(new DetailsTreeListener());
 
         //setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     }
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     /**
      * Get the DateFormatManager for formatting dates.
@@ -184,11 +178,6 @@ public class LogTable extends JTable {
         }
     }
 
-
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
     protected void init() {
         setRowHeight(_rowHeight);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -226,74 +215,50 @@ public class LogTable extends JTable {
                     model.getColumn(i).setPreferredWidth(width);
                 }
             }
-        } catch (Exception ex) {
-
+        } catch (Exception ignored) {
+            // Intentionally ignored.
         }
     }
 
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
-
-    class LogTableListSelectionListener implements ListSelectionListener {
-        protected JTable _table;
-
-        public LogTableListSelectionListener(JTable table) {
-            _table = table;
-        }
-
+    private class DetailsTextListener implements ListSelectionListener {
+        private final StringBuffer buffer = new StringBuffer();
         public void valueChanged(ListSelectionEvent e) {
-            //Ignore extra messages.
-            if (e.getValueIsAdjusting()) {
+            if (e.getValueIsAdjusting()) return;
+            ListSelectionModel sm = (ListSelectionModel) e.getSource();
+            int index = sm.getMinSelectionIndex();
+            if (index == -1) return; // Selection is empty.
+            TableModel tm = LogTable.this.getModel();
+            Object selection = tm.getValueAt(index, _numCols - 1);
+            if (selection == null) {
+                if (detailsText != null) detailsText.setText("");
                 return;
             }
-
-            ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-            if (lsm.isSelectionEmpty()) {
-                //no rows are selected
-            } else {
-                synchronized (_buf) {
-                    _buf.setLength(0);
-                    int selectedRow = lsm.getMinSelectionIndex();
-                    for (int i = 0; i < _numCols - 1; ++i) {
-
-                        Object obj = _table.getModel().getValueAt(selectedRow, i);
-
-                        _buf.append(_colNames[i]);
-                        _buf.append(":\t");
-
-                        if (obj != null) {
-
-                            _buf.append(obj);
-                        } else {
-                            _buf.append("\"NULL MESSAGE\"");
-                        }
-
-                        _buf.append("\n");
-                    }
-
-                    _buf.append(_colNames[_numCols - 1]);
-                    _buf.append(":\n");
-                    Object obj = _table.getModel().getValueAt(selectedRow, _numCols - 1);
-                    if (obj != null) {
-                        _buf.append(obj);
-                    }
-
-
-                    _detailTextArea.setText(_buf.toString());
-                }
+            for (int i = 0; i < _numCols - 1; ++i) {
+                Object value = tm.getValueAt(index, i);
+                buffer.append(_colNames[i]).append(":\t");
+                buffer.append(value != null ? value : "").append("\n");
             }
+            buffer.append(_colNames[_numCols - 1]);
+            buffer.append(":\n");
+            buffer.append(MarshalRvToString.rvmsgToString((TibrvMsg) selection, ""));
+            detailsText.setText(buffer.toString());
+            buffer.setLength(0);
+        }
+    }
+    
+    private class DetailsTreeListener implements ListSelectionListener {
+        public void valueChanged(ListSelectionEvent e) {
+            if (e.getValueIsAdjusting()) return;
+            ListSelectionModel sm = (ListSelectionModel) e.getSource();
+            int index = sm.getMinSelectionIndex();
+            if (index == -1) return; // Selection is empty.
+            TableModel tm = LogTable.this.getModel();
+            Object selection = tm.getValueAt(index, _numCols - 1);
+            if (selection == null) {
+                if (detailsTree != null) detailsTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
+                return;
+            }
+            detailsTree.setModel(new DefaultTreeModel(new RvRootNode((TibrvMsg) selection)));
         }
     }
 }
-
-
-
-
-
-
