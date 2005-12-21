@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
+    <meta http-equiv="Content-Language" content="en-uk"/>
+    <meta name="Copyright" content="Copyright © 2002-@year@ Apache Software Foundation." />
+    <meta name="Copyright" content="Copyright © 2005 Ian Phillips." />
+    <meta name="Author" content="Örjan Lundberg" />
+    <meta name="Author" content="Ian Phillips" />
+    <style type="text/css" media="all">@import "style.css";</style>
+    <title>RvSn00p @version@ Release Notes</title>
+  </head>
+  <body>
+    <div class="section">
+      <div class="header">
+        <a href="http://sourceforge.net"><img id="sflogo" src="http://sourceforge.net/sflogo.php?group_id=63447&amp;type=5" alt="SourceForge Logo" /></a>
+        <h1>Release Notes</h1>
+      </div>
+      <div class="content">
+        <p>RvSn00p hasn’t changed for quite a while so there are a number of new features (and hopefully no new bugs!) in this release. This document summarizes the new features.</p>
+        <h2>Quick Start</h2>
+        <p>You can get started by running the scripts in the <em>bin</em> directory, there is one for Windows and one for Unix.</p>
+        <p>More detailed information can be found in the <a href="index@suffix@">local help files</a>.</p>
+        <h2>Summary of Changes</h2>
+        <p>It is now possible to save your configuration and re-open it at a later date. This is done using the <a href="http://www.xom.nu">XOM 1.1</a> library and so handles encoding odd-characters well, the older, command line based, means of starting up preconfigured listeners still works, but is much more limited. For the next next release the old mechanism will probably be removed.</p>
+        <p>The details panel now uses a graphical tree view to display the message. At the moment this just displays the raw field structure of the message, it does not attempt to display Active Enterprise objects. One additional feature however, is the ability to parse and display XML in the same tree as the message, this is currently only enabled if the field uses the <acronym>TIBCO XML</acronym> field type, it will not work if you have <acronym>XML</acronym> data stored as a string.</p>
+        <p>One point to note: the Raccoon marshaller has been removed, it referenced an extremely old version of the Raccoon framework and would not compile against the current code.</p>
+        <h2>Future Plans</h2>
+        <p>Please suggest further enhancements via the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge tracker</a>.</p>
+        <p>The next release after this will probably focus on code clean-up and refactoring rather than adding new features. Also, The current code can now be run through the internal static analysis tools in Eclipse with no warnings, the next step is to run some more code analysis tools and then, once any/all obvious problems have been fixed, write some unit tests.</p>
+        <h2>Acknowledgements</h2>
+        <p>RvSn00p has been written by <a href="mailto:lundberg@home.se">Örjan Lundberg</a> and <a href="mailto:ianp@ianp.org">Ian Phillips</a>, it is based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a> which was originally written by ThoughtWorks and later donated to the Apache Software Foundation. </p>
+        <p><acronym>TIBCO</acronym> and <acronym>TIBCO</acronym> Rendezvous are registered trademarks of <acronym>TIBCO</acronym> Software Inc.</p>
+      </div>
+      <div class="navigation">
+        <ul>
+          <li><a href="index@suffix@">Home</a></li>
+          <li><a href="features@suffix@">Features</a></li>
+          <li><a href="faq@suffix@"><acronym>FAQ</acronym></a></li>
+          <li><a href="links@suffix@">Links</a></li>
+          <li><a href="changes@suffix@">Change Log</a></li>
+          <li><a href="http://www.sourceforge.net/projects/rvsn00p">Project Page</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-bin.tgz?download">Binary Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-src.tgz?download">Source Download</a></li>
+        </ul>
+      </div>
+      <div class="footer">
+        <p>Copyright © 2002-@year@ <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright © 2005 <a href="http://ianp.org">Ian Phillips</a>. <a href="http://validator.w3.org/check/referer">Valid <acronym>XHTML</acronym></a>.</p>
+        <p>$Id$</p>
+      </div>
+    </div>
+  </body>
+</html>
