@@ -1,18 +1,38 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    MsgSender.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.sender;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTEvent;
+import java.awt.Button;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Label;
+import java.awt.Rectangle;
+import java.awt.TextArea;
+import java.awt.TextField;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.TextEvent;
+import java.awt.event.TextListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
+ */
 public class MsgSender extends Dialog {
 
+    private static final long serialVersionUID = 1648352208409693782L;
     private Label _sendSubject = new Label();
     private Label _replySubject = new Label();
     private TextField _tfSendSubject = new TextField();
@@ -131,119 +151,6 @@ public class MsgSender extends Dialog {
             }
         });
 
-
-        this.add(_tfNetwork, null);
-        this.add(_tfService, null);
-        this.add(_tDaemon, null);
-        this.add(_lService, null);
-        this.add(_lNetwork, null);
-        this.add(_lDaemon, null);
-        this.add(_lRepeatTimeout2, null);
-        this.add(_tfRepeat, null);
-        this.add(_lRepeatTimeout1, null);
-        this.add(_tfTimeout1, null);
-        this.add(_bClose, null);
-        this.add(_tfTimeout, null);
-        this.add(_lReplyTimeout, null);
-        this.add(_bSend, null);
-        this.add(_lReplyMsg, null);
-        this.add(_lSendMsg, null);
-        this.add(_taReply, null);
-        this.add(_taSendMsg, null);
-        this.add(_tfReplySubject, null);
-        this.add(_tfSendSubject, null);
-        this.add(_replySubject, null);
-        this.add(_sendSubject, null);
-    }
-
-    private void setDefaultValues(String title, String subject, String msg, String daemon, String service, String network) {
-
-        this.addWindowListener(new MsgSenderWindowAdaptor(this));
-        this.setResizable(false);
-        _tfSendSubject.setText(subject);
-        _taSendMsg.setText(msg);
-        _tDaemon.setText(daemon);
-        _tfService.setText(service);
-        _tfNetwork.setText(network);
-        _titlePrefix = title;
-        System.out.println(subject);
-
-        _bClose.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        closeAfterConfirm();
-                    }
-                }
-        );
-
-    }
-
-    private void jbInit2()
-            throws Exception {
-
-
-        this.setSize(new Dimension(537, 546));
-        this.setLayout(null);
-
-        this.setTitle(_titlePrefix);
-        _sendSubject.setText("Send subject:");
-        _sendSubject.setBounds(new Rectangle(20, 5, 70, 15));
-        _replySubject.setText("Reply subject:");
-        _replySubject.setBounds(new Rectangle(20, 28, 70, 15));
-        _tfSendSubject.setBounds(new Rectangle(90, 2, 410, 20));
-
-        _tfSendSubject.addTextListener(new TextListener() {
-            public void textValueChanged(TextEvent e) {
-                _tfsend_textValueChanged(e);
-            }
-        });
-        _tfReplySubject.setBounds(new Rectangle(110, 25, 410, 20));
-        _taSendMsg.setBounds(new Rectangle(20, 150, 500, 200));
-        _taReply.setBounds(new Rectangle(20, 365, 500, 120));
-        _lSendMsg.setText("Message to send:");
-        _lSendMsg.setBounds(new Rectangle(20, 135, 120, 15));
-        _lReplyMsg.setText("Reply Message:");
-        _lReplyMsg.setBounds(new Rectangle(20, 350, 90, 15));
-        _bSend.setLabel("Send");
-        _bSend.setBounds(new Rectangle(350, 490, 71, 27));
-        _lReplyTimeout.setText("ReplyTimeout:");
-        _lReplyTimeout.setBounds(new Rectangle(20, 50, 70, 15));
-        _tfTimeout.setText("100");
-        _tfTimeout.setBounds(new Rectangle(110, 47, 35, 20));
-        _tfTimeout.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                _tfTimeout_actionPerformed(e);
-            }
-        });
-        _bClose.setLabel("Close");
-        _bClose.setBounds(new Rectangle(435, 490, 71, 27));
-        _tfTimeout1.setText("1");
-        _tfTimeout1.setBounds(new Rectangle(170, 47, 30, 20));
-        _tfTimeout1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                _tfTimeout_actionPerformed(e);
-            }
-        });
-        _lRepeatTimeout1.setText("Repeat:");
-        _lRepeatTimeout1.setBounds(new Rectangle(130, 50, 40, 15));
-        _tfRepeat.setText("1");
-        _tfRepeat.setBounds(new Rectangle(245, 47, 30, 20));
-        _tfRepeat.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                _tfTimeout_actionPerformed(e);
-            }
-        });
-        _lRepeatTimeout2.setText("Interval:");
-        _lRepeatTimeout2.setBounds(new Rectangle(205, 50, 40, 15));
-        _lDaemon.setText("Daemon:");
-        _lDaemon.setBounds(new Rectangle(20, 75, 65, 15));
-        _lNetwork.setText("Network:");
-        _lNetwork.setBounds(new Rectangle(20, 118, 65, 15));
-        _lService.setText("Service:");
-        _lService.setBounds(new Rectangle(20, 97, 60, 15));
-        _tDaemon.setBounds(new Rectangle(90, 72, 410, 20));
-        _tfService.setBounds(new Rectangle(90, 94, 40, 20));
-        _tfNetwork.setBounds(new Rectangle(90, 115, 410, 20));
         this.add(_tfNetwork, null);
         this.add(_tfService, null);
         this.add(_tDaemon, null);
@@ -311,11 +218,8 @@ public class MsgSender extends Dialog {
     }
 
     void cancel() {
+        // XXX: What to do here? Close the dialog?
     }
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
 
 
     private void _tfsend_textValueChanged(TextEvent e) {
@@ -323,12 +227,8 @@ public class MsgSender extends Dialog {
     }
 
     private void _tfTimeout_actionPerformed(ActionEvent e) {
+        // XXX: What to do here? Show an error?
     }
-
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
 
     class MsgSenderWindowAdaptor extends WindowAdapter {
         protected MsgSender _monitor;
