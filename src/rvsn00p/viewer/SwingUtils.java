@@ -1,46 +1,24 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    SwingUtils.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import javax.swing.*;
-import javax.swing.table.TableModel;
-import java.awt.*;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 
 /**
- * Provides methods to accomplish common yet non-trivial tasks
- * with Swing. Obvious implementations of these methods have been
- * tried and failed.
+ * A collection of static utility methods for working with Swing classes.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Richard Wan
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class SwingUtils {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     /**
      * Selects a the specified row in the specified JTable and scrolls
@@ -49,91 +27,23 @@ public class SwingUtils {
      * properly paint the newly selected row which may be offscre
      * @param table should belong to the specified JScrollPane
      */
-    public static void selectRow(int row, JTable table, JScrollPane pane) {
-        if (table == null || pane == null) {
-            return;
-        }
-        if (contains(row, table.getModel()) == false) {
-            return;
-        }
-        moveAdjustable(row * table.getRowHeight(), pane.getVerticalScrollBar());
-        selectRow(row, table.getSelectionModel());
-        // repaint must be done later because moveAdjustable
-        // posts requests to the swing thread which must execute before
-        // the repaint logic gets executed.
-        repaintLater(table);
-    }
-
-    /**
-     * Makes the specified Adjustable track if the view area expands and
-     * the specified Adjustable is located near the of the view.
-     */
-    public static void makeScrollBarTrack(Adjustable scrollBar) {
-        if (scrollBar == null) {
-            return;
-        }
-        scrollBar.addAdjustmentListener(new TrackingAdjustmentListener());
-    }
-
-    /**
-     * Makes the vertical scroll bar of the specified JScrollPane
-     * track if the view expands (e.g. if rows are added to an underlying
-     * table).
-     */
-    public static void makeVerticalScrollBarTrack(JScrollPane pane) {
-        if (pane == null) {
-            return;
-        }
-        makeScrollBarTrack(pane.getVerticalScrollBar());
-    }
-
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-    protected static boolean contains(int row, TableModel model) {
-        if (model == null) {
-            return false;
-        }
-        if (row < 0) {
-            return false;
-        }
-        if (row >= model.getRowCount()) {
-            return false;
-        }
-        return true;
-    }
-
-    protected static void selectRow(int row, ListSelectionModel model) {
-        if (model == null) {
-            return;
-        }
-        model.setSelectionInterval(row, row);
-    }
-
-    protected static void moveAdjustable(int location, Adjustable scrollBar) {
-        if (scrollBar == null) {
-            return;
-        }
-        scrollBar.setValue(location);
-    }
-
-    /**
-     * Work around for JTable/viewport bug.
-     * @link http://developer.java.sun.com/developer/bugParade/bugs/4205145.html
-     */
-    protected static void repaintLater(final JComponent component) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                component.repaint();
+    public static void selectRow(int row, final JTable table, JScrollPane pane) {
+        try {
+            if (row < table.getModel().getRowCount()) {
+                // First we post some requests to the AWT event loop...
+                pane.getVerticalScrollBar().setValue(row * table.getRowHeight());
+                table.getSelectionModel().setSelectionInterval(row, row);
+                // ...then queue a repaint to run once they have completed.
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        table.repaint();
+                    }
+                });
             }
-        });
+        } catch (NullPointerException ignored) {
+            // Deliberately ignored, method parameters may be null.
+        }
     }
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces
-    //--------------------------------------------------------------------------
 }
 
