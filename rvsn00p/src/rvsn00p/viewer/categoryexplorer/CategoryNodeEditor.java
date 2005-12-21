@@ -1,52 +1,41 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    CategoryNodeEditor.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer.categoryexplorer;
 
-import javax.swing.*;
-import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+import javax.swing.JCheckBox;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTree;
+import javax.swing.tree.TreePath;
+
 /**
  * CategoryNodeEditor
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class CategoryNodeEditor extends CategoryAbstractCellEditor {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
     protected CategoryNodeEditorRenderer _renderer;
     protected CategoryNode _lastEditedNode;
     protected JCheckBox _checkBox;
     protected CategoryExplorerModel _categoryModel;
     protected JTree _tree;
-
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
 
     public CategoryNodeEditor(CategoryExplorerModel model) {
         _renderer = new CategoryNodeEditorRenderer();
@@ -62,17 +51,13 @@ public class CategoryNodeEditor extends CategoryAbstractCellEditor {
 
         _renderer.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0) {
+                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
                     showPopup(_lastEditedNode, e.getX(), e.getY());
                 }
                 stopCellEditing();
             }
         });
     }
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     public Component getTreeCellEditorComponent(JTree tree, Object value,
                                                 boolean selected, boolean expanded,
@@ -211,7 +196,9 @@ public class CategoryNodeEditor extends CategoryAbstractCellEditor {
         JMenuItem result = new JMenuItem("Remove All Empty Subjects");
         result.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                while (removeUnusedNodes() > 0) ;
+                while (removeUnusedNodes() > 0) {
+                    // removeUnusedNodes() called for side effect.
+                }
             }
         });
         return result;
@@ -241,9 +228,9 @@ public class CategoryNodeEditor extends CategoryAbstractCellEditor {
     protected int removeUnusedNodes() {
         int count = 0;
         CategoryNode root = _categoryModel.getRootCategoryNode();
-        Enumeration enum = root.depthFirstEnumeration();
-        while (enum.hasMoreElements()) {
-            CategoryNode node = (CategoryNode) enum.nextElement();
+        Enumeration e = root.depthFirstEnumeration();
+        while (e.hasMoreElements()) {
+            CategoryNode node = (CategoryNode) e.nextElement();
             if (node.isLeaf() && node.getNumberOfContainedRecords() == 0
                     && node.getParent() != null) {
                 _categoryModel.removeNodeFromParent(node);

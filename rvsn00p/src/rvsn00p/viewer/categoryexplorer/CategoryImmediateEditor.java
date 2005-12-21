@@ -1,46 +1,34 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    CategoryImmediateEditor.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer.categoryexplorer;
 
-import javax.swing.*;
-import javax.swing.tree.DefaultTreeCellEditor;
-import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
+import javax.swing.Icon;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellEditor;
+import javax.swing.tree.TreePath;
+
 /**
  * CategoryImmediateEditor
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class CategoryImmediateEditor extends DefaultTreeCellEditor {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
     private CategoryNodeRenderer renderer;
     protected Icon editingIcon = null;
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
     public CategoryImmediateEditor(JTree tree,
                                    CategoryNodeRenderer renderer,
                                    CategoryNodeEditor editor) {
@@ -54,9 +42,6 @@ public class CategoryImmediateEditor extends DefaultTreeCellEditor {
         super.editingIcon = null;
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
     public boolean shouldSelectCell(EventObject e) {
         boolean rv = false;  // only mouse events
 
@@ -78,8 +63,6 @@ public class CategoryImmediateEditor extends DefaultTreeCellEditor {
         if (path == null) {
             return false;
         }
-        CategoryNode node = (CategoryNode) path.getLastPathComponent();
-        boolean rv = false;
 
         if (true) {
             // offset and lastRow DefaultTreeCellEditor
@@ -92,14 +75,11 @@ public class CategoryImmediateEditor extends DefaultTreeCellEditor {
             bounds.translate(offset + checkBoxOffset.width,
                              checkBoxOffset.height);
 
-            rv = bounds.contains(e.getPoint());
+            // XXX: Should this value be returned?
+            bounds.contains(e.getPoint());
         }
         return true;
     }
-
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
 
     protected boolean canEditImmediately(EventObject e) {
         boolean rv = false;
@@ -119,18 +99,4 @@ public class CategoryImmediateEditor extends DefaultTreeCellEditor {
         offset = 0;
     }
 
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
-
 }
-
-
-
-
-
-

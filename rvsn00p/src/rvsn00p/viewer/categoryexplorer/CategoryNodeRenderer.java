@@ -1,59 +1,54 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    CategoryNodeRenderer.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer.categoryexplorer;
 
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.*;
-import java.net.URL;
+
+import rvsn00p.viewer.Icons;
 
 /**
  * CategoryNodeRenderer
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class CategoryNodeRenderer extends DefaultTreeCellRenderer {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
+
+    private static final long serialVersionUID = -4830414654486030224L;
 
     public static final Color FATAL_CHILDREN = new Color(189, 113, 0);
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
     protected JCheckBox _checkBox = new JCheckBox();
     protected JPanel _panel = new JPanel();
-    protected static ImageIcon _sat = null;
+//    protected static ImageIcon _sat = null;
 //   protected JLabel              _label  = new JLabel();
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
     public CategoryNodeRenderer() {
         _panel.setBackground(UIManager.getColor("Tree.textBackground"));
 
-        if (_sat == null) {
-            // Load the satellite image.
-            String resource =
-                    "/rvsn00p/viewer/images/channelexplorer_satellite.gif";
-            URL satURL = getClass().getResource(resource);
-
-            _sat = new ImageIcon(satURL);
-        }
+//        if (_sat == null) {
+//            // Load the satellite image.
+//            String resource =
+//                    "/rvsn00p/viewer/images/channelexplorer_satellite.gif";
+//            URL satURL = getClass().getResource(resource);
+//
+//            _sat = new ImageIcon(satURL);
+//        }
 
         setOpaque(false);
         _checkBox.setOpaque(false);
@@ -65,14 +60,13 @@ public class CategoryNodeRenderer extends DefaultTreeCellRenderer {
         _panel.add(_checkBox);
         _panel.add(this);
 
-        setOpenIcon(_sat);
-        setClosedIcon(_sat);
-        setLeafIcon(_sat);
+        if (Icons.SUBJECT != null) {
+            setOpenIcon(Icons.SUBJECT);
+            setClosedIcon(Icons.SUBJECT);
+            setLeafIcon(Icons.SUBJECT);
+        }
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
     public Component getTreeCellRendererComponent(
             JTree tree, Object value,
             boolean selected, boolean expanded,
@@ -111,10 +105,6 @@ public class CategoryNodeRenderer extends DefaultTreeCellRenderer {
         return new Dimension(0, 0);
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
     protected String buildToolTip(CategoryNode node) {
         StringBuffer result = new StringBuffer();
         result.append(node.getTotalNumberOfRecords());
@@ -123,18 +113,5 @@ public class CategoryNodeRenderer extends DefaultTreeCellRenderer {
         result.append(" Right-click for more info.");
         return result.toString();
     }
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
 
 }
-
-
-
-
-
-
