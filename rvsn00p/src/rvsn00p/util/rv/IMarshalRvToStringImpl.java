@@ -1,18 +1,16 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    IMarshalRvToStringImpl.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.util.rv;
 
-import  com.tibco.tibrv.TibrvMsg;
-import  com.tibco.tibrv.TibrvCmMsg;
+import com.tibco.tibrv.TibrvMsg;
 
 /**
  * Interface for  MarshalRvToString impementations
- * @author <a href="mailto:lundberg@home.se">Orjan Lundberg</a>
+ *
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  */
 public interface IMarshalRvToStringImpl {
 
