@@ -1,47 +1,42 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    RvSnooperInputDialog.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  * RvSnooperInputDialog
  *
  * Creates a popup input dialog box so that users can enter
  * a URL to open a log file from.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Richard Hurst
- * @author Brad Marlborough
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class RvSnooperInputDialog extends RvSnooperDialog {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-    public static final int SIZE = 30;
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
+    private static final long serialVersionUID = 4206702664613863954L;
+
+    public static final int SIZE = 30;
+
     private JTextField _textField;
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
 
     /**
      * Configures an input dialog box using a defualt size for the text field.
@@ -104,22 +99,14 @@ public class RvSnooperInputDialog extends RvSnooperDialog {
         getContentPane().add(main, BorderLayout.CENTER);
         getContentPane().add(bottom, BorderLayout.SOUTH);
         pack();
-        centerWindow(this);
-        show();
+        centerOnScreen();
+        setVisible(true);
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
     public String getText() {
         String s = _textField.getText();
-
-        if (s != null && s.trim().length() == 0) {
-            return null;
-        }
-
-        return s;
-
+        if (s == null) return null;
+        return s.trim();
     }
 
     public String setText(String text){
@@ -132,15 +119,4 @@ public class RvSnooperInputDialog extends RvSnooperDialog {
         return text;
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces
-    //--------------------------------------------------------------------------
 }

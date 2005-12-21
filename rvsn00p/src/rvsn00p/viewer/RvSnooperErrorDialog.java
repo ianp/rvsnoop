@@ -1,42 +1,33 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    RvSnooperErrorDialog.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 /**
  * RvSnooperErrorDialog
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Richard Hurst
- * @author Brad Marlborough
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public class RvSnooperErrorDialog extends RvSnooperDialog {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
+    private static final long serialVersionUID = 1385873124819463709L;
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
     public RvSnooperErrorDialog(JFrame jframe, String message) {
         super(jframe, "Error", true);
 
@@ -57,22 +48,8 @@ public class RvSnooperErrorDialog extends RvSnooperDialog {
 
         getContentPane().add(main, BorderLayout.CENTER);
         getContentPane().add(bottom, BorderLayout.SOUTH);
-        show();
+        setVisible(true);
 
     }
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces
-    //--------------------------------------------------------------------------
 }

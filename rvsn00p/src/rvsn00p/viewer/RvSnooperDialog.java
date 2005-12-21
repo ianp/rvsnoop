@@ -1,131 +1,98 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    RvSnooperDialog.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.Label;
+import java.awt.Toolkit;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 /**
- * RvSnooperDialog
+ * A common superclass to provide behaviours for all RvSn00p dialogs.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Richard Hurst
- * @author Brad Marlborough
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public abstract class RvSnooperDialog extends JDialog {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-    protected static final Font DISPLAY_FONT = new Font("Arial", Font.BOLD, 12);
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-    protected RvSnooperDialog(JFrame jframe, String message, boolean modal) {
-        super(jframe, message, modal);
+    protected RvSnooperDialog(JFrame parent, String title, boolean modal) {
+        super(parent, title, modal);
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
-    public void show() {
-        pack();
-        minimumSizeDialog(this, 200, 100);
-        centerWindow(this);
-        super.show();
-    }
-
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-    protected void centerWindow(Window win) {
-        Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-
-        // If larger than screen, reduce window width or height
-        if (screenDim.width < win.getSize().width) {
-            win.setSize(screenDim.width, win.getSize().height);
+    public void setVisible(boolean visible) {
+        if (visible) {
+            pack();
+            ensureMinimumSize(240, 120);
+            centerOnScreen();
         }
-
-        if (screenDim.height < win.getSize().height) {
-            win.setSize(win.getSize().width, screenDim.height);
-        }
-
-        // Center Frame, Dialogue or Window on screen
-        int x = (screenDim.width - win.getSize().width) / 2;
-        int y = (screenDim.height - win.getSize().height) / 2;
-        win.setLocation(x, y);
+        super.setVisible(visible);
     }
 
-    protected void wrapStringOnPanel(String message,
-                                     Container container) {
-        GridBagConstraints c = getDefaultConstraints();
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        // Insets() args are top, left, bottom, right
-        c.insets = new Insets(0, 0, 0, 0);
-        GridBagLayout gbLayout = (GridBagLayout) container.getLayout();
+    /**
+     * Ensure that the dialog is small enough to fit on the screen and is centered.
+     */
+    protected void centerOnScreen() {
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension size = getSize();
+        size.width = Math.min(size.width, screen.width);
+        size.height = Math.min(size.height, screen.height);
+        setSize(size);
+        setLocation((screen.width - size.width) / 2,
+                    (screen.height - size.height) / 2);
+    }
 
-
+    /**
+     * Wrap a string onto a panel using a series of stacked labels to represent lines.
+     * <p>
+     * The panel <em>must</em> already have a {@link java.awt.GridBagLayout} manager
+     * on it.
+     * 
+     * @param message The message to split and display.
+     * @param panel The panel to display the message on.
+     */
+    protected void wrapStringOnPanel(String message, Container panel) {
         while (message.length() > 0) {
-            int newLineIndex = message.indexOf('\n');
-            String line;
-            if (newLineIndex >= 0) {
-                line = message.substring(0, newLineIndex);
-                message = message.substring(newLineIndex + 1);
-            } else {
-                line = message;
-                message = "";
-            }
-            Label label = new Label(line);
-            label.setFont(DISPLAY_FONT);
-            gbLayout.setConstraints(label, c);
-            container.add(label);
+            int index = message.indexOf('\n');
+            String line = index != -1 ? message.substring(0, index) : message;
+            message = message.substring(index + 1);
+            panel.add(new Label(line), defaultConstraints());
         }
     }
 
-    protected GridBagConstraints getDefaultConstraints() {
+    private GridBagConstraints defaultConstraints() {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.weightx = 1.0;
         constraints.weighty = 1.0;
-        constraints.gridheight = 1; // One row high
-        // Insets() args are top, left, bottom, right
-        constraints.insets = new Insets(4, 4, 4, 4);
-        // fill of NONE means do not change size
+        constraints.gridheight = 1; // rows
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.insets = new Insets(0, 0, 0, 0); // top, left, bottom, right
         constraints.fill = GridBagConstraints.NONE;
-        // WEST means align left
         constraints.anchor = GridBagConstraints.WEST;
-
         return constraints;
     }
 
-    protected void minimumSizeDialog(Component component,
-                                     int minWidth,
-                                     int minHeight) {
-        // set the min width
-        if (component.getSize().width < minWidth)
-            component.setSize(minWidth, component.getSize().height);
-        // set the min height
-        if (component.getSize().height < minHeight)
-            component.setSize(component.getSize().width, minHeight);
+    /**
+     * Ensure that the dialog is a certain minimum size.
+     * 
+     * @param w The minimum width in pixels.
+     * @param h The minimum height in pixels.
+     */
+    protected void ensureMinimumSize(int w, int h) {
+        Dimension size = getSize();
+        size.width = Math.max(size.width, w);
+        size.height = Math.max(size.height, h);
+        setSize(size);
     }
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces
-    //--------------------------------------------------------------------------
+
 }

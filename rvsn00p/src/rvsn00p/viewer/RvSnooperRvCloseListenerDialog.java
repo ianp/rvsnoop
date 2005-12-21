@@ -1,51 +1,45 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    RvSnooperRvCloseListenerDialog.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.viewer;
 
-import rvsn00p.util.rv.RvParameters;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import rvsn00p.util.rv.RvParameters;
 
 /**
  * RvSnooperInputDialog
  *
  * Creates a popup input dialog box so that users can enter
  * a URL to open a log file from.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author Richard Hurst
- * @author Brad Marlborough
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
 public class RvSnooperRvCloseListenerDialog extends RvSnooperDialog {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
+    private static final long serialVersionUID = -1518864445842636025L;
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
     private JTextField _tService;
     private JTextField _tNetwork;
     private JTextField _tDaemon;
     private JTextField _tSubject;
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
-
 
     /**
      * Retrieves tibco transport information from the user.
@@ -86,7 +80,7 @@ public class RvSnooperRvCloseListenerDialog extends RvSnooperDialog {
         JPanel pSubject = new JPanel();
         pSubject.add(new JLabel("Subject"));
         _tSubject = new JTextField(20);
-        _tSubject.setText(defaultParameters.getSubject());
+        _tSubject.setText(defaultParameters.getSubjectsAsString());
         pSubject.add(_tSubject);
         main.add(pSubject);
 
@@ -119,20 +113,17 @@ public class RvSnooperRvCloseListenerDialog extends RvSnooperDialog {
         bottom.add(cancel);
         getContentPane().add(main, BorderLayout.CENTER);
         getContentPane().add(bottom, BorderLayout.SOUTH);
-        minimumSizeDialog(this, 100, 60);
+        ensureMinimumSize(100, 60);
         pack();
-        centerWindow(this);
-        show();
+        centerOnScreen();
+        setVisible(true);
     }
 
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
     public RvParameters getRvParameters() {
 
         RvParameters p = new RvParameters();
 
-        p.setDeamon(_tDaemon.getText());
+        p.setDaemon(_tDaemon.getText());
         p.setNetwork(_tNetwork.getText());
         p.setService(_tService.getText());
         //p.setSubject(_tSubject.getText());
@@ -140,17 +131,4 @@ public class RvSnooperRvCloseListenerDialog extends RvSnooperDialog {
         return p;
     }
 
-
-
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces
-    //--------------------------------------------------------------------------
 }
