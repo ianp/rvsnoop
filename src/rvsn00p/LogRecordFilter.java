@@ -1,38 +1,24 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    LogRecordFilter.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p;
 
-
 /**
- * An interface for classes which filters LogRecords.  Implementations
- * represent a rule or condition which LogRecords may pass or fail.
- * @see LogRecord
+ * A filter that can selectively match individual log records.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- *
- * @author Richard Wan
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
-
-// Contributed by ThoughtWorks Inc.
-
 public interface LogRecordFilter {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     /**
-     * @return true if the specified LogRecord satisfies whatever condition
-     * implementing class tests for.
+     * @return <code>true</code> if the specified record matches the filter.
      */
     public boolean passes(LogRecord record);
 
 }
-

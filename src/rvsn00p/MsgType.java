@@ -1,64 +1,47 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    MsgType.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The MsgType class defines a set of standard logging levels.
- *
+ * <p>
  * The msg type objects are ordered and are specified by ordered
  * integers. Enabling logging at a given level also enables logging at all
  * higher levels.
+ * <p>
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
- * @author �rjan Lundberg
- *
- * Based on Logfactor5 By
- *
- * @author Michael J. Sikorsky
- * @author Robert Shaw
- * @author Brent Sprecher
- * @author Richard Hurst
- * @author Brad Marlborough
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
  */
+public class MsgType implements Serializable {
 
-// Contributed by ThoughtWorks Inc.
-
-public class MsgType implements java.io.Serializable {
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-
-    // messages.
+    private static final long serialVersionUID = -5892612808722256638L;
     public final static MsgType ERROR = new MsgType("ERROR", 0);
     public final static MsgType WARN = new MsgType("WARN", 1);
     public final static MsgType SYSTEM = new MsgType("SYSTEM",2);
     public final static MsgType UNKNOWN = new MsgType("UNKNOWN",3);
 
-
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
     protected String _label;
     protected int _precedence;
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
+
     private static MsgType[] _allDefaultLevels;
     private static Map _msgTypeMap;
     private static Map _msgTypeColorMap;
     private static Map _registeredMsgTypeMap = new HashMap();
 
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
     static {
         _allDefaultLevels = new MsgType[]{ ERROR, WARN, SYSTEM, UNKNOWN};
 
@@ -78,10 +61,6 @@ public class MsgType implements java.io.Serializable {
         _label = label;
         _precedence = precedence;
     }
-
-    //--------------------------------------------------------------------------
-    //   Public Methods:
-    //--------------------------------------------------------------------------
 
     /**
      * Return the Label of the MsgType.
@@ -191,7 +170,7 @@ public class MsgType implements java.io.Serializable {
     }
 
     // set a text color for a specific log level
-    public void setLogLevelColorMap(MsgType level, Color color) {
+    public static void setLogLevelColorMap(MsgType level, Color color) {
         // remove the old entry
         _msgTypeColorMap.remove(level);
         // add the new color entry
@@ -220,26 +199,11 @@ public class MsgType implements java.io.Serializable {
         return _msgTypeColorMap;
     }
 
-    //--------------------------------------------------------------------------
-    //   Protected Methods:
-    //--------------------------------------------------------------------------
-
     protected int getPrecedence() {
         return _precedence;
     }
 
-    //--------------------------------------------------------------------------
-    //   Private Methods:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Nested Top-Level Classes or Interfaces:
-    //--------------------------------------------------------------------------
-
 }
-
-
-
 
 
 
