@@ -1,318 +1,246 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- Build file tested with Ant version 1.6.5. -->
+<!-- $Id$ -->
+<project name="rvsn00p" default="usage" basedir=".">
+  <description>Build file for RvSn00p. A TIBCO message viewing utility.</description>
 
-<!-- This file is an ANT build script. ANT is a Java based build tool. -->
-<!-- It is availale from http://jakarta.apache.org/ant/                -->
-
-
-<!-- ================================================================= -->
-<!-- NOTE: all directories are relative to rvsnoop/              -->
-<!-- the parent of build/                                              -->
-<!-- ================================================================= -->
-<project name="rvsn00p" default="usage" basedir="." >
-
-
-  <!-- The build.properties file defines the parth to local jar files -->
+  <property name="version" value="1.3.0"/>
   <property file="build.properties"/>
-
-  <!-- Read the system environment variables and stores them in properties, -->
-  <!-- prefixed with "env". -->
+  <!-- Import environment variables as properties, prefixed with "env". -->
   <property environment="env"/>
-
-  <property name="version" value="1.2.1"/>
-
-  <!-- The base directory relative to which most targets are built -->
-  <property name="base" value="."/>
-
-  <!-- The directory where source files are stored. -->
-  <property name="java.source.dir" value="src/"/>
-
-  <!-- The directory where the package-list file is found, ./ or -->
-  <!-- target/ -->
-  <property name="packaging.dir" value="target"/>
-
-  <!-- Destination for compiled files -->
-  <property name="javac.dest" value="target/classes"/>
-
-  <!-- Destination for generated jar files -->
-  <property name="jar.dest" value="target/lib"/>
-
-  <!-- The jar file that the jar task will generate -->
-  <property name="jar.filename" value="rvsn00p-${version}.jar"/>
-  <property name="jar.filename.latests" value="rvsn00p.jar"/>
-
-  <!-- Destination for documentation files -->
-  <property name="docs.dest" value="./docs"/>
-  <!-- Source directory for xml docs -->
-  <property name="xdocs.src" value="./src/xdocs"/>
-
-
-  <!-- Destination for javadoc generated files -->
-  <property name="javadoc.dest" value="docs/api"/>
-
-  <!-- Icons source directory. -->
-  <property name="icons.source" value="icons"/>
-
-  <!-- The stem where most log4j source code is located. -->
-  <property name="stem" value="rvsn00p"/>
-
-  <!-- Some targets needs a more precise stem. -->
-  <property name="BSTEM" value="${java.source.dir}/${stem}"/>
-
-  <!-- Original manifest.mf file before filtering. -->
-  <property name="manifest.src" value="target/manifest.mf"/>
-
-  <!-- Directory where release images go. -->
-  <property name="dist.images"  value="target/images"/>
-
-  <!-- Directory for temporary files. -->
-  <property name="dist.tmp" value="target/tmp"/>
-
-
-  <!-- Construct compile classpath -->
-  <path id="compile.classpath">
-    <pathelement location="${build.home}/classes"/>
-    <pathelement location="${jaxp.parser.jar}"/>
-    <pathelement location="${tibcorv.home}/lib/tibrvj.jar"/>
-    <pathelement location="${tibcorvscript.home}/rvscript.jar"/>
-    <fileset dir="${tibcosdk.home}/java">
-      <include name="*.jar"/>
-    </fileset>
+  
+  <path id="path.class">
+    <!-- Define our class path first. -->
+    <pathelement location="${tibco.rv}/lib/tibrvj.jar"/>
+    <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
+    <pathelement location="${tibco.rvscript}"/>
+    <pathelement location="${tibco.rvtest}"/>
+    <pathelement location="${xom}/xom-1.1.jar"/>
+    <!-- Append the system class path. -->
+    <pathelement path="${env.java.class.path}"/>
   </path>
 
+  <filterset id="filter.version">
+    <filter token="version"      value="${version}"/>
+    <filter token="java.vendor"  value="${java.vendor}"/>
+    <filter token="java.version" value="${java.version}"/>
+    <filter token="os.name"      value="${os.name}"/>
+    <filter token="os.version"   value="${os.version}"/>
+    <filter token="os.arch"      value="${os.arch}"/>
+  </filterset>
 
+  <!-- Helper targets. -->
 
-  <!-- ================================================================= -->
-  <!-- Default target                                                    -->
-  <!-- ================================================================= -->
-
-  <target name="usage">
-    <echo>
-
-    These are the targets supported by this ANT build scpript:
-
-    build   - compile all project files, if a certain library is missing,
-	      then the compilation of its dependents are skipped.
-
-    javadoc - build project javadoc files
-
-    jar     - build rvsn00p jar files
-
-    dist    - will create a complete distribution in dist/
-              Setting the env variable NO_JAVADOC will build the distribution
-              without running the javadoc target.
-    </echo>
+  <target name="usage" description="Display a short help message.">
+    <echo>Use "ant -projecthelp" to get a list of build targets.</echo>
+    <echo>Edit build.properties to configure your build environment.</echo>
   </target>
 
-  <target name="jaxpCheck">
-    <available classname="javax.xml.parsers.DocumentBuilderFactory"
-                          property="jaxp-present"/>
+  <target name="init" description="Set the timestamp for the build.">
+    <tstamp/>
+    <tstamp><format property="build.date" pattern="yyyy-MM-dd HH:mm:ss"/></tstamp>
+    <tstamp><format property="build.year" pattern="yyyy"/></tstamp>
+    <buildnumber/>
   </target>
 
-  <target name="jaxp" depends="jaxpCheck" if="jaxp-present">
-    <echo message="JAXP present."/>
+  <target name="cvs.update" description="Fetch the latest copy of the source code from CVS.">
+      <cvspass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/rvsn00p"/>
+      <cvs command="update -P" package="rvsn00p" compression="true"
+           cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/rvsn00p">
+      </cvs>
   </target>
+  
+  <!-- Targets to build and package a release. -->
 
-
-  <!-- ================================================================= -->
-  <!-- Initialize variables                                              -->
-  <!-- NOTE: all directories are relative to rvsn00p/              -->
-  <!-- ================================================================= -->
-  <target name="init">
-    <tstamp />
-  </target>
-
-  <target name="build" depends="init, build.core"/>
-
-<target name="build.core" depends="init">
-    <mkdir dir="${javac.dest}" />
-    <javac srcdir="${java.source.dir}"
-	   destdir="${javac.dest}"
-	   includes="${stem}/**/*.java,"
-  	    deprecation="${deprecation}"
-	    debug="on">
-      <classpath refid="compile.classpath"/>
+  <target name="compile" depends="init" description="Compile all of the Java class files.">
+    <mkdir dir="${dir.build.bin}"/>
+    <mkdir dir="${dir.build.doc}"/>
+    <mkdir dir="${dir.build.java}"/>
+    <javac srcdir="${dir.orig.java}" destdir="${dir.build.java}" includes="**/*.java"
+           debug="${javac.debug}" optimize="${javac.optimize}"
+           deprecation="${javac.deprecation}" source="1.4">
+      <classpath refid="path.class"/>
     </javac>
-
-    <copy todir="${javac.dest}">
-      <fileset dir="${java.source.dir}"
-	includes="${stem}/**/*.properties"/>
-      <fileset dir="${java.source.dir}"
-	includes="${stem}/viewer/images/*"/>
-   </copy>
-
+    <echo>Copying supporting files into the build.</echo>
+    <copy todir="${dir.build.java}">
+      <filterset refid="filter.version"/>
+      <fileset dir="${dir.orig.java}" includes="**/*.properties"/>
+    </copy>
+    <copy todir="${dir.build.bin}">
+      <filterset refid="filter.version"/>
+      <fileset dir="${dir.orig.bin}" includes="*.cmd, *.sh"/>
+    </copy>
+    <copy todir="${dir.build.bin}">
+      <fileset dir="${dir.orig.bin}" includes="*.ico"/>
+    </copy>
+    <copy todir="${dir.build.doc}">
+      <filterset refid="filter.version"/>
+      <filterset>
+        <filter token="year" value="${build.year}"/>
+        <filter token="suffix" value=".xhtml"/>
+      </filterset>
+      <fileset dir="${dir.orig.doc}" includes="*.xhtml, *.css"/>
+    </copy>
+    <copy todir="${dir.build.doc}">
+      <fileset dir="${dir.orig.doc}" includes="**/*.png"/>
+    </copy>
+    <copy file="${file.version}" tofile="${dir.build}/${file.version}">
+      <filterset refid="filter.version"/>
+      <filterset>
+        <filter token="build.number"  value="${build.number}"/>
+        <filter token="build.date"  value="${build.date}"/>
+      </filterset>
+    </copy>
+    <copy todir="${dir.build.java}">
+      <fileset dir="${dir.orig.java}" includes="**/*.png"/>
+    </copy>
   </target>
 
-
-
- <!-- ================================================================= -->
-  <!-- Remove all generated (compiled) class files.                      -->
-  <!-- ================================================================= -->
-  <target name="clean" depends="init">
-    <delete dir="${javac.dest}/" />
-  </target>
-
-  <!-- ================================================================= -->
-  <!-- Runs checkstyle. Available from http://checkstyle.sf.net          -->
-  <!-- ================================================================= -->
-  <target name="run_checkstyle" depends="init">
-    <taskdef resource="checkstyletask.properties"
-             classpath="${checkstyle.jar}"/>
-
-    <!-- by default checkstyle supports the Sun coding standard. -->
-    <checkstyle lcurlyMethod="nlow"
-                lcurlyOther="nlow"
-                lcurlyType="nlow"
-                maxMethodLen="500"
-                maxConstructorLen="500">
-      <fileset dir="src/rvsn00p" includes="**/*.java"/>
-    </checkstyle>
-  </target>
-
-  <!-- ================================================================= -->
-  <!-- Runs RvSnooper                                                     -->
-  <!-- ================================================================= -->
-
-  <target name="run_rvsn00per" depends="build">
-    <!-- Need to fork to avoid problems -->
-    <java classname="rvsn00p.StartRvSnooper" fork="yes"
-          classpath="${javac.dest};${compile.classpath}">
-    </java>
-  </target>
-
-
-
-  <!-- ================================================================= -->
-  <!-- Remove the temporary manifest file, actual work is done in the    -->
-  <!-- dependencies.                                                     -->
-  <!-- ================================================================= -->
-  <target name="jar" depends="rvsn00p.jar">
-     <delete file="${jar.dest}/manifest.mf"/>
-  </target>
-
-  <target name="prejar" depends="build">
-    <mkdir dir="${jar.dest}"/>
-    <filter token="version" value="${version}" />
-    <copy file="${manifest.src}" tofile="${jar.dest}/manifest.mf"
-          filtering="true"/>
-  </target>
-
- <!-- ================================================================= -->
- <!-- Create log4j.jar, excluding tests and other odds and ends.        -->
- <!-- ================================================================= -->
-  <target name="rvsn00p.jar" depends="prejar">
-    <delete>
-      <fileset dir="${jar.dest}">
-	<include name="*.jar"/>
-      </fileset>
-    </delete>
-
-    <jar jarfile="${jar.dest}/${jar.filename}" basedir="${javac.dest}"
-      includes="${stem}/**/*.class,
-		${stem}/**/*.properties,
-		${stem}/**/*.gif"
-      manifest="${jar.dest}/manifest.mf"
-    />
-    <jar jarfile="${jar.dest}/${jar.filename.latests}" basedir="${javac.dest}"
-      includes="${stem}/**/*.class,
-		${stem}/**/*.properties,
-		${stem}/**/*.gif"
-      manifest="${jar.dest}/manifest.mf"
-    />
-  </target>
-
-
-
-
-
-  <!-- ================================================================= -->
-  <!-- This target builds the javadoc files.                             -->
-  <!-- ================================================================= -->
-  <target name="javadoc" depends="init" unless="env.NO_JAVADOC">
-
-    <mkdir dir="${javadoc.dest}" />
-
-    <javadoc sourcepath="${java.source.dir}"
-      destdir="${javadoc.dest}"
-	   packagenames="rvsn00p"
-	   version="true"
-	   protected="true"
-	   author="true"
-	   use="true"
-	   overview="${docs.dest}/overview.html"
-	   doctitle="rvsn00p version ${version}&lt;br&gt;Javadoc "
-	   windowtitle="RvSn00p Version ${version}"
-           header="&lt;b&gt;RvSn00p ${version}&lt;/b&gt;"
-	   bottom="Copyright 2000-2002 Apache Software Foundation.">
-
-      <link href="http://java.sun.com/products/jdk/1.3/docs/api"/>
-      <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/"/>
-      <classpath refid="compile.classpath"/>
+  <target name="javadoc" depends="init"
+          description="Compile all of the Java API documentation.">
+    <mkdir dir="${dir.build.doc}"/>
+    <javadoc destdir="${dir.build.doc}/api" version="true" author="true" use="true"
+             access="${javadoc.access}" windowtitle="RvSn00p ${version} API Documentation">
+      <doctitle><![CDATA[<h1>RvSn00p ${version}</h1>]]></doctitle>
+      <bottom><![CDATA[Copyright &copy; 2002-2005 <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright &copy; 2005 <a href="http://ianp.org">Ian Phillips</a>.]]></bottom>
+      <packageset dir="${dir.orig.java}" defaultexcludes="true" includes="**"/>
+      <link href="http://java.sun.com/j2se/1.4.2/docs/api" offline="${javadoc.offline}"/>
+      <link href="http://www.xom.nu/apidocs" offline="${javadoc.offline}"/>
+      <classpath refid="path.class"/>
     </javadoc>
   </target>
 
-
-
- <!-- ================================================================= -->
- <!-- Build a complete distribution. Results go to ${dist.images}       -->
- <!-- ================================================================= -->
-  <target name="dist" depends="init, clean,  jar">
-
-    <delete verbose="true">
-      <fileset dir=".">
-        <patternset>
-	   <include name="**/*.bak"/>
-	   <include name="${javac.dest}/*.class"/>
-        </patternset>
-     </fileset>
-    </delete>
-
-    <mkdir  dir="${dist.images}" />
-
-    <mkdir  dir="${dist.tmp}/rvsn00p-${version}" />
-
-    <copy todir="${dist.tmp}/rvsn00p-${version}">
-       <fileset dir="${base}"
-                includes="src/**,
-			              docs/**,
-			              build/*,
-	                      build.xml,
-	                       build.properties.sample,
-                          manifest.mf,
-			  INSTALL,
-			  LICENSE.txt,
-			  dist/lib/rvsn00p*.jar,
-			  dist/classes/**"
-                excludes="make/make.loc,
-		          **/*.bak, **/goEnv.bat,
-		          **/Makefile, **/goEnv.bat,
-	                  docs/pub-support/*,
-	                  dist/classes/rvsn00p/**,
-			  **/.#*"/>
+  <target name="dist.bin" depends="compile"
+          description="Package all files required for a binary distribution.">
+    <echo>Packaging the launch scripts.</echo>
+    <mkdir dir="${dir.dist.bin}"/>
+    <copy file="${dir.build}/${file.version}" todir="${dir.dist}"/>
+    <copy todir="${dir.dist.bin}">
+      <fileset dir="${dir.build.bin}" includes="*"/>
     </copy>
+    <chmod dir="${dir.dist.bin}" includes="*.sh" perm="750"/>
+    <echo>Packaging the documentation.</echo>
+    <mkdir dir="${dir.dist.doc}"/>
+    <copy todir="${dir.dist.doc}">
+      <fileset dir="${dir.build.doc}" includes="*.xhtml, *.css, **/*.png"/>
+    </copy>
+    <echo>Packaging the libraries.</echo>
+    <mkdir dir="${dir.dist.lib}"/>
+    <jar jarfile="${dir.dist.lib}/rvsn00p.jar" compress="true"
+      manifestencoding="utf-8" index="true" basedir="${dir.build.java}"
+      includes="**/*.class, **/*.png, **/*.properties">
+      <manifest>
+        <attribute name="Implementation-Title" value="RvSn00p"/>
+        <attribute name="Implementation-Version" value="${version}"/>
+        <attribute name="Implementation-Vendor" value="Örjan Lundberg &amp; Ian Phillips"/>
+        <attribute name="Implementation-URL" value="http://rvsn00p.sf.net"/>
+        <attribute name="Main-Class" value="rvsn00p.StartRvSnooper"/>
+      </manifest>
+    </jar>
+    <copy file="${xom}/xom-1.1.jar" todir="${dir.dist.lib}"/>
+    <echo>Packaging the binary distributable.</echo>
+    <tar destfile="rvsn00p-${version}-bin.tar">
+      <tarfileset dir="${dir.dist}/.." mode="440" dirmode="750">
+        <include name="**/*.*"/>
+        <include name="rvsn00p-${version}/${file.version}"/>
+        <exclude name="rvsn00p-${version}/bin/*.cmd"/>
+        <exclude name="rvsn00p-${version}/bin/*.sh"/>
+        <exclude name="rvsn00p-${version}/src/*.jar"/>
+        <exclude name="rvsn00p-${version}/src"/>
+        <exclude name="rvsn00p-${version}/doc/*.jar"/> <!-- API docs -->
+      </tarfileset>
+      <tarfileset dir="${dir.dist}/.." mode="640">
+        <include name="rvsn00p-${version}/bin/*.cmd"/>
+      </tarfileset>
+      <tarfileset dir="${dir.dist}/.." mode="750">
+        <include name="rvsn00p-${version}/bin/*.sh"/>
+      </tarfileset>
+    </tar>
+    <gzip destfile="rvsn00p-${version}-bin.tgz" src="rvsn00p-${version}-bin.tar"/>
+    <delete file="rvsn00p-${version}-bin.tar" />
+  </target>
 
+  <target name="dist" depends="dist.bin, javadoc"
+          description="Package all files required for a source distributions.">
+    <echo>Packaging the API documentation.</echo>
+    <jar jarfile="${dir.dist.doc}/rvsn00p-api.jar" basedir="${dir.build.doc}/api"
+         includes="**/*.*" compress="true"/>
+    <echo>Packaging the source code.</echo>
+    <mkdir dir="${dir.dist.src}"/>
+    <jar jarfile="${dir.dist.src}/rvsn00p-src.jar" basedir="${dir.orig.java}"
+         includes="**/*.java" compress="true"/>
+    <echo>Packaging the source distributable.</echo>
+    <tar destfile="rvsn00p-${version}-src.tar">
+      <tarfileset dir="${dir.dist}/.." mode="440" dirmode="750">
+        <include name="**/*.*"/>
+        <include name="rvsn00p-${version}/${file.version}"/>
+        <exclude name="rvsn00p-${version}/bin/*.cmd"/>
+        <exclude name="rvsn00p-${version}/bin/*.sh"/>
+      </tarfileset>
+      <tarfileset dir="${dir.dist}/.." mode="640">
+        <include name="rvsn00p-${version}/bin/*.cmd"/>
+      </tarfileset>
+      <tarfileset dir="${dir.dist}/.." mode="750">
+        <include name="rvsn00p-${version}/bin/*.sh"/>
+      </tarfileset>
+    </tar>
+    <gzip destfile="rvsn00p-${version}-src.tgz" src="rvsn00p-${version}-src.tar"/>
+    <delete file="rvsn00p-${version}-src.tar" />
+  </target>
 
+  <!-- Targets to manage the web pages on SourceForge. -->
 
-    <tar tarfile="${dist.images}/rvsn00p-${version}.tar"
-         basedir="${dist.tmp}"
-         includes="rvsn00p-${version}/**" />
-
-    <gzip src="${dist.images}/rvsn00p-${version}.tar"
-          zipfile="${dist.images}/rvsn00p-${version}.tar.gz" />
-
-    <gzip src="${dist.images}/rvsn00p-${version}.tar"
-          zipfile="${dist.images}/rvsn00p-latests.tar.gz" />
-
-
-    <zip zipfile="${dist.images}/rvsn00p-${version}.zip"
-         basedir="${dist.tmp}"
-         includes="rvsn00p-${version}/**" />
-
-    <zip zipfile="${dist.images}/rvsn00p-latest.zip"
-         basedir="${dist.tmp}"
-         includes="rvsn00p-${version}/**" />
-
-
-    <delete dir="${dist.tmp}" />
+  <target name="web.compile" depends="init"
+    description="Prepare the files that make up the web site.">
+    <copy todir="${dir.build.www}">
+      <fileset dir="${dir.orig.doc}">
+        <include name="*.xhtml"/>
+        <exclude name="license.xhtml"/>
+        <exclude name="readme.xhtml"/>
+      </fileset>
+      <filterset refid="filter.version"/>
+      <filterset>
+        <filter token="build.number"  value="${build.number}"/>
+        <filter token="build.date"  value="${build.date}"/>
+        <filter token="year" value="${build.year}"></filter>
+        <filter token="suffix" value=".html"/>
+      </filterset>
+      <!-- This mapper is needed because we are changing the file suffix. -->
+      <!-- This is a sourceforge limitation, we have to live with it...   -->
+      <mapper type="glob" from="*.xhtml" to="*.html"/>
+    </copy>
+    <copy todir="${dir.build.www}">
+      <fileset dir="${dir.orig.doc}" includes="*.css"/>
+      <fileset dir="${dir.orig.doc}" includes="**/*.png"/>
+    </copy>
+  </target>
+  
+  <target name="web.publish" depends="web.compile"
+    description="Publish the files to the web server.">
+    <input addproperty="ssh.user">Enter your SourceForge username:</input>
+    <input addproperty="ssh.pass">Enter your SourceForge password:</input>
+    <scp todir="${ssh.user}@shell.sourceforge.net:/home/groups/r/rv/rvsn00p/htdocs"
+         password="${ssh.pass}" trust="false">
+      <fileset dir="${dir.build.www}">
+        <include name="*.html"/>
+        <include name="*.css"/>
+        <include name="images/*.png"/>
+      </fileset>
+    </scp>
+  </target>
+  
+  <!-- Targets to clean up the workspace. -->
+  
+  <target name="clean" description="Remove all of the generated files (build only).">
+    <delete dir="${dir.build}/"/>
+  </target>
+  
+  <target name="cleanall" depends="clean"
+    description="Remove all of the generated files (build &amp; distribution).">
+    <delete dir="${dir.dist}"/>
+    <delete dir="${dir.dist}/.."/>
+    <delete file="rvsn00p-${version}-src.tgz"/>
+    <delete file="rvsn00p-${version}-bin.tgz"/>
   </target>
 
 </project>
-
