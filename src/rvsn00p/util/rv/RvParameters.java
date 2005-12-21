@@ -1,348 +1,199 @@
-/*
- * Copyright (C) The Apache Software Foundation. All rights reserved.
- *
- * This software is published under the terms of the Apache Software
- * License version 1.1, a copy of which has been included with this
- * distribution in the LICENSE.txt file.
- */
+//:File:    RvParameters.java
+//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
 package rvsn00p.util.rv;
 
-import java.io.Serializable;
-import java.util.StringTokenizer;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
-public class RvParameters implements Cloneable, Serializable {
-
-    //--------------------------------------------------------------------------
-    //   Constants:
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //   Protected Variables:
-    //--------------------------------------------------------------------------
+/**
+ * A value object to hold the parameters used to connect to a Rendezvous Daemon.
+ *
+ * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
+ */
+public final class RvParameters {
+    
     /**
-     * Used for "lazy" initialization of _hashCode
+     * Create a new parameter object from a configuration string.
+     * 
+     * @param string The configuration string to parse.
+     * @return The configured <code>RvParameters</code> instance.
      */
-    protected int _hashCode = 0;
+    public static RvParameters parseConfigurationString(String string) {
+        String[] params = string.split("\\|");
+        if (params.length != 4)
+            throw new IllegalArgumentException(string + " is not a valid configuration string.");
+        RvParameters p = new RvParameters(params[1], params[0], params[2]);
+        String[] subjects = params[3].split(",");
+        for (int i = 0, imax = subjects.length; i < imax; ++i)
+            p.addSubject(subjects[i]);
+        return p;
+    }
 
-    protected String _network;
-    protected String _service;
-    protected String _deamon;
-    protected boolean _displayRvParameters;
-    protected Set _subjects;
-    protected String _description;
+    /**
+     * The Rendezvous daemon parameter.
+     */
+    private String daemon;
 
-    //--------------------------------------------------------------------------
-    //   Private Variables:
-    //--------------------------------------------------------------------------
+    /**
+     * A description of this connection.
+     */
+    private String description = "";
 
-    //--------------------------------------------------------------------------
-    //   Constructors:
-    //--------------------------------------------------------------------------
+    /**
+     * The cached hash code value.
+     */
+    private int hashCode;
+    
+    /**
+     * The Rendezvous network parameter.
+     */
+    private String network;
+    
+    /**
+     * The Rendezvous service parameter.
+     */
+    private String service;
+    
+    /**
+     * The set of subjects to subscribe to.
+     */
+    private Set subjects = new HashSet();
 
     public RvParameters() {
-
-        this._network = "";
-        this._service = "7500";
-        this._deamon = "tcp:7500";
-        this._displayRvParameters = true;
-        this._subjects = new HashSet();
-        this._description = "";
-
-        calcHashCode();
+        this("7500", "", "tcp:7500");
+    }
+    
+    public RvParameters(String service, String network, String daemon) {
+        setNetwork(network);
+        setService(service);
+        setDaemon(daemon);
     }
 
-    public RvParameters(String subject, String service, String network, boolean displayRvParameters, String deamon, String description) {
-        this._subjects = new HashSet();
-        this._service = service;
-        this._network = network;
-        this._displayRvParameters = displayRvParameters;
-        this._deamon = deamon;
-        this._description = description;
-
-        calcHashCode();
+    public void addSubject(String _subject) {
+        this.subjects.add(_subject);
     }
 
-    public RvParameters(Set subjects, String service, String network, boolean displayRvParameters, String deamon, String description) {
-        this._subjects = new HashSet();
-        _subjects.addAll(subjects);
-
-
-        this._service = service;
-        this._network = network;
-        this._displayRvParameters = displayRvParameters;
-        this._deamon = deamon;
-        this._description = description;
-
-        calcHashCode();
-    }
-
-
-    //--------------------------------------------------------------------------
-    //   Public methods:
-    //--------------------------------------------------------------------------
-
-    public String getDescription() {
-
-        return _description;
-    }
-
-    public void setDescription(String description) {
-        this._description = description;
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof RvParameters)) return false;
+        return hashCode() == o.hashCode();
     }
 
     /**
-     * Calculates an hascode using the Network, Service and Deamon values
-     * Does not use the subjects
+     * Get the Rendezvous daemon parameter.
      */
-    protected void calcHashCode() {
-        String hcstr = new String();
-
-        if (_network != null) {
-            hcstr += _network;
-        }
-
-        if (_service != null) {
-            hcstr += _service;
-        }
-
-        if (_deamon != null) {
-            hcstr += _deamon;
-        }
-
-        _hashCode = hcstr.hashCode();
-    }
-
-    public String getNetwork() {
-        return _network;
-    }
-
-
-    public void setNetwork(String _network) {
-        this._network = _network;
-        calcHashCode();
-    }
-
-    public String getService() {
-        return _service;
-    }
-
-    public void setService(String in_service) {
-        this._service = in_service;
-        calcHashCode();
-    }
-
     public String getDaemon() {
-        return _deamon;
+        return daemon;
     }
 
-    public void setDeamon(String _deamon) {
-        this._deamon = _deamon;
-        calcHashCode();
+    public String getDescription() {
+        return description;
     }
 
-    public void configureByLineString(String lineString) {
-
-        int where = 0;
-
-        String[] results = new String[4];
-
-        StringTokenizer st = new StringTokenizer(lineString, "|", true);
-
-        int i = 0;
-        while (st.hasMoreTokens()) {
-            String s = st.nextToken();
-            if ("|".equals(s)) {
-                if (i++ >= 4)
-                    throw new IllegalArgumentException("Input line " +
-                            lineString + " has too many fields");
-                continue;
-            }
-            if (s != null) {
-                results[i] = s;
-            } else {
-                results[i] = " ";
-            }
-        }
-
-        this._deamon = results[0];
-        this._service = results[1];
-        this._network = results[2];
-        String subjects = results[3];
-
-        StringTokenizer subjectTokenizer;
-        subjectTokenizer = new StringTokenizer(subjects, ",", true);
-
-
-        while (subjectTokenizer.hasMoreTokens()) {
-            String sto = subjectTokenizer.nextToken();
-            if (",".equals(sto)) {
-                continue;
-            }
-
-            _subjects.add(sto);
-        }
-
-
-        calcHashCode();
+    /**
+     * Get the Rendezvous network parameter.
+     */
+    public String getNetwork() {
+        return network;
     }
 
-    public String toString() {
-        String sRetval = new String(this._deamon);
-
-        sRetval += "|";
-
-        if (_service != null) {
-            sRetval += _service;
-        }
-                sRetval += "|";
-        if (_network != null) {
-            sRetval += _network;
-        }
-
-        sRetval += "|";
-        if (_subjects != null) {
-            boolean first = true;
-            Iterator i = _subjects.iterator();
-            while (i.hasNext()) {
-                if (!first) {
-                    sRetval += ",";
-                }
-                sRetval += (String) i.next();
-                first = false;
-            }
-        }
-
-        return sRetval;
+    /**
+     * Get the Rendezvous service parameter.
+     */
+    public String getService() {
+        return service;
     }
 
-    public boolean isDisplayRvParameters() {
-        return _displayRvParameters;
-    }
-
-    public void setDisplayRvParameters(boolean displayRvParameters) {
-        this._displayRvParameters = displayRvParameters;
-    }
-
-    public String getSubject() {
-        String sRetVal = new String();
-
-        boolean first = true;
-        Iterator i = _subjects.iterator();
-        while (i.hasNext()) {
-            if (!first) {
-                sRetVal += ",";
-            }
-            sRetVal += (String) i.next();
-            first = false;
-        }
-        return sRetVal;
+    /**
+     * Get's a comma-seperated list of all of the subjects which are subscribed
+     * to.
+     * <p>
+     * This method does not handle escaping so it will return inconsistent
+     * results if any of the subject names include commas themselves.
+     * 
+     * @return The concatenated subject list.
+     */
+    public String getSubjectsAsString() {
+        if (subjects.size() == 0) return "";
+        StringBuffer buffer = new StringBuffer();
+        Iterator i = subjects.iterator();
+        while (i.hasNext())
+            buffer.append(i.next()).append(",");
+        buffer.setLength(buffer.length() - 1);
+        return buffer.toString();
     }
 
     public Set getSubjects(){
-         return _subjects;
-    }
-
-    public void setSubjects(Set subjects){
-
-        _subjects.addAll(subjects);
+         return subjects;
     }
 
     /**
-     *
-     * @param subjects list of subjects separated with ","
-     */
-    public void setSubjects(String subjects){
-        if (_subjects == null) {
-            throw new IllegalArgumentException("Subjects may not be null");
-        }
-
-
-        StringTokenizer subjectTokenizer;
-        subjectTokenizer = new StringTokenizer(subjects, ",", true);
-
-
-        while (subjectTokenizer.hasMoreTokens()) {
-            String sto = subjectTokenizer.nextToken();
-            if (",".equals(sto)) {
-                continue;
-            }
-
-            _subjects.add(sto);
-        }
-
-
-    }
-
-    public Object clone() throws CloneNotSupportedException {
-        return new RvParameters(_subjects, _service,_network,_displayRvParameters, _deamon,  _deamon);
-    }
-
-
-    public void addSubject(String _subject) {
-        this._subjects.add(_subject);
-        calcHashCode();
-    }
-
-    /**
-     * Returns an hascode using the Network, Service and Deamon values
+     * Returns an hash code derived from the network, service and daemon attributes.
+     * 
+     * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
-        return _hashCode;
-    }
-
-
-    /**
-     * Write out RVParameters
-     */
- /*   private void writeObject(ObjectOutputStream s)
-
-            throws IOException {
-        // Call even if there is no default serializable fields.
-        s.defaultWriteObject();
-
-        s.writeUTF(_deamon);
-        s.writeUTF(_network);
-        s.writeUTF(_service);
-        s.writeUTF(_subjects);
-        s.writeBoolean(_displayRvParameters);
-    }
-   */
-
-    /**
-     * Read in the RvParameters
-     */
-  /* private void readObject(ObjectInputStream s)
-            throws IOException, ClassNotFoundException {
-//  Call even if there is no default serializable fields.
-//  Enables default serializable fields to be added in future versions
-//   and skipped by this version which has no default serializable fields.
-
-        s.defaultReadObject();
-
-
-        _deamon = s.readUTF();
-        _network = s.readUTF();
-        _service = s.readUTF();
-        _subject = s.readUTF();
-        _displayRvParameters = s.readBoolean();
-        calcHashCode();
-    }
-     */
-
-    public boolean equals(Object o) {
-
-        boolean equals = false;
-
-        if (o instanceof RvParameters) {
-            if (this.hashCode() == o.hashCode()) {
-                equals = true;
-            }
+        if (hashCode == 0) {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(network).append(service).append(daemon);
+            hashCode = buffer.hashCode();
         }
+        return hashCode;
+    }
 
-        return equals;
+    /**
+     * Set the Rendezvous daemon parameter.
+     */
+    public void setDaemon(String daemon) {
+        this.daemon = daemon != null ? daemon : "";
+    }
+
+    public void setDescription(String description) {
+        this.description = description != null ? description : "";
+    }
+
+    /**
+     * Set the Rendezvous network parameter.
+     */
+    public void setNetwork(String network) {
+        this.network = network != null ? network : "";
+    }
+
+    /**
+     * Set the Rendezvous service parameter.
+     */
+    public void setService(String service) {
+        this.service = service != null ? service : "";
+    }
+
+    public void setSubjects(Set subjects) {
+        if (subjects == null) throw new NullPointerException();
+        this.subjects.clear();
+        this.subjects.addAll(subjects);
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(daemon).append("|");
+        buffer.append(service).append("|");
+        buffer.append(network).append("|");
+        Iterator i = subjects.iterator();
+        while (i.hasNext())
+            buffer.append(i.next()).append(",");
+        buffer.setLength(buffer.length() - 1);
+        return buffer.toString();
     }
 
 }
