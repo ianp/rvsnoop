@@ -8,74 +8,86 @@ package rvsn00p.util.rv;
 import com.tibco.tibrv.TibrvMsg;
 
 /**
- * MarshalRvToString state class
- *
+ * Utility methods to convert Rendezvous messages to specific string
+ * representations and back again.
+ * <p>
+ * This class will select the "best" conversion method on loading. Not all
+ * conversion methods work both ways, but all can convert messages to strings.
+ * 
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public class MarshalRvToString {
+public final class MarshalRvToString {
+    
+    public static interface Implementation {
+        String getName();
+        String marshal(String name, TibrvMsg message);
+        TibrvMsg unmarshal(String string);
+    }
 
-    static final IMarshalRvToStringImpl _impl;
-    static String _sImplementationUsed = null;
+    static final Implementation implementation;
 
-    // selects the "best" possible implementation
+    private static final String[] PREFERRED = {
+        "rvsn00p.util.rv.MarshalRvToStringRvTestImpl",
+        "rvsn00p.util.rv.MarshalRvToStringRvScriptImpl",
+        "rvsn00p.util.rv.MarshalRvToStringMtreeImpl",
+        "rvsn00p.util.rv.MarshalRvToStringRvMsgImpl"
+    };
+
     static {
-
-        boolean bHasException = true;
-        IMarshalRvToStringImpl tempImpl = null;
-
-        if (bHasException == true) {
+        // Allow custom marshallers via a system preference.
+        String additional = System.getProperty("rvsn00p.marshaller");
+        String[] preferred = new String[additional == null ? 4 : 5];
+        if (additional != null) preferred[0] = additional;
+        System.arraycopy(PREFERRED, 0, preferred, additional == null ? 0 : 1, 4);
+        Implementation impl = null;
+        for (int i = 0; i < preferred.length; ++i)
             try {
-
-                tempImpl = new MarshalRvToStringRvTestImpl();
-                _sImplementationUsed = "RvTest";
-                bHasException = false;
-            } catch (Error ex) {
-                bHasException = true;
+                Class clazz = Class.forName(preferred[i]);
+                impl = (Implementation) clazz.newInstance();
+                break;
+            } catch (Exception e) {
+                // Try the next one then...
             }
-
-        }
-
-        if (bHasException == true) {
-            try {
-
-                tempImpl = new MarshalRvToStringRvScriptImpl();
-                _sImplementationUsed = "Rvscript";
-                bHasException = false;
-            } catch (Error ex) {
-                bHasException = true;
-            }
-
-        }
-
-        if (bHasException == true) {
-            try {
-
-                tempImpl = new MarshalRvToStringMtreeImpl();
-                bHasException = false;
-                _sImplementationUsed = "Mtree";
-            } catch (Error ex) {
-                bHasException = true;
-            }
-        }
-
-        if (bHasException == true) {
-            tempImpl = new MarshalRvToStringRvMsgImpl();
-            bHasException = false;
-            _sImplementationUsed = "RvMsg";
-        }
-
-        _impl = tempImpl;
-
+        implementation = impl;
     }
 
-    public static String rvmsgToString(TibrvMsg msg, String name) {
-        return _impl.rvmsgToString(msg, name);
+    /**
+     * Get the name of the marshaller implementation that is in use.
+     * 
+     * @return The name of the marshaller.
+     */
+    public static String getImplementationName() {
+        if (implementation == null) throw new UnsupportedOperationException();
+        return implementation.getName();
     }
 
-    public static TibrvMsg stringToRvmsg(String s) throws Exception {
-        return _impl.stringToRvmsg(s);
+    /**
+     * Marshal a given message to it's string representation.
+     * 
+     * @param name The "name" of the message. Some marshallers will use this as
+     *        part of the output while others will ignore it.
+     * @param message The message to marshal.
+     * @return The message's string form
+     */
+    public static String marshal(String name, TibrvMsg message) {
+        if (implementation == null) throw new UnsupportedOperationException();
+        return implementation.marshal(name, message);
+    }
+
+    /**
+     * Unmarshal a message from it's string form.
+     * <p>
+     * In general, only the more advanced marshallers can perform this operation.
+     * 
+     * @param string The string form of the message.
+     * @return The message.
+     * @throws UnsupportedOperationException
+     */
+    public static TibrvMsg unmarshal(String string) {
+        if (implementation == null) throw new UnsupportedOperationException();
+        return implementation.unmarshal(string);
     }
 
 }

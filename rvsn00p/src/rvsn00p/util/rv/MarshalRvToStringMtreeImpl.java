@@ -9,28 +9,32 @@ import com.tibco.sdk.MTree;
 import com.tibco.tibrv.TibrvMsg;
 
 /**
- * MarshalRvToString impementation with Mtree
+ * Marshaller implementation that uses SDK MTree's to do the work.
  *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-class MarshalRvToStringMtreeImpl implements IMarshalRvToStringImpl {
-    public MarshalRvToStringMtreeImpl() {
-        // check that the class exists in the classpath
-        new MTree("dummy");
+class MarshalRvToStringMtreeImpl implements MarshalRvToString.Implementation {
+
+    MarshalRvToStringMtreeImpl() {
+        // Just a sanity check for the classpath.
+        new MTree("garbage");
+    }
+    
+    public String getName() {
+        return "MTree";
     }
 
-    public String rvmsgToString(TibrvMsg msg,String name){
-
-        MTree a = new MTree(name);
-        a.use_tibrvMsg(msg);
-        return a.toString();
+    public String marshal(String name, TibrvMsg message) {
+        MTree mtree = new MTree(name);
+        mtree.use_tibrvMsg(message);
+        return mtree.toString();
 
     }
 
-    public TibrvMsg stringToRvmsg(String s) throws Exception{
-          throw new Exception("Not implemented");
+    public TibrvMsg unmarshal(String string) {
+        throw new UnsupportedOperationException();
     }
 
 }

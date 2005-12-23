@@ -9,21 +9,30 @@ import com.tibco.rvscript.tibrvXmlConvert;
 import com.tibco.tibrv.TibrvMsg;
 
 /**
- * MarshalRvToString impementation for TibrvMsg
+ * Marshaller implementation that uses RvScript to do the work.
  *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-class MarshalRvToStringRvScriptImpl implements IMarshalRvToStringImpl {
+final class MarshalRvToStringRvScriptImpl implements MarshalRvToString.Implementation {
 
-    static tibrvXmlConvert _tx = new tibrvXmlConvert();
-    public String rvmsgToString(TibrvMsg msg, String name){
-        return _tx.rvmsgToXml(msg,name);
+    private tibrvXmlConvert converter = new tibrvXmlConvert();
+
+    MarshalRvToStringRvScriptImpl() {
+        super();
+    }
+    
+    public String getName() {
+        return "RvScript";
     }
 
-    public TibrvMsg stringToRvmsg(String s) throws Exception{
-        return _tx.xmlToRvmsg(s);
+    public String marshal(String name, TibrvMsg message) {
+        return converter.rvmsgToXml(message,name);
+    }
+
+    public TibrvMsg unmarshal(String string) {
+        return converter.xmlToRvmsg(string);
     }
 
 }
