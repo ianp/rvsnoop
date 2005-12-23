@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * A value object to hold the parameters used to connect to a Rendezvous Daemon.
+ * A value object to hold the parameters used to connect to a Rendezvous daemon.
  *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
