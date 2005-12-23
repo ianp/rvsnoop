@@ -240,7 +240,7 @@ public class LogTable extends JTable {
             }
             buffer.append(_colNames[_numCols - 1]);
             buffer.append(":\n");
-            buffer.append(MarshalRvToString.rvmsgToString((TibrvMsg) selection, ""));
+            buffer.append(MarshalRvToString.marshal("", (TibrvMsg) selection));
             detailsText.setText(buffer.toString());
             buffer.setLength(0);
         }
