@@ -8,24 +8,31 @@ package rvsn00p.util.rv;
 import com.tibco.tibrv.TibrvMsg;
 
 /**
- * MarshalRvToString impementation with RvMsg
+ * Marshaller implementation that just calls <code>toString()</code> to do the work.
+ * <p>
+ * This implementation does not support unmarshalling strings to messages.
  *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$ $Date$
  */
-class MarshalRvToStringRvMsgImpl implements IMarshalRvToStringImpl {
-    public MarshalRvToStringRvMsgImpl() {
-        // check that the class exists in the classpath
+final class MarshalRvToStringRvMsgImpl implements MarshalRvToString.Implementation {
+
+    MarshalRvToStringRvMsgImpl() {
+        // Just a sanity check for the classpath.
         new TibrvMsg();
     }
 
-    public String rvmsgToString(TibrvMsg msg,String name){
-
-        return msg.toString();
-
+    public String getName() {
+        return "TibrvMsg";
+    }
+    
+    public String marshal(String name, TibrvMsg message) {
+        return message.toString();
     }
 
-    public TibrvMsg stringToRvmsg(String s) throws Exception{
-          throw new Exception("Not implemented");
+    public TibrvMsg unmarshal(String string) {
+        throw new UnsupportedOperationException();
     }
 
 }
