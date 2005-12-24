@@ -31,6 +31,7 @@ public final class Icons {
     private static final int ICON_SIZE = 16;
 
     static final Image APPLICATION = createImage("/resources/icons/rvsn00p.png", ICON_SIZE);
+    public static final Icon ABOUT = createIcon("/resources/icons/about.png", ICON_SIZE);
     public static final Icon DELETE = createIcon("/resources/icons/delete.png", ICON_SIZE);
     public static final Icon NEW_LISTENER = createIcon("/resources/icons/new_listener.png", ICON_SIZE);
     public static final Icon PAUSE = createIcon("/resources/icons/pause.png", ICON_SIZE);
