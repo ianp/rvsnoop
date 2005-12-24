@@ -65,7 +65,7 @@ import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.MsgType;
 import rvsn00p.RecentListeners;
-import rvsn00p.util.BrowserLauncher;
+import rvsn00p.actions.Actions;
 import rvsn00p.util.DateFormatManager;
 import rvsn00p.util.rv.RvController;
 import rvsn00p.util.rv.RvParameters;
@@ -94,6 +94,16 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     public static final String DETAILED_VIEW = "Detailed";
     public static final String VERSION = "RvSn00p v1.3.0";
     public static final String URL = "http://rvsn00p.sf.net";
+    
+    private static RvSnooperGUI instance;
+    
+    public static RvSnooperGUI getInstance() {
+        return instance;
+    }
+    
+    public static JFrame getAppFrame() {
+        return instance._logMonitorFrame;
+    }
 
     protected String _name = null;
     protected JFrame _logMonitorFrame;
@@ -149,7 +159,8 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      * Construct a RvSnooperGUI.
      */
     public RvSnooperGUI(final List MsgTypes, final Set listeners, final String name, boolean tree, boolean text) {
-
+        if (instance != null) throw new IllegalStateException("There should only be 1 instance of the UI.");
+        instance = this;
         _levels = MsgTypes;
         _columns = LogTableColumn.getLogTableColumns();
         _columns = LogTableColumn.getLogTableColumns();
@@ -164,7 +175,6 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
         initTibco();
         startListeners(listeners);
-
     }
     
     /**
@@ -1477,14 +1487,17 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     protected JMenu createHelpMenu() {
         final JMenu helpMenu = new JMenu("Help");
         helpMenu.setMnemonic('h');
-        helpMenu.add(createHelpAbout());
-        helpMenu.add(createHelpBugReport());
-        helpMenu.add(createHelpDownload());
-        helpMenu.add(createHelpGotoHomepage());
-        helpMenu.add(createHelpSubscribe());
-        helpMenu.add(createHelpSupport());
+        helpMenu.add(Actions.DISPLAY_HOME_PAGE);
+        helpMenu.add(Actions.REPORT_BUG);
+        helpMenu.add(Actions.CHECK_FOR_UPDATES);
+        helpMenu.add(Actions.SUBSCRIBE_TO_UPDATES);
         helpMenu.add(createHelpProperties());
-        helpMenu.add(createHelpLICENSE());
+        helpMenu.addSeparator();
+        helpMenu.add(Actions.DISPLAY_WL_IAN);
+        helpMenu.add(Actions.DISPLAY_WL_ORJAN);
+        helpMenu.addSeparator();
+        helpMenu.add(Actions.DISPLAY_LICENSE);
+        helpMenu.add(Actions.DISPLAY_ABOUT);
         final StringBuffer a = new StringBuffer();
         a.toString();
         return helpMenu;
@@ -1492,169 +1505,22 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
 
     protected JMenuItem createHelpProperties() {
-        final String title = "Show Properties";
-        final JMenuItem result = new JMenuItem(title);
+        final JMenuItem result = new JMenuItem("Show Properties");
         result.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                showPropertiesDialog(title);
+                showPropertiesDialog();
             }
         });
         return result;
     }
 
-    protected JMenuItem createHelpLICENSE() {
-        final String title = "License";
-        final JMenuItem result = new JMenuItem(title);
-        result.setMnemonic('l');
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://www.apache.org/licenses/LICENSE-2.0.html");
-                } catch (Exception ex) {
-                    new RvSnooperErrorDialog(
-                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
-                }
-            }
-        });
-        return result;
-    }
-
-
-    protected JMenuItem createHelpBugReport() {
-        final String title = "Submit bug report or Feature Request";
-        final JMenuItem result = new JMenuItem(title);
-        result.setMnemonic('b');
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://sf.net/tracker/?group_id=63447");
-                } catch (Exception ex) {
-                    new RvSnooperErrorDialog(
-                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
-                }
-            }
-        });
-        return result;
-    }
-
-    protected JMenuItem createHelpDownload() {
-        final String title = "Download latest version";
-        final JMenuItem result = new JMenuItem(title);
-        result.setMnemonic('b');
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://sf.net/project/showfiles.php?group_id=63447");
-                } catch (Exception ex) {
-                    new RvSnooperErrorDialog(
-                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
-                }
-            }
-        });
-        return result;
-    }
-
-    protected JMenuItem createHelpGotoHomepage() {
-        final String title = "Help topics";
-        final JMenuItem result = new JMenuItem(title);
-        result.setMnemonic('t');
-        result.setAccelerator(KeyStroke.getKeyStroke("F1"));
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://rvsn00p.sf.net");
-                } catch (Exception ex) {
-                    new RvSnooperErrorDialog(
-                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
-                }
-            }
-        });
-        return result;
-    }
-
-    protected JMenuItem createHelpSubscribe() {
-        final String title = "Subscribe to update messages";
-        final JMenuItem result = new JMenuItem(title);
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://sourceforge.net/project/filemodule_monitor.php?filemodule_id=60335");
-                } catch (Exception ex) {
-                    new RvSnooperErrorDialog(
-                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
-                }
-            }
-        });
-        return result;
-    }
-
-    protected JMenuItem createHelpSupport() {
-        final String title = "Örjan’s Wish List";
-        final JMenuItem result = new JMenuItem(title);
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    BrowserLauncher.openURL("http://www.amazon.co.uk/gp/registry/registry.html/203-5255811-7236765?%5Fencoding=UTF8&type=wishlist&id=14PROST9BIEH3");
-                } catch (Exception ex) {
-                    new RvSnooperErrorDialog(
-                            getBaseFrame(), "Could not open browser : " + ex.getMessage());
-                }
-            }
-        });
-        return result;
-    }
-
-    protected JMenuItem createHelpAbout() {
-        final String title = "About RvSn00p";
-        final JMenuItem result = new JMenuItem(title);
-        result.setMnemonic('a');
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                showAboutDialog(title);
-            }
-        });
-        return result;
-    }
-
-
-    protected void showPropertiesDialog(final String title) {
+    protected void showPropertiesDialog() {
         JOptionPane.showMessageDialog(
                 _logMonitorFrame,
                 _displayedLogBrokerProperties.toArray(),
-                title,
-                JOptionPane.PLAIN_MESSAGE
-        );
+                "Properties",
+                JOptionPane.PLAIN_MESSAGE);
     }
-
-    protected void showAboutDialog(final String title) {
-        JOptionPane.showMessageDialog(
-                _logMonitorFrame,
-                new String[]{VERSION,
-                             "",
-                             "Constructed by Örjan Lundberg (lundberg@home.se)",
-                             " and Ian Phillips (ianp@ianp.org)",
-                             "",
-                             "This product includes software developed by",
-                             "The Apache Software Foundation (http://www.apache.org).",
-                             "",
-                             "Thanks goes to (in no special order):",
-                             "  Eric Albert, Stefan Axelsson, Thomas Bonderud,",
-                             "  Stefan Farestam, Johan Hjort, Joe Jensen",
-                             "  Magnus L Johansson, Anders Lindlof, Linda Lundberg",
-                             "  Stephanie Lundberg, Cedric Rouvrais, and Richard Valk.",
-                             "",
-                             "Copyright © 2002-@year@ Apache Software Foundation.",
-                             "Copyright © 2005 Ian Phillips.",
-                             "",
-                             "Licensed under the Apache License, Version 2.0.",
-                             "  A copy of the license has been included with this",
-                             "  distribution as doc/license.xhtml, or may be obtained",
-                             "  from http://www.apache.org/licenses/LICENSE-2.0.html"},
-                title,
-                JOptionPane.PLAIN_MESSAGE
-        );
-    }
-
 
     protected JMenu createEditMenu() {
         final JMenu editMenu = new JMenu("Edit");
