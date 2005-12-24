@@ -3,17 +3,17 @@
 
 body {
   background: url(images/stripes.png) repeat;
-  border: 0px;
+  border: 0;
   font-family: "Georgia", "Times New Roman", serif;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 25px 0;
   text-align: center;
 }
 
 .section {
   background: #9191FF;
   border: 1px solid #000000;
-  margin: 25px auto 25px auto;
+  margin: 0 auto 0 auto;
   padding: 0;
   text-align: left;
   width: 640px;
@@ -84,6 +84,7 @@ body {
 acronym {
   font-size: 110%;
   font-variant: small-caps;
+  letter-spacing: 0.1em;
   text-transform: lowercase;
 }
 
