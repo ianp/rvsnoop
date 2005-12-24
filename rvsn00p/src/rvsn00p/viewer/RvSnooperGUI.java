@@ -65,8 +65,9 @@ import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.MsgType;
 import rvsn00p.RecentListeners;
+import rvsn00p.StringUtils;
 import rvsn00p.actions.Actions;
-import rvsn00p.util.DateFormatManager;
+import rvsn00p.ui.UIUtils;
 import rvsn00p.util.rv.RvController;
 import rvsn00p.util.rv.RvParameters;
 import rvsn00p.util.rv.RvScriptInfo;
@@ -149,7 +150,6 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
     protected boolean _displayIMMsgs = true;
     protected RvParameters _lastUsedRvParameters = new RvParameters();
     protected boolean _isPaused = false;
-    protected ClassLoader _cl = null;
 
     protected static String _trackingIDTextFilter = "";
     protected static String _subjectTextFilter = "";
@@ -371,31 +371,6 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
      */
     public void hide() {
         _logMonitorFrame.setVisible(false);
-    }
-
-    /**
-     * Get the DateFormatManager for formatting dates.
-     */
-    DateFormatManager getDateFormatManager() {
-        return _table.getDateFormatManager();
-    }
-
-    /**
-     * Set the date format manager for formatting dates.
-     */
-    void setDateFormatManager(final DateFormatManager dfm) {
-        _table.setDateFormatManager(dfm);
-    }
-
-    public String getDateFormat() {
-        final DateFormatManager dfm = getDateFormatManager();
-        return dfm.getPattern();
-    }
-
-    public String setDateFormat(final String pattern) {
-        final DateFormatManager dfm = new DateFormatManager(pattern);
-        setDateFormatManager(dfm);
-        return pattern;
     }
 
     /**
@@ -1474,10 +1449,9 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
 
         if (temp != null) {
             try {
-                setDateFormat(temp);
-            } catch (NumberFormatException e) {
-                new RvSnooperErrorDialog(getBaseFrame(),
-                        "'" + temp + "' is an invalid parameter.\nPlease try again.");
+                StringUtils.setDateFormat(temp);
+            } catch (Exception e) {
+                UIUtils.showError(temp + " is not a valid date pattern.", e);
                 setMaxRecordConfiguration();
             }
         }
@@ -1802,11 +1776,6 @@ public class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback {
         final JComboBox fontSizeCombo = new JComboBox();
         _fontSizeCombo = fontSizeCombo;
         _fontNameCombo = fontCombo;
-
-        _cl = this.getClass().getClassLoader();
-        if (_cl == null) {
-            _cl = ClassLoader.getSystemClassLoader();
-        }
 
         final JButton listenerButton = new JButton("Add Listener");
 

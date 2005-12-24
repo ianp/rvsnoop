@@ -25,7 +25,6 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import rvsn00p.util.DateFormatManager;
 import rvsn00p.util.rv.MarshalRvToString;
 import rvsn00p.util.rv.RvRootNode;
 
@@ -88,21 +87,6 @@ public class LogTable extends JTable {
         if (detailsTree != null) rowSM.addListSelectionListener(new DetailsTreeListener());
 
         //setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-    }
-
-    /**
-     * Get the DateFormatManager for formatting dates.
-     */
-    public DateFormatManager getDateFormatManager() {
-        return getFilteredLogTableModel().getDateFormatManager();
-    }
-
-    /**
-     * Set the date format manager for formatting dates.
-     */
-    public void setDateFormatManager(DateFormatManager dfm) {
-        //_dateFormatManager = dfm;
-        getFilteredLogTableModel().setDateFormatManager(dfm);
     }
 
     public int getMsgColumnID() {

@@ -10,7 +10,9 @@ import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +24,10 @@ import java.util.regex.Pattern;
  */
 public final class StringUtils {
 
+    private static String dateFormat = "HH:mm:ss.SSS";
+    
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(dateFormat);
+    
     private static final Object[] NO_FIELDS = new Object[0];
     
     private static final Pattern WHITESPACE = Pattern.compile("\\p{Space}"); //$NON-NLS-1$
@@ -34,6 +40,26 @@ public final class StringUtils {
         return MessageFormat.format(message, fields);
     }
 
+    /**
+     * Format a date using the current pattern setting.
+     * 
+     * @param date The date to format.
+     * @return The formatted date.
+     */
+    public static String format(Date date) {
+        return DATE_FORMATTER.format(date);
+    }
+    
+    /**
+     * Gets the pattern string for the current date format.
+     * 
+     * @return The pattern string.
+     * @see java.text.SimpleDateFormat
+     */
+    public static String getDateFormat() {
+        return dateFormat;
+    }
+    
     /**
      * Replace all runs of whitespace in a given character sequence with a
      * single space.
@@ -58,6 +84,18 @@ public final class StringUtils {
     public static String removeWhitespace(CharSequence string) {
         if (string == null) return null;
         return WHITESPACE.matcher(string).replaceAll(""); //$NON-NLS-1$
+    }
+    
+    /**
+     * Set the date format.
+     * 
+     * @param pattern The pattern to set, must not be <code>null</code>.
+     * @see java.text.SimpleDateFormat
+     */
+    public static void setDateFormat(String pattern) {
+        if (pattern == null) throw new NullPointerException();
+        DATE_FORMATTER.applyPattern(pattern);
+        dateFormat = pattern;
     }
     
     /**
