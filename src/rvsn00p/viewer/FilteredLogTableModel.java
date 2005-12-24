@@ -15,7 +15,7 @@ import javax.swing.table.AbstractTableModel;
 import rvsn00p.LogRecord;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.PassingLogRecordFilter;
-import rvsn00p.util.DateFormatManager;
+import rvsn00p.StringUtils;
 import rvsn00p.util.HTMLEncoder;
 
 /**
@@ -30,34 +30,21 @@ import rvsn00p.util.HTMLEncoder;
 public class FilteredLogTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 3614054890778884099L;
-    protected LogRecordFilter _filter = new PassingLogRecordFilter();
-    protected List _allRecords = new ArrayList();
-    protected List _filteredRecords;
-    protected int _maxNumberOfLogRecords = 5000;
-    protected String[] _colNames = {"Date",
+    private LogRecordFilter _filter = new PassingLogRecordFilter();
+    private List _allRecords = new ArrayList();
+    private List _filteredRecords;
+    int _maxNumberOfLogRecords = 5000;
+    private String[] _colNames = {"Date",
                                     "Msg#",
                                     "Type",
                                     "Subject",
                                     "Tracking ID",
                                     "Message"};
 
-    protected DateFormatManager _dfm = null;
-    static int _lastHTMLBufLength = 1000;
-    final protected Date _conversionDate = new Date();
-    final protected StringBuffer _conversionStrBuf = new StringBuffer(15);
-    final protected StringBuffer _outStrBuf = new StringBuffer(15);
+    private static int _lastHTMLBufLength = 1000;
 
     public FilteredLogTableModel() {
         super();
-    }
-
-    public void setDateFormatManager(DateFormatManager dfm) {
-        if (dfm != null)
-            this._dfm = dfm;
-    }
-
-    public DateFormatManager getDateFormatManager() {
-        return this._dfm;
     }
 
     public void setLogRecordFilter(LogRecordFilter filter) {
@@ -157,18 +144,18 @@ public class FilteredLogTableModel extends AbstractTableModel {
      * Returns a HTML table representation of the filtered records
      * @param dfMgr the date formt manager used
      */
-    public StringBuffer createFilteredHTMLTable(DateFormatManager dfMgr) {
+    public StringBuffer createFilteredHTMLTable() {
         //use a buffer with the same size as the last used one
         final StringBuffer strbuf = new StringBuffer(_lastHTMLBufLength);
         final Iterator records = _filteredRecords.iterator();
         final StringBuffer buffer = new StringBuffer();
         LogRecord current;
-        addHtmlTableHeaderString(strbuf, dfMgr);
+        addHtmlTableHeaderString(strbuf);
         while (records.hasNext()) {
             current = (LogRecord) records.next();
 
             strbuf.append("<tr>\n\t");
-            addHTMLTDString(current, strbuf, dfMgr, buffer);
+            addHTMLTDString(current, strbuf, buffer);
             strbuf.append("\n</tr>\n");
         }
         strbuf.append("</table>");
@@ -203,7 +190,7 @@ public class FilteredLogTableModel extends AbstractTableModel {
      * @param buf the stringbuffer to add the <td> string representation
      * @param dfMgr the date formt manager used
      */
-    protected void addHTMLTDString(LogRecord lr, StringBuffer buf, DateFormatManager dfMgr, StringBuffer Tbuffer) {
+    protected void addHTMLTDString(LogRecord lr, StringBuffer buf, StringBuffer Tbuffer) {
         if (lr != null) {
             for (int i = 0; i < getColumnCount(); ++i) {
 
@@ -212,12 +199,12 @@ public class FilteredLogTableModel extends AbstractTableModel {
                     // message
                     buf.append("<code>");
                     Tbuffer.setLength(0);
-                    addColumnToStringBuffer(Tbuffer, i, lr, dfMgr);
+                    addColumnToStringBuffer(Tbuffer, i, lr);
                     HTMLEncoder.encodeStringBuffer(Tbuffer);
                     buf.append(Tbuffer);
                     buf.append("</code>");
                 } else {
-                    addColumnToStringBuffer(buf, i, lr, dfMgr);
+                    addColumnToStringBuffer(buf, i, lr);
                 }
                 buf.append("</td>");
             }
@@ -227,7 +214,7 @@ public class FilteredLogTableModel extends AbstractTableModel {
     }
 
 
-    protected void addHtmlTableHeaderString(StringBuffer buf, DateFormatManager dfMgr) {
+    protected void addHtmlTableHeaderString(StringBuffer buf) {
         // table parameters
         buf.append("<table border=\"1\" width=\"100%\">\n");
         buf.append("<tr>\n");
@@ -239,11 +226,8 @@ public class FilteredLogTableModel extends AbstractTableModel {
             buf.append(getColumnName(i));
 
             //date format
-            if (i == 0) {
-                buf.append("<br>(");
-                buf.append(dfMgr.getPattern());
-                buf.append(")");
-            }
+            if (i == 0)
+                buf.append("<br>(").append(StringUtils.getDateFormat()).append(")");
             buf.append("</th>\n");
         }
         buf.append("</tr>\n");
@@ -263,20 +247,14 @@ public class FilteredLogTableModel extends AbstractTableModel {
 
     }
 
-    protected Object getColumn(int col, LogRecord lr, DateFormatManager dfm) {
+    protected Object getColumn(int col, LogRecord lr) {
         if (lr == null) {
             return "NULL Column";
         }
 
         switch (col) {
             case 0:
-                synchronized (_conversionDate) {
-                    _conversionDate.setTime(lr.getMillis());
-                    _conversionStrBuf.setLength(0);
-                    _outStrBuf.setLength(0);
-                    _outStrBuf.append(dfm.format(_conversionDate, _conversionStrBuf));
-                    return _outStrBuf.toString();
-                }
+                return StringUtils.format(new Date(lr.getMillis()));
             case 1:
                 return String.valueOf(lr.getSequenceNumber());
             case 2:
@@ -293,18 +271,14 @@ public class FilteredLogTableModel extends AbstractTableModel {
         }
     }
 
-    protected void addColumnToStringBuffer(StringBuffer sb, int col, LogRecord lr, DateFormatManager dfm) {
+    protected void addColumnToStringBuffer(StringBuffer sb, int col, LogRecord lr) {
         if (lr == null) {
             sb.append("NULL Column");
         }
 
         switch (col) {
             case 0:
-                synchronized (_conversionDate) {
-                    _conversionDate.setTime(lr.getMillis());
-                    _conversionStrBuf.setLength(0);
-                    sb.append(dfm.format(_conversionDate, _conversionStrBuf));
-                }
+                sb.append(StringUtils.format(new Date(lr.getMillis())));
                 break;
             case 1:
                 sb.append(lr.getSequenceNumber());
@@ -326,15 +300,6 @@ public class FilteredLogTableModel extends AbstractTableModel {
                 throw new IllegalArgumentException(message);
         }
     }
-
-    protected void addColumnToStringBuffer(StringBuffer sb, int col, LogRecord lr) {
-        addColumnToStringBuffer(sb, col, lr, _dfm);
-    }
-
-    protected Object getColumn(int col, LogRecord lr) {
-        return getColumn(col, lr, _dfm);
-    }
-
 
     /**
      * We don't want the amount of rows to grow without bound,

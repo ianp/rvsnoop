@@ -36,7 +36,7 @@ import nu.xom.Serializer;
 import nu.xom.Text;
 
 import rvsn00p.MsgType;
-import rvsn00p.util.DateFormatManager;
+import rvsn00p.StringUtils;
 import rvsn00p.util.IOUtils;
 import rvsn00p.util.rv.RvParameters;
 import rvsn00p.viewer.categoryexplorer.CategoryExplorerModel;
@@ -161,12 +161,12 @@ public class ConfigurationManager extends Object {
     }
 
     private void dateFormatExport(Element parent) {
-        setString(parent, DATE_FORMAT, gui.getDateFormat());
+        setString(parent, DATE_FORMAT, StringUtils.getDateFormat());
     }
 
     private void dateFormatImport(Element parent) {
         String dateFormat = getString(parent, DATE_FORMAT);
-        gui.setDateFormat(dateFormat != null ? dateFormat : DATE_FORMAT_PATTERN);
+        StringUtils.setDateFormat(dateFormat != null ? dateFormat : DATE_FORMAT_PATTERN);
     }
 
     /**
@@ -261,10 +261,7 @@ public class ConfigurationManager extends Object {
      */
     public void load() {
         File file = new File(getFilename());
-        if (!file.exists()) {
-            table.setDateFormatManager(new DateFormatManager(DATE_FORMAT_PATTERN));
-            return;
-        }
+        if (!file.exists()) return;
         InputStream stream = null;
         try {
             stream = new BufferedInputStream(new FileInputStream(file));
