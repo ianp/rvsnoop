@@ -1,0 +1,116 @@
+//:File:    Actions.java
+//:Created: Sep 14, 2005
+//:Legal:   Copyright © 2005-@year@ Apache Software Foundation.
+//:Legal:   Copyright © 2005-@year@ Ian Phillips.
+//:License: Licensed under the Apache License, Version 2.0.
+//:CVSID:   $Id$
+package rvsn00p.actions;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.Action;
+import javax.swing.KeyStroke;
+
+import rvsn00p.StringUtils;
+
+/**
+ * Singleton action instances.
+ *
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @version $Revision$, $Date$
+ */
+public final class Actions {
+
+    // KeyStroke -> Action
+    static final Map acceleratorKeyMap = new HashMap();
+    
+    private static final KeyListener acceleratorKeyListener = new KeyAdapter() {
+        public void keyTyped(KeyEvent e) {
+            Action a = (Action) acceleratorKeyMap.get(KeyStroke.getKeyStrokeForEvent(e));
+            if (a == null) return;
+            a.actionPerformed(new ActionEvent(e.getSource(), e.getID(),
+                (String) a.getValue(Action.ACTION_COMMAND_KEY)));
+            e.consume();
+        }
+    };
+    
+    // String -> Action
+    private static final Map actionCommandMap = new HashMap();
+
+    public static final Action CHECK_FOR_UPDATES = add(new CheckForUpdates());
+    
+    public static final Action DISPLAY_ABOUT = add(new DisplayAbout());
+    
+    public static final Action DISPLAY_HOME_PAGE = add(new DisplayHomePage());
+    
+    public static final Action DISPLAY_LICENSE = add(new DisplayLicense());
+
+    public static final Action DISPLAY_WL_IAN = add(new DisplayWishList("Ian’s Wish List", "http://www.amazon.co.uk/gp/registry/registry.html/202-6461367-3647865?id=32RLYO966NV3B"));
+
+    public static final Action DISPLAY_WL_ORJAN = add(new DisplayWishList("Örjan’s Wish List", "http://www.amazon.co.uk/gp/registry/registry.html/203-5255811-7236765?id=14PROST9BIEH3"));
+    
+    public static final Action REPORT_BUG = add(new ReportBug());
+
+    public static final Action SUBSCRIBE_TO_UPDATES = add(new SubscribeToUpdates());
+    
+    static String WARN_ACCEL_REDEFINITION = "Redefining accelerator key {0} from {1} to {2}.";
+    
+    private static Action add(Action action) {
+        String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
+        actionCommandMap.put(command, action);
+        KeyStroke accelerator = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
+        if (accelerator != null) {
+            Object old = acceleratorKeyMap.put(accelerator, action);
+            if (old != null)
+                System.out.println(StringUtils.format(WARN_ACCEL_REDEFINITION, new Object[] { accelerator, ((Action) old).getValue(Action.ACTION_COMMAND_KEY), command }));
+        }
+        return action;
+    }
+    
+    /**
+     * Perform an action.
+     * 
+     * @param actionCommand
+     * @throws NullPointerException if the action does not exist.
+     */
+    public static void execute(String actionCommand) {
+        ((Action) actionCommandMap.get(actionCommand)).actionPerformed(null);
+    }
+
+    /**
+     * Returns a read-only collection containing all of the actions known to the
+     * application.
+     * 
+     * @return All known actions.
+     */
+    public static Collection getActions() {
+        return Collections.unmodifiableCollection(actionCommandMap.values());
+    }
+
+    /**
+     * Returns a read-only set containing all of the action commands known
+     * to the application.
+     *
+     * @return All known action commands.
+     */
+    public static Set getActionCommands() {
+        return Collections.unmodifiableSet(actionCommandMap.keySet());
+    }
+    
+    public static KeyListener getAcceleratorKeyListener() {
+        return acceleratorKeyListener;
+    }
+
+    private Actions() {
+        super();
+    }
+
+}
