@@ -209,6 +209,13 @@
       <!-- This is a sourceforge limitation, we have to live with it...   -->
       <mapper type="glob" from="*.xhtml" to="*.html"/>
     </copy>
+    <copy file="${file.version}" todir="${dir.build.www}">
+      <filterset refid="filter.version"/>
+      <filterset>
+        <filter token="build.number"  value="${build.number}"/>
+        <filter token="build.date"  value="${build.date}"/>
+      </filterset>
+    </copy>
     <copy todir="${dir.build.www}">
       <fileset dir="${dir.orig.doc}" includes="*.css"/>
       <fileset dir="${dir.orig.doc}" includes="**/*.png"/>
@@ -224,6 +231,7 @@
       <fileset dir="${dir.build.www}">
         <include name="*.html"/>
         <include name="*.css"/>
+        <include name="*.txt"/>
         <include name="images/*.png"/>
       </fileset>
     </scp>
