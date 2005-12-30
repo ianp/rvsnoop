@@ -11,7 +11,7 @@ package rvsn00p.util;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public class HTMLEncoder {
+public final class HTMLEncoder {
 
     public static final String AMP_HTML_STRING = "&amp;";
     public static final String GT_HTML_STRING = "&gt;";
@@ -30,10 +30,10 @@ public class HTMLEncoder {
         if (sEncode == null) {
             return null;
         }
-        char[] c = sEncode.toCharArray();
-        StringBuffer out = new StringBuffer();
+        final char[] c = sEncode.toCharArray();
+        final StringBuffer out = new StringBuffer();
         for (int i = 0; i < c.length; ++i) {
-            String enc = encodeChar(c[i]);
+            final String enc = encodeChar(c[i]);
             if (enc != null) {
                 out.append(enc);
             } else {
@@ -48,7 +48,7 @@ public class HTMLEncoder {
             return;
         }
         for (int i = 0; i < sEncode.length(); ++i) {
-            String enc = encodeChar(sEncode.charAt(i) );
+            final String enc = encodeChar(sEncode.charAt(i) );
             if (enc != null) {
                 sEncode.replace(i,i+1,enc);
                 i+=enc.length();
@@ -73,5 +73,12 @@ public class HTMLEncoder {
                 return null;
         }
 
+    }
+    
+    /**
+     * Do not instantiate.
+     */
+    private HTMLEncoder() {
+        throw new UnsupportedOperationException();
     }
 }
