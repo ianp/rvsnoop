@@ -25,16 +25,20 @@ import java.awt.event.AdjustmentListener;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public final class TrackingAdjustmentListener implements AdjustmentListener {
+final class TrackingAdjustmentListener implements AdjustmentListener {
 
-    protected int previousMaximum = -1;
+    private int previousMaximum = -1;
 
+    public TrackingAdjustmentListener() {
+        super();
+    }
+    
     public void adjustmentValueChanged(AdjustmentEvent e) {
-        Adjustable a = e.getAdjustable();
-        int maximum = a.getMaximum();
+        final Adjustable a = e.getAdjustable();
+        final int maximum = a.getMaximum();
         if (maximum == previousMaximum)
             return;
-        int b = a.getValue() + a.getVisibleAmount() + a.getUnitIncrement();
+        final int b = a.getValue() + a.getVisibleAmount() + a.getUnitIncrement();
         if (b >= previousMaximum)
             a.setValue(maximum);
         previousMaximum = maximum;

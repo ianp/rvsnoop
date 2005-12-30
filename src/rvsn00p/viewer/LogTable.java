@@ -8,10 +8,10 @@ package rvsn00p.viewer;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -39,26 +39,23 @@ import com.tibco.tibrv.TibrvMsg;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public class LogTable extends JTable {
+public final class LogTable extends JTable {
 
     private static final long serialVersionUID = -1119183751891536610L;
-    protected int _rowHeight = 30;
+    private int _rowHeight = 30;
 
-    // For the columns:
-    protected int _numCols = 6;
-    protected TableColumn[] _tableColumns = new TableColumn[_numCols];
-    protected int[] _colWidths = {8, 1, 30, 150, 40, 100};
-    protected LogTableColumn[] _colNames = LogTableColumn.getLogTableColumnArray();
-    protected int _colDate = 0;
-    protected int _colMessageNum = 1;
-    protected int _colLevel = 2;
-    protected int _colSubject = 3;
-    protected int _colTrackingID = 4;
-    protected int _colMessage = 5;
-    protected StringBuffer _buf = new StringBuffer();
+    private static final int NUM_COLUMNS = 6;
+    private static final int COL_DATE = 0;
+    private static final int COL_SUBJECT = 3;
+    private static final int COL_TRACKING_ID = 4;
+    private static final int COL_MESSAGE = 5;
 
-    final JTextArea detailsText;
-    final JTree detailsTree;
+    private final TableColumn[] _tableColumns = new TableColumn[NUM_COLUMNS];
+    private final int[] _colWidths = {8, 1, 30, 150, 40, 100};
+    private final LogTableColumn[] _colNames = LogTableColumn.getLogTableColumnArray();
+
+    private final JTextArea detailsText;
+    private final JTree detailsTree;
 
     public LogTable(JTree detailsTree, JTextArea detailsText) {
         super();
@@ -90,19 +87,19 @@ public class LogTable extends JTable {
     }
 
     public int getMsgColumnID() {
-        return _colMessage;
+        return COL_MESSAGE;
     }
 
     public int getSubjectColumnID() {
-        return _colSubject;
+        return COL_SUBJECT;
     }
 
     public int getDateColumnID() {
-        return _colDate;
+        return COL_DATE;
     }
 
     public int getTIDColumnID() {
-        return _colTrackingID;
+        return COL_TRACKING_ID;
     }
 
     public synchronized void clearLogRecords() {
@@ -120,13 +117,13 @@ public class LogTable extends JTable {
     // default view if a view is not set and saved
     public void setDetailedView() {
         //TODO: Defineable Views.
-        TableColumnModel model = getColumnModel();
+        final TableColumnModel model = getColumnModel();
         // Remove all the columns:
-        for (int f = 0; f < _numCols; ++f) {
+        for (int f = 0; f < NUM_COLUMNS; ++f) {
             model.removeColumn(_tableColumns[f]);
         }
         // Add them back in the correct order:
-        for (int i = 0; i < _numCols; ++i) {
+        for (int i = 0; i < NUM_COLUMNS; ++i) {
             model.addColumn(_tableColumns[i]);
         }
         //SWING BUG:
@@ -134,14 +131,13 @@ public class LogTable extends JTable {
     }
 
     public void setView(List columns) {
-        TableColumnModel model = getColumnModel();
+        final TableColumnModel model = getColumnModel();
 
         // Remove all the columns:
-        for (int f = 0; f < _numCols; ++f) {
+        for (int f = 0; f < NUM_COLUMNS; ++f)
             model.removeColumn(_tableColumns[f]);
-        }
-        Iterator selectedColumns = columns.iterator();
-        Vector columnNameAndNumber = getColumnNameAndNumber();
+        final Iterator selectedColumns = columns.iterator();
+        final List columnNameAndNumber = getColumnNameAndNumber();
         while (selectedColumns.hasNext()) {
             // add the column to the view
             model.addColumn(_tableColumns[columnNameAndNumber.indexOf(selectedColumns.next())]);
@@ -153,76 +149,64 @@ public class LogTable extends JTable {
 
     public void setFont(Font font) {
         super.setFont(font);
-        Graphics g = this.getGraphics();
+        final Graphics g = this.getGraphics();
         if (g != null) {
-            FontMetrics fm = g.getFontMetrics(font);
-            int height = fm.getHeight();
+            final FontMetrics fm = g.getFontMetrics(font);
+            final int height = fm.getHeight();
             _rowHeight = height + height / 3;
             setRowHeight(_rowHeight);
         }
     }
 
-    protected void init() {
+    private void init() {
         setRowHeight(_rowHeight);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
 
     // assign a column number to a column name
-    protected Vector getColumnNameAndNumber() {
-        Vector columnNameAndNumber = new Vector();
+    private List getColumnNameAndNumber() {
+        final List columnNameAndNumber = new ArrayList();
         for (int i = 0; i < _colNames.length; ++i) {
             columnNameAndNumber.add(i, _colNames[i]);
         }
         return columnNameAndNumber;
     }
 
-    protected int getColumnWidth(String name) {
-        try {
-            for (int i = 0; i < _numCols; ++i) {
-                if (_colNames[i].getLabel().equalsIgnoreCase(name)) {
-                    TableColumnModel model = getColumnModel();
-                    return model.getColumn(i).getPreferredWidth();
-                }
-            }
-        } catch (Exception ex) {
-            return 0;
-        }
-
+    int getColumnWidth(String name) {
+        for (int i = 0; i < NUM_COLUMNS; ++i)
+            if (_colNames[i].getLabel().equalsIgnoreCase(name))
+                return getColumnModel().getColumn(i).getPreferredWidth();
         return 0;
     }
 
     void setColumnWidth(String name, int width) {
-        try {
-            for (int i = 0; i < _numCols; ++i) {
-                if (_colNames[i].getLabel().equalsIgnoreCase(name)) {
-                    TableColumnModel model = getColumnModel();
-                    model.getColumn(i).setPreferredWidth(width);
-                }
-            }
-        } catch (Exception ignored) {
-            // Intentionally ignored.
-        }
+        for (int i = 0; i < NUM_COLUMNS; ++i)
+            if (_colNames[i].getLabel().equalsIgnoreCase(name))
+                getColumnModel().getColumn(i).setPreferredWidth(width);
     }
 
     private class DetailsTextListener implements ListSelectionListener {
         private final StringBuffer buffer = new StringBuffer();
+        DetailsTextListener() {
+            super();
+        }
         public void valueChanged(ListSelectionEvent e) {
             if (e.getValueIsAdjusting()) return;
-            ListSelectionModel sm = (ListSelectionModel) e.getSource();
-            int index = sm.getMinSelectionIndex();
+            final ListSelectionModel sm = (ListSelectionModel) e.getSource();
+            final int index = sm.getMinSelectionIndex();
             if (index == -1) return; // Selection is empty.
-            TableModel tm = LogTable.this.getModel();
-            Object selection = tm.getValueAt(index, _numCols - 1);
+            final TableModel tm = LogTable.this.getModel();
+            final Object selection = tm.getValueAt(index, NUM_COLUMNS - 1);
             if (selection == null) {
                 if (detailsText != null) detailsText.setText("");
                 return;
             }
-            for (int i = 0; i < _numCols - 1; ++i) {
-                Object value = tm.getValueAt(index, i);
+            for (int i = 0; i < NUM_COLUMNS - 1; ++i) {
+                final Object value = tm.getValueAt(index, i);
                 buffer.append(_colNames[i]).append(":\t");
                 buffer.append(value != null ? value : "").append("\n");
             }
-            buffer.append(_colNames[_numCols - 1]);
+            buffer.append(_colNames[NUM_COLUMNS - 1]);
             buffer.append(":\n");
             buffer.append(MarshalRvToString.marshal("", (TibrvMsg) selection));
             detailsText.setText(buffer.toString());
@@ -231,13 +215,16 @@ public class LogTable extends JTable {
     }
     
     private class DetailsTreeListener implements ListSelectionListener {
+        DetailsTreeListener() {
+            super();
+        }
         public void valueChanged(ListSelectionEvent e) {
             if (e.getValueIsAdjusting()) return;
-            ListSelectionModel sm = (ListSelectionModel) e.getSource();
-            int index = sm.getMinSelectionIndex();
+            final ListSelectionModel sm = (ListSelectionModel) e.getSource();
+            final int index = sm.getMinSelectionIndex();
             if (index == -1) return; // Selection is empty.
-            TableModel tm = LogTable.this.getModel();
-            Object selection = tm.getValueAt(index, _numCols - 1);
+            final TableModel tm = LogTable.this.getModel();
+            final Object selection = tm.getValueAt(index, NUM_COLUMNS - 1);
             if (selection == null) {
                 if (detailsTree != null) detailsTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
                 return;

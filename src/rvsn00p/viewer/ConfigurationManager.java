@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
 import nu.xom.Attribute;
@@ -34,15 +35,12 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Serializer;
 import nu.xom.Text;
-
+import rvsn00p.IOUtils;
 import rvsn00p.MsgType;
 import rvsn00p.StringUtils;
-import rvsn00p.util.IOUtils;
+import rvsn00p.SubjectElement;
+import rvsn00p.SubjectHierarchy;
 import rvsn00p.util.rv.RvParameters;
-import rvsn00p.viewer.categoryexplorer.CategoryExplorerModel;
-import rvsn00p.viewer.categoryexplorer.CategoryExplorerTree;
-import rvsn00p.viewer.categoryexplorer.CategoryNode;
-import rvsn00p.viewer.categoryexplorer.CategoryPath;
 
 /**
  * Handles the storage and retrival of the state of the Category Explorer.
@@ -51,7 +49,7 @@ import rvsn00p.viewer.categoryexplorer.CategoryPath;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public class ConfigurationManager extends Object {
+public final class ConfigurationManager extends Object {
 
     private static final String COLOUR = "colour";
     private static final String COLOUR_BLUE = "blue";
@@ -68,6 +66,7 @@ public class ConfigurationManager extends Object {
     private static final String FONT = "font";
     private static final String FONT_NAME = "name";
     private static final String FONT_SIZE = "size";
+    private static final String FONT_STYLE = "style";
     private static final String ROOT = "rvsnoop";
     private static final String RV_DAEMON = "daemon";
     private static final String RV_LISTENER = "listener";
@@ -90,14 +89,14 @@ public class ConfigurationManager extends Object {
     private static final String WINDOW_Y = "y";
 
     private static Element appendElement(Element parent, String name) {
-        Element child = new Element(name);
+        final Element child = new Element(name);
         parent.appendChild(child);
         return child;
     }
 
     private static boolean getBoolean(Element parent, String attr, boolean def) {
         try {
-            String value = parent.getAttributeValue(attr);
+            final String value = parent.getAttributeValue(attr);
             return Boolean.valueOf(value).booleanValue();
         } catch (Exception e) {
             return def;
@@ -105,13 +104,22 @@ public class ConfigurationManager extends Object {
     }
     
     private static String getDefaultFilename() {
-        String home = System.getProperty("user.home");
-        String fs = System.getProperty("file.separator");
+        final String home = System.getProperty("user.home");
+        final String fs = System.getProperty("file.separator");
         return home + fs + CONFIG_DIRECTORY + fs + CONFIG_FILE;
     }
     
+    private static int getInteger(Element parent, String name, int def) {
+        try {
+            final Element child = parent.getFirstChildElement(name);
+            return Integer.parseInt(child.getValue().trim());
+        } catch (Exception e) {
+            return def;
+        }
+    }
+
     private static String getString(Element parent, String name) {
-        Element child = parent.getFirstChildElement(name);
+        final Element child = parent.getFirstChildElement(name);
         return child != null ? child.getValue().trim() : null;
     }
     
@@ -123,9 +131,9 @@ public class ConfigurationManager extends Object {
     private static StringBuffer pathToString(TreePath path, StringBuffer buffer) {
         buffer.setLength(0);
         // Begin at one to skip the 'Categories' root node.
-        Object[] nodes = path.getPath();
+        final Object[] nodes = path.getPath();
         for (int i = 1; i < nodes.length; ++i)
-            buffer.append(((CategoryNode) nodes[i]).getTitle()).append(".");
+            buffer.append(((SubjectElement) nodes[i]).getElementName()).append(".");
         buffer.setLength(buffer.length() - 1);
         return buffer;
     }
@@ -133,10 +141,17 @@ public class ConfigurationManager extends Object {
     private static void setBoolean(Element parent, String name, boolean value) {
         parent.addAttribute(new Attribute(name, Boolean.toString(value)));
     }
+
+    private static Element setInteger(Element parent, String name, int value) {
+        final Element child = new Element(name);
+        parent.appendChild(child);
+        child.appendChild(new Text(Integer.toString(value)));
+        return child;
+    }
     
     private static Element setString(Element parent, String name, String value) {
         if (value == null || value.length() == 0) return null;
-        Element child = new Element(name);
+        final Element child = new Element(name);
         parent.appendChild(child);
         child.appendChild(new Text(value));
         return child;
@@ -165,7 +180,7 @@ public class ConfigurationManager extends Object {
     }
 
     private void dateFormatImport(Element parent) {
-        String dateFormat = getString(parent, DATE_FORMAT);
+        final String dateFormat = getString(parent, DATE_FORMAT);
         StringUtils.setDateFormat(dateFormat != null ? dateFormat : DATE_FORMAT_PATTERN);
     }
 
@@ -177,38 +192,40 @@ public class ConfigurationManager extends Object {
      */
     public void delete() {
         try {
-            File file = new File(filename);
+            final File file = new File(filename);
             if (file.exists())
                 file.delete();
         } catch (Exception e) {
             System.err.println("Could not delete configuration from " + filename + " because " + e.getMessage());
         }
-        CategoryExplorerTree tree = gui.getCategoryExplorerTree();
-        CategoryExplorerModel model = tree.getExplorerModel();
+        final JTree tree = gui.getCategoryExplorerTree();
+        final SubjectHierarchy model = (SubjectHierarchy) tree.getModel();
         // Collapse everything except the root node.
         for (int i = tree.getRowCount() - 1; i != 0; --i)
             tree.collapseRow(i);
-        Enumeration nodes = model.getRootCategoryNode().breadthFirstEnumeration();
+        final Enumeration nodes = ((SubjectElement) model.getRoot()).breadthFirstEnumeration();
         while (nodes.hasMoreElements())
-            ((CategoryNode) nodes.nextElement()).setSelected(true);
+            ((SubjectElement) nodes.nextElement()).setSelected(true);
     }
 
     private void fontExport(Element parent) {
-        Font font = table.getFont();
-        Element fontElement = appendElement(parent, FONT);
-        setString(fontElement, FONT_NAME, font.getFontName());
-        setString(fontElement, FONT_SIZE, Integer.toString(font.getSize()));
+        final Font font = table.getFont();
+        final Element fontElement = appendElement(parent, FONT);
+        setString(fontElement, FONT_NAME, font.getFamily());
+        setInteger(fontElement, FONT_SIZE, font.getSize());
+        setInteger(fontElement, FONT_STYLE, font.getStyle());
     }
 
     private void fontImport(Element parent) {
         try {
-            Element font = parent.getFirstChildElement(FONT);
-            String name = getString(font, FONT_NAME);
-            if (name != null) gui.setFontName(name);
-            String size = getString(font, FONT_SIZE);
-            gui.setFontSize(size != null ? Integer.parseInt(size) : 12);
-        } catch (Exception ignored) {
-            // Intentionally ignored.
+            final Font font = gui.getTableFont();
+            final Element elt = parent.getFirstChildElement(FONT);
+            final String name = getString(elt, FONT_NAME);
+            final int size = getInteger(elt, FONT_SIZE, font.getSize());
+            final int style = getInteger(elt, FONT_STYLE, font.getStyle());
+            gui.setTableFont(new Font(name != null ? name : font.getName(), style, size));
+        } catch (Exception e) {
+            gui.setTableFont(new Font("Dialog", Font.PLAIN, 11));
         }
     }
 
@@ -222,31 +239,31 @@ public class ConfigurationManager extends Object {
     }
 
     private void listenersExport(Element parent) {
-        Iterator iter = gui.getSubscriptions();
+        final Iterator iter = gui.getSubscriptions();
         if (iter == null) return;
         while (iter.hasNext()) {
-            RvParameters params = (RvParameters) iter.next();
-            Element listener = appendElement(parent, RV_LISTENER);
+            final RvParameters params = (RvParameters) iter.next();
+            final Element listener = appendElement(parent, RV_LISTENER);
             setString(listener, RV_SERVICE, params.getService());
             setString(listener, RV_NETWORK, params.getNetwork());
             setString(listener, RV_DAEMON, params.getDaemon());
-            Set subjects = params.getSubjects();
-            if (subjects == null) continue;
-            for (Iterator i = subjects.iterator(); i.hasNext(); )
-                setString(listener, SUBJECT, (String) i.next());
+            final String[] subjects = params.getSubjects();
+            if (subjects == null || subjects.length == 0) continue;
+            for (int i = 0, imax = subjects.length; i < imax; ++i)
+                setString(listener, SUBJECT, subjects[i]);
         }
     }
 
     private void listenersImport(Element parent) {
-        Elements listeners = parent.getChildElements(RV_LISTENER);
-        Set params = new HashSet(listeners.size());
+        final Elements listeners = parent.getChildElements(RV_LISTENER);
+        final Set params = new HashSet(listeners.size());
         for (int i = listeners.size(); i != 0;) {
-            Element listener = listeners.get(--i);
-            String service = getString(listener, RV_SERVICE);
-            String network = getString(listener, RV_NETWORK);
-            String daemon = getString(listener, RV_DAEMON);
-            RvParameters param = new RvParameters(service, network, daemon);
-            Elements subjects = listener.getChildElements(SUBJECT);
+            final Element listener = listeners.get(--i);
+            final String service = getString(listener, RV_SERVICE);
+            final String network = getString(listener, RV_NETWORK);
+            final String daemon = getString(listener, RV_DAEMON);
+            final RvParameters param = new RvParameters(service, network, daemon);
+            final Elements subjects = listener.getChildElements(SUBJECT);
             for (int j = subjects.size(); j != 0;)
                 param.addSubject(subjects.get(--j).getValue());
             params.add(param);
@@ -260,13 +277,13 @@ public class ConfigurationManager extends Object {
      * If the file does not exist then this just resets the date format.
      */
     public void load() {
-        File file = new File(getFilename());
+        final File file = new File(getFilename());
         if (!file.exists()) return;
         InputStream stream = null;
         try {
             stream = new BufferedInputStream(new FileInputStream(file));
-            Document doc = new Builder().build(stream);
-            Element root = doc.getRootElement();
+            final Document doc = new Builder().build(stream);
+            final Element root = doc.getRootElement();
             subjectTreeImport(root);
             typesImport(root);
             tableColumnsImport(root);
@@ -292,13 +309,13 @@ public class ConfigurationManager extends Object {
     }
 
     private void splitPositionExport(Element parent) {
-        Element splitPos = appendElement(parent, SPLIT_POSITION);
+        final Element splitPos = appendElement(parent, SPLIT_POSITION);
         setString(splitPos, SPLIT_H, Integer.toString(gui.getSplitPaneTableViewerPos()));
         setString(splitPos, SPLIT_V, Integer.toString(gui.getSplitPaneVerticalPos()));
     }
 
     private void splitPositionImport(Element parent) {
-        Element splitPos = parent.getFirstChildElement(SPLIT_POSITION);
+        final Element splitPos = parent.getFirstChildElement(SPLIT_POSITION);
         if (splitPos == null) return;
         try {
             gui.setSplitPaneTableViewerPos(Integer.parseInt(getString(splitPos, SPLIT_H)));
@@ -314,12 +331,12 @@ public class ConfigurationManager extends Object {
      * @throws IOException
      */
     public void store() throws IOException {
-        File file = new File(getFilename());
+        final File file = new File(getFilename());
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
         }
-        Element config = new Element(ROOT);
+        final Element config = new Element(ROOT);
         typesExport(config);
         tableColumnsExport(config);
         subjectTreeExport(config);
@@ -331,7 +348,7 @@ public class ConfigurationManager extends Object {
         OutputStream stream = null;
         try {
             stream = new BufferedOutputStream(new FileOutputStream(file));
-            Serializer ser = new Serializer(stream);
+            final Serializer ser = new Serializer(stream);
             ser.setIndent(2);
             ser.setLineSeparator("\n");
             ser.write(new Document(config));
@@ -342,66 +359,65 @@ public class ConfigurationManager extends Object {
     }
     
     private void subjectTreeExport(Element parent) {
-        CategoryExplorerTree tree = gui.getCategoryExplorerTree();
-        CategoryExplorerModel model = tree.getExplorerModel();
-        Element subjects = appendElement(parent, SUBJECTS);
-        Enumeration nodes = model.getRootCategoryNode().breadthFirstEnumeration();
-        StringBuffer buffer = new StringBuffer();
+        final JTree tree = gui.getCategoryExplorerTree();
+        final SubjectHierarchy model = (SubjectHierarchy) tree.getModel();
+        final Element subjects = appendElement(parent, SUBJECTS);
+        final Enumeration nodes = ((SubjectElement) model.getRoot()).breadthFirstEnumeration();
+        final StringBuffer buffer = new StringBuffer();
         // Skip the root node, which does not represent a subject name element.
         nodes.nextElement();
         while (nodes.hasMoreElements()) {
-            CategoryNode node = (CategoryNode) nodes.nextElement();
-            TreePath path = model.getTreePathToRoot(node);
-            Element subject = setString(subjects, SUBJECT, pathToString(path, buffer).toString());
+            final SubjectElement node = (SubjectElement) nodes.nextElement();
+            final TreePath path = new TreePath(node.getPath());
+            final Element subject = setString(subjects, SUBJECT, pathToString(path, buffer).toString());
             setBoolean(subject, SUBJECT_EXPANDED, tree.isExpanded(path));
             setBoolean(subject, SUBJECT_SELECTED, node.isSelected());
         }
     }
 
     private void subjectTreeImport(Element parent) {
-        CategoryExplorerTree tree = gui.getCategoryExplorerTree();
-        CategoryExplorerModel model = tree.getExplorerModel();
-        Element subjectsRoot = parent.getFirstChildElement(SUBJECTS);
+        final JTree tree = gui.getCategoryExplorerTree();
+        final SubjectHierarchy model = (SubjectHierarchy) tree.getModel();
+        final Element subjectsRoot = parent.getFirstChildElement(SUBJECTS);
         if (subjectsRoot == null) return;
-        Elements subjects = subjectsRoot.getChildElements(SUBJECT);
+        final Elements subjects = subjectsRoot.getChildElements(SUBJECT);
         for (int i = subjects.size(); i != 0;) {
-            Element subject = subjects.get(--i);
-            CategoryPath path = new CategoryPath(subject.getValue().trim());
-            CategoryNode node = model.addCategory(path);
+            final Element subject = subjects.get(--i);
+            final SubjectElement node = model.getSubjectElement(subject.getValue().trim());
             node.setSelected(getBoolean(subject, SUBJECT_SELECTED, true));
             if (getBoolean(subject, SUBJECT_EXPANDED, false))
-                tree.expandPath(model.getTreePathToRoot(node));
+                tree.expandPath(new TreePath(node.getPath()));
         }
     }
 
     private void tableColumnsExport(Element parent) {
-        Iterator iter = LogTableColumn.getLogTableColumns().iterator();
-        Element columns = appendElement(parent, COLUMNS);
+        final Iterator iter = LogTableColumn.getLogTableColumns().iterator();
+        final Element columns = appendElement(parent, COLUMNS);
         while (iter.hasNext()) {
-            LogTableColumn column = (LogTableColumn) iter.next();
-            JCheckBoxMenuItem item = gui.getTableColumnMenuItem(column);
-            int size = table.getColumnWidth(column.getLabel());
-            Element columnElt = setString(columns, COLUMN, column.getLabel());
+            final LogTableColumn column = (LogTableColumn) iter.next();
+            final JCheckBoxMenuItem item = gui.getTableColumnMenuItem(column);
+            final int size = table.getColumnWidth(column.getLabel());
+            final Element columnElt = setString(columns, COLUMN, column.getLabel());
             columnElt.addAttribute(new Attribute(COLUMN_SELECTED, Boolean.toString(item.isSelected())));
             columnElt.addAttribute(new Attribute(COLUMN_WIDTH, Integer.toString(size)));
         }
     }
 
     private void tableColumnsImport(Element parent) {
-        Map menuItems = gui.getLogTableColumnMenuItems();
-        Elements columns = parent.getChildElements(COLUMNS);
-        int size = columns.size();
-        List selectedColumns = new ArrayList(size);
+        final Map menuItems = gui.getLogTableColumnMenuItems();
+        final Elements columns = parent.getChildElements(COLUMNS);
+        final int size = columns.size();
+        final List selectedColumns = new ArrayList(size);
         for (int i = 0; i < size; ++i) {
-            Element columnElt = columns.get(i);
-            String name = columnElt.getValue();
-            LogTableColumn column = LogTableColumn.valueOf(name);
+            final Element columnElt = columns.get(i);
+            final String name = columnElt.getValue();
+            final LogTableColumn column = LogTableColumn.valueOf(name);
             if (column == null) continue;
             try {
-                String width = columnElt.getAttributeValue(COLUMN_WIDTH);
+                final String width = columnElt.getAttributeValue(COLUMN_WIDTH);
                 table.setColumnWidth(name, Integer.parseInt(width));
-                Object item = menuItems.get(columnElt);
-                Boolean selected = Boolean.valueOf(columnElt.getAttributeValue(COLUMN_SELECTED));
+                final Object item = menuItems.get(columnElt);
+                final Boolean selected = Boolean.valueOf(columnElt.getAttributeValue(COLUMN_SELECTED));
                 if (selected.booleanValue()) {
                     ((JCheckBoxMenuItem) item).setSelected(true);
                     selectedColumns.add(column);
@@ -417,39 +433,41 @@ public class ConfigurationManager extends Object {
     }
 
     private void typesExport(Element parent) {
-        Map menuItems = gui.getLogLevelMenuItems();
-        Map colours = MsgType.getLogLevelColorMap();
-        Iterator it = menuItems.keySet().iterator();
+        final Map menuItems = gui.getLogLevelMenuItems();
+        final Map colours = MsgType.getLogLevelColorMap();
+        final Iterator it = menuItems.keySet().iterator();
         while (it.hasNext()) {
-            MsgType type = (MsgType) it.next();
-            Element typeElt = appendElement(parent, TYPE);
-            typeElt.addAttribute(new Attribute(TYPE_NAME, type.getLabel()));
-            boolean selected = ((JCheckBoxMenuItem) menuItems.get(type)).isSelected();
+            final MsgType type = (MsgType) it.next();
+            final Element typeElt = appendElement(parent, TYPE);
+            setString(typeElt, TYPE_NAME, type.getLabel());
+            final boolean selected = ((JCheckBoxMenuItem) menuItems.get(type)).isSelected();
             setBoolean(typeElt, TYPE_SELECTED, selected);
-            Color colour = (Color) colours.get(type);
-            Element colourElt = appendElement(typeElt, COLOUR);
-            setString(colourElt, COLOUR_RED, Integer.toString(colour.getRed()));
-            setString(colourElt, COLOUR_GREEN, Integer.toString(colour.getGreen()));
-            setString(colourElt, COLOUR_BLUE, Integer.toString(colour.getBlue()));
+            final Color colour = (Color) colours.get(type);
+            final Element colourElt = appendElement(typeElt, COLOUR);
+            setInteger(colourElt, COLOUR_RED, colour.getRed());
+            setInteger(colourElt, COLOUR_GREEN, colour.getGreen());
+            setInteger(colourElt, COLOUR_BLUE, colour.getBlue());
         }
     }
 
     private void typesImport(Element parent) {
-        Map menuItems = gui.getLogLevelMenuItems();
-        Elements types = parent.getChildElements(TYPE);
+        final Map menuItems = gui.getLogLevelMenuItems();
+        final Elements types = parent.getChildElements(TYPE);
         for (int i = types.size(); i != 0;) {
-            Element typeElt = types.get(--i);
-            String name = typeElt.getAttributeValue(TYPE_NAME);
+            final Element typeElt = types.get(--i);
+            final String name = getString(typeElt, TYPE_NAME);
             try {
-                MsgType type = MsgType.valueOf(name);
+                final MsgType type = MsgType.valueOf(name);
                 if (type == null)
                     continue;
-                JCheckBoxMenuItem item = (JCheckBoxMenuItem) menuItems.get(MsgType.valueOf(name));
+                final JCheckBoxMenuItem item = (JCheckBoxMenuItem) menuItems.get(MsgType.valueOf(name));
                 item.setSelected(getBoolean(typeElt, TYPE_SELECTED, true));
-                Element colour = typeElt.getFirstChildElement(COLOUR);
-                int r = Integer.parseInt(getString(colour, COLOUR_RED));
-                int g = Integer.parseInt(getString(colour, COLOUR_GREEN));
-                int b = Integer.parseInt(getString(colour, COLOUR_BLUE));
+                final Element colour = typeElt.getFirstChildElement(COLOUR);
+                // Using -1 for the deefault will cause no colour to be set if
+                // any component is missing or corrupted.
+                final int r = getInteger(colour, COLOUR_RED, -1);
+                final int g = getInteger(colour, COLOUR_GREEN, -1);
+                final int b = getInteger(colour, COLOUR_BLUE, -1);
                 MsgType.setLogLevelColorMap(type, new Color(r, g, b));
             } catch (Exception ignored) {
                 // Intentionally ignored.
@@ -458,8 +476,8 @@ public class ConfigurationManager extends Object {
     }
 
     private void windowPositionExport(Element parent) {
-        Rectangle r = gui.getWindowBounds();
-        Element window = appendElement(parent, WINDOW_POSITION);
+        final Rectangle r = RvSnooperGUI.getAppFrame().getBounds();
+        final Element window = appendElement(parent, WINDOW_POSITION);
         setString(window, WINDOW_X, Integer.toString(r.x));
         setString(window, WINDOW_Y, Integer.toString(r.y));
         setString(window, WINDOW_WIDTH, Integer.toString(r.width));
@@ -467,16 +485,15 @@ public class ConfigurationManager extends Object {
     }
 
     private void windowPositionImport(Element parent) {
-        Element window = parent.getFirstChildElement(WINDOW_POSITION);
+        final Element window = parent.getFirstChildElement(WINDOW_POSITION);
         if (window == null) return;
-        Rectangle bounds = gui.getWindowBounds();
+        final Rectangle bounds = RvSnooperGUI.getAppFrame().getBounds();
         try {
             bounds.x = Integer.parseInt(getString(window, WINDOW_X));
             bounds.y = Integer.parseInt(getString(window, WINDOW_Y));
             bounds.width = Integer.parseInt(getString(window, WINDOW_WIDTH));
             bounds.height = Integer.parseInt(getString(window, WINDOW_HEIGHT));
-            gui.setWindowBounds(bounds);
-            gui.updateFrameSize();
+            RvSnooperGUI.getAppFrame().setBounds(bounds);
         } catch (Exception ignored) {
             // Intentionally ignored.
         }
