@@ -58,6 +58,7 @@ public class MsgType implements Serializable {
     }
 
     public MsgType(String label, int precedence) {
+        super();
         _label = label;
         _precedence = precedence;
     }
@@ -105,8 +106,8 @@ public class MsgType implements Serializable {
         }
 
         if (logLevel == null) {
-            StringBuffer buf = new StringBuffer();
-            buf.append("Error while trying to parse (" + level + ") into");
+            final StringBuffer buf = new StringBuffer();
+            buf.append("Error while trying to parse (").append(level).append(") into");
             buf.append(" a MsgType.");
             throw new MsgTypeFormatException(buf.toString());
         }
@@ -138,27 +139,14 @@ public class MsgType implements Serializable {
         }
     }
 
-    public static void register(List MsgTypes) {
-        if (MsgTypes != null) {
-            Iterator it = MsgTypes.iterator();
-            while (it.hasNext()) {
-                register((MsgType) it.next());
-            }
-        }
+    public static void register(List types) {
+        if (types != null)
+            for (final Iterator i = types.iterator(); i.hasNext();)
+                register((MsgType) i.next());
     }
 
     public boolean equals(Object o) {
-        boolean equals = false;
-
-        if (o instanceof MsgType) {
-            if (this.getPrecedence() ==
-                    ((MsgType) o).getPrecedence()) {
-                equals = true;
-            }
-
-        }
-
-        return equals;
+        return o instanceof MsgType && getPrecedence() == ((MsgType) o).getPrecedence();
     }
 
     public int hashCode() {

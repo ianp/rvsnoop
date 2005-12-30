@@ -30,6 +30,8 @@ public final class StringUtils {
     
     private static final Object[] NO_FIELDS = new Object[0];
     
+    private static final Pattern SPLIT_LINES = Pattern.compile("^", Pattern.MULTILINE); //$NON-NLS-1$
+    
     private static final Pattern WHITESPACE = Pattern.compile("\\p{Space}"); //$NON-NLS-1$
 
     public static String format(String message, Object[] fields) {
@@ -120,9 +122,9 @@ public final class StringUtils {
      */
     public static String splice(String string, String pattern, Object[] params) {
         if (params == null) return string;
-        Pattern p = Pattern.compile(pattern);
-        Matcher m = p.matcher(string);
-        StringBuffer buf = new StringBuffer((int) (string.length() * 1.1f));
+        final Pattern p = Pattern.compile(pattern);
+        final Matcher m = p.matcher(string);
+        final StringBuffer buf = new StringBuffer((int) (string.length() * 1.1f));
         int i = 0, imax = params.length;
         while (m.find() && i < imax)
             m.appendReplacement(buf, params[i++].toString());
@@ -145,11 +147,11 @@ public final class StringUtils {
      */
     public static String[] split(String string, double maxLength, Font font, FontRenderContext frc) {
         Rectangle2D bounds = font.getStringBounds(string, frc);
-        char[] chars = string.toCharArray();
-        ArrayList lines = new ArrayList();
-        int offset = 0, pos = chars.length - 1;
+        final char[] chars = string.toCharArray();
+        final ArrayList lines = new ArrayList();
+        int pos = chars.length - 1;
         while (bounds.getWidth() > maxLength) {
-            bounds = font.getStringBounds(chars, offset, --pos, frc);
+            bounds = font.getStringBounds(chars, 0, --pos, frc);
             if (bounds.getWidth() < maxLength) {
                 lines.add(string.substring(0, pos));
                 string = string.substring(pos);
@@ -159,9 +161,22 @@ public final class StringUtils {
         lines.add(string);
         return (String[]) lines.toArray(new String[lines.size()]);
     }
+    
+    /**
+     * Split a string into multiple lines (on newlines).
+     * 
+     * @param string The string to split.
+     * @return The split lines.
+     */
+    public static String[] split(String string) {
+        return SPLIT_LINES.split(string);
+    }
 
+    /**
+     * Do not instantiate.
+     */
     private StringUtils() {
-        // Do not instantiate.
+        throw new UnsupportedOperationException();
     }
 
 }

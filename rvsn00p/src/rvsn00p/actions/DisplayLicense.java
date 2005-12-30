@@ -8,6 +8,7 @@ package rvsn00p.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -20,6 +21,7 @@ import rvsn00p.util.BrowserLauncher;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.4
  */
 final class DisplayLicense extends AbstractAction {
 
@@ -45,7 +47,12 @@ final class DisplayLicense extends AbstractAction {
      */
     public void actionPerformed(ActionEvent event) {
         try {
-            BrowserLauncher.openURL("http://www.apache.org/licenses/LICENSE-2.0.html");
+            final File home = new File(System.getProperty("rvsn00p.home"));
+            final File docs = new File(home, "doc");
+            final File license = new File(docs, "license.html");
+            final String prefix = System.getProperty("os.name").startsWith("Win")
+            ? "" : "file://";
+        BrowserLauncher.openURL(prefix + license.getAbsolutePath());
         } catch (Exception e) {
             UIUtils.showError(ERROR_BROWSER, e);
         }

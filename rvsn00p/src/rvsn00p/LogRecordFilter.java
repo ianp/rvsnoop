@@ -19,6 +19,6 @@ public interface LogRecordFilter {
     /**
      * @return <code>true</code> if the specified record matches the filter.
      */
-    public boolean passes(LogRecord record);
+    public boolean passes(Record record);
 
 }

@@ -20,6 +20,7 @@ import rvsn00p.util.BrowserLauncher;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.4
  */
 final class DisplayHomePage extends AbstractAction {
 

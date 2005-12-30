@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -25,7 +24,6 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Serializer;
 import nu.xom.Text;
-import rvsn00p.util.IOUtils;
 import rvsn00p.util.rv.RvParameters;
 
 /**
@@ -50,7 +48,7 @@ public final class RecentListeners {
     private static RecentListeners instance;
     
     private static Element appendElement(Element parent, String name) {
-        Element child = new Element(name);
+        final Element child = new Element(name);
         parent.appendChild(child);
         return child;
     }
@@ -60,13 +58,13 @@ public final class RecentListeners {
     }
     
     private static String getString(Element parent, String name) {
-        Element child = parent.getFirstChildElement(name);
+        final Element child = parent.getFirstChildElement(name);
         return child != null ? child.getValue().trim() : null;
     }
 
     private static Element setString(Element parent, String name, String value) {
         if (value == null || value.length() == 0) return null;
-        Element child = new Element(name);
+        final Element child = new Element(name);
         parent.appendChild(child);
         child.appendChild(new Text(value));
         return child;
@@ -77,6 +75,7 @@ public final class RecentListeners {
     private final LinkedList listeners = new LinkedList();
 
     private RecentListeners() {
+        super();
         load();
     }
 
@@ -109,8 +108,8 @@ public final class RecentListeners {
     }
 
     private String getFilename() {
-        String home = System.getProperty("user.home");
-        String fs = System.getProperty("file.separator");
+        final String home = System.getProperty("user.home");
+        final String fs = System.getProperty("file.separator");
         return home + fs + CONFIG_DIRECTORY + fs + CONFIG_FILE;
     }
     
@@ -124,30 +123,30 @@ public final class RecentListeners {
     }
 
     private void listenersExport(Element parent) {
-        Iterator iter = listeners.iterator();
+        final Iterator iter = listeners.iterator();
         if (iter == null) return;
         while (iter.hasNext()) {
-            RvParameters params = (RvParameters) iter.next();
-            Element listener = appendElement(parent, RV_LISTENER);
+            final RvParameters params = (RvParameters) iter.next();
+            final Element listener = appendElement(parent, RV_LISTENER);
             setString(listener, RV_SERVICE, params.getService());
             setString(listener, RV_NETWORK, params.getNetwork());
             setString(listener, RV_DAEMON, params.getDaemon());
-            Set subjects = params.getSubjects();
-            if (subjects == null) continue;
-            for (Iterator i = subjects.iterator(); i.hasNext(); )
-                setString(listener, SUBJECT, (String) i.next());
+            final String[] subjects = params.getSubjects();
+            if (subjects == null || subjects.length == 0) continue;
+            for (int i = 0, imax = subjects.length; i < imax; ++i)
+                setString(listener, SUBJECT, subjects[i]);
         }
     }
 
     private void listenersImport(Element parent) {
-        Elements listeners = parent.getChildElements(RV_LISTENER);
+        final Elements listeners = parent.getChildElements(RV_LISTENER);
         for (int i = listeners.size(); i != 0;) {
-            Element listener = listeners.get(--i);
-            String service = getString(listener, RV_SERVICE);
-            String network = getString(listener, RV_NETWORK);
-            String daemon = getString(listener, RV_DAEMON);
-            RvParameters param = new RvParameters(service, network, daemon);
-            Elements subjects = listener.getChildElements(SUBJECT);
+            final Element listener = listeners.get(--i);
+            final String service = getString(listener, RV_SERVICE);
+            final String network = getString(listener, RV_NETWORK);
+            final String daemon = getString(listener, RV_DAEMON);
+            final RvParameters param = new RvParameters(service, network, daemon);
+            final Elements subjects = listener.getChildElements(SUBJECT);
             for (int j = subjects.size(); j != 0;)
                 param.addSubject(subjects.get(--j).getValue());
             add(param);
@@ -155,13 +154,13 @@ public final class RecentListeners {
     }
 
     private void load() {
-        File file = new File(getFilename());
+        final File file = new File(getFilename());
         if (!file.exists()) return;
         InputStream stream = null;
         try {
             stream = new BufferedInputStream(new FileInputStream(file));
-            Document doc = new Builder().build(stream);
-            Element root = doc.getRootElement();
+            final Document doc = new Builder().build(stream);
+            final Element root = doc.getRootElement();
             listenersImport(root);
         } catch (Exception e) {
             System.err.println("Unable to load configuration from " + file.getPath());
@@ -207,17 +206,17 @@ public final class RecentListeners {
     }
 
     public void store() throws IOException {
-        File file = new File(getFilename());
+        final File file = new File(getFilename());
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
         }
-        Element config = new Element(ROOT);
+        final Element config = new Element(ROOT);
         listenersExport(config);
         OutputStream stream = null;
         try {
             stream = new BufferedOutputStream(new FileOutputStream(file));
-            Serializer ser = new Serializer(stream);
+            final Serializer ser = new Serializer(stream);
             ser.setIndent(2);
             ser.setLineSeparator("\n");
             ser.write(new Document(config));

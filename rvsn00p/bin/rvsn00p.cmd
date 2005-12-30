@@ -2,7 +2,9 @@
 rem Start script for RvSn00p @version@ on Windows platforms.
 rem $Id$
 
-title "RvSn00p @version@"
+title RvSn00p @version@
+
+set RVSNOOP_HOME=%~dp0%..
 
 if "no%TIBCO_HOME%"  equ "no" echo "Warning: TIBCO_HOME not set, using C:\TIBCO by default."
 if "no%TIBCO_HOME%"  equ "no" set TIBCO_HOME=C:\TIBCO
@@ -11,8 +13,9 @@ if "no%$TIBRV_HOME%" equ "no" set TIBRV_HOME=%TIBCO_HOME%\tibrv
 
 set PATH=%TIBRV_HOME%\bin;%PATH%
 
-set CP=%~dp0%..\lib\rvsn00p.jar
-set CP=%CP%;%~dp0%..\lib\xom-1.1.jar
+set CP=%RVSNOOP_HOME%\lib\rvsn00p.jar
+set CP=%CP%;%RVSNOOP_HOME%\lib\xom-1.1.jar
+set CP=%CP%;%RVSNOOP_HOME%\lib\forms-1.0.5.jar
 set CP=%CP%;%TIBRV_HOME%\lib\tibrvj.jar
 
 rem Look for optional libraries to add to the classpath.
@@ -24,4 +27,5 @@ if "no%RVTEST_HOME%"    neq "no" for /r %RVTEST_HOME%\lib %%A in (*.jar) do set 
 rem Add the default classpath if present.
 if "no%CLASSPATH%" neq "no" set CP=%CP%;%CLASSPATH%
 
-start javaw -Xmx128m -Dfile.encoding=utf-8 -classpath "%CP%" rvsn00p.StartRvSnooper %*
+rem Change the "start javaw" on the next line to "java" to see a console log of any errors.
+start javaw -Xmx128m -Drvsn00p.home=%RVSNOOP_HOME% -Dfile.encoding=UTF-8 -classpath "%CP%" rvsn00p.StartRvSnooper %*
