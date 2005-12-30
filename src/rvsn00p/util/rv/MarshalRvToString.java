@@ -49,6 +49,8 @@ public final class MarshalRvToString {
                 break;
             } catch (Exception e) {
                 // Try the next one then...
+            } catch (NoClassDefFoundError e) {
+                // Try the next one then...
             }
         implementation = impl;
     }
@@ -88,6 +90,13 @@ public final class MarshalRvToString {
     public static TibrvMsg unmarshal(String string) {
         if (implementation == null) throw new UnsupportedOperationException();
         return implementation.unmarshal(string);
+    }
+
+    /**
+     * Do not instantiate.
+     */
+    private MarshalRvToString() {
+        throw new UnsupportedOperationException();
     }
 
 }
