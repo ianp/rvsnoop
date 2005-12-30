@@ -18,6 +18,7 @@ import com.tibco.tibrv.TibrvMsg;
 class MarshalRvToStringMtreeImpl implements MarshalRvToString.Implementation {
 
     MarshalRvToStringMtreeImpl() {
+        super();
         // Just a sanity check for the classpath.
         new MTree("garbage");
     }
@@ -27,7 +28,7 @@ class MarshalRvToStringMtreeImpl implements MarshalRvToString.Implementation {
     }
 
     public String marshal(String name, TibrvMsg message) {
-        MTree mtree = new MTree(name);
+        final MTree mtree = new MTree(name);
         mtree.use_tibrvMsg(message);
         return mtree.toString();
 

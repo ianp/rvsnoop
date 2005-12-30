@@ -14,8 +14,9 @@ import javax.swing.tree.TreeNode;
 
 import nu.xom.Builder;
 import nu.xom.Document;
-import rvsn00p.util.IOUtils;
-import rvsn00p.util.InterningTrimmingNodeFactory;
+import rvsn00p.IOUtils;
+import rvsn00p.InterningTrimmingNodeFactory;
+import rvsn00p.ui.UIUtils;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
@@ -29,7 +30,7 @@ import com.tibco.tibrv.TibrvXml;
  * @version $Revision$, $Date$
  * @since 1.3
  */
-public class RvTreeNode implements TreeNode {
+public final class RvTreeNode implements TreeNode {
 
     private static final RvTreeNode[] NO_CHILDREN = new RvTreeNode[0];
     
@@ -44,6 +45,7 @@ public class RvTreeNode implements TreeNode {
      * @param field The field represented by this node.
      */
     public RvTreeNode(TreeNode parent, TibrvMsgField field) {
+        super();
         this.field = field;
         this.parent = parent;
     }
@@ -67,11 +69,11 @@ public class RvTreeNode implements TreeNode {
 
     private void fillInChildren() {
         if (field.type == TibrvMsg.XML) {
-            InputStream stream = new ByteArrayInputStream(((TibrvXml) field.data).getBytes());
-            Builder builder = new Builder(false, new InterningTrimmingNodeFactory());
+            final InputStream stream = new ByteArrayInputStream(((TibrvXml) field.data).getBytes());
+            final Builder builder = new Builder(false, new InterningTrimmingNodeFactory());
             try {
-                Document doc = builder.build(stream).getDocument();
-                int numChildren = doc.getChildCount();
+                final Document doc = builder.build(stream).getDocument();
+                final int numChildren = doc.getChildCount();
                 children = new TreeNode[numChildren];
                 for (int i = 0; i < numChildren; ++i)
                     children[i] = new XomTreeNode(this, doc.getChild(i));
@@ -81,14 +83,14 @@ public class RvTreeNode implements TreeNode {
                 IOUtils.closeQuietly(stream);
             }
         } else if (field.type == TibrvMsg.MSG) {
-            TibrvMsg msg = (TibrvMsg) field.data;
-            int numChildren = msg.getNumFields();
+            final TibrvMsg msg = (TibrvMsg) field.data;
+            final int numChildren = msg.getNumFields();
             children = new RvTreeNode[numChildren];
             try {
                 for (int i = 0; i < numChildren; ++i)
                     children[i] = new RvTreeNode(this, msg.getFieldByIndex(i));
             } catch (TibrvException e) {
-                RvUtils.showTibrvException(null, "Error reading field", e);
+                UIUtils.showTibrvException("Error reading field", e);
             }
         } else {
             children = NO_CHILDREN;

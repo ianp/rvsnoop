@@ -25,11 +25,11 @@ public final class RvParameters {
      * @return The configured <code>RvParameters</code> instance.
      */
     public static RvParameters parseConfigurationString(String string) {
-        String[] params = string.split("\\|");
+        final String[] params = string.split("\\|");
         if (params.length != 4)
             throw new IllegalArgumentException(string + " is not a valid configuration string.");
-        RvParameters p = new RvParameters(params[1], params[0], params[2]);
-        String[] subjects = params[3].split(",");
+        final RvParameters p = new RvParameters(params[1], params[0], params[2]);
+        final String[] subjects = params[3].split(",");
         for (int i = 0, imax = subjects.length; i < imax; ++i)
             p.addSubject(subjects[i]);
         return p;
@@ -63,20 +63,20 @@ public final class RvParameters {
     /**
      * The set of subjects to subscribe to.
      */
-    private Set subjects = new HashSet();
+    private final Set subjects = new HashSet();
 
-    public RvParameters() {
-        this("7500", "", "tcp:7500");
-    }
-    
     public RvParameters(String service, String network, String daemon) {
+        super();
         setNetwork(network);
         setService(service);
         setDaemon(daemon);
     }
 
-    public void addSubject(String _subject) {
-        this.subjects.add(_subject);
+    public void addSubject(String subject) {
+        if (subject == null) return;
+        subject = subject.trim();
+        if (subject.length() > 0)
+            subjects.add(subject);
     }
 
     /* (non-Javadoc)
@@ -85,7 +85,10 @@ public final class RvParameters {
     public boolean equals(Object o) {
         if (o == this) return true;
         if (!(o instanceof RvParameters)) return false;
-        return hashCode() == o.hashCode();
+        final RvParameters that = (RvParameters) o;
+        return service.equals(that.service)
+            && network.equals(that.network)
+            && daemon.equals(that.daemon);
     }
 
     /**
@@ -104,6 +107,10 @@ public final class RvParameters {
      */
     public String getNetwork() {
         return network;
+    }
+    
+    public int getNumSubjects() {
+        return subjects.size();
     }
 
     /**
@@ -124,16 +131,15 @@ public final class RvParameters {
      */
     public String getSubjectsAsString() {
         if (subjects.size() == 0) return "";
-        StringBuffer buffer = new StringBuffer();
-        Iterator i = subjects.iterator();
-        while (i.hasNext())
+        final StringBuffer buffer = new StringBuffer();
+        for (final Iterator i = subjects.iterator(); i.hasNext();)
             buffer.append(i.next()).append(",");
         buffer.setLength(buffer.length() - 1);
         return buffer.toString();
     }
 
-    public Set getSubjects(){
-         return subjects;
+    public String[] getSubjects(){
+         return (String[]) subjects.toArray(new String[subjects.size()]);
     }
 
     /**
@@ -143,9 +149,9 @@ public final class RvParameters {
      */
     public int hashCode() {
         if (hashCode == 0) {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(network).append(service).append(daemon);
-            hashCode = buffer.hashCode();
+            hashCode = new StringBuffer()
+                .append(network).append(service).append(daemon)
+                .hashCode();
         }
         return hashCode;
     }
@@ -175,22 +181,23 @@ public final class RvParameters {
         this.service = service != null ? service : "";
     }
 
-    public void setSubjects(Set subjects) {
+    public void setSubjects(String[] subjects) {
         if (subjects == null) throw new NullPointerException();
         this.subjects.clear();
-        this.subjects.addAll(subjects);
+        if (subjects != null)
+            for (int i = 0, imax = subjects.length; i < imax; ++i)
+                addSubject(subjects[i]);
     }
 
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        final StringBuffer buffer = new StringBuffer();
         buffer.append(daemon).append("|");
         buffer.append(service).append("|");
         buffer.append(network).append("|");
-        Iterator i = subjects.iterator();
-        while (i.hasNext())
+        for (final Iterator i = subjects.iterator(); i.hasNext();)
             buffer.append(i.next()).append(",");
         buffer.setLength(buffer.length() - 1);
         return buffer.toString();

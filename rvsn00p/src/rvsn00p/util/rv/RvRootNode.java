@@ -10,6 +10,8 @@ import java.util.Enumeration;
 
 import javax.swing.tree.TreeNode;
 
+import rvsn00p.ui.UIUtils;
+
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
 import com.tibco.tibrv.TibrvMsgField;
@@ -23,7 +25,7 @@ import com.tibco.tibrv.TibrvMsgField;
  * @version $Revision$, $Date$
  * @since 1.3
  */
-public class RvRootNode implements TreeNode {
+public final class RvRootNode implements TreeNode {
 
     final RvTreeNode[] children;
     
@@ -33,6 +35,7 @@ public class RvRootNode implements TreeNode {
      * @param message The message represented by this node.
      */
     public RvRootNode(TibrvMsg message) {
+        super();
         children = new RvTreeNode[message.getNumFields()];
         this.message = message;
     }
@@ -65,10 +68,10 @@ public class RvRootNode implements TreeNode {
     public TreeNode getChildAt(int childIndex) {
         if (children[childIndex] == null) {
             try {
-                TibrvMsgField f = message.getFieldByIndex(childIndex);
+                final TibrvMsgField f = message.getFieldByIndex(childIndex);
                 children[childIndex] = new RvTreeNode(this, f);
             } catch (TibrvException e) {
-                RvUtils.showTibrvException(null, "Error reading field", e);
+                UIUtils.showTibrvException("Error reading field", e);
             }
         }
         return children[childIndex];

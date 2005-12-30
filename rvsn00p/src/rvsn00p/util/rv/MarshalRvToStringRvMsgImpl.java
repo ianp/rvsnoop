@@ -19,8 +19,7 @@ import com.tibco.tibrv.TibrvMsg;
 final class MarshalRvToStringRvMsgImpl implements MarshalRvToString.Implementation {
 
     MarshalRvToStringRvMsgImpl() {
-        // Just a sanity check for the classpath.
-        new TibrvMsg();
+        super();
     }
 
     public String getName() {

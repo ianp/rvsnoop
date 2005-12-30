@@ -22,7 +22,7 @@ import com.tibco.tibrv.TibrvMsg;
  */
 public class MarshalRvToStringRvTestImpl implements MarshalRvToString.Implementation {
 
-    private XMLConverter converter = new XMLConverter();
+    private final XMLConverter converter = new XMLConverter();
     
     MarshalRvToStringRvTestImpl() {
         super();

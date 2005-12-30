@@ -17,7 +17,7 @@ import com.tibco.tibrv.TibrvMsg;
  */
 final class MarshalRvToStringRvScriptImpl implements MarshalRvToString.Implementation {
 
-    private tibrvXmlConvert converter = new tibrvXmlConvert();
+    private final tibrvXmlConvert converter = new tibrvXmlConvert();
 
     MarshalRvToStringRvScriptImpl() {
         super();

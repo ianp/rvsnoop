@@ -31,6 +31,7 @@ public class XomTreeNode implements TreeNode {
     private final TreeNode parent;
     
     public XomTreeNode(TreeNode parent, Node node) {
+        super();
         this.parent = parent;
         this.node = node;
     }
@@ -53,8 +54,8 @@ public class XomTreeNode implements TreeNode {
     }
 
     private void fillInChildren() {
-        ParentNode pn = (ParentNode) node;
-        int numChildren = pn.getChildCount();
+        final ParentNode pn = (ParentNode) node;
+        final int numChildren = pn.getChildCount();
         if (numChildren == 0) {
             children = NO_CHILDREN;
             return;
