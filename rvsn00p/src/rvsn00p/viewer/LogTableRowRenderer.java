@@ -11,7 +11,7 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import rvsn00p.LogRecord;
+import rvsn00p.Record;
 import rvsn00p.MsgType;
 
 /**
@@ -23,12 +23,16 @@ import rvsn00p.MsgType;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public class LogTableRowRenderer extends DefaultTableCellRenderer {
+final class LogTableRowRenderer extends DefaultTableCellRenderer {
 
-    private static final long serialVersionUID = 1687156505046434584L;
-    protected boolean _highlightFatal = true;
-    protected Color _color = new Color(230, 230, 230);
+    private static final long serialVersionUID = 1687156505046434585L;
 
+    private final Color _color = new Color(230, 230, 230);
+
+    public LogTableRowRenderer() {
+        super();
+    }
+    
     public Component getTableCellRendererComponent(JTable table,
                                                    Object value,
                                                    boolean isSelected,
@@ -36,25 +40,16 @@ public class LogTableRowRenderer extends DefaultTableCellRenderer {
                                                    int row,
                                                    int col) {
 
-        if ((row % 2) == 0) {
-            setBackground(_color);
-        } else {
-            setBackground(Color.white);
-        }
+        setBackground(row % 2 == 0 ? _color : Color.WHITE);
 
-        FilteredLogTableModel model = (FilteredLogTableModel) table.getModel();
-        LogRecord record = model.getFilteredRecord(row);
+        final FilteredLogTableModel model = (FilteredLogTableModel) table.getModel();
+        final Record record = model.getFilteredRecord(row);
 
         setForeground(getLogLevelColor(record.getType()));
-
-        return (super.getTableCellRendererComponent(table,
-                                                    value,
-                                                    isSelected,
-                                                    hasFocus,
-                                                    row, col));
+        return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
     }
 
-    protected Color getLogLevelColor(MsgType level) {
+    private Color getLogLevelColor(MsgType level) {
         return (Color) MsgType.getLogLevelColorMap().get(level);
     }
 

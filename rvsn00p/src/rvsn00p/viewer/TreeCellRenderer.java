@@ -15,6 +15,7 @@ import com.tibco.tibrv.TibrvIPAddr;
 import com.tibco.tibrv.TibrvIPPort;
 import com.tibco.tibrv.TibrvMsg;
 
+import rvsn00p.ui.Icons;
 import rvsn00p.util.rv.RvRootNode;
 import rvsn00p.util.rv.RvTreeNode;
 import rvsn00p.util.rv.XomTreeNode;
@@ -37,6 +38,8 @@ import nu.xom.Text;
  */
 final class TreeCellRenderer extends DefaultTreeCellRenderer {
     
+    static String ARRAY_OF = "Array of ";
+
     private static final long serialVersionUID = -840075635921919631L;
 
     public TreeCellRenderer() {
@@ -44,9 +47,9 @@ final class TreeCellRenderer extends DefaultTreeCellRenderer {
     }
 
     private String getRvTreeCellValue(RvTreeNode node) {
-        StringBuffer buffer = new StringBuffer();
+        final StringBuffer buffer = new StringBuffer();
         buffer.append(node.getFieldName()).append(" = ");
-        short type = node.getFieldType();
+        final short type = node.getFieldType();
         if (type >= TibrvMsg.USER_FIRST && type <= TibrvMsg.USER_LAST)
             return buffer.append(((byte[]) node.getFieldData()).length).append(" bytes of custom user data.").toString();
         switch (type) {
@@ -55,22 +58,22 @@ final class TreeCellRenderer extends DefaultTreeCellRenderer {
             return buffer.append(((byte[]) node.getFieldData()).length).append(" bytes of encrypted data.").toString();
         case TibrvMsg.F32ARRAY:
             setIcon(Icons.RV_FIELD);
-            return buffer.append("Array of ").append(((Float[]) node.getFieldData()).length).append(" single precision floating point values.").toString();
+            return buffer.append(ARRAY_OF).append(((float[]) node.getFieldData()).length).append(" single precision floating point values.").toString();
         case TibrvMsg.F64ARRAY:
             setIcon(Icons.RV_FIELD);
-            return buffer.append("Array of ").append(((Double[]) node.getFieldData()).length).append(" double precision floating point values.").toString();
+            return buffer.append(ARRAY_OF).append(((double[]) node.getFieldData()).length).append(" double precision floating point values.").toString();
         case TibrvMsg.I8ARRAY:
             setIcon(Icons.RV_FIELD);
-            return buffer.append("Array of ").append(((Integer[]) node.getFieldData()).length).append(" 8-bit integer values.").toString();
+            return buffer.append(ARRAY_OF).append(((int[]) node.getFieldData()).length).append(" 8-bit integer values.").toString();
         case TibrvMsg.I16ARRAY:
             setIcon(Icons.RV_FIELD);
-            return buffer.append("Array of ").append(((Long[]) node.getFieldData()).length).append(" 16-bit integer values.").toString();
+            return buffer.append(ARRAY_OF).append(((long[]) node.getFieldData()).length).append(" 16-bit integer values.").toString();
         case TibrvMsg.I32ARRAY:
             setIcon(Icons.RV_FIELD);
-            return buffer.append("Array of ").append(((Integer[]) node.getFieldData()).length).append(" 32-bit integer values.").toString();
+            return buffer.append(ARRAY_OF).append(((int[]) node.getFieldData()).length).append(" 32-bit integer values.").toString();
         case TibrvMsg.I64ARRAY:
             setIcon(Icons.RV_FIELD);
-            return buffer.append("Array of ").append(((Long[]) node.getFieldData()).length).append(" 64-bit integer values.").toString();
+            return buffer.append(ARRAY_OF).append(((long[]) node.getFieldData()).length).append(" 64-bit integer values.").toString();
         case TibrvMsg.IPADDR32:
             setIcon(Icons.RV_FIELD);
             return buffer.append("IP Address: ").append(((TibrvIPAddr) node.getFieldData()).getAsString()).toString();
@@ -108,7 +111,7 @@ final class TreeCellRenderer extends DefaultTreeCellRenderer {
     }
     
     private String getXomTreeCellValue(XomTreeNode node) {
-        Node value = node.getXomNode();
+        final Node value = node.getXomNode();
         if (value instanceof Attribute) {
             setIcon(Icons.XML_ATTRIBUTE);
             return ((Attribute) value).getLocalName();

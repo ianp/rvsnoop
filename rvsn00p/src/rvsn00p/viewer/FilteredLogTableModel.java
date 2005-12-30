@@ -6,17 +6,19 @@
 package rvsn00p.viewer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import rvsn00p.LogRecord;
+import rvsn00p.Record;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.PassingLogRecordFilter;
 import rvsn00p.StringUtils;
 import rvsn00p.util.HTMLEncoder;
+import rvsn00p.util.rv.MarshalRvToString;
 
 /**
  * A TableModel for LogRecords which includes filtering support.
@@ -27,19 +29,16 @@ import rvsn00p.util.HTMLEncoder;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public class FilteredLogTableModel extends AbstractTableModel {
+public final class FilteredLogTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 3614054890778884099L;
     private LogRecordFilter _filter = new PassingLogRecordFilter();
-    private List _allRecords = new ArrayList();
+    private final List _allRecords = new ArrayList();
     private List _filteredRecords;
-    int _maxNumberOfLogRecords = 5000;
-    private String[] _colNames = {"Date",
-                                    "Msg#",
-                                    "Type",
-                                    "Subject",
-                                    "Tracking ID",
-                                    "Message"};
+
+    private int maxRecords = 5000;
+    
+    private final String[] _colNames = { "Date", "Msg#", "Type", "Subject", "Tracking ID", "Message" };
 
     private static int _lastHTMLBufLength = 1000;
 
@@ -49,10 +48,6 @@ public class FilteredLogTableModel extends AbstractTableModel {
 
     public void setLogRecordFilter(LogRecordFilter filter) {
         _filter = filter;
-    }
-
-    public LogRecordFilter getLogRecordFilter() {
-        return _filter;
     }
 
     public String getColumnName(int i) {
@@ -72,24 +67,14 @@ public class FilteredLogTableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int row, int col) {
-        LogRecord record = getFilteredRecord(row);
+        final Record record = getFilteredRecord(row);
         return getColumn(col, record);
     }
 
-    public void setMaxNumberOfLogRecords(int maxNumRecords) {
-        if (maxNumRecords > 0) {
-            _maxNumberOfLogRecords = maxNumRecords;
-        }
-
-    }
-
-    public synchronized boolean addLogRecord(LogRecord record) {
-
+    public synchronized boolean addLogRecord(Record record) {
         _allRecords.add(record);
-
-        if (_filter.passes(record) == false) {
+        if (!_filter.passes(record))
             return false;
-        }
         getFilteredRecords().add(record);
         fireTableRowsInserted(getRowCount(), getRowCount());
         trimRecords();
@@ -104,12 +89,17 @@ public class FilteredLogTableModel extends AbstractTableModel {
         _filteredRecords = createFilteredRecordsList();
         fireTableDataChanged();
     }
+    
+    public synchronized void removeAll(Collection records) {
+        _allRecords.removeAll(records);
+        _filteredRecords.removeAll(records);
+        fireTableDataChanged();
+    }
 
     public synchronized void fastRefresh() {
         _filteredRecords.remove(0);
         fireTableRowsDeleted(0, 0);
     }
-
 
     /**
      * Clears all records from the LogTableModel
@@ -120,39 +110,34 @@ public class FilteredLogTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    protected List getFilteredRecords() {
-        if (_filteredRecords == null) {
+    public List getFilteredRecords() {
+        if (_filteredRecords == null)
             refresh();
-        }
         return _filteredRecords;
     }
 
-    protected List createFilteredRecordsList() {
-        List result = new ArrayList();
-        Iterator records = _allRecords.iterator();
-        LogRecord current;
-        while (records.hasNext()) {
-            current = (LogRecord) records.next();
-            if (_filter.passes(current)) {
-                result.add(current);
-            }
+    private List createFilteredRecordsList() {
+        final List result = new ArrayList();
+        for (final Iterator iter = _allRecords.iterator(); iter.hasNext();) {
+            final Record record = (Record) iter.next();
+            if (_filter.passes(record))
+                result.add(record);
         }
         return result;
     }
 
     /**
      * Returns a HTML table representation of the filtered records
-     * @param dfMgr the date formt manager used
      */
     public StringBuffer createFilteredHTMLTable() {
         //use a buffer with the same size as the last used one
         final StringBuffer strbuf = new StringBuffer(_lastHTMLBufLength);
         final Iterator records = _filteredRecords.iterator();
         final StringBuffer buffer = new StringBuffer();
-        LogRecord current;
+        Record current;
         addHtmlTableHeaderString(strbuf);
         while (records.hasNext()) {
-            current = (LogRecord) records.next();
+            current = (Record) records.next();
 
             strbuf.append("<tr>\n\t");
             addHTMLTDString(current, strbuf, buffer);
@@ -173,9 +158,9 @@ public class FilteredLogTableModel extends AbstractTableModel {
     public StringBuffer createFilteredTextFromMsg() {
         final StringBuffer strbuf = new StringBuffer();
         final Iterator records = _filteredRecords.iterator();
-        LogRecord current;
+        Record current;
         while (records.hasNext()) {
-            current = (LogRecord) records.next();
+            current = (Record) records.next();
             strbuf.append("\n");
             strbuf.append(current.getMessage());
         }
@@ -185,12 +170,12 @@ public class FilteredLogTableModel extends AbstractTableModel {
     }
 
     /**
-     * Adda a HTML <td> String representation of this LogRecord to the buf parameter.
+     * Adda a HTML <td> String representation of this Record to the buf parameter.
      * @param lr the logrecord
      * @param buf the stringbuffer to add the <td> string representation
      * @param dfMgr the date formt manager used
      */
-    protected void addHTMLTDString(LogRecord lr, StringBuffer buf, StringBuffer Tbuffer) {
+    private void addHTMLTDString(Record lr, StringBuffer buf, StringBuffer Tbuffer) {
         if (lr != null) {
             for (int i = 0; i < getColumnCount(); ++i) {
 
@@ -214,7 +199,7 @@ public class FilteredLogTableModel extends AbstractTableModel {
     }
 
 
-    protected void addHtmlTableHeaderString(StringBuffer buf) {
+    private void addHtmlTableHeaderString(StringBuffer buf) {
         // table parameters
         buf.append("<table border=\"1\" width=\"100%\">\n");
         buf.append("<tr>\n");
@@ -233,52 +218,50 @@ public class FilteredLogTableModel extends AbstractTableModel {
         buf.append("</tr>\n");
     }
 
-    protected LogRecord getFilteredRecord(int row) {
+    public Record getFilteredRecord(int row) {
         final List records = getFilteredRecords();
         final int size = records.size();
         if (row < size) {
-            return (LogRecord) records.get(row);
+            return (Record) records.get(row);
         }
         // a minor problem has happened. JTable has asked for
         // a row outside the bounds, because the size of
         // _filteredRecords has changed while it was looping.
         // return the last row.
-        return (LogRecord) records.get(size - 1);
+        return (Record) records.get(size - 1);
 
     }
 
-    protected Object getColumn(int col, LogRecord lr) {
+    private Object getColumn(int col, Record lr) {
         if (lr == null) {
             return "NULL Column";
         }
 
         switch (col) {
             case 0:
-                return StringUtils.format(new Date(lr.getMillis()));
+                return StringUtils.format(new Date(lr.getTimestamp()));
             case 1:
                 return String.valueOf(lr.getSequenceNumber());
             case 2:
                 return lr.getType();
             case 3:
-                return lr.getSubject();
+                return lr.getSendSubject();
             case 4:
-                return lr.getTrackingID();
+                return lr.getTrackingId();
             case 5:
                 return lr.getMessage();
             default:
-                String message = "The column number " + col + " must be between 0 and 5";
-                throw new IllegalArgumentException(message);
+                throw new IllegalArgumentException("The column number " + col + " must be between 0 and 5");
         }
     }
 
-    protected void addColumnToStringBuffer(StringBuffer sb, int col, LogRecord lr) {
-        if (lr == null) {
+    private void addColumnToStringBuffer(StringBuffer sb, int col, Record lr) {
+        if (lr == null)
             sb.append("NULL Column");
-        }
 
         switch (col) {
             case 0:
-                sb.append(StringUtils.format(new Date(lr.getMillis())));
+                sb.append(StringUtils.format(new Date(lr.getTimestamp())));
                 break;
             case 1:
                 sb.append(lr.getSequenceNumber());
@@ -287,17 +270,16 @@ public class FilteredLogTableModel extends AbstractTableModel {
                 sb.append(lr.getType().toString());
                 break;
             case 3:
-                sb.append(lr.getSubjectAsStringBuffer());
+                sb.append(lr.getSendSubject());
                 break;
             case 4:
-                sb.append(lr.getTrackingIDStringBuffer());
+                sb.append(lr.getTrackingId());
                 break;
             case 5:
-                sb.append("message with ").append(lr.getMessage().getNumFields()).append(" fields");
+                sb.append(MarshalRvToString.marshal("", lr.getMessage()));
                 break;
             default:
-                String message = "The column number " + col + " must be between 0 and 5";
-                throw new IllegalArgumentException(message);
+                throw new IllegalArgumentException("The column number " + col + " must be between 0 and 5");
         }
     }
 
@@ -308,25 +290,25 @@ public class FilteredLogTableModel extends AbstractTableModel {
      * This method & clearLogRecords() are synchronized so we don't
      * delete rows that don't exist.
      */
-    protected void trimRecords() {
+    private void trimRecords() {
         if (needsTrimming()) {
             trimOldestRecords();
         }
     }
 
-    protected boolean needsTrimming() {
-        return (_allRecords.size() > _maxNumberOfLogRecords);
+    private boolean needsTrimming() {
+        return (_allRecords.size() > maxRecords);
     }
 
-    protected void trimOldestRecords() {
+    private void trimOldestRecords() {
         synchronized (_allRecords) {
             final int trim = numberOfRecordsToTrim();
             if (trim > 1) {
-                List oldRecords = _allRecords.subList(0, trim);
+                final List oldRecords = _allRecords.subList(0, trim);
 
 //                final Iterator records = oldRecords.iterator();
 //                while (records.hasNext()) {
-//                    LogRecord.freeInstance((LogRecord) records.next());
+//                    Record.freeInstance((Record) records.next());
 //                }
                 oldRecords.clear();
                 refresh();
@@ -339,7 +321,22 @@ public class FilteredLogTableModel extends AbstractTableModel {
     }
 
     private int numberOfRecordsToTrim() {
-        return _allRecords.size() - _maxNumberOfLogRecords;
+        return _allRecords.size() - maxRecords;
+    }
+
+    /**
+     * @param maxRecords The maxRecords to set.
+     */
+    public void setMaxRecords(int maxRecords) {
+        if (maxRecords > 0)
+            this.maxRecords = maxRecords;
+    }
+
+    /**
+     * @return Returns the maxRecords.
+     */
+    public int getMaxRecords() {
+        return maxRecords;
     }
 
 }
