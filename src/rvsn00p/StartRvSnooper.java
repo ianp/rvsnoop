@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.swing.UIManager;
+
 import rvsn00p.util.rv.RvParameters;
 import rvsn00p.viewer.RvSnooperGUI;
 
@@ -28,7 +30,7 @@ import rvsn00p.viewer.RvSnooperGUI;
 public final class StartRvSnooper {
 
     private static void displayUsageAndExit() {
-        System.out.print(RvSnooperGUI.VERSION);
+        System.out.print(Version.getAsStringWithName());
         System.out.println("Usage: java rvsn00p.StartRvSnooper [-title <t>] [-{textonly|treeonly}] [<daemon>|<service>|<network>|<subjects>] ...");
         System.out.println("");
         System.out.println("  -title    : set the window title to <title>.");
@@ -49,11 +51,11 @@ public final class StartRvSnooper {
      * @return <code>true</code> if the JVM is OK, <code>false</code> otherwise.
      */
     private static boolean isCorrectJavaVersion() {
-        String ver = System.getProperty("java.version");
+        final String ver = System.getProperty("java.version");
         try {
-            StringTokenizer st = new StringTokenizer(ver, "._-");
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
+            final StringTokenizer st = new StringTokenizer(ver, "._-");
+            final int a = Integer.parseInt(st.nextToken());
+            final int b = Integer.parseInt(st.nextToken());
             if (a > 1) return true;
             if (b > 4) return true;
             return st.hasMoreTokens() && Integer.parseInt(st.nextToken()) > 1;
@@ -68,14 +70,14 @@ public final class StartRvSnooper {
      * 
      * @param args The command line arguments.
      */
-    public final static void main(String[] args) {
+    public static void main(String[] args) {
         args = args != null ? args : new String[0];
         int startAt = 0;
         String title = null;
         boolean text = true, tree = true;
 
         while (startAt < args.length && args[startAt].charAt(0) == '-') {
-            String arg = args[startAt++].substring(1);
+            final String arg = args[startAt++].substring(1);
             if ("h".equals(arg)) {
                 displayUsageAndExit();
             } else if ("title".equals(arg)) {
@@ -92,19 +94,23 @@ public final class StartRvSnooper {
         if (!isCorrectJavaVersion())
             System.err.println("Warning: Java version 1.4.2 or higher is required");
 
-        Set setRvListenersParam = new HashSet();
-        if (args.length > 0) {
-            for (int iarg = startAt; args.length > iarg; ++iarg)
-                setRvListenersParam.add(RvParameters.parseConfigurationString(args[iarg]));
-            System.out.print(RvSnooperGUI.VERSION);
-            System.out.print(" on " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version"));
-            System.out.print(" " + System.getProperty("os.name") + " " + System.getProperty("os.arch"));
-            System.out.println(" " + System.getProperty("os.version"));
+        final Set setRvListenersParam = new HashSet();
+        for (int i = startAt, imax = args.length; i < imax; ++i)
+            setRvListenersParam.add(RvParameters.parseConfigurationString(args[i]));
+        
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
+            // Intentionally ignored.
         }
-        RvSnooperGUI gui = new RvSnooperGUI(
-                MsgType.getAllDefaultLevels(), setRvListenersParam, title, tree, text);
-        gui.show();
-
+        new RvSnooperGUI(setRvListenersParam, title, tree, text).show();
+    }
+    
+    /**
+     * Do not instantiate.
+     */
+    private StartRvSnooper() {
+        throw new UnsupportedOperationException();
     }
 
 }

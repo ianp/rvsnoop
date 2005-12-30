@@ -19,6 +19,7 @@ import rvsn00p.util.BrowserLauncher;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.4
  */
 final class DisplayWishList extends AbstractAction {
 
@@ -34,7 +35,7 @@ final class DisplayWishList extends AbstractAction {
 
     public DisplayWishList(String name, String url) {
         super(name);
-        putValue(Action.ACTION_COMMAND_KEY, ID);
+        putValue(Action.ACTION_COMMAND_KEY, ID + "-" + url);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
         this.url = url;
     }

@@ -23,9 +23,15 @@ import rvsn00p.StringUtils;
 
 /**
  * Singleton action instances.
- *
+ * <p>
+ * All of the actions are package private and should be accessed via this class.
+ * This is done to allow the use of actions to enforce modularity in the code
+ * whilst preventing application state from being scattered throughout too many
+ * classes.
+ * 
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.4
  */
 public final class Actions {
 
@@ -34,7 +40,7 @@ public final class Actions {
     
     private static final KeyListener acceleratorKeyListener = new KeyAdapter() {
         public void keyTyped(KeyEvent e) {
-            Action a = (Action) acceleratorKeyMap.get(KeyStroke.getKeyStrokeForEvent(e));
+            final Action a = (Action) acceleratorKeyMap.get(KeyStroke.getKeyStrokeForEvent(e));
             if (a == null) return;
             a.actionPerformed(new ActionEvent(e.getSource(), e.getID(),
                 (String) a.getValue(Action.ACTION_COMMAND_KEY)));
@@ -45,7 +51,15 @@ public final class Actions {
     // String -> Action
     private static final Map actionCommandMap = new HashMap();
 
+    public static final Action CHANGE_TABLE_FONT = add(new ChangeTableFont());
+
     public static final Action CHECK_FOR_UPDATES = add(new CheckForUpdates());
+
+    public static final Action COPY = add(new Copy());
+
+    public static final Action CUT = add(new Cut());
+
+    public static final Action DELETE = add(new Delete());
     
     public static final Action DISPLAY_ABOUT = add(new DisplayAbout());
     
@@ -56,19 +70,29 @@ public final class Actions {
     public static final Action DISPLAY_WL_IAN = add(new DisplayWishList("Ian’s Wish List", "http://www.amazon.co.uk/gp/registry/registry.html/202-6461367-3647865?id=32RLYO966NV3B"));
 
     public static final Action DISPLAY_WL_ORJAN = add(new DisplayWishList("Örjan’s Wish List", "http://www.amazon.co.uk/gp/registry/registry.html/203-5255811-7236765?id=14PROST9BIEH3"));
+
+    public static final Action HELP = add(new Help());
+
+    public static final Action PASTE = add(new Paste());
+
+    public static final Action PRUNE_EMPTY_SUBJECTS = add(new PruneEmptySubjects());
     
     public static final Action REPORT_BUG = add(new ReportBug());
+
+    public static final Action SEARCH = add(new Search(Search.SEARCH, "Find...", "Search for text in the messages", KeyEvent.VK_F));
+
+    public static final Action SEARCH_AGAIN = add(new Search(Search.SEARCH_AGAIN, "Find Again", "Repeat the last search", KeyEvent.VK_G));
 
     public static final Action SUBSCRIBE_TO_UPDATES = add(new SubscribeToUpdates());
     
     static String WARN_ACCEL_REDEFINITION = "Redefining accelerator key {0} from {1} to {2}.";
     
     private static Action add(Action action) {
-        String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
+        final String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
         actionCommandMap.put(command, action);
-        KeyStroke accelerator = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
+        final KeyStroke accelerator = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
         if (accelerator != null) {
-            Object old = acceleratorKeyMap.put(accelerator, action);
+            final Object old = acceleratorKeyMap.put(accelerator, action);
             if (old != null)
                 System.out.println(StringUtils.format(WARN_ACCEL_REDEFINITION, new Object[] { accelerator, ((Action) old).getValue(Action.ACTION_COMMAND_KEY), command }));
         }

@@ -11,6 +11,7 @@ package rvsn00p;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.4
  */
 public final class Version {
 
@@ -27,11 +28,22 @@ public final class Version {
     }
     
     public static String getAsString() {
-        return "1.3.0";
+        // The funny-looking version string will be substituted with
+        // the correct value as part of the Ant build.
+        return "@version@";
     }
     
+    public static String getAsStringWithName() {
+        // The funny-looking version string will be substituted with
+        // the correct value as part of the Ant build.
+        return "RvSn00p @version@";
+    }
+    
+    /**
+     * Do not instantiate.
+     */
     private Version() {
-        // Do not instantiate.
+        throw new UnsupportedOperationException();
     }
 
 }

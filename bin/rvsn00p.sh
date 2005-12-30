@@ -2,6 +2,8 @@
 # Start script for RvSn00p @version@ on Unix platforms.
 # $Id$
 
+export RVSNOOP_HOME=`dirname $0`/..
+
 if [ -z "$TIBCO_HOME" ] ; then
     echo Warning: TIBCO_HOME not set, using /opt/tibco by default.
     export TIBCO_HOME=/opt/tibco
@@ -12,8 +14,9 @@ if [ -z "$TIBRV_HOME" ] ; then
     export TIBRV_HOME=$TIBCO_HOME/tibrv
 fi
 
-CP=`dirname $0`/../lib/rvsn00p.jar:`dirname $0`/../lib/xom-1.1.jar:$TIBRV_HOME/lib/tibrvj.jar
-LP=$TIBRV_HOME/bin:$TIBRV_HOME/lib
+CP="$RVSNOOP_HOME/lib/rvsn00p.jar:$RVSNOOP_HOME/lib/xom-1.1.jar"
+CP="$CP:$RVSNOOP_HOME/lib/forms-1.0.5.jar:$TIBRV_HOME/lib/tibrvj.jar"
+LP="$TIBRV_HOME/bin:$TIBRV_HOME/lib"
 
 if [ -n "$TIBCO_TRA_HOME" ] ; then
     CP=$CP:$TIBCO_TRA_HOME/lib/TIBCOrt.jar
@@ -32,6 +35,8 @@ export SHLIB_PATH=$LP      # HP-UX
 export DYLIB_PATH=$LP      # Darwin
 export LD_LIBRARY_PATH=$LP # Solaris & Linux
 
-java -Xmx128m -Dfile.encoding=utf-8 -Djava.library.path="$LP" \
+java -Xmx128m \
+  -Drvsn00p.home="$RVSNOOP_HOME" \
+  -Dfile.encoding=UTF-8 \
+  -Djava.library.path="$LP" \
   -classpath "$CP" rvsn00p.StartRvSnooper $* &
-

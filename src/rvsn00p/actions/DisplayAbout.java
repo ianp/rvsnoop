@@ -14,7 +14,7 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 import rvsn00p.Version;
-import rvsn00p.viewer.Icons;
+import rvsn00p.ui.Icons;
 import rvsn00p.viewer.RvSnooperGUI;
 
 /**
@@ -22,6 +22,7 @@ import rvsn00p.viewer.RvSnooperGUI;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.4
  */
 final class DisplayAbout extends AbstractAction {
 
@@ -47,27 +48,27 @@ final class DisplayAbout extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         JOptionPane.showMessageDialog(
             RvSnooperGUI.getAppFrame(),
-            new String[]{"RvSn00p " + Version.getAsString(),
-                         "",
-                         "Constructed by Örjan Lundberg (lundberg@home.se)",
-                         " and Ian Phillips (ianp@ianp.org)",
-                         "",
-                         "This product includes software developed by",
-                         "The Apache Software Foundation (http://www.apache.org).",
-                         "",
-                         "Thanks goes to (in no special order):",
-                         "  Eric Albert, Stefan Axelsson, Thomas Bonderud,",
-                         "  Stefan Farestam, Johan Hjort, Joe Jensen",
-                         "  Magnus L Johansson, Anders Lindlof, Linda Lundberg",
-                         "  Stephanie Lundberg, Cedric Rouvrais, and Richard Valk.",
-                         "",
-                         "Copyright © 2002-@year@ Apache Software Foundation.",
-                         "Copyright © 2005 Ian Phillips.",
-                         "",
-                         "Licensed under the Apache License, Version 2.0.",
-                         "  A copy of the license has been included with this",
-                         "  distribution as doc/license.xhtml, or may be obtained",
-                         "  from http://www.apache.org/licenses/LICENSE-2.0.html"},
+            new String[] { "RvSn00p " + Version.getAsString(),
+                           " ",
+                           "Constructed by Örjan Lundberg (lundberg@home.se)",
+                           " and Ian Phillips (ianp@ianp.org)",
+                           " ",
+                           "This product includes software developed by",
+                           "The Apache Software Foundation (http://www.apache.org).",
+                           " ",
+                           "Thanks goes to (in no special order):",
+                           "  Eric Albert, Stefan Axelsson, Thomas Bonderud,",
+                           "  Stefan Farestam, Johan Hjort, Joe Jensen",
+                           "  Magnus L Johansson, Anders Lindlof, Linda Lundberg",
+                           "  Stephanie Lundberg, Cedric Rouvrais, and Richard Valk.",
+                           " ",
+                           "Copyright © 2002-@year@ Apache Software Foundation.",
+                           "Copyright © 2005-@year@ Ian Phillips.",
+                           " ",
+                           "Licensed under the Apache License, Version 2.0.",
+                           "  A copy of the license has been included with this",
+                           "  distribution as doc/license.xhtml, or may be obtained",
+                           "  from http://www.apache.org/licenses/LICENSE-2.0.html" },
             NAME, JOptionPane.PLAIN_MESSAGE);
     }
 

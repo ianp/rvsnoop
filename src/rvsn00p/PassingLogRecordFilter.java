@@ -14,12 +14,16 @@ package rvsn00p;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public class PassingLogRecordFilter implements LogRecordFilter {
+public final class PassingLogRecordFilter implements LogRecordFilter {
 
+    public PassingLogRecordFilter() {
+        super();
+    }
+    
     /**
-     * @return true;
+     * @return Always returns <code>true</code>.
      */
-    public boolean passes(LogRecord record) {
+    public boolean passes(Record record) {
         return true;
     }
 
