@@ -6,7 +6,17 @@
 //:SVNID:   $Id$
 package rvsn00p.ui;
 
+import java.awt.event.KeyEvent;
+
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+
+import com.tibco.tibrv.TibrvException;
 
 import rvsn00p.viewer.RvSnooperGUI;
 
@@ -22,8 +32,17 @@ public final class UIUtils {
 
     static String INFORMATION_TITLE = "Information";
     
+    public static void configureOKAndCancelButtons(JPanel panel, Action ok, Action cancel) {
+        final ActionMap actionMap = panel.getActionMap();
+        actionMap.put(cancel.getValue(Action.ACTION_COMMAND_KEY), cancel);
+        actionMap.put(ok.getValue(Action.ACTION_COMMAND_KEY), ok);
+        final InputMap inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), cancel.getValue(Action.ACTION_COMMAND_KEY));
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ok.getValue(Action.ACTION_COMMAND_KEY));
+    }
+    
     public static void showError(String message, Exception exception) {
-        String s = exception.getLocalizedMessage();
+        final String s = exception.getLocalizedMessage();
         if (s == null)
             JOptionPane.showMessageDialog(RvSnooperGUI.getAppFrame(), message, ERROR_TITLE, JOptionPane.ERROR_MESSAGE);
         else
@@ -34,8 +53,23 @@ public final class UIUtils {
         JOptionPane.showMessageDialog(RvSnooperGUI.getAppFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
     
+    /**
+     * Do not instantiate.
+     */
     private UIUtils() {
-        // Do not instantiate.
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Displays a Rendezvous exception to the user in a dialog.
+     * 
+     * @param parent The parent component for the dialog box.
+     * @param message The message to pass to the user.
+     * @param e The exception.
+     */
+    public static void showTibrvException(String message, TibrvException e) {
+        JOptionPane.showMessageDialog(RvSnooperGUI.getAppFrame(), new String[] {message, e.getLocalizedMessage()},
+            "Rendezvous Error " + Integer.toString(e.error), JOptionPane.ERROR_MESSAGE);
     }
 
 }
