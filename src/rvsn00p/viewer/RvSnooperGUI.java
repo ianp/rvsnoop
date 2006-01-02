@@ -551,41 +551,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         instance.statusBar.setMessage(message);
     }
     
-    private JMenuItem createSaveSelectedAsTextFileMenuItem() {
-        final JMenuItem result = new JMenuItem("Save selected as txt");
-        result.setMnemonic('r');
-
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-
-                final ListSelectionModel lsm = _table.getSelectionModel();
-                if (lsm.isSelectionEmpty()) {
-                    statusBar.setWarning("No rows selected.");
-                } else {
-                    final int selectedRow = lsm.getMinSelectionIndex();
-
-                    final String sMsg = (String) _table.getModel().getValueAt(selectedRow, _table.getMsgColumnID());
-                    final String sSubject = (String) _table.getModel().getValueAt(selectedRow,
-                            _table.getSubjectColumnID());
-
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            RvSnooperFileHandler.saveMsgAsTextFile(sSubject, sMsg, Version.getAsStringWithName(), getAppFrame());
-                        }
-                    });
-                }
-            }
-        });
-        try {
-            Class.forName("com.tibco.rvscript.tibrvXmlConvert");
-            result.setEnabled(true);
-        } catch (Exception e) {
-            result.setEnabled(false);
-        }
-        return result;
-    }
-
-
     private JMenuItem createAllMsgTypesMenuItem() {
         final JMenuItem result = new JMenuItem("Show all Msg Types");
         result.setMnemonic('a');
@@ -790,37 +755,21 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
     }
 
     private JMenu createFileMenu() {
-        final JMenu fileMenu = new JMenu("File");
-        fileMenu.setMnemonic('f');
-        fileMenu.add(createOpenMI());
-        fileMenu.addSeparator();
-        fileMenu.add(createSaveHTML());
-        fileMenu.add(createSaveSelectedAsTextFileMenuItem());
-        fileMenu.add(createSaveAsTextMI());
-        fileMenu.addSeparator();
-        fileMenu.add(createCloseListener());
-        fileMenu.addSeparator();
-        fileMenu.add(createFileSaveConfigMI());
-        fileMenu.add(createFileLoadConfigMI());
-        createMRUListnerListMI(fileMenu);
-        fileMenu.addSeparator();
-        fileMenu.add(Actions.QUIT);
-        return fileMenu;
-    }
-
-    /**
-     * Menu item added to allow save of filtered table contents to html file
-     *
-     */
-    private JMenuItem createSaveHTML() {
-        final JMenuItem result = new JMenuItem("Save Table to HTML file");
-        result.setMnemonic('h');
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                RvSnooperFileHandler.saveTableToHtml(Version.getAsStringWithName(), getAppFrame(), _table);
-            }
-        });
-        return result;
+        final JMenu file = new JMenu("File");
+        file.setMnemonic('f');
+        file.add(createOpenMI());
+        file.addSeparator();
+        file.add(Actions.EXPORT_TO_HTML);
+        file.add(Actions.EXPORT_TO_TEXT);
+        file.addSeparator();
+        file.add(createCloseListener());
+        file.addSeparator();
+        file.add(createFileSaveConfigMI());
+        file.add(createFileLoadConfigMI());
+        createMRUListnerListMI(file);
+        file.addSeparator();
+        file.add(Actions.QUIT);
+        return file;
     }
 
      /**
@@ -876,21 +825,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
          });
          return result;
      }
-
-    /**
-     * Menu item added to allow save of filtered table contents to rvscript file.
-     *
-     */
-    private JMenuItem createSaveAsTextMI() {
-        final JMenuItem result = new JMenuItem("Save Table to text file");
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                RvSnooperFileHandler.saveTableToTextFile(Version.getAsStringWithName(), getAppFrame(), _table);
-            }
-        });
-        return result;
-    }
-
 
     /**
      * Menu item added to allow log files to be opened with

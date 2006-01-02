@@ -38,6 +38,7 @@ public final class Icons {
     public static final Icon COPY = createIcon("/resources/icons/copy.png", ICON_SIZE);
     public static final Icon CUT = createIcon("/resources/icons/cut.png", ICON_SIZE);
     public static final Icon DELETE = createIcon("/resources/icons/delete.png", ICON_SIZE);
+    public static final Icon EXPORT = createIcon("/resources/icons/export.png", ICON_SIZE);
     public static final Icon SEARCH = createIcon("/resources/icons/search.png", ICON_SIZE);
     public static final Icon SEARCH_AGAIN = createIcon("/resources/icons/search_again.png", ICON_SIZE);
     public static final Icon FONT = createIcon("/resources/icons/font.png", ICON_SIZE);

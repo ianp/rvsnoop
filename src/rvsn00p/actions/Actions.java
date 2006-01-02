@@ -71,6 +71,10 @@ public final class Actions {
 
     public static final Action DISPLAY_WL_ORJAN = add(new DisplayWishList("Örjan’s Wish List", "http://www.amazon.co.uk/gp/registry/registry.html/203-5255811-7236765?id=14PROST9BIEH3"));
 
+    public static final Action EXPORT_TO_HTML = add(new ExportToHtml());
+
+    public static final Action EXPORT_TO_TEXT = add(new ExportToText());
+
     public static final Action HELP = add(new Help());
 
     public static final Action PASTE = add(new Paste());

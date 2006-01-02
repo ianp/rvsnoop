@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.znerd.xmlenc.XMLOutputter;
+
 /**
  * A collection of static utility methods for working with the <code>java.io</code> package.
  *
@@ -52,6 +54,15 @@ public final class IOUtils {
         if (writer == null) return;
         try {
             writer.close();
+        } catch (IOException ignored) {
+            // Intentionally ignored.
+        }
+    }
+    
+    public static void closeQuietly(XMLOutputter outputter) {
+        if (outputter == null) return;
+        try {
+            outputter.close();
         } catch (IOException ignored) {
             // Intentionally ignored.
         }
