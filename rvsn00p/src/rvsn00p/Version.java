@@ -20,7 +20,7 @@ public final class Version {
     }
     
     public static int getMinor() {
-        return 3;
+        return 4;
     }
     
     public static int getPatch() {
