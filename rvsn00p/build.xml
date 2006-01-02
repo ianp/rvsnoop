@@ -155,9 +155,13 @@
     <echo>Packaging the documentation.</echo>
     <mkdir dir="${dir.dist.doc}"/>
     <copy todir="${dir.dist.doc}">
-      <fileset dir="${dir.build.doc}" includes="*.xhtml, *.css, **/*.png"/>
+      <fileset dir="${dir.build.doc}" includes="*.xhtml, *.css"/>
       <!-- This turns out to be needed because MSIE is a festering turd. -->
       <mapper type="glob" from="*.xhtml" to="*.html"/>
+    </copy>
+    <mkdir dir="${dir.dist.doc}/images"/>
+    <copy todir="${dir.dist.doc}/images">
+      <fileset dir="${dir.build.doc}/images" includes="*.png"/>
     </copy>
     <echo>Packaging the libraries.</echo>
     <mkdir dir="${dir.dist.lib}"/>
@@ -260,12 +264,17 @@
     <input addproperty="ssh.user">Enter your SourceForge username:</input>
     <input addproperty="ssh.pass">Enter your SourceForge password:</input>
     <scp todir="${ssh.user}@shell.sourceforge.net:/home/groups/r/rv/rvsn00p/htdocs"
-         password="${ssh.pass}" trust="false">
+      password="${ssh.pass}" trust="false">
       <fileset dir="${dir.build.www}">
         <include name="*.html"/>
         <include name="*.css"/>
         <include name="*.txt"/>
-        <include name="images/*.png"/>
+      </fileset>
+    </scp>
+    <scp todir="${ssh.user}@shell.sourceforge.net:/home/groups/r/rv/rvsn00p/htdocs/images"
+      password="${ssh.pass}" trust="false">
+      <fileset dir="${dir.build.www}/images">
+        <include name="*.png"/>
       </fileset>
     </scp>
   </target>
