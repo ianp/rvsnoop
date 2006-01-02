@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -92,6 +92,9 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
 
     private static RvSnooperGUI instance;
     
+    private static final Icon ICON_FILTER = Icons.createIcon("/resources/icons/filter.png", 14);
+    private static final Icon ICON_MESSAGES = Icons.createIcon("/resources/icons/messages.png", 14);
+    
     public static RvSnooperGUI getInstance() {
         return instance;
     }
@@ -100,7 +103,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         return instance._logMonitorFrame;
     }
 
-    private String _name = null;
+    private String _name;
     private JFrame _logMonitorFrame;
 
     private LogTable _table;
@@ -110,18 +113,17 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
     private JScrollPane _logTableScrollPane;
     
     private final StatusBar statusBar = new StatusBar();
+    private final StatusBar.StatusBarItem statusBarItemFilter = statusBar.createItem();
     private final StatusBar.StatusBarItem statusBarItemFilterTracking = statusBar.createItem();
     private final StatusBar.StatusBarItem statusBarItemFilterSubject = statusBar.createItem();
     private final StatusBar.StatusBarItem statusBarItemEncoding = statusBar.createItem();
+
+    private final StringBuffer statusBarItemFilterBuffer = new StringBuffer(16);
     
     private JButton _pauseButton = null;
-
-    private boolean _callSystemExitOnClose = true;
     
     private final JTextArea detailsText;
     private final JTree detailsTree;
-    
-    private final List _displayedLogBrokerProperties = new ArrayList();
 
     private final Map _logLevelMenuItems = new HashMap();
     private final Map _logTableColumnMenuItems = new HashMap();
@@ -155,6 +157,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         detailsTree = tree ? new JTree(new DefaultTreeModel(new DefaultMutableTreeNode(""))) : null;
 
         initComponents();
+        updateStatusLabel();
 
         _logMonitorFrame.addWindowListener(new LogBrokerMonitorWindowAdaptor(this));
 
@@ -241,28 +244,15 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         });
     }
 
-    /**
-     * Show the frame for the RvSnooperGUI. Dispatched to the
-     * swing thread.
-     */
-    public void show(final int delay) {
-        if (_logMonitorFrame.isVisible()) {
+    public void show() {
+        if (_logMonitorFrame.isVisible())
             return;
-        }
-        // This request is very low priority, let other threads execute first.
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                Thread.yield();
-                pause(delay);
                 _logMonitorFrame.setVisible(true);
             }
         });
-    }
-
-    public void show() {
-        show(0);
         updateBanner();
-
     }
 
     public void updateBanner() {
@@ -279,22 +269,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
      */
     public void hide() {
         _logMonitorFrame.setVisible(false);
-    }
-
-    /**
-     * Get the value of whether or not System.exit() will be called
-     * when the RvSnooperGUI is closed.
-     */
-    public boolean getCallSystemExitOnClose() {
-        return _callSystemExitOnClose;
-    }
-
-    /**
-     * Set the value of whether or not System.exit() will be called
-     * when the RvSnooperGUI is closed.
-     */
-    public void setCallSystemExitOnClose(final boolean callSystemExitOnClose) {
-        _callSystemExitOnClose = callSystemExitOnClose;
     }
 
     public void setMaxNumberOfLogRecords(final int maxNumberOfLogRecords) {
@@ -315,10 +289,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
     
     public void setTableFont(Font font) {
         _table.setFont(font);
-    }
-
-    public void addDisplayedProperty(final Object messageLine) {
-        _displayedLogBrokerProperties.add(messageLine);
     }
 
     public Map getLogLevelMenuItems() {
@@ -403,59 +373,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         if (detailsTree != null) detailsTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
     }
 
-    /**
-     * Changes the font selection in the combo box and returns the
-     * size actually selected.
-     * @return -1 if unable to select an appropriate font
-     */
-    public static int changeFontSizeCombo(final JComboBox box, final int requestedSize) {
-        final int len = box.getItemCount();
-        int currentValue;
-        Object currentObject;
-        Object selectedObject = box.getItemAt(0);
-        int selectedValue = Integer.parseInt(String.valueOf(selectedObject));
-        for (int i = 0; i < len; ++i) {
-            currentObject = box.getItemAt(i);
-            currentValue = Integer.parseInt(String.valueOf(currentObject));
-            if (selectedValue < currentValue && currentValue <= requestedSize) {
-                selectedValue = currentValue;
-                selectedObject = currentObject;
-            }
-        }
-        box.setSelectedItem(selectedObject);
-        return selectedValue;
-    }
-
-    /**
-     * Changes the font selection in the combo box and returns the
-     * type that is actually selected.
-     * @return null if unable to select an appropriate font
-     */
-    public static String changeFontNameCombo(final JComboBox box, final String requestedName) {
-        final int len = box.getItemCount();
-        String currentValue;
-        currentValue = null;
-        Object currentObject;
-        Object selectedObject = box.getItemAt(0);
-        for (int i = 0; i < len; ++i) {
-            currentObject = box.getItemAt(i);
-            currentValue = String.valueOf(currentObject);
-            if (currentValue.compareToIgnoreCase(requestedName) == 0) {
-                selectedObject = currentObject;
-            }
-        }
-        box.setSelectedItem(selectedObject);
-        return currentValue;
-    }
-
-    private static void pause(final int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException ignored) {
-            // Intentionally ignored.
-        }
-    }
-
     private void initComponents() {
         _logMonitorFrame = new JFrame(_name);
 
@@ -524,7 +441,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         _logMonitorFrame.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
         makeLogTableListenToCategoryExplorer();
-        addTableModelProperties();
 
         statusBarItemEncoding.set(System.getProperty("file.encoding"), null, null);
         //
@@ -575,45 +491,12 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         return result;
     }
 
-
     private void updateStatusLabel() {
-        final StringBuffer sb = new StringBuffer(100);
-        getRecordsDisplayedMessage(sb);
-    }
-
-    private void getRecordsDisplayedMessage(final StringBuffer sb) {
         final FilteredLogTableModel model = _table.getFilteredLogTableModel();
-        getStatusText(model.getRowCount(), model.getTotalRowCount(), sb);
+        statusBarItemFilterBuffer.setLength(0);
+        statusBarItemFilterBuffer.append(model.getRowCount()).append(" / ").append(model.getTotalRowCount());
+        statusBarItemFilter.set(statusBarItemFilterBuffer.toString(), null, ICON_MESSAGES);
     }
-
-    private void addTableModelProperties() {
-        final FilteredLogTableModel model = _table.getFilteredLogTableModel();
-
-        addDisplayedProperty(new Object() {
-            public String toString() {
-                final StringBuffer sb = new StringBuffer(40);
-                getRecordsDisplayedMessage(sb);
-                return sb.toString();
-            }
-        });
-        addDisplayedProperty(new Object() {
-            public String toString() {
-                return "Maximum number of displayed LogRecords: "
-                        + model.getMaxRecords();
-            }
-        });
-    }
-
-    private static void getStatusText(final int displayedRows, final int totalRows,final StringBuffer sb) {
-        sb.append("Displaying: ");
-        sb.append(displayedRows);
-        sb.append(" records out of a total of: ");
-        sb.append(totalRows);
-        sb.append(" records. ");
-        sb.append(totalRows-displayedRows);
-        sb.append(" are filtered.");
-    }
-
 
     private void makeLogTableListenToCategoryExplorer() {
         final ActionListener listener = new ActionListener() {
@@ -1209,35 +1092,15 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         help.add(Actions.REPORT_BUG);
         help.add(Actions.CHECK_FOR_UPDATES);
         help.add(Actions.SUBSCRIBE_TO_UPDATES);
-        help.add(createHelpProperties());
         help.addSeparator();
-        help.add(Actions.DISPLAY_WL_IAN);
         help.add(Actions.DISPLAY_WL_ORJAN);
+        help.add(Actions.DISPLAY_WL_IAN);
         help.addSeparator();
         help.add(Actions.DISPLAY_LICENSE);
         help.add(Actions.DISPLAY_ABOUT);
         final StringBuffer a = new StringBuffer();
         a.toString();
         return help;
-    }
-
-
-    private JMenuItem createHelpProperties() {
-        final JMenuItem result = new JMenuItem("Show Properties");
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                showPropertiesDialog();
-            }
-        });
-        return result;
-    }
-
-    private void showPropertiesDialog() {
-        JOptionPane.showMessageDialog(
-                _logMonitorFrame,
-                _displayedLogBrokerProperties.toArray(),
-                "Properties",
-                JOptionPane.PLAIN_MESSAGE);
     }
 
     private JMenu createEditMenu() {
@@ -1393,7 +1256,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         // Use new NDC filter
         _table.getFilteredLogTableModel().
                 setLogRecordFilter(createTIDLogRecordFilter(text));
-        statusBarItemFilterTracking.set("F/T", text, null);
+        statusBarItemFilterTracking.set("TID", text, ICON_FILTER);
     }
 
     private void setSubjectTextFilter(final String text) {
@@ -1415,7 +1278,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         // Use new NDC filter
         _table.getFilteredLogTableModel().
                 setLogRecordFilter(createSubjectLogRecordFilter(text));
-        statusBarItemFilterSubject.set("F/S", text, null);
+        statusBarItemFilterSubject.set("Subject", text, ICON_FILTER);
     }
 
     private LogRecordFilter createTIDLogRecordFilter(final String text) {
@@ -1584,11 +1447,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         _table.getFilteredLogTableModel().removeAll(records);
     }
 
-    private void requestClose() {
-        setCallSystemExitOnClose(true);
-        closeAfterConfirm();
-    }
-
     /**
      * Start a listener from the recent listeners list.
      * @param params
@@ -1609,11 +1467,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         } catch (IOException ignored) {
             // We can live with not saving the recent listeners list.
         }
-        setCallSystemExitOnClose(true);
-        closeAfterConfirm();
-    }
-
-    private void closeAfterConfirm() {
         final String question = "Are you sure you want to quit?";
         final String title = "Confirm Quit";
         final int option = JOptionPane.showConfirmDialog(_logMonitorFrame, question, title, JOptionPane.YES_NO_OPTION);
@@ -1626,8 +1479,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
             } catch (Exception ex) {
                 System.err.println(ex.getMessage());
             }
-            if (_callSystemExitOnClose)
-                System.exit(0);
+            System.exit(0);
         }
     }
 
@@ -1706,7 +1558,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         }
 
         public void windowClosing(final WindowEvent ev) {
-            _monitor.requestClose();
+            _monitor.requestExit();
         }
     }
 
