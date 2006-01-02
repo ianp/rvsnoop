@@ -29,9 +29,16 @@ import rvsn00p.viewer.RvSnooperGUI;
  */
 public final class UIUtils {
     
+    static String CONFIRM_TITLE = "Confirm";
+    
     static String ERROR_TITLE = "Error";
 
     static String INFORMATION_TITLE = "Information";
+
+    public static boolean askForConfirmation(Object message, Icon icon) {
+        return JOptionPane.YES_NO_OPTION
+            == JOptionPane.showConfirmDialog(RvSnooperGUI.getAppFrame(), message, CONFIRM_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
+    }
     
     public static void configureOKAndCancelButtons(JPanel panel, Action ok, Action cancel) {
         final ActionMap actionMap = panel.getActionMap();

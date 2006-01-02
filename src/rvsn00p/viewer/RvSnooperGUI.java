@@ -103,7 +103,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         return instance._logMonitorFrame;
     }
 
-    private String _name;
+    private final String _name;
     private JFrame _logMonitorFrame;
 
     private LogTable _table;
@@ -130,9 +130,8 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
     private JSplitPane _splitPaneVertical;
     private JSplitPane _splitPaneTableViewer;
 
-    private List _levels = null;
-    private List _columns = null;
-    private boolean _isDisposed = false;
+    private final List _levels = MsgType.getAllDefaultLevels();
+    private final List _columns = LogTableColumn.getLogTableColumns();
 
     private ConfigurationManager _configurationManager = null;
 
@@ -149,17 +148,19 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         super();
         if (instance != null) throw new IllegalStateException("There should only be 1 instance of the UI.");
         instance = this;
-        _levels = MsgType.getAllDefaultLevels();
-        _columns = LogTableColumn.getLogTableColumns();
-        _columns = LogTableColumn.getLogTableColumns();
-        _name = name;
+        this._name = name;
         detailsText = text ? new JTextArea() : null;
         detailsTree = tree ? new JTree(new DefaultTreeModel(new DefaultMutableTreeNode(""))) : null;
 
         initComponents();
         updateStatusLabel();
 
-        _logMonitorFrame.addWindowListener(new LogBrokerMonitorWindowAdaptor(this));
+        _logMonitorFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        _logMonitorFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                Actions.QUIT.actionPerformed(null);
+            }
+        });
 
         RvController.setErrorCallback(this);
         startListeners(listeners);
@@ -233,7 +234,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
             else if (name.startsWith("_") || name.startsWith("im"))
                 record.setType(MsgType.SYSTEM);
 
-        if (_isDisposed) return;
         // Now add the record to the message ledger, the subject explorer tree, and update the status bar.
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -804,7 +804,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         fileMenu.add(createFileLoadConfigMI());
         createMRUListnerListMI(fileMenu);
         fileMenu.addSeparator();
-        fileMenu.add(createExitMI());
+        fileMenu.add(Actions.QUIT);
         return fileMenu;
     }
 
@@ -962,17 +962,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
                 }
             });
         }
-    }
-
-    private JMenuItem createExitMI() {
-        final JMenuItem result = new JMenuItem("Exit");
-        result.setMnemonic('x');
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                requestExit();
-            }
-        });
-        return result;
     }
 
     private JMenu createConfigureMenu() {
@@ -1440,7 +1429,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
         menu.add(createCloseListener());
         createMRUListnerListMI(menu);
         menu.addSeparator();
-        menu.add(createExitMI());
+        menu.add(Actions.QUIT);
     }
     
     public void removeAll(Collection records) {
@@ -1460,29 +1449,7 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
             }
         updateMRUList();
     }
-
-    private void requestExit() {
-        try {
-            RecentListeners.getInstance().store();
-        } catch (IOException ignored) {
-            // We can live with not saving the recent listeners list.
-        }
-        final String question = "Are you sure you want to quit?";
-        final String title = "Confirm Quit";
-        final int option = JOptionPane.showConfirmDialog(_logMonitorFrame, question, title, JOptionPane.YES_NO_OPTION);
-        if (option == JOptionPane.OK_OPTION) {
-            _logMonitorFrame.dispose();
-            _isDisposed = true;
-            try {
-                RvController.shutdownAll();
-                RvController.close();
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
-            }
-            System.exit(0);
-        }
-    }
-
+    
     private Iterator getMsgTypes() {
         return _levels.iterator();
     }
@@ -1546,19 +1513,6 @@ public final class RvSnooperGUI implements TibrvMsgCallback, TibrvErrorCallback 
             }
         } catch (NullPointerException ignored) {
             // Deliberately ignored, method parameters may be null.
-        }
-    }
-
-    private class LogBrokerMonitorWindowAdaptor extends WindowAdapter {
-        private final RvSnooperGUI _monitor;
-
-        public LogBrokerMonitorWindowAdaptor(final RvSnooperGUI monitor) {
-            super();
-            _monitor = monitor;
-        }
-
-        public void windowClosing(final WindowEvent ev) {
-            _monitor.requestExit();
         }
     }
 
