@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import javax.swing.UIManager;
-
 import rvsn00p.util.rv.RvParameters;
 import rvsn00p.viewer.RvSnooperGUI;
 
@@ -98,11 +96,6 @@ public final class StartRvSnooper {
         for (int i = startAt, imax = args.length; i < imax; ++i)
             setRvListenersParam.add(RvParameters.parseConfigurationString(args[i]));
         
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-            // Intentionally ignored.
-        }
         new RvSnooperGUI(setRvListenersParam, title, tree, text).show();
     }
     
