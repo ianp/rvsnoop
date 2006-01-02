@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import rvsn00p.ui.Icons;
 import rvsn00p.ui.UIUtils;
 import rvsn00p.util.BrowserLauncher;
 
@@ -35,7 +36,7 @@ final class DisplayHomePage extends AbstractAction {
     static String TOOLTIP = "Show the web site in the default browser";
 
     public DisplayHomePage() {
-        super(NAME);
+        super(NAME, Icons.WEB);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_W));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

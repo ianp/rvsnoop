@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.Icon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -51,6 +52,10 @@ public final class UIUtils {
     
     public static void showInformation(Object message) {
         JOptionPane.showMessageDialog(RvSnooperGUI.getAppFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    public static void showInformation(Object message, Icon icon) {
+        JOptionPane.showMessageDialog(RvSnooperGUI.getAppFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE, icon);
     }
     
     /**

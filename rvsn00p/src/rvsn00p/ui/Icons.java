@@ -32,12 +32,17 @@ public final class Icons {
 
     public static final Image APPLICATION = createImage("/resources/icons/rvsn00p.png", ICON_SIZE);
     public static final Icon ABOUT = createIcon("/resources/icons/about.png", ICON_SIZE);
+    public static final Icon BUG = createIcon("/resources/icons/bug.png", ICON_SIZE);
+    public static final Icon CHECK_UPDATES = createIcon("/resources/icons/check_updates.png", ICON_SIZE);
+    public static final Icon CLEAR_LEDGER = createIcon("/resources/icons/clearLedger.png", ICON_SIZE);
     public static final Icon COPY = createIcon("/resources/icons/copy.png", ICON_SIZE);
     public static final Icon CUT = createIcon("/resources/icons/cut.png", ICON_SIZE);
-    public static final Icon CLEAR_LEDGER = createIcon("/resources/icons/clearLedger.png", ICON_SIZE);
     public static final Icon DELETE = createIcon("/resources/icons/delete.png", ICON_SIZE);
+    public static final Icon SEARCH = createIcon("/resources/icons/search.png", ICON_SIZE);
+    public static final Icon SEARCH_AGAIN = createIcon("/resources/icons/search_again.png", ICON_SIZE);
     public static final Icon FONT = createIcon("/resources/icons/font.png", ICON_SIZE);
     public static final Icon HELP = createIcon("/resources/icons/help.png", ICON_SIZE);
+    public static final Icon LICENSE = createIcon("/resources/icons/license.png", ICON_SIZE);
     public static final Icon NEW_LISTENER = createIcon("/resources/icons/new_listener.png", ICON_SIZE);
     public static final Icon PASTE = createIcon("/resources/icons/paste.png", ICON_SIZE);
     public static final Icon PAUSE = createIcon("/resources/icons/pause.png", ICON_SIZE);
@@ -45,6 +50,8 @@ public final class Icons {
     public static final Icon RV_MESSAGE = createIcon("/resources/icons/rv_message.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon RV_FIELD = createIcon("/resources/icons/rv_field.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon SUBJECT = createIcon("/resources/icons/subject.png", ICON_SIZE);
+    public static final Icon SUBSCRIBE_UPDATES = createIcon("/resources/icons/subscribe_updates.png", ICON_SIZE);
+    public static final Icon WEB = createIcon("/resources/icons/web.png", ICON_SIZE);
     public static final Icon XML_ATTRIBUTE = createIcon("/resources/icons/xml_attribute.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon XML_ELEMENT = createIcon("/resources/icons/xml_element.png", ICON_SIZE); //$NON-NLS-1$
     
@@ -53,7 +60,7 @@ public final class Icons {
         return config.createCompatibleImage(w, h, Transparency.TRANSLUCENT);
     }
 
-    static Icon createIcon(String filename, int size) {
+    public static Icon createIcon(String filename, int size) {
         final Image image = createImage(filename, size);
         return image != null ? new ImageIcon(image) : getMissingIcon(size);
     }
@@ -83,8 +90,11 @@ public final class Icons {
         }
     }
 
+    /**
+     * Do not instantiate.
+     */
     private Icons() {
-        super();
+        throw new UnsupportedOperationException();
     }
 
 }
