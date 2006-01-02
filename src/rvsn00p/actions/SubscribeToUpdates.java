@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import rvsn00p.ui.Icons;
 import rvsn00p.ui.UIUtils;
 import rvsn00p.util.BrowserLauncher;
 
@@ -35,7 +36,7 @@ final class SubscribeToUpdates extends AbstractAction {
     static String TOOLTIP = "Subscribe to update notifications";
 
     public SubscribeToUpdates() {
-        super(NAME);
+        super(NAME, Icons.SUBSCRIBE_UPDATES);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_S));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

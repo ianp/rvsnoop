@@ -13,6 +13,7 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import rvsn00p.ui.Icons;
 import rvsn00p.ui.UIUtils;
 import rvsn00p.util.BrowserLauncher;
 
@@ -36,7 +37,7 @@ final class DisplayLicense extends AbstractAction {
     static String TOOLTIP = "Show the license in the default browser";
 
     public DisplayLicense() {
-        super(NAME);
+        super(NAME, Icons.LICENSE);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_L));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

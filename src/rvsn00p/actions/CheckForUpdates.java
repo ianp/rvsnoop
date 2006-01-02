@@ -21,6 +21,8 @@ import javax.swing.Action;
 
 import rvsn00p.IOUtils;
 import rvsn00p.Version;
+import rvsn00p.ui.Banners;
+import rvsn00p.ui.Icons;
 import rvsn00p.ui.UIUtils;
 
 /**
@@ -47,7 +49,7 @@ final class CheckForUpdates extends AbstractAction {
     static String TOOLTIP = "Check for newer versions of RvSn00p";
     
     public CheckForUpdates() {
-        super(NAME);
+        super(NAME, Icons.CHECK_UPDATES);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_V));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
@@ -112,11 +114,11 @@ final class CheckForUpdates extends AbstractAction {
 
     private void showNewVersionAvailableDialog(String[] lines) {
         lines[0] = MESSAGE_NEW_VERSION;
-        UIUtils.showInformation(lines);
+        UIUtils.showInformation(lines, Banners.UPDATE_AVAILABLE);
     }
 
     private void showVersionIsUpToDateDialog() {
-        UIUtils.showInformation(MESSAGE_UP_TO_DATE);
+        UIUtils.showInformation(MESSAGE_UP_TO_DATE, Banners.UPDATE_ALREADY);
     }
 
 }

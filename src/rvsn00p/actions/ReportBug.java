@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import rvsn00p.ui.Icons;
 import rvsn00p.ui.UIUtils;
 import rvsn00p.util.BrowserLauncher;
 
@@ -35,7 +36,7 @@ final class ReportBug extends AbstractAction {
     static String TOOLTIP = "Report a bug or request a new feature";
 
     public ReportBug() {
-        super(NAME);
+        super(NAME, Icons.BUG);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_B));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

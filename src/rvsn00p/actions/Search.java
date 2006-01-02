@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import rvsn00p.Record;
+import rvsn00p.ui.Icons;
 import rvsn00p.ui.UIUtils;
 import rvsn00p.viewer.RvSnooperGUI;
 
@@ -44,6 +45,10 @@ final class Search extends AbstractAction {
     public Search(String id, String name, String tooltip, int accel) {
         super(name);
         putValue(Action.ACTION_COMMAND_KEY, id);
+        if (SEARCH.equals(id))
+            putValue(Action.SMALL_ICON, Icons.SEARCH);
+        else if (SEARCH_AGAIN.equals(id))
+            putValue(Action.SMALL_ICON, Icons.SEARCH_AGAIN);
         if (accel != 0) {
             final int mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accel, mask));
