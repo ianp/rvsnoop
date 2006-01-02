@@ -44,7 +44,7 @@ final class Quit extends AbstractAction {
     static String TOOLTIP = "Close all listeners and exit RvSn00p";
     
     public Quit() {
-        super(ID, Icons.QUIT);
+        super(NAME, Icons.QUIT);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_Q));
