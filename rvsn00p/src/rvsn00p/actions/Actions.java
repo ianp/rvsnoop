@@ -77,6 +77,8 @@ public final class Actions {
 
     public static final Action PRUNE_EMPTY_SUBJECTS = add(new PruneEmptySubjects());
     
+    public static final Action QUIT = add(new Quit());
+    
     public static final Action REPORT_BUG = add(new ReportBug());
 
     public static final Action SEARCH = add(new Search(Search.SEARCH, "Find...", "Search for text in the messages", KeyEvent.VK_F));

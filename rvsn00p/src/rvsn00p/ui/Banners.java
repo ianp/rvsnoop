@@ -20,6 +20,7 @@ public final class Banners {
 
     private static final int ICON_SIZE = 48;
 
+    public static final Icon QUIT = Icons.createIcon("/resources/banners/quit.png", ICON_SIZE);
     public static final Icon UPDATE_ALREADY = Icons.createIcon("/resources/banners/update_already.png", ICON_SIZE);
     public static final Icon UPDATE_AVAILABLE = Icons.createIcon("/resources/banners/update_available.png", ICON_SIZE);
     
