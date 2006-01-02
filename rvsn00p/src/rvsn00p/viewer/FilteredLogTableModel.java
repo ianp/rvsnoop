@@ -13,12 +13,10 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import rvsn00p.Record;
 import rvsn00p.LogRecordFilter;
 import rvsn00p.PassingLogRecordFilter;
+import rvsn00p.Record;
 import rvsn00p.StringUtils;
-import rvsn00p.util.HTMLEncoder;
-import rvsn00p.util.rv.MarshalRvToString;
 
 /**
  * A TableModel for LogRecords which includes filtering support.
@@ -38,9 +36,7 @@ public final class FilteredLogTableModel extends AbstractTableModel {
 
     private int maxRecords = 5000;
     
-    private final String[] _colNames = { "Date", "Msg#", "Type", "Subject", "Tracking ID", "Message" };
-
-    private static int _lastHTMLBufLength = 1000;
+    private final String[] _colNames = { "Timestamp", "Seq. No.", "Type", "Subject", "Tracking ID", "Message" };
 
     public FilteredLogTableModel() {
         super();
@@ -126,98 +122,6 @@ public final class FilteredLogTableModel extends AbstractTableModel {
         return result;
     }
 
-    /**
-     * Returns a HTML table representation of the filtered records
-     */
-    public StringBuffer createFilteredHTMLTable() {
-        //use a buffer with the same size as the last used one
-        final StringBuffer strbuf = new StringBuffer(_lastHTMLBufLength);
-        final Iterator records = _filteredRecords.iterator();
-        final StringBuffer buffer = new StringBuffer();
-        Record current;
-        addHtmlTableHeaderString(strbuf);
-        while (records.hasNext()) {
-            current = (Record) records.next();
-
-            strbuf.append("<tr>\n\t");
-            addHTMLTDString(current, strbuf, buffer);
-            strbuf.append("\n</tr>\n");
-        }
-        strbuf.append("</table>");
-
-        //remember last buffer size
-        _lastHTMLBufLength = strbuf.length() + 2;
-
-        return strbuf;
-    }
-
-    /**
-     * createFilteredTextFromMsg.
-     * Returns a text string containing all message fields delimite
-     */
-    public StringBuffer createFilteredTextFromMsg() {
-        final StringBuffer strbuf = new StringBuffer();
-        final Iterator records = _filteredRecords.iterator();
-        Record current;
-        while (records.hasNext()) {
-            current = (Record) records.next();
-            strbuf.append("\n");
-            strbuf.append(current.getMessage());
-        }
-        strbuf.append("\n");
-
-        return strbuf;
-    }
-
-    /**
-     * Adda a HTML <td> String representation of this Record to the buf parameter.
-     * @param lr the logrecord
-     * @param buf the stringbuffer to add the <td> string representation
-     * @param dfMgr the date formt manager used
-     */
-    private void addHTMLTDString(Record lr, StringBuffer buf, StringBuffer Tbuffer) {
-        if (lr != null) {
-            for (int i = 0; i < getColumnCount(); ++i) {
-
-                buf.append("<td>");
-                if (i == 5) {
-                    // message
-                    buf.append("<code>");
-                    Tbuffer.setLength(0);
-                    addColumnToStringBuffer(Tbuffer, i, lr);
-                    HTMLEncoder.encodeStringBuffer(Tbuffer);
-                    buf.append(Tbuffer);
-                    buf.append("</code>");
-                } else {
-                    addColumnToStringBuffer(buf, i, lr);
-                }
-                buf.append("</td>");
-            }
-        } else {
-            buf.append("<td></td>");
-        }
-    }
-
-
-    private void addHtmlTableHeaderString(StringBuffer buf) {
-        // table parameters
-        buf.append("<table border=\"1\" width=\"100%\">\n");
-        buf.append("<tr>\n");
-
-        // print the column headers
-        for (int i = 0; i < getColumnCount(); ++i) {
-            buf.append("\t<th align=\"left\" bgcolor=\"#C0C0C0\" bordercolor=\"#FFFFFF\">");
-
-            buf.append(getColumnName(i));
-
-            //date format
-            if (i == 0)
-                buf.append("<br>(").append(StringUtils.getDateFormat()).append(")");
-            buf.append("</th>\n");
-        }
-        buf.append("</tr>\n");
-    }
-
     public Record getFilteredRecord(int row) {
         final List records = getFilteredRecords();
         final int size = records.size();
@@ -250,34 +154,6 @@ public final class FilteredLogTableModel extends AbstractTableModel {
                 return lr.getTrackingId();
             case 5:
                 return lr.getMessage();
-            default:
-                throw new IllegalArgumentException("The column number " + col + " must be between 0 and 5");
-        }
-    }
-
-    private void addColumnToStringBuffer(StringBuffer sb, int col, Record lr) {
-        if (lr == null)
-            sb.append("NULL Column");
-
-        switch (col) {
-            case 0:
-                sb.append(StringUtils.format(new Date(lr.getTimestamp())));
-                break;
-            case 1:
-                sb.append(lr.getSequenceNumber());
-                break;
-            case 2:
-                sb.append(lr.getType().toString());
-                break;
-            case 3:
-                sb.append(lr.getSendSubject());
-                break;
-            case 4:
-                sb.append(lr.getTrackingId());
-                break;
-            case 5:
-                sb.append(MarshalRvToString.marshal("", lr.getMessage()));
-                break;
             default:
                 throw new IllegalArgumentException("The column number " + col + " must be between 0 and 5");
         }
