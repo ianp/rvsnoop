@@ -4,6 +4,8 @@
 <project name="rvsn00p" default="usage" basedir=".">
   <description>Build file for RvSn00p. A TIBCO message viewing utility.</description>
 
+  <taskdef resource="proguard/ant/task.properties" classpath="${proguard}/lib/proguard.jar"/>
+
   <property name="version.major" value="1"/>
   <property name="version.minor" value="4"/>
   <property name="version.patch" value="0"/>
@@ -40,6 +42,7 @@
     <pathelement location="${tibco.rvtest}"/>
     <pathelement location="${forms}/forms-1.0.5.jar"/>
     <pathelement location="${xom}/xom-1.1.jar"/>
+    <pathelement location="${xmlenc}/xmlenc.jar"/>
     <!-- Append the system class path. -->
     <pathelement path="${env.java.class.path}"/>
   </path>
@@ -165,7 +168,7 @@
     </copy>
     <echo>Packaging the libraries.</echo>
     <mkdir dir="${dir.dist.lib}"/>
-    <jar jarfile="${dir.dist.lib}/rvsn00p.jar" compress="true"
+    <jar jarfile="${dir.build.lib}/rvsn00p.jar" compress="true"
       manifestencoding="utf-8" index="true" basedir="${dir.build.lib}"
       includes="**/*.class, **/*.png, **/*.properties">
       <manifest>
@@ -176,8 +179,39 @@
         <attribute name="Main-Class" value="rvsn00p.StartRvSnooper"/>
       </manifest>
     </jar>
+    <!--
     <copy file="${xom}/xom-1.1.jar" todir="${dir.dist.lib}"/>
     <copy file="${forms}/forms-1.0.5.jar" todir="${dir.dist.lib}"/>
+    -->
+    <!-- Ignore warnings is there to skip classes referenced by XOM's -->
+    <!-- test suite but not actually used by the application.-->
+    <proguard obfuscate="false" warn="false" ignorewarnings="true">
+      <injar>
+        <pathelement location="${dir.build.lib}/rvsn00p.jar"/>
+        <pathelement location="${forms}/forms-1.0.5.jar"/>
+        <pathelement location="${xom}/xom-1.1.jar"/>
+        <pathelement location="${xmlenc}/xmlenc.jar"/>
+      </injar>
+      <outjar file="${dir.dist.lib}"/>
+      <libraryjar>
+        <pathelement location="${java.lib}"/>
+        <pathelement location="${tibco.rv}/lib/tibrvj.jar"/>
+        <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
+        <pathelement location="${tibco.rvscript}"/>
+        <pathelement location="${tibco.rvtest}"/>
+      </libraryjar>
+      <keep name="*" implements="java.io.Serializable">
+        <field access="private" type="long" name="serialVersionUID"/>
+      </keep>
+      <keep name="rvsn00p.StartRvSnooper">
+        <method access="public static" type="void" name="main" parameters="java.lang.String[]"/>
+      </keep>
+      <keep name="rvsn00p.util.rv.*" extends="rvsn00p.util.rv.MarshalRvToString$Implementation">
+        <method access="public" type="java.lang.String" name="getName" parameters=""/>
+        <method access="public" type="java.lang.String" name="marshal" parameters="java.lang.String,com.tibco.tibrv.TibrvMsg"/>
+        <method access="public" type="com.tibco.tibrv.TibrvMsg" name="unmarshal" parameters="java.lang.String"/>
+      </keep>
+    </proguard>
     <echo>Packaging the binary distributable.</echo>
     <tar destfile="rvsn00p-${version}-bin.tar">
       <tarfileset dir="${dir.dist}/.." mode="440" dirmode="750">
@@ -223,6 +257,22 @@
     </tar>
     <gzip destfile="rvsn00p-${version}-src.tgz" src="rvsn00p-${version}-src.tar"/>
     <delete file="rvsn00p-${version}-src.tar" />
+  </target>
+
+  <target name="release.confirm" depends="dist"
+    description="Upload the files to SourceForge ready for releasing.">
+    <input addproperty="release.confirm">Have you remembered to increment Version.class?</input>
+  </target>
+
+  <target name="release" depends="release.confirm" if="release.confirm"
+    description="Upload the files to SourceForge ready for releasing.">
+    <input addproperty="release.email">Enter the email address to use for anonymous FTP:</input>
+    <ftp server="upload.sourceforge.net" userid="anonymous" binary="true" password="${release.email}">
+      <fileset>
+        <include name="rvsn00p-${version}-bin.tgz"/>
+        <include name="rvsn00p-${version}-src.tgz"/>
+      </fileset>
+    </ftp>
   </target>
 
   <!-- Targets to manage the web pages on SourceForge. -->
