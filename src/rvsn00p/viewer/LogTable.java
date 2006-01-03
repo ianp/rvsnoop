@@ -78,7 +78,6 @@ public final class LogTable extends JTable {
             ++i;
         }
 
-
         ListSelectionModel rowSM = getSelectionModel();
         if (detailsText != null) rowSM.addListSelectionListener(new DetailsTextListener());
         if (detailsTree != null) rowSM.addListSelectionListener(new DetailsTreeListener());
@@ -160,7 +159,7 @@ public final class LogTable extends JTable {
 
     private void init() {
         setRowHeight(_rowHeight);
-        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     }
 
     // assign a column number to a column name
