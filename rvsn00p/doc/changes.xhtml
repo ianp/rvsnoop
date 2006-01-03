@@ -18,8 +18,17 @@
         <h1>Change Log</h1>
       </div>
       <div class="content">
-        <p>Request <acronym>ID</acronym> Numbers refer to bug requests or feature requests on the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge</a> page.</p>
-        <h2>Changes up to version 1.4.0 (Released 2006-01-??)</h2>
+        <p>Request <acronym>ID</acronym> numbers refer to bug requests or feature requests on the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge</a> page.</p>
+        <h2>Changes up to version 1.4.1 (Released 2006-01-03)</h2>
+        <ul>
+          <li>Export now works on the selected message ledger rows instead of the entire ledger.</li>
+          <li>Export <acronym>HTML</acronym> now generates valid <acronym>XHTML</acronym>.</li>
+          <li>Corrected label on ‘Quit’ menu item which was all lower case.</li>
+          <li>Corrected release date in this change log.</li>
+          <li>The marshaller implementation is now an abstract class instead of an interface.</li>
+          <li>The build system now uses <a href="http://proguard.sourceforge.net">ProGuard</a> to ensure that only those required classes from the supporting libraries are included. As a result of this the binary download has dropped from ~750KB to ~500KB in size, this is mainly because I plan to add in one or two more requirements before the 2.0 release and I would like to keep the binary download &lt;1MB.</li>
+        </ul>
+        <h2>Changes up to version 1.4.0 (Released 2006-01-02)</h2>
         <p>From now on the change log now only shows changes for the last couple of versions, for older info get the historical pages from <acronym>CVS</acronym>.</p>
         <ul>
           <li>The subject explorer now shows more details about each tree node in a tool-tip, there is no longer a need to right-click and select ‘Show Properties’.</li>
