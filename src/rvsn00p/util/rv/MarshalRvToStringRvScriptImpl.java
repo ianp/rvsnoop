@@ -15,16 +15,12 @@ import com.tibco.tibrv.TibrvMsg;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-final class MarshalRvToStringRvScriptImpl implements MarshalRvToString.Implementation {
+final class MarshalRvToStringRvScriptImpl extends MarshalRvToString.Implementation {
 
     private final tibrvXmlConvert converter = new tibrvXmlConvert();
 
     MarshalRvToStringRvScriptImpl() {
-        super();
-    }
-    
-    public String getName() {
-        return "RvScript";
+        super("RvScript");
     }
 
     public String marshal(String name, TibrvMsg message) {

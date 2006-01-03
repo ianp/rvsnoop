@@ -20,16 +20,12 @@ import com.tibco.tibrv.TibrvMsg;
  * @version $Revision$, $Date$
  * @since 1.2.6
  */
-public class MarshalRvToStringRvTestImpl implements MarshalRvToString.Implementation {
+public class MarshalRvToStringRvTestImpl extends MarshalRvToString.Implementation {
 
     private final XMLConverter converter = new XMLConverter();
     
     MarshalRvToStringRvTestImpl() {
-        super();
-    }
-    
-    public String getName() {
-        return "RvTest";
+        super("RvTest");
     }
     
     public String marshal(String name, TibrvMsg message) {
@@ -39,10 +35,6 @@ public class MarshalRvToStringRvTestImpl implements MarshalRvToString.Implementa
             System.err.println("Error: unable to marshal message: " + e.getMessage());
             return "";
         }
-    }
-
-    public TibrvMsg unmarshal(String string) {
-        throw new UnsupportedOperationException();
     }
 
 }
