@@ -14,28 +14,36 @@ package rvsn00p;
  * @since 1.4
  */
 public final class Version {
+    
+    // The funny-looking version strings will be substituted with
+    // the correct value as part of the Ant build. Parsing string
+    // representations of integers is a bit of a hack, but if you
+    // work in an IDE having the Ant filter tags in their raw form
+    // just won't cut it, so this is a bit of a hacky work-around.
 
+    private static final int MAJOR = Integer.parseInt("@version.major@");
+
+    private static final int MINOR = Integer.parseInt("@version.minor@");
+    
+    private static final int PATCH = Integer.parseInt("@version.patch@");
+    
     public static int getMajor() {
-        return 1;
+        return MAJOR;
     }
     
     public static int getMinor() {
-        return 4;
+        return MINOR;
     }
     
     public static int getPatch() {
-        return 0;
+        return PATCH;
     }
     
     public static String getAsString() {
-        // The funny-looking version string will be substituted with
-        // the correct value as part of the Ant build.
         return "@version@";
     }
     
     public static String getAsStringWithName() {
-        // The funny-looking version string will be substituted with
-        // the correct value as part of the Ant build.
         return "RvSn00p @version@";
     }
     
