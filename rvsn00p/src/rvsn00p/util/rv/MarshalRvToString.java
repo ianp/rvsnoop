@@ -20,10 +20,20 @@ import com.tibco.tibrv.TibrvMsg;
  */
 public final class MarshalRvToString {
     
-    public static interface Implementation {
-        String getName();
-        String marshal(String name, TibrvMsg message);
-        TibrvMsg unmarshal(String string);
+    public static abstract class Implementation {
+        private final String name;
+        protected Implementation(String name) {
+            this.name = name;
+        }
+        public final String getName() {
+            return name;
+        }
+        public String marshal(String name, TibrvMsg message) {
+            throw new UnsupportedOperationException();
+        }
+        public TibrvMsg unmarshal(String string) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     static final Implementation implementation;

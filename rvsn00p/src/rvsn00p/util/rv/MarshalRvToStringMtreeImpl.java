@@ -15,16 +15,12 @@ import com.tibco.tibrv.TibrvMsg;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-class MarshalRvToStringMtreeImpl implements MarshalRvToString.Implementation {
+class MarshalRvToStringMtreeImpl extends MarshalRvToString.Implementation {
 
     MarshalRvToStringMtreeImpl() {
-        super();
+        super("MTree");
         // Just a sanity check for the classpath.
         new MTree("garbage");
-    }
-    
-    public String getName() {
-        return "MTree";
     }
 
     public String marshal(String name, TibrvMsg message) {
@@ -32,10 +28,6 @@ class MarshalRvToStringMtreeImpl implements MarshalRvToString.Implementation {
         mtree.use_tibrvMsg(message);
         return mtree.toString();
 
-    }
-
-    public TibrvMsg unmarshal(String string) {
-        throw new UnsupportedOperationException();
     }
 
 }

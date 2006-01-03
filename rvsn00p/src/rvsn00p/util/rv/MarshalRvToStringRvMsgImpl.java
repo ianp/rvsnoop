@@ -16,22 +16,14 @@ import com.tibco.tibrv.TibrvMsg;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$ $Date$
  */
-final class MarshalRvToStringRvMsgImpl implements MarshalRvToString.Implementation {
+final class MarshalRvToStringRvMsgImpl extends MarshalRvToString.Implementation {
 
     MarshalRvToStringRvMsgImpl() {
-        super();
+        super("TibrvMsg");
     }
 
-    public String getName() {
-        return "TibrvMsg";
-    }
-    
     public String marshal(String name, TibrvMsg message) {
         return message.toString();
-    }
-
-    public TibrvMsg unmarshal(String string) {
-        throw new UnsupportedOperationException();
     }
 
 }
