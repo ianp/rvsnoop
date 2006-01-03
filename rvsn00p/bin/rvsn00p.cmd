@@ -13,10 +13,7 @@ if "no%$TIBRV_HOME%" equ "no" set TIBRV_HOME=%TIBCO_HOME%\tibrv
 
 set PATH=%TIBRV_HOME%\bin;%PATH%
 
-set CP=%RVSNOOP_HOME%\lib\rvsn00p.jar
-set CP=%CP%;%RVSNOOP_HOME%\lib\xom-1.1.jar
-set CP=%CP%;%RVSNOOP_HOME%\lib\forms-1.0.5.jar
-set CP=%CP%;%TIBRV_HOME%\lib\tibrvj.jar
+for /r %RVSNOOP_HOME%\lib %%A in (*.jar) do set CP=%%A;%CP%
 
 rem Look for optional libraries to add to the classpath.
 if "no%TIBCO_TRA_HOME%" neq "no" set CP=%CP%;%TIBCO_TRA_HOME%\lib\TIBCOrt.jar

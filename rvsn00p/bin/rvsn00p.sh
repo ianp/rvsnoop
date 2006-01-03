@@ -14,20 +14,33 @@ if [ -z "$TIBRV_HOME" ] ; then
     export TIBRV_HOME=$TIBCO_HOME/tibrv
 fi
 
-CP="$RVSNOOP_HOME/lib/rvsn00p.jar:$RVSNOOP_HOME/lib/xom-1.1.jar"
-CP="$CP:$RVSNOOP_HOME/lib/forms-1.0.5.jar:$TIBRV_HOME/lib/tibrvj.jar"
+CP="$TIBRV_HOME/lib/tibrvj.jar"
 LP="$TIBRV_HOME/bin:$TIBRV_HOME/lib"
 
+for jar in $RVSNOOP_HOME/lib/*.jar ; do
+    CP="$jar:$CP"
+done
+
 if [ -n "$TIBCO_TRA_HOME" ] ; then
-    CP=$CP:$TIBCO_TRA_HOME/lib/TIBCOrt.jar
+    CP="$CP:$TIBCO_TRA_HOME/lib/TIBCOrt.jar"
 fi
 
 if [ -n "$TIBSDK_HOME" ] ; then
-    CP=$CP:$TIBSDK_HOME/lib/Maverick4.jar
+    CP="$CP:$TIBSDK_HOME/lib/Maverick4.jar"
+fi
+
+if [ -n "$RVSCRIPT_HOME" ] ; then
+    CP="$CP:$RVSCRIPT_HOME/rvscript.jar"
+fi
+
+if [ -n "$RVTEST_HOME" ] ; then
+    for jar in $RVTEST_HOME/lib/*.jar ; do
+        CP="$CP:$jar"
+    done
 fi
 
 if [ -n "$CLASSPATH" ] ; then
-  CP=$CP:$CLASSPATH
+  CP="$CP:$CLASSPATH"
 fi
 
 export LIBPATH=$LP         # AIX
