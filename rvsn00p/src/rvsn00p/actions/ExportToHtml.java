@@ -79,27 +79,22 @@ final class ExportToHtml extends LedgerSelectionAction {
             writeHeader(xmlout);
             for (int i = 0, imax = selected.size(); i < imax; ++i)
                 writeRecord(xmlout, (Record) selected.get(i));
-            writeFooter(xmlout);
+            xmlout.close();
             RvSnooperGUI.setStatusBarMessage("Written HTML report to " + file.getName());
         } catch (IOException e) {
             UIUtils.showError("There was a problem writing the HTML report.", e);
         } finally {
-            IOUtils.closeQuietly(xmlout);
             IOUtils.closeQuietly(bw);
             IOUtils.closeQuietly(fw);
         }
     }
 
-    private void writeFooter(XMLOutputter out) throws IllegalStateException, IOException {
-        out.endTag(); // table
-        out.endTag(); // body
-        out.endTag(); // html
-        out.endDocument();
-    }
-
     private void writeHeader(XMLOutputter out) throws IllegalStateException, IllegalArgumentException, IOException {
         final String title = Version.getAsStringWithName() + " HTML Report (" + MarshalRvToString.getImplementationName() + " marshaller)";
+        out.declaration();
+        out.dtd("html", "-//W3C//DTD XHTML 1.0 Strict//EN", "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
         out.startTag("html");
+        out.attribute("xmlns", "http://www.w3.org/1999/xhtml");
         out.startTag("head");
         writeTagged(out, "title", title);
         writeHttpEquiv(out, "Content-Type", "application/xhtml+xml; charset=utf-8");
@@ -141,7 +136,7 @@ final class ExportToHtml extends LedgerSelectionAction {
         writeTagged(out, "td", record.getSendSubject());
         writeTagged(out, "td", record.getTrackingId());
         out.startTag("td");
-        writeTagged(out, "code", MarshalRvToString.marshal("", record.getMessage()));
+        writeTagged(out, "pre", MarshalRvToString.marshal("", record.getMessage()));
         out.endTag();
         out.endTag();
     }
