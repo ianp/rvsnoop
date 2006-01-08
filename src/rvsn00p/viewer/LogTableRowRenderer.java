@@ -11,8 +11,8 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import rvsn00p.Record;
-import rvsn00p.MsgType;
+import rvsnoop.MsgType;
+import rvsnoop.Record;
 
 /**
  * LogTableRowRenderer

@@ -24,8 +24,9 @@ public class LogTableColumn implements Serializable {
 
     private static final long serialVersionUID = 7160812243483286466L;
     
-    public final static LogTableColumn DATE = new LogTableColumn("Date");
-    public final static LogTableColumn MESSAGE_NUM = new LogTableColumn("Msg#");
+    public final static LogTableColumn CONNECTION = new LogTableColumn("Connection");
+    public final static LogTableColumn DATE = new LogTableColumn("Timestamp");
+    public final static LogTableColumn MESSAGE_NUM = new LogTableColumn("Seq. No.");
     public final static LogTableColumn LEVEL = new LogTableColumn("Type");
     public final static LogTableColumn SUBJECT = new LogTableColumn("Subject");
     public final static LogTableColumn TID = new LogTableColumn("Tracking ID");
@@ -33,11 +34,13 @@ public class LogTableColumn implements Serializable {
 
     protected String _label;
 
-    private static LogTableColumn[] _log4JColumns;
+    static LogTableColumn[] _log4JColumns;
     private static Map _logTableColumnMap;
 
     static {
-        _log4JColumns = new LogTableColumn[]{DATE, MESSAGE_NUM, LEVEL, SUBJECT, TID, MESSAGE};
+        _log4JColumns = new LogTableColumn[] {
+            CONNECTION, DATE, MESSAGE_NUM, LEVEL, SUBJECT, TID, MESSAGE
+        };
 
         _logTableColumnMap = new HashMap();
 

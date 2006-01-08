@@ -13,10 +13,10 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import rvsn00p.LogRecordFilter;
-import rvsn00p.PassingLogRecordFilter;
-import rvsn00p.Record;
-import rvsn00p.StringUtils;
+import rvsnoop.LogRecordFilter;
+import rvsnoop.PassingLogRecordFilter;
+import rvsnoop.Record;
+import rvsnoop.StringUtils;
 
 /**
  * A TableModel for LogRecords which includes filtering support.
@@ -35,8 +35,6 @@ public final class FilteredLogTableModel extends AbstractTableModel {
     private List _filteredRecords;
 
     private int maxRecords = 5000;
-    
-    private final String[] _colNames = { "Timestamp", "Seq. No.", "Type", "Subject", "Tracking ID", "Message" };
 
     public FilteredLogTableModel() {
         super();
@@ -47,11 +45,11 @@ public final class FilteredLogTableModel extends AbstractTableModel {
     }
 
     public String getColumnName(int i) {
-        return _colNames[i];
+        return LogTableColumn._log4JColumns[i]._label;
     }
 
     public int getColumnCount() {
-        return _colNames.length;
+        return LogTableColumn._log4JColumns.length;
     }
 
     public int getRowCount() {
@@ -143,16 +141,18 @@ public final class FilteredLogTableModel extends AbstractTableModel {
 
         switch (col) {
             case 0:
-                return StringUtils.format(new Date(lr.getTimestamp()));
+                return lr.getConnection();
             case 1:
-                return String.valueOf(lr.getSequenceNumber());
+                return StringUtils.format(new Date(lr.getTimestamp()));
             case 2:
-                return lr.getType();
+                return String.valueOf(lr.getSequenceNumber());
             case 3:
-                return lr.getSendSubject();
+                return lr.getType();
             case 4:
-                return lr.getTrackingId();
+                return lr.getSendSubject();
             case 5:
+                return lr.getTrackingId();
+            case 6:
                 return lr.getMessage();
             default:
                 throw new IllegalArgumentException("The column number " + col + " must be between 0 and 5");

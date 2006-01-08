@@ -19,6 +19,22 @@
       </div>
       <div class="content">
         <p>Request <acronym>ID</acronym> numbers refer to bug requests or feature requests on the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge</a> page.</p>
+        <h2>Changes up to version 1.5.0 (Released 2006-01-XX)</h2>
+        <ul>
+          <li>Added a ‘Connection List’ showing all of the <acronym>RVD</acronym> connections and their status. The tooltip for each list item shows the subscribed subjects (if any).</li>
+          <li>The details view now shows more information about the message in a header panel.</li>
+          <li>Added menu options for ‘Export to RvTest’ and ‘Export to RvScript’ which replace the generic text option.</li>
+          <li>Fixed bug causing new subject explorer nodes to be created with incorrect selection state.</li>
+          <li>The configuration is now in 2 parts: application preferences (window size &amp; position, font, etc.) and project preferences (connection details, etc.).</li>
+          <li>The application preferences are now persisted automatically instead of requiring a user action.</li>
+          <li>Some re-organization of the menu structure.</li>
+          <li>Moved the static methods from the connection manager to the connection class, there was no requirement for a seperate class there.</li>
+          <li>Renamed all of the classes to use a more sensible class/package structure.</li>
+        </ul>
+        <h2>Changes up to version 1.4.2 (Released 2006-01-05)</h2>
+        <ul>
+          <li>Fixed an issue in the build system that created a corrupted class file (thanks to Curtis Ling for raising this bug).</li>
+        </ul>
         <h2>Changes up to version 1.4.1 (Released 2006-01-03)</h2>
         <ul>
           <li>Export now works on the selected message ledger rows instead of the entire ledger.</li>
