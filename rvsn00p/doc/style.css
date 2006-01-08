@@ -20,7 +20,7 @@ body {
 }
 
 .header {
-  background: url(images/header.png);
+  background: url(images/header.png) no-repeat;
   border-bottom: 1px solid #000000;
   height: 75px;
   margin: 0;
