@@ -10,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -126,7 +127,7 @@ public final class Logger {
             // @PMD:REVIEWED:SystemPrintln: by ianp on 1/5/06 8:58 PM
             System.err.println("Could not log to file because: " + e.getMessage());
         }
-        if (throwable != null) throwable.printStackTrace(System.out);
+        if (throwable != null) throwable.printStackTrace(new PrintWriter(writer));
         buffer.setLength(0);
     }
     
