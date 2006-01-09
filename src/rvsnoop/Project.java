@@ -81,7 +81,10 @@ public final class Project extends XMLConfigFile {
         SubjectHierarchy.INSTANCE.removeAll();
         // TODO: Remove all user defined types.
         Project.currentProject = currentProject;
-        if (currentProject != null) currentProject.load();
+        if (currentProject != null) {
+            currentProject.load();
+            RecentProjects.getInstance().add(currentProject);
+        }
     }
 
     public Project(File file) {
