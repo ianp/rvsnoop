@@ -47,7 +47,7 @@ public final class RecentConnections extends XMLConfigFile {
             final ConnectionDescriptor cd = (ConnectionDescriptor) connections.get(index);
             final RvConnection connection = RvConnection.createConnection(cd.service, cd.network, cd.daemon);
             connection.setDescription(cd.description);
-            connection.setSubjects(cd.subjects);
+            connection.addSubjects(cd.subjects);
             RecentConnections.getInstance().add(connection);
             connection.start();
         }
@@ -79,10 +79,9 @@ public final class RecentConnections extends XMLConfigFile {
             // Match ConnectionDescriptor
             if (o instanceof ConnectionDescriptor) {
             final ConnectionDescriptor that = (ConnectionDescriptor) o;
-            if (hashCode() == that.hashCode()
-                && service.equals(that.service)
-                && network.equals(that.network)
-                && daemon.equals(that.daemon))
+            if (service.equals(that.service)
+             && network.equals(that.network)
+              && daemon.equals(that.daemon))
                 return true;
             // but alse RvConnection
             } else if (o instanceof RvConnection) {
@@ -102,6 +101,14 @@ public final class RecentConnections extends XMLConfigFile {
                     .hashCode();
             }
             return hashCode;
+        }
+        public String toString() {
+            final StringBuffer buffer = new StringBuffer();
+            buffer.append("[RvConnection: description=").append(description);
+            buffer.append(", service=").append(service);
+            buffer.append(", network=").append(network);
+            buffer.append(", daemon=").append(daemon).append("]");
+            return buffer.toString();
         }
     }
 
