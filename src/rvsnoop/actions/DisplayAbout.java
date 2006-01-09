@@ -67,7 +67,7 @@ final class DisplayAbout extends AbstractAction {
                            " ",
                            "Licensed under the Apache License, Version 2.0.",
                            "  A copy of the license has been included with this",
-                           "  distribution as doc/license.xhtml, or may be obtained",
+                           "  distribution as doc/license.@suffix@, or may be obtained",
                            "  from http://www.apache.org/licenses/LICENSE-2.0.html" },
             NAME, JOptionPane.PLAIN_MESSAGE);
     }
