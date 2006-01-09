@@ -95,7 +95,7 @@ public final class StatusBar extends JPanel {
     public StatusBar() {
         super();
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
+        setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
         bgStart = Color.WHITE;
         bgEnd = new Color(224, 224, 224);
         message.setBorder(BorderFactory.createEmptyBorder());
