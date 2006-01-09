@@ -94,18 +94,16 @@ public class SubjectExplorerRenderer extends JPanel implements TreeCellRenderer 
             buffer.append("\nThere is an error at this node.");
             tooltip.setBackground(ERROR_COLOUR);
             label.setForeground(Color.RED);
-            label.setIcon(Icons.SUBJECT);
         } else if (element.isErrorUnder()) {
             buffer.append("\nThere is an error under this node.");
             tooltip.setBackground(WARNING_COLOUR);
             label.setForeground(Color.ORANGE);
-            label.setIcon(Icons.SUBJECT);
         } else {
             tooltip.setBackground(UIManager.getColor("ToolTip.background"));
             label.setForeground(Color.BLACK);
-            label.setIcon(Icons.SUBJECT);
         }
-        setToolTipText(buffer.toString());
+        label.setIcon(Icons.SUBJECT);
+        tooltip.setTipText(buffer.toString());
         buffer.setLength(0);
         return this;
     }
