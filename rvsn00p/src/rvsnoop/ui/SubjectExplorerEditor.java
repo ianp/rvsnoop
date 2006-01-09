@@ -13,10 +13,13 @@ import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.EventListenerList;
@@ -25,6 +28,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
+import rvsn00p.viewer.RvSnooperGUI;
+import rvsnoop.Record;
 import rvsnoop.SubjectElement;
 import rvsnoop.SubjectHierarchy;
 
@@ -82,7 +87,49 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             SubjectHierarchy.INSTANCE.setAllSelected(element, true);
         }
     }
+
+    private class SelectAllRecordsAt extends AbstractAction {
+        private static final long serialVersionUID = 6732078846733331503L;
+        SelectAllRecordsAt() {
+            super("Select All Records At");
+        }
+        public void actionPerformed(ActionEvent e) {
+            final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
+            final ListSelectionModel model = RvSnooperGUI.getInstance().getMessageLedger().getSelectionModel();
+            final List records = RvSnooperGUI.getInstance().getFilteredRecords();
+            model.setValueIsAdjusting(true);
+            model.clearSelection();
+            int index = 0;
+            for (final Iterator i = records.iterator(); i.hasNext(); ++index) {
+                final Record record = (Record) i.next();
+                if (subject.equals(record.getSubject()))
+                    model.addSelectionInterval(index, index);
+            }
+            model.setValueIsAdjusting(false);
+        }
+    }
     
+    private class SelectAllRecordsUnder extends AbstractAction {
+        private static final long serialVersionUID = -7342058243983715186L;
+        SelectAllRecordsUnder() {
+            super("Select All Records Under");
+        }
+        public void actionPerformed(ActionEvent e) {
+            final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
+            final ListSelectionModel model = RvSnooperGUI.getInstance().getMessageLedger().getSelectionModel();
+            final List records = RvSnooperGUI.getInstance().getFilteredRecords();
+            model.setValueIsAdjusting(true);
+            model.clearSelection();
+            int index = 0;
+            for (final Iterator i = records.iterator(); i.hasNext(); ++index) {
+                final Record record = (Record) i.next();
+                if (subject.isNodeDescendant(record.getSubject()))
+                    model.addSelectionInterval(index, index);
+            }
+            model.setValueIsAdjusting(false);
+        }
+    }
+
     private static final long serialVersionUID = 7957683568277521431L;
 
     private SubjectElement element;
@@ -141,6 +188,9 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             popupMenu = new JPopupMenu();
             popupMenu.add(new Select());
             popupMenu.add(new Deselect());
+            popupMenu.addSeparator();
+            popupMenu.add(new SelectAllRecordsAt());
+            popupMenu.add(new SelectAllRecordsUnder());
             popupMenu.addSeparator();
             popupMenu.add(new Expand());
             popupMenu.add(new Collapse());
