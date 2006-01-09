@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -44,6 +45,8 @@ public final class RvDetailsPanel extends JPanel {
     
     private static final Constructor aeMsgTreeNode;
     
+    private static final Logger logger = Logger.getLogger(RvDetailsPanel.class);
+    
     static {
         Class aeMsgTreeNodeClass = null;
         Constructor aeMsgTreeNodeConstructor = null;
@@ -51,15 +54,15 @@ public final class RvDetailsPanel extends JPanel {
             aeMsgTreeNodeClass = Class.forName("rvsnoop.AeMsgTreeNode");
             aeMsgTreeNodeConstructor = aeMsgTreeNodeClass.getConstructor(new Class[] { TibrvMsg.class });
         } catch (Exception ignored) {
+            if (logger.isInfoEnabled())
+                logger.info("SDK not found, AE tree view will be disabled.");
             // Do nothing if SDK not on class path.
         }
         aeMsgTreeNode = aeMsgTreeNodeConstructor;
     }
-    
-    private static final Logger logger = Logger.getLogger(RvDetailsPanel.class);
 
     private static final long serialVersionUID = -4899980613877741151L;
-
+    
     private final JTextField cmSender = new JTextField();
     
     private final JTextField cmSequence = new JTextField();
@@ -86,7 +89,7 @@ public final class RvDetailsPanel extends JPanel {
     
     public RvDetailsPanel() {
         super(new BorderLayout());
-        setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.GRAY));
+        setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, Color.GRAY));
         add(createHeader(), BorderLayout.NORTH);
         add(createBody(), BorderLayout.CENTER);
         final JTextField[] fields = new JTextField[] {
@@ -95,6 +98,15 @@ public final class RvDetailsPanel extends JPanel {
         for (int i = 0, imax = fields.length; i < imax; ++i)
             fields[i].setEditable(false);
         clearPanel();
+    }
+    
+    private void addNamedField(String name, JTextField field, int x, int y, int w, DefaultFormBuilder builder, CellConstraints cc, Border textBorder) {
+        final JLabel label = builder.addLabel(name, cc.xy (x, y));
+        label.setFont(headerFont);
+        label.setLabelFor(field);
+        builder.add(field, cc.xyw(x + 2, y, w));
+        field.setFont(headerFont);
+        field.setBorder(textBorder);
     }
     
     private void clearPanel() {
@@ -123,34 +135,17 @@ public final class RvDetailsPanel extends JPanel {
             "r:default, 3dlu, p:grow, 7dlu, r:default, 3dlu, p:grow",
             "p, 3dlu, p, 3dlu, p, 3dlu, p"));
         final CellConstraints cc = new CellConstraints();
-        final JLabel ssLabel = builder.addLabel("Send Subject", cc.xy (1, 1));
-        ssLabel.setFont(headerFont);
-        ssLabel.setLabelFor(sendSubject);
-        builder.add(sendSubject, cc.xyw(3, 1, 5)).setFont(headerFont);
-        final JLabel rsLabel = builder.addLabel("Reply Subject", cc.xy (1, 3));
-        rsLabel.setFont(headerFont);
-        rsLabel.setLabelFor(sendSubject);
-        builder.add(replySubject, cc.xyw(3, 3, 5)).setFont(headerFont);
-        final JLabel nfLabel = builder.addLabel("Num. Fields", cc.xy (1, 5));
-        nfLabel.setFont(headerFont);
-        nfLabel.setLabelFor(sendSubject);
-        builder.add(numFields, cc.xy(3, 5)).setFont(headerFont);
-        final JLabel seLabel = builder.addLabel("String Encoding", cc.xy (5, 5));
-        seLabel.setFont(headerFont);
-        seLabel.setLabelFor(sendSubject);
-        builder.add(stringEncoding, cc.xy(7, 5)).setFont(headerFont);
-        final JLabel cmSendLabel = builder.addLabel("CM Sender", cc.xy (1, 7));
-        cmSendLabel.setFont(headerFont);
-        cmSendLabel.setLabelFor(sendSubject);
-        builder.add(cmSender, cc.xy(3, 7)).setFont(headerFont);
-        final JLabel cmSeqLabel = builder.addLabel("CM Sequence", cc.xy (5, 7));
-        cmSeqLabel.setFont(headerFont);
-        cmSeqLabel.setLabelFor(sendSubject);
-        builder.add(cmSequence, cc.xy(7, 7)).setFont(headerFont);
+        final Border textBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.LIGHT_GRAY);
+        addNamedField("Send Subject",    sendSubject,    1, 1, 5, builder, cc, textBorder);
+        addNamedField("Reply Subject",   replySubject,   1, 3, 5, builder, cc, textBorder);
+        addNamedField("Num. Fields",     numFields,      1, 5, 1, builder, cc, textBorder);
+        addNamedField("String Encoding", stringEncoding, 5, 5, 1, builder, cc, textBorder);
+        addNamedField("CM Sender",       cmSender,       1, 7, 1, builder, cc, textBorder);
+        addNamedField("CM Sequence",     cmSequence,     5, 7, 1, builder, cc, textBorder);
         final JPanel headerFields = builder.getPanel();
         headerFields.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         iconLabel.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 4));
-        iconLabel.setSize(56, iconLabel.getHeight());
+        iconLabel.setSize(iconLabel.getHeight(), iconLabel.getHeight());
         header.add(headerFields, BorderLayout.CENTER);
         header.add(iconLabel, BorderLayout.EAST);
         return header;
@@ -166,19 +161,14 @@ public final class RvDetailsPanel extends JPanel {
         replySubject.setText(message.getReplySubject());
         sendSubject.setText(message.getSendSubject());
         stringEncoding.setText(message.getMsgStringEncoding());
-        try {
-            cmSender.setText(TibrvCmMsg.getSender(message));
-            cmSequence.setText(Long.toString(TibrvCmMsg.getSequence(message)));
-            icon = Banners.MESSAGE_CM;
-        } catch (TibrvException e) {
-            cmSender.setText("");
-            cmSequence.setText("");
-        }
+        setCertifiedFields(message);
         if (icon == null)
             if (message.getSendSubject().startsWith("_RVFT."))
                 icon = Banners.MESSAGE_FT;
             else if (message.getSendSubject().startsWith("_RV."))
                 icon = Banners.MESSAGE_ADVISORY;
+            else
+                icon = Banners.MESSAGE;
         iconLabel.setIcon(icon);
         try {
             // We need to do this reflectively in case the SDK isn't available.
@@ -190,6 +180,24 @@ public final class RvDetailsPanel extends JPanel {
             if (logger.isWarnEnabled())
                 logger.warn("", e);
             model.setRoot(new RvMsgTreeNode(message));
+        }
+    }
+
+    private void setCertifiedFields(TibrvMsg message) {
+        try {
+            final String sender = TibrvCmMsg.getSender(message); 
+            if (sender != null && sender.length() > 0) {
+                cmSender.setText(sender);
+                cmSequence.setText(Long.toString(TibrvCmMsg.getSequence(message)));
+                icon = Banners.MESSAGE_CM;
+                cmSender.getParent().validate();
+            } else {
+                cmSender.setText("");
+                cmSequence.setText("");
+            }
+        } catch (TibrvException e) {
+            cmSender.setText("");
+            cmSequence.setText("");
         }
     }
 
