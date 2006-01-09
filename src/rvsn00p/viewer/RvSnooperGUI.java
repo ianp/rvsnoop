@@ -89,11 +89,7 @@ public final class RvSnooperGUI {
         ConnectionListListener() {
             super();
         }
-
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
-         */
-        public void mousePressed(MouseEvent e) {
+        public void mouseClicked(MouseEvent e) {
             if (!e.isPopupTrigger()) return;
             final RvConnection connection = (RvConnection) connectionList.getSelectedValue();
             if (connection == null) return;
@@ -103,7 +99,6 @@ public final class RvSnooperGUI {
             menu.add(connection.getStopAction());
             menu.show(connectionList, e.getX(), e.getY());
         }
-
     }
 
     private static String _subjectTextFilter = "";
@@ -492,6 +487,8 @@ public final class RvSnooperGUI {
         edit.addSeparator();
         edit.add(Actions.SEARCH);
         edit.add(Actions.SEARCH_AGAIN);
+        edit.addSeparator();
+        edit.add(Actions.REPUBLISH);
         edit.addSeparator();
         edit.add(createEditFilterTIDMI());
         edit.add(createEditFilterBySelectedTIDMI());

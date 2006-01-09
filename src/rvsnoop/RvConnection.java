@@ -185,6 +185,15 @@ public final class RvConnection {
         }
     }
 
+    private static class NullCallback implements TibrvMsgCallback {
+        NullCallback() {
+            super();
+        }
+        public void onMsg(TibrvListener listener, TibrvMsg message) {
+            // Do nothing.
+        }
+    }
+
     private class PauseAction extends AbstractAction implements ListDataListener {
         private static final long serialVersionUID = 6173501893576290019L;
         PauseAction() {
@@ -204,7 +213,7 @@ public final class RvConnection {
             // Do nothing.
         }
     }
-
+    
     private class StartAction extends AbstractAction implements ListDataListener {
         private static final long serialVersionUID = 705371092853316824L;
         StartAction() {
@@ -278,6 +287,8 @@ public final class RvConnection {
     public static final String PROP_SUBJECTS = "subjects";
 
     private static TibrvQueue queue;
+    
+    private static TibrvListener queueLimitListener;
     
     public static List allConnections() {
         return Collections.unmodifiableList(allConnections);
@@ -353,6 +364,26 @@ public final class RvConnection {
     }
 
     /**
+     * Lookup an existing connection by name.
+     * 
+     * @param description The name to lookup.
+     * @return The connection, or <code>null</code> if no connection with that name exists.
+     * @throws IllegalStateException If more than one connection with that name exists.
+     */
+    public static RvConnection getConnection(String description) {
+        RvConnection connection = null;
+        for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
+            final RvConnection next = (RvConnection) i.next();
+            if (next.description.equals(description))
+                if (connection != null)
+                    throw new IllegalStateException(description + "is not a unique connection name.");
+                else
+                    connection = next;
+        }
+        return connection;
+    }
+    
+    /**
      * Get an existing connection.
      * 
      * @param service The Rendezvous service parameter.
@@ -391,8 +422,10 @@ public final class RvConnection {
     }
     
     public static synchronized void pauseQueue() throws TibrvException {
-        if (queue != null)
+        if (queue != null) {
+            queueLimitListener = new TibrvListener(queue, new NullCallback(), Tibrv.processTransport(), "_RV.WARN.SYSTEM.QUEUE.LIMIT_EXCEEDED", null);
             queue.setLimitPolicy(TibrvQueue.DISCARD_NEW, 1, 1);
+        }
         for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
             final RvConnection connection = (RvConnection) i.next();
             if (connection.getState() == State.STARTED) connection.pause();
@@ -401,8 +434,13 @@ public final class RvConnection {
     
     public static synchronized void resumeQueue() throws TibrvException {
         ensureInitialized();
-        if (queue != null)
+        if (queue != null) {
             queue.setLimitPolicy(TibrvQueue.DISCARD_NONE, 0, 0);
+            if (queueLimitListener != null) {
+                queueLimitListener.destroy();
+                queueLimitListener = null;
+            }
+        }
         for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
             final RvConnection connection = (RvConnection) i.next();
             if (connection.getState() == State.PAUSED) connection.start();
@@ -489,6 +527,21 @@ public final class RvConnection {
         if (listModel != null) listModel.fireContentsChanged(this);
     }
     
+    public synchronized void addSubjects(List subjects) {
+        assert subjects != null;
+//        if (state != State.STOPPED)
+//            for (final Iterator i = this.subjects.values().iterator(); i.hasNext(); )
+//                ((TibrvListener) i.next()).destroy();
+//        this.subjects.clear();
+        for (final Iterator i = subjects.iterator(); i.hasNext(); ) {
+            final String subject = ((String) i.next()).trim();
+            if (this.subjects.containsValue(subject)) continue;
+            if (logger.isDebugEnabled()) logger.debug("RvConnection.setSubjects putting '" + subject + "'");
+            this.subjects.put(subject, createListener(subject));
+        }
+        if (listModel != null) listModel.fireContentsChanged(this);
+    }
+    
     private TibrvListener createListener(String subject) {
         if (state == State.STOPPED) return null;
         try {
@@ -500,6 +553,12 @@ public final class RvConnection {
         }
     }
     
+    private void createTransport() throws TibrvException {
+        ensureInitialized();
+        transport = new TibrvRvdTransport(service, network, daemon);
+        transport.setDescription(getDescription() + DESCRIPTION);
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
@@ -507,30 +566,29 @@ public final class RvConnection {
         if (o == this) return true;
         if (!(o instanceof RvConnection)) return false;
         final RvConnection that = (RvConnection) o;
-        if (hashCode() != that.hashCode()) return false;
         return service.equals(that.service)
             && network.equals(that.network)
             && daemon.equals(that.daemon);
     }
-
+    
     /**
      * Get the Rendezvous daemon parameter.
      */
     public String getDaemon() {
         return daemon;
     }
-    
+
     public String getDescription() {
         return description;
     }
-
+    
     /**
      * Get the Rendezvous network parameter.
      */
     public String getNetwork() {
         return network;
     }
-    
+
     public int getNumSubjects() {
         return subjects.size();
     }
@@ -549,7 +607,7 @@ public final class RvConnection {
     public String getService() {
         return service;
     }
-
+    
     /**
      * @return Returns the startAction.
      */
@@ -557,7 +615,7 @@ public final class RvConnection {
         if (startAction == null) startAction = new StartAction();
         return startAction;
     }
-    
+
     public State getState() {
         return state;
     }
@@ -578,7 +636,7 @@ public final class RvConnection {
     public Set getSubjects(){
          return Collections.unmodifiableSet(subjects.keySet());
     }
-
+    
     /**
      * Returns an hash code derived from the network, service and daemon attributes.
      * 
@@ -592,7 +650,7 @@ public final class RvConnection {
         }
         return hashCode;
     }
-    
+
     public synchronized void pause() {
         assert state == State.STARTED : "Cannot pause if not started.";
         logger.info("Pausing connection: " + description);
@@ -601,6 +659,18 @@ public final class RvConnection {
         if (listModel != null) listModel.fireContentsChanged(this);
     }
 
+    public synchronized void publish(Record record) throws TibrvException {
+        if (transport == null) createTransport();
+        transport.send(record.getMessage());
+    }
+    
+    public void removeAllSubbjects() {
+        if (state != State.STOPPED)
+            for (final Iterator i = this.subjects.values().iterator(); i.hasNext(); )
+                ((TibrvListener) i.next()).destroy();
+        this.subjects.clear();
+    }
+    
     public void removeSubject(String subject) {
         if (subject == null) return;
         subject = subject.trim();
@@ -622,20 +692,6 @@ public final class RvConnection {
         }
     }
 
-    public synchronized void setSubjects(List subjects) {
-        assert subjects != null;
-        if (state != State.STOPPED)
-            for (final Iterator i = this.subjects.values().iterator(); i.hasNext(); )
-                ((TibrvListener) i.next()).destroy();
-        this.subjects.clear();
-        for (final Iterator i = subjects.iterator(); i.hasNext(); ) {
-            final String subject = ((String) i.next()).trim();
-            if (logger.isDebugEnabled()) logger.debug("RvConnection.setSubjects putting '" + subject + "'");
-            this.subjects.put(subject, createListener(subject));
-        }
-        if (listModel != null) listModel.fireContentsChanged(this);
-    }
-
     public synchronized void start() {
         assert state != State.STARTED : "Cannot start if already started.";
         logger.info("Starting connection: " + description);
@@ -643,10 +699,8 @@ public final class RvConnection {
             state = State.STARTED;
         } else {
             state = State.STARTED;
-            ensureInitialized();
             try {
-                transport = new TibrvRvdTransport(service, network, daemon);
-                transport.setDescription(getDescription() + DESCRIPTION);
+                createTransport();
                 for (final Iterator i = subjects.keySet().iterator(); i.hasNext(); ) {
                     final String subject = (String) i.next();
                     subjects.put(subject, createListener(subject));

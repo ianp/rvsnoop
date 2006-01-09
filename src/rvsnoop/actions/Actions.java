@@ -97,6 +97,8 @@ public final class Actions {
     public static final Action QUIT = add(new Quit());
     
     public static final Action REPORT_BUG = add(new ReportBug());
+    
+    public static final Action REPUBLISH = add(new Republish());
 
     public static final Action SAVE = add(new Save());
 

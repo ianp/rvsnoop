@@ -49,6 +49,7 @@ public final class Icons {
     public static final Icon PASTE = createIcon("/resources/icons/paste.png", ICON_SIZE);
     public static final Icon PAUSE = createIcon("/resources/icons/pause.png", ICON_SIZE);
     public static final Icon QUIT = createIcon("/resources/icons/quit.png", ICON_SIZE);
+    public static final Icon REPUBLISH = createIcon("/resources/icons/republish.png", ICON_SIZE);
     public static final Icon RESUME = createIcon("/resources/icons/resume.png", ICON_SIZE);
     public static final Icon RV_MESSAGE = createIcon("/resources/icons/rv_message.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon RV_FIELD = createIcon("/resources/icons/rv_field.png", ICON_SIZE); //$NON-NLS-1$
