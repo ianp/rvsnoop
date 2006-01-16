@@ -8,13 +8,11 @@ package rvsnoop.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Rectangle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.tree.TreeCellRenderer;
@@ -40,29 +38,9 @@ public class SubjectExplorerRenderer extends JPanel implements TreeCellRenderer 
 
     private final StringBuffer buffer = new StringBuffer();
     
-    protected final JCheckBox checkbox = new JCheckBox() {
-        private static final long serialVersionUID = -2807985412691471908L;
-        public final JToolTip createToolTip() {
-            return tooltip;
-        }
-    };
+    protected final JCheckBox checkbox = new JCheckBox();
 
-    private SubjectElement element;
-
-    private final JLabel label = new JLabel() {
-        private static final long serialVersionUID = -8922445546036019297L;
-        public final JToolTip createToolTip() {
-            return tooltip;
-        }
-        public void repaint(long tm, int x, int y, int width, int height) {
-            // Do nothing.
-        }
-        public void repaint(Rectangle r) {
-            // Do nothing.
-        }
-    };
-
-    private final JToolTip tooltip = new MultiLineToolTip();
+    private final JLabel label = new JLabel();
 
     public SubjectExplorerRenderer() {
         super(new FlowLayout(FlowLayout.LEADING, 0, 0));
@@ -74,10 +52,6 @@ public class SubjectExplorerRenderer extends JPanel implements TreeCellRenderer 
         add(label);
     }
 
-    public final JToolTip createToolTip() {
-        return tooltip;
-    }
-
     protected final void firePropertyChange(String propertyName, Object oldValue, Object newValue) { 
         // Overridden for performance reasons.
         if ("text".equals(propertyName) || "selected".equals(propertyName))
@@ -85,53 +59,50 @@ public class SubjectExplorerRenderer extends JPanel implements TreeCellRenderer 
     }
 
     public final Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean focus) {
-        element = (SubjectElement) value;
+        final SubjectElement element = (SubjectElement) value;
         label.setText((String) element.getUserObject());
         checkbox.setSelected(element.isSelected());
         buffer.append("Records at this node: ").append(element.getNumRecordsHere());
         buffer.append("\nRecords under this node: ").append(element.getNumRecordsUnder());
         if (element.isErrorHere()) {
             buffer.append("\nThere is an error at this node.");
-            tooltip.setBackground(ERROR_COLOUR);
             label.setForeground(Color.RED);
         } else if (element.isErrorUnder()) {
             buffer.append("\nThere is an error under this node.");
-            tooltip.setBackground(WARNING_COLOUR);
             label.setForeground(Color.ORANGE);
         } else {
-            tooltip.setBackground(UIManager.getColor("ToolTip.background"));
             label.setForeground(Color.BLACK);
         }
         label.setIcon(Icons.SUBJECT);
-        tooltip.setTipText(buffer.toString());
+        setToolTipText(buffer.toString());
         buffer.setLength(0);
         return this;
     }
 
-    /**
-     * Overridden for performance reasons.
-     * <p>
-     * As per the standard cell renderers the two repaint methods are overridden
-     * to avoid taking unnecessary code paths as they are called many times.
-     * Unlike the standard classes however, we still need to call the
-     * <code>validate</code> methods as the check box and label need to be
-     * laid out.
-     */
-    public void repaint(long tm, int x, int y, int width, int height) {
-        // Do nothing.
-    }
-
-    /**
-     * Overridden for performance reasons.
-     * <p>
-     * As per the standard cell renderers the two repaint methods are overridden
-     * to avoid taking unnecessary code paths as they are called many times.
-     * Unlike the standard classes however, we still need to call the
-     * <code>validate</code> methods as the check box and label need to be
-     * laid out.
-     */
-    public void repaint(Rectangle r) {
-        // Do nothing.
-    }
+//    /**
+//     * Overridden for performance reasons.
+//     * <p>
+//     * As per the standard cell renderers the two repaint methods are overridden
+//     * to avoid taking unnecessary code paths as they are called many times.
+//     * Unlike the standard classes however, we still need to call the
+//     * <code>validate</code> methods as the check box and label need to be
+//     * laid out.
+//     */
+//    public void repaint(long tm, int x, int y, int width, int height) {
+//        // Do nothing.
+//    }
+//
+//    /**
+//     * Overridden for performance reasons.
+//     * <p>
+//     * As per the standard cell renderers the two repaint methods are overridden
+//     * to avoid taking unnecessary code paths as they are called many times.
+//     * Unlike the standard classes however, we still need to call the
+//     * <code>validate</code> methods as the check box and label need to be
+//     * laid out.
+//     */
+//    public void repaint(Rectangle r) {
+//        // Do nothing.
+//    }
 
 }
