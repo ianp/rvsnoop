@@ -6,7 +6,6 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -94,11 +93,8 @@ public final class Logger {
             final String filename = "log-" + new SimpleDateFormat("yyyyMMddHH").format(new Date());
             try {
                 final File file = new File(home + fs + CONFIG_DIRECTORY + fs + filename);
-                final FileWriter fw = new FileWriter(file, true);
-                if (Boolean.getBoolean("rvsnoop.logging.buffered"))
-                    writer = new BufferedWriter(fw);
-                else
-                    writer = fw;
+                file.getParentFile().mkdirs();
+                writer = new FileWriter(file, true);
             } catch (IOException e) {
                 throw new ExceptionInInitializerError(e);
             }
@@ -123,6 +119,7 @@ public final class Logger {
         if (throwable != null) buffer.append(" [").append(throwable.getMessage()).append("]");
         try {
             writer.write(buffer.append("\n").toString());
+            writer.flush();
         } catch (IOException e) {
             // @PMD:REVIEWED:SystemPrintln: by ianp on 1/5/06 8:58 PM
             System.err.println("Could not log to file because: " + e.getMessage());
@@ -141,41 +138,49 @@ public final class Logger {
     }
 
     public synchronized void debug(String message) {
-        log(simpleName, DEBUG_LABEL, message, null);
+        if (isDebugEnabled())
+            log(simpleName, DEBUG_LABEL, message, null);
     }
 
     public synchronized void debug(String message, Throwable throwable) {
-        log(simpleName, DEBUG_LABEL, message, throwable);
+        if (isDebugEnabled())
+            log(simpleName, DEBUG_LABEL, message, throwable);
     }
 
     public synchronized void error(String message) {
-        log(simpleName, ERROR_LABEL, message, null);
+        if (isErrorEnabled())
+            log(simpleName, ERROR_LABEL, message, null);
         RvSnooperGUI.setStatusBarWarning(message);
         UIUtils.showError(message, null);
     }
 
     public synchronized void error(String message, Throwable throwable) {
-        log(simpleName, ERROR_LABEL, message, throwable);
+        if (isErrorEnabled())
+            log(simpleName, ERROR_LABEL, message, throwable);
         RvSnooperGUI.setStatusBarWarning(message);
         UIUtils.showError(message, throwable);
     }
 
     public synchronized void fatal(String message) {
-        log(simpleName, FATAL_LABEL, message, null);
+        if (isFatalEnabled())
+            log(simpleName, FATAL_LABEL, message, null);
     }
     
     public synchronized void fatal(String message, Throwable throwable) {
-        log(simpleName, FATAL_LABEL, message, throwable);
+        if (isFatalEnabled())
+            log(simpleName, FATAL_LABEL, message, throwable);
     }
     
     public synchronized void info(String message) {
+        if (isInfoEnabled())
+            log(simpleName, INFO_LABEL, message, null);
         RvSnooperGUI.setStatusBarMessage(message);
-        log(simpleName, INFO_LABEL, message, null);
     }
     
     public synchronized void info(String message, Throwable throwable) {
+        if (isInfoEnabled())
+            log(simpleName, INFO_LABEL, message, throwable);
         RvSnooperGUI.setStatusBarMessage(message);
-        log(simpleName, INFO_LABEL, message, throwable);
     }
     
     public boolean isDebugEnabled() {
