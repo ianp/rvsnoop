@@ -14,8 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -25,8 +23,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
@@ -35,7 +35,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -49,6 +48,7 @@ import javax.swing.ToolTipManager;
 import javax.swing.WindowConstants;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
+import javax.swing.tree.TreeNode;
 
 import rvsnoop.LogRecordFilter;
 import rvsnoop.Logger;
@@ -59,7 +59,6 @@ import rvsnoop.RecentProjects;
 import rvsnoop.Record;
 import rvsnoop.RvConnection;
 import rvsnoop.StringUtils;
-import rvsnoop.SubjectElement;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.TreeModelAdapter;
 import rvsnoop.Version;
@@ -84,22 +83,6 @@ import rvsnoop.ui.UIUtils;
  */
 public final class RvSnooperGUI {
     
-    private class ConnectionListListener extends MouseAdapter {
-        private final JPopupMenu menu = new JPopupMenu();
-        ConnectionListListener() {
-            super();
-        }
-        public void mouseClicked(MouseEvent e) {
-            if (!e.isPopupTrigger()) return;
-            final RvConnection connection = (RvConnection) connectionList.getSelectedValue();
-            if (connection == null) return;
-            menu.removeAll();
-            menu.add(connection.getStartAction());
-            menu.add(connection.getPauseAction());
-            menu.add(connection.getStopAction());
-            menu.show(connectionList, e.getX(), e.getY());
-        }
-    }
 
     private static String _subjectTextFilter = "";
     
@@ -151,11 +134,13 @@ public final class RvSnooperGUI {
     }
 
     public static void setStatusBarMessage(String message) {
-        instance.statusBar.setMessage(message);
+        if (instance != null)
+            instance.statusBar.setMessage(message);
     }
     
     public static void setStatusBarWarning(String message) {
-        instance.statusBar.setWarning(message);
+        if (instance != null)
+            instance.statusBar.setWarning(message);
     }
 
     private final List _columns = LogTableColumn.getLogTableColumns();
@@ -177,8 +162,6 @@ public final class RvSnooperGUI {
     private final JList connectionList = createConnectionList();
     
     private final RvDetailsPanel detailsPanel = new RvDetailsPanel();
-    
-//    private final JTree detailsTree = createDetailsTree();
     
     private final LogTable messageLedger = createMessageLedger(detailsPanel);
     
@@ -328,8 +311,7 @@ public final class RvSnooperGUI {
     private JList createConnectionList() {
         final JList list = new JList(RvConnection.getListModel());
         list.setBorder(BorderFactory.createEmptyBorder());
-        list.setCellRenderer(new ConnectionListRenderer(false));
-        list.addMouseListener(new ConnectionListListener());
+        list.setCellRenderer(new ConnectionListRenderer(list, false));
         // This line allows the cell renderer to provide a custom tooltip for each node.
         ToolTipManager.sharedInstance().registerComponent(list);
         return list;
@@ -348,20 +330,6 @@ public final class RvSnooperGUI {
         splitter.setBorder(BorderFactory.createEmptyBorder());
         return splitter;
     }
-    
-//    private JTree createDetailsTree() {
-//        final JTree tree = new JTree(new DefaultTreeModel(new DefaultMutableTreeNode("")));
-//        tree.setBorder(BorderFactory.createEmptyBorder());
-//        tree.setRootVisible(true);
-//        tree.setCellRenderer(new LazyTreeNode.Renderer());
-//        return tree; 
-//    }
-
-//    private JScrollPane createDetailsTreeScroller(JTree detailsTree) {
-//        final JScrollPane scroller = new JScrollPane(detailsTree);
-//        scroller.setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, Color.GRAY));
-//        return scroller;
-//    }
 
     private JMenuItem createEditFilterBySelectedSubjectMI() {
         final JMenuItem editFilterSubjectMI = new JMenuItem("Filter by selected subject");
@@ -526,7 +494,7 @@ public final class RvSnooperGUI {
         file.add(Actions.OPEN);
         final JMenu fileRecent = new JMenu("Recent Projects");
         fileRecent.setIcon(Icons.OPEN);
-        final PopupMenuListener recentProjects = RecentProjects.getInstance().new MenuManager();
+        final PopupMenuListener recentProjects = RecentProjects.INSTANCE.new MenuManager();
         fileRecent.getPopupMenu().addPopupMenuListener(recentProjects);
         file.add(fileRecent);
         file.addSeparator();
@@ -542,7 +510,7 @@ public final class RvSnooperGUI {
         file.add(Actions.ADD_CONNECTION);
         final JMenu connRecent = new JMenu("Recent Connections");
         connRecent.setIcon(Icons.ADD_CONNECTION);
-        final PopupMenuListener recentConnections = RecentConnections.getInstance().new MenuManager();
+        final PopupMenuListener recentConnections = RecentConnections.INSTANCE.new MenuManager();
         connRecent.getPopupMenu().addPopupMenuListener(recentConnections);
         file.add(connRecent);
         file.addSeparator();
@@ -564,8 +532,6 @@ public final class RvSnooperGUI {
         help.addSeparator();
         help.add(Actions.DISPLAY_LICENSE);
         help.add(Actions.DISPLAY_ABOUT);
-        final StringBuffer a = new StringBuffer();
-        a.toString();
         return help;
     }
 
@@ -581,13 +547,12 @@ public final class RvSnooperGUI {
     }
 
     private LogRecordFilter createLogRecordFilter() {
-        final LogRecordFilter result = new LogRecordFilter() {
+        return new LogRecordFilter() {
             public boolean passes(final Record record) {
                 return getMenuItem(record.getType()).isSelected()
                     && SubjectHierarchy.INSTANCE.getSubjectElement(record.getSendSubject()).isSelected();
             }
         };
-        return result;
     }
 
     private JCheckBoxMenuItem createLogTableColumnMenuItem(final LogTableColumn column) {
@@ -709,7 +674,7 @@ public final class RvSnooperGUI {
                 tree.expandPath(e.getTreePath());
             }
             public void treeNodesRemoved(TreeModelEvent e) {
-                if (((SubjectElement) SubjectHierarchy.INSTANCE.getRoot()).getChildCount() == 0)
+                if (((TreeNode) SubjectHierarchy.INSTANCE.getRoot()).getChildCount() == 0)
                     isExpanded = false;
             }
         });
@@ -734,7 +699,7 @@ public final class RvSnooperGUI {
     
     private LogRecordFilter createSubjectLogRecordFilter(final String text) {
         setTIDTextFilter(text);
-        final LogRecordFilter result = new LogRecordFilter() {
+        return new LogRecordFilter() {
             public boolean passes(final Record record) {
                 final String subject = record.getSendSubject();
                 if (subject == null || _subjectTextFilter == null) {
@@ -747,30 +712,24 @@ public final class RvSnooperGUI {
                 }
             }
         };
-
-        return result;
     }
 
     private JMenuItem createSubMenuItem(final MsgType level) {
         final JMenuItem result = new JMenuItem(level.toString());
-        final MsgType logLevel = level;
         result.setMnemonic(level.toString().charAt(0));
         result.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                showLogLevelColorChangeDialog(result, logLevel);
+                showLogLevelColorChangeDialog(result, level);
             }
         });
-
         return result;
-
     }
 
     private LogRecordFilter createTIDLogRecordFilter(final String text) {
         setTIDTextFilter(text);
-        final LogRecordFilter result = new LogRecordFilter() {
+        return new LogRecordFilter() {
             public boolean passes(final Record record) {
                 final String trackingID = record.getTrackingId();
-
                 if (trackingID == null || _trackingIDTextFilter == null) {
                     return false;
                 } else if (trackingID.indexOf(_trackingIDTextFilter) == -1) {
@@ -781,8 +740,6 @@ public final class RvSnooperGUI {
                 }
             }
         };
-
-        return result;
     }
 
     private JToolBar createToolBar() {
@@ -790,16 +747,22 @@ public final class RvSnooperGUI {
         toolBar.setFloatable(false);
         toolBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
         toolBar.setRollover(true);
-        // The painted borders on Java toolbar buttons look really bad...
-        toolBar.add(Actions.OPEN).setBorderPainted(false);
-        toolBar.add(Actions.SAVE).setBorderPainted(false);
+        createToolBarButton(toolBar, Actions.OPEN);
+        createToolBarButton(toolBar, Actions.SAVE);
         toolBar.addSeparator();
-        toolBar.add(Actions.ADD_CONNECTION).setBorderPainted(false);
+        createToolBarButton(toolBar, Actions.ADD_CONNECTION);
         toolBar.addSeparator();
-        toolBar.add(Actions.CLEAR_LEDGER).setBorderPainted(false);
+        createToolBarButton(toolBar, Actions.CLEAR_LEDGER);
         toolBar.addSeparator();
-        toolBar.add(Actions.PAUSE_ALL).setBorderPainted(false);
+        createToolBarButton(toolBar, Actions.PAUSE_ALL);
         return toolBar;
+    }
+    
+    private void createToolBarButton(JToolBar toolBar, Action action) {
+        final JButton button = toolBar.add(action);
+        // The painted borders on Java toolbar buttons look really bad...
+        button.setBorderPainted(false);
+        button.setOpaque(false);
     }
 
     private JMenu createViewMenu() {
@@ -939,7 +902,11 @@ public final class RvSnooperGUI {
         frame.getContentPane().add(connectionListSplitter, BorderLayout.CENTER);
         frame.getContentPane().add(createToolBar(), BorderLayout.NORTH);
         frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
-        setFrameSize(640, 480);
+        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        final Dimension size = frame.getSize();
+        if (640 < screen.width) size.width = 640;
+        if (480 < screen.height) size.height = 480;
+        frame.setSize(size);
         UIUtils.centerWindowOnScreen(frame);
 
         makeLogTableListenToCategoryExplorer();
@@ -963,7 +930,7 @@ public final class RvSnooperGUI {
     }
 
     private void resetConfiguration() {
-        PreferencesManager.getInstance().delete();
+        PreferencesManager.INSTANCE.delete();
     }
     
     private void selectAllLogTableColumns(final boolean selected) {
@@ -1010,14 +977,6 @@ public final class RvSnooperGUI {
     }
 
 
-    public void setFrameSize(final int width, final int height) {
-        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        final Dimension size = frame.getSize();
-        if (0 < width && width < screen.width) size.width = width;
-        if (0 < height && height < screen.height) size.height = height;
-        frame.setSize(size);
-    }
-
     public void setMaxNumberOfLogRecords(final int maxNumberOfLogRecords) {
         messageLedger.getFilteredLogTableModel().setMaxRecords(maxNumberOfLogRecords);
     }
@@ -1054,6 +1013,9 @@ public final class RvSnooperGUI {
     
     public void setTableFont(Font font) {
         messageLedger.setFont(font);
+        // Without this the default row height is about 1-million-billion pixels...
+        final int rowHeight = messageLedger.getFontMetrics(font).getHeight() + 2;
+        messageLedger.setRowHeight(rowHeight);
     }
 
     private void setTIDTextFilter(final String text) {
