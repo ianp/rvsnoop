@@ -78,7 +78,7 @@ final class XMLTreeNode extends LazyTreeNode {
         if (node instanceof Element) 
             return ((Element) node).getLocalName();
         if (node instanceof Comment) 
-            return "<!-- " + ((Comment) node).getValue(); //$NON-NLS-1$
+            return "<!-- " + node.getValue(); //$NON-NLS-1$
         if (node instanceof Document) 
             return "XML Document"; //$NON-NLS-1$
         if (node instanceof DocType) 
@@ -86,7 +86,7 @@ final class XMLTreeNode extends LazyTreeNode {
         if (node instanceof ProcessingInstruction) 
             return "<? " + ((ProcessingInstruction) node).getTarget();
         if (node instanceof Text) 
-            return ((Text) node).getValue(); //$NON-NLS-1$
+            return node.getValue(); //$NON-NLS-1$
         return "[Unsupported node type!]"; //$NON-NLS-1$
     }
 
