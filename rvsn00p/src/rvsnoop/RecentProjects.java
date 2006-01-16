@@ -88,15 +88,10 @@ public final class RecentProjects extends XMLConfigFile {
     private static final String PROJECT = "project";
     private static final String ROOT = "recentProjects";
     
-    private static RecentProjects instance;
+    public static RecentProjects INSTANCE = new RecentProjects();
 
     private static final Logger logger = Logger.getLogger(RecentProjects.class);
 
-    public static synchronized RecentProjects getInstance() {
-        if (instance == null) instance = new RecentProjects();
-        return instance;
-    }
-    
     private static File getRecentConnectionsFile() {
         final String home = System.getProperty("user.home");
         final String fs = System.getProperty("file.separator");
@@ -157,7 +152,13 @@ public final class RecentProjects extends XMLConfigFile {
         for (int i = 0, imax = projects.size(); i < imax; ++i) {
             final Element project = projects.get(i);
             final File file = new File(project.getValue());
-            if (file.exists()) add(new Project(file));
+            if (file.exists())
+                try {
+                    add(new Project(file.getCanonicalFile()));
+                } catch (IOException e) {
+                    if (logger.isWarnEnabled())
+                        logger.warn("Could not canonicalize file name: " + file.getPath(), e);
+                }
         }
     }
 
