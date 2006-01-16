@@ -17,7 +17,7 @@ import rvsnoop.Logger;
 import rvsnoop.ui.Icons;
 
 /**
- * Display the RvSn00p home page in a browser.
+ * Display the rvSnoop home page in a browser.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -31,7 +31,7 @@ final class DisplayHomePage extends AbstractAction {
     
     private static final Logger logger = Logger.getLogger(DisplayHomePage.class);
     
-    static String NAME = "RvSn00p Web Site";
+    static String NAME = "rvSnoop Web Site";
     
     private static final long serialVersionUID = -6587535307193015605L;
 
@@ -49,7 +49,7 @@ final class DisplayHomePage extends AbstractAction {
      */
     public void actionPerformed(ActionEvent event) {
         try {
-            BrowserLauncher.openURL("http://rvsnoop.sourceforge.net");
+            BrowserLauncher.openURL("http://rvsn00p.sourceforge.net");
         } catch (Exception e) {
             logger.error(ERROR_BROWSER, e);
         }
