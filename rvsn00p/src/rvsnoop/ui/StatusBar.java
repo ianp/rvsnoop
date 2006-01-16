@@ -145,11 +145,7 @@ public final class StatusBar extends JPanel {
     protected void paintComponent(Graphics g) {
         if (font == null)
             resizeFont(((Graphics2D) g).getFontRenderContext());
-        if (backgroundGradient == null)
-            backgroundGradient = new GradientPaint(0, 0, bgStart, 0,
-                getHeight(), bgEnd);
-        ((Graphics2D) g).setPaint(backgroundGradient);
-        ((Graphics2D) g).fillRect(0, 0, getWidth(), getHeight());
+        backgroundGradient = UIUtils.paintGradient((Graphics2D) g, getWidth(), getHeight(), bgStart, bgEnd, backgroundGradient);
         super.paintComponent(g);
     }
 

@@ -6,10 +6,8 @@
 //:SVNID:   $Id$
 package rvsnoop.ui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.KeyEvent;
+import com.tibco.tibrv.TibrvException;
+import rvsn00p.viewer.RvSnooperGUI;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -19,10 +17,13 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-
-import com.tibco.tibrv.TibrvException;
-
-import rvsn00p.viewer.RvSnooperGUI;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.KeyEvent;
 
 /**
  * A collection of static utility methods for working with Swing.
@@ -62,8 +63,16 @@ public final class UIUtils {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ok.getValue(Action.ACTION_COMMAND_KEY));
     }
     
+    public static GradientPaint paintGradient(Graphics2D g, int w, int h, Color start, Color end, GradientPaint paint) {
+        if (paint == null)
+            paint = new GradientPaint(0, 0, start, 0, h, end);
+        g.setPaint(paint);
+        g.fillRect(0, 0, w, h);
+        return paint;
+    }
+    
     public static void showError(String message, Throwable exception) {
-        final String title = exception instanceof TibrvException ? "Rendezvous Error" : "Error";
+        final String title = exception instanceof TibrvException ? "Rendezvous Error" : ERROR_TITLE;
         final String[] m = new String[3];
         final String s = exception.getLocalizedMessage();
         m[0] = message;
