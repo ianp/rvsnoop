@@ -80,29 +80,28 @@ final class CheckForUpdates extends AbstractAction {
         final int minor = Integer.parseInt(matcher.group(2));
         if (minor > Version.getMinor()) return false;
         final int patch = Integer.parseInt(matcher.group(3));
-        if (patch > Version.getPatch()) return false;
-        return true;
+        return patch <= Version.getPatch();
     }
 
     private String[] readVersionInfo() throws UnknownHostException, IOException {
         InputStream istream = null;
-        OutputStream ostream = null;
+        OutputStream ostream;
         try {
             // Open a socket.
-            final Socket socket = new Socket("rvsnoop.sourceforge.net", 80);
+            final Socket socket = new Socket("rvsn00p.sourceforge.net", 80);
             istream = socket.getInputStream();
             ostream = socket.getOutputStream();
             // Send the HTTP get request.
-            ostream.write("GET http://rvsnoop.sourceforge.net/version.txt HTTP/1.0\n\n".getBytes());
+            ostream.write("GET http://rvsn00p.sourceforge.net/version.txt HTTP/1.0\n\n".getBytes());
             // Read the response.
             final StringBuffer versionText = new StringBuffer(1024);
             final byte[] buffer = new byte[1024];
-            int bytesRead = 0;
+            int bytesRead;
             while ((bytesRead = istream.read(buffer)) != -1)
                 versionText.append(new String(buffer, 0, bytesRead, "UTF-8"));
             final String[] lines = versionText.toString().split("\\n");
             // Strip off the server header.
-            final Pattern firstLine = Pattern.compile("RvSn00p Version Information");
+            final Pattern firstLine = Pattern.compile("rvSnoop Version Information");
             int i = 0;
             for (final int length = lines.length; i < length; ++i)
                 if (firstLine.matcher(lines[i]).matches())
