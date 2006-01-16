@@ -112,13 +112,13 @@ final class Search extends AbstractAction {
         }
     }
 
-    private int search(final List records, int start, String text) {
+    private int search(final List records, final int start, String text) {
         final String trackingId = RvSnooperGUI.getTrackingIdTextFilter();
         for (int i = start, imax = records.size(); i < imax; ++i)
             if (matches(((Record) records.get(i)).getMessage(), text, trackingId))
                 return i;
         // If we get here without matching, wrap to the start of the list.
-        for (int i = 0, imax = start; i < imax; ++i)
+        for (int i = 0; i < start; ++i)
             if (matches(((Record) records.get(i)).getMessage(), text, trackingId))
                 return i;
         // Return -1 to signal nothing matched.
