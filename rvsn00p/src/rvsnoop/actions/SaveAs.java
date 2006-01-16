@@ -58,19 +58,14 @@ final class SaveAs extends AbstractAction {
                 return f.isDirectory() || f.getName().toLowerCase(Locale.ENGLISH).endsWith(".rsp");
             }
             public String getDescription() {
-                return "RvSnoop Project Files";
+                return "rvSnoop Project Files";
             }
         });
         if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(RvSnooperGUI.getFrame()))
             return;
-        final File file = chooser.getSelectedFile();
-        Project project = Project.getCurrentProject();
-        if (project != null)
-            project.setFile(file);
-        else
-            project = new Project(file);
         try {
-            project.store();
+            final File file = chooser.getSelectedFile().getCanonicalFile();
+            new Project(file).store();
             logger.info("Saved project to " + file.getName());
         } catch (IOException e) {
             logger.error("There was a problem saving the project.", e);
