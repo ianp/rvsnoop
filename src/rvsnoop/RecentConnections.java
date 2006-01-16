@@ -48,7 +48,7 @@ public final class RecentConnections extends XMLConfigFile {
             final RvConnection connection = RvConnection.createConnection(cd.service, cd.network, cd.daemon);
             connection.setDescription(cd.description);
             connection.addSubjects(cd.subjects);
-            RecentConnections.getInstance().add(connection);
+            RecentConnections.INSTANCE.add(connection);
             connection.start();
         }
         
@@ -144,10 +144,11 @@ public final class RecentConnections extends XMLConfigFile {
         }
     }
 
+    public static RecentConnections INSTANCE = new RecentConnections();
+
     private static final String CONFIG_DIRECTORY = ".rvsnoop";
     private static final String CONFIG_FILE = "recentConnections.xml";
     private static final int DEFAULT_MAX_SIZE = 10;
-    private static RecentConnections instance = new RecentConnections();
     private static final String ROOT = "recentConnections";
     private static final String RV_CONNECTION = "connection";
     private static final String RV_DAEMON = "daemon";
@@ -156,10 +157,6 @@ public final class RecentConnections extends XMLConfigFile {
     private static final String RV_SERVICE = "service";
 
     private static final String SUBJECT = "subject";
-    
-    public static synchronized RecentConnections getInstance() {
-        return instance;
-    }
     
     private static File getRecentConnectionsFile() {
         final String home = System.getProperty("user.home");
