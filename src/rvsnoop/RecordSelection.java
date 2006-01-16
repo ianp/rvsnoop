@@ -44,7 +44,6 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      */
     public static TibrvMsg[] unmarshal(Transferable selection) throws UnsupportedFlavorException, IOException, TibrvException {
         final ByteBuffer data = (ByteBuffer) selection.getTransferData(BYTES_FLAVOUR);
-        data.rewind();
         final int numMessages = data.getInt();
         final TibrvMsg[] messages = new TibrvMsg[numMessages];
         final int[] lengths = new int[numMessages];
