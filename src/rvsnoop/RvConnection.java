@@ -157,22 +157,14 @@ public final class RvConnection {
             final RvConnection conn = (RvConnection) (closure instanceof RvConnection ? closure : null);
             if (conn != null && conn.getState() == State.PAUSED)
                 return;
-            // This is a bit clunky - we need to get the subject directly from the
-            // message here so we cannot take advantage of the fact the Record hides
-            // null subjects from us.
-            final String name = message.getSendSubject();
-            final SubjectElement subject = hierarchy.getSubjectElement(name);
-            if (!subject.isSelected()) return;
-            final Record record = new Record(conn.description, message, subject);
-            // Once I have added support for user definable types and removed this mess
-            // the code above can also be made cleaner (i.e. by passing message.getSendSubject
-            // directly in to the hierarchy so we can just check for null in one central place).
-            if (name != null)
-                if (name.lastIndexOf("ERROR") != -1)
+            final Record record = new Record(conn.description, message);
+            final String subject = record.getSendSubject();
+            if (subject != null)
+                if (subject.lastIndexOf("ERROR") != -1)
                     record.setType(MsgType.ERROR);
-                else if (name.lastIndexOf("WARN") != -1)
+                else if (subject.lastIndexOf("WARN") != -1)
                     record.setType(MsgType.WARN);
-                else if (name.startsWith("_") || name.startsWith("im"))
+                else if (subject.startsWith("_") || subject.startsWith("im"))
                     record.setType(MsgType.SYSTEM);
             // Now add the record to the message ledger, the subject explorer tree, and update the status bar.
             SwingUtilities.invokeLater(new Runnable() {
@@ -197,7 +189,7 @@ public final class RvConnection {
     private class PauseAction extends AbstractAction implements ListDataListener {
         private static final long serialVersionUID = 6173501893576290019L;
         PauseAction() {
-            super("Pause", Icons.RVD_STARTED);
+            super("Pause", Icons.RVD_PAUSED);
             setEnabled(state == State.STARTED);
         }
         public void actionPerformed(ActionEvent e) {
@@ -324,7 +316,7 @@ public final class RvConnection {
     }
     
     public static synchronized void destroyConnection(RvConnection connection) {
-        if (connection.getState() != State.STOPPED) connection.stop();
+        if (connection.state != State.STOPPED) connection.stop();
         final int index = allConnections.indexOf(connection);
         allConnections.remove(index);
         if (listModel != null) listModel.fireConnectionRemoved(index);
@@ -374,11 +366,12 @@ public final class RvConnection {
         RvConnection connection = null;
         for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
             final RvConnection next = (RvConnection) i.next();
-            if (next.description.equals(description))
+            if (description.equals(next.description)) {
                 if (connection != null)
-                    throw new IllegalStateException(description + "is not a unique connection name.");
+                    throw new IllegalStateException(description + " is not a unique connection name.");
                 else
                     connection = next;
+            }
         }
         return connection;
     }
@@ -428,7 +421,7 @@ public final class RvConnection {
         }
         for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
             final RvConnection connection = (RvConnection) i.next();
-            if (connection.getState() == State.STARTED) connection.pause();
+            if (connection.state == State.STARTED) connection.pause();
         }
     }
     
@@ -443,7 +436,7 @@ public final class RvConnection {
         }
         for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
             final RvConnection connection = (RvConnection) i.next();
-            if (connection.getState() == State.PAUSED) connection.start();
+            if (connection.state == State.PAUSED) connection.start();
         }
     }
 
@@ -451,7 +444,7 @@ public final class RvConnection {
         if (queue == null) return;
         for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
             final RvConnection connection = (RvConnection) i.next();
-            if (connection.getState() != State.STOPPED) connection.stop();
+            if (connection.state != State.STOPPED) connection.stop();
         }
         try {
             Tibrv.close();
@@ -556,7 +549,7 @@ public final class RvConnection {
     private void createTransport() throws TibrvException {
         ensureInitialized();
         transport = new TibrvRvdTransport(service, network, daemon);
-        transport.setDescription(getDescription() + DESCRIPTION);
+        transport.setDescription(description + DESCRIPTION);
     }
 
     /* (non-Javadoc)
