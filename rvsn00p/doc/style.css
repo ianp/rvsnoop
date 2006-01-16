@@ -1,4 +1,4 @@
-/* Style sheet for RvSn00p web site and local documentation. */
+/* Style sheet for rvSnoop web site and local documentation. */
 /* $Id$ */
 
 body {
@@ -55,6 +55,11 @@ body {
   padding: 1px 1px 1px 2em;
 }
 
+img.wide {
+  border: 1px solid black;
+  margin: 1px 1px 1px 2em;
+}
+
 .navigation {
   font-family: "Myriad Pro", "Verdana", sans-serif;
   margin: 0 0 0 0;
@@ -97,6 +102,7 @@ acronym {
 }
 
 p img {
+  border: 1px solid black;
   float: left;
   margin: 0 3px 2px -2em;
 }

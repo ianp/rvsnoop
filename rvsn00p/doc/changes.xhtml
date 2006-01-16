@@ -10,7 +10,7 @@
     <meta name="Author" content="Örjan Lundberg" />
     <meta name="Author" content="Ian Phillips" />
     <style type="text/css" media="all">@import "style.css";</style>
-    <title>RvSn00p @version@ Change Log</title>
+    <title>rvSnoop @version@ Change Log</title>
   </head>
   <body>
     <div class="section">
@@ -23,6 +23,7 @@
         <ul>
           <li>Added a ‘Connection List’ showing all of the <acronym>RVD</acronym> connections and their status. The tooltip for each list item shows the subscribed subjects (if any).</li>
           <li>The details view now shows more information about the message in a header panel.</li>
+          <li>Added a <em>limited</em> republishing capability, currently it is possible to select messages in the ledger and republish them to the same subject and transport. In future it will also be possible to edit messages before publishing.</li>
           <li>Added menu options for ‘Export to RvTest’ and ‘Export to RvScript’ which replace the generic text option.</li>
           <li>Fixed bug causing new subject explorer nodes to be created with incorrect selection state.</li>
           <li>The configuration is now in 2 parts: application preferences (window size &amp; position, font, etc.) and project preferences (connection details, etc.).</li>
@@ -78,29 +79,6 @@
           <li>Removed the raccoon code as it does not compile against the current version of Raccoon.</li>
           <li>Corrected some minor spelling mistakes.</li>
         </ul>
-        <h2>Changes up to version 1.2.6</h2>
-        <ul>
-          <li>Java 1.4.1 or later is required.</li>
-          <li>Added Raccoon message serializer, this will be used if the Raccoon classes are on the classpath.</li>
-          <li>Added Reuters RvTest serializer, this will be used if the RvTest classes are on the classpath.</li>
-          <li>RvSn00p now supports the Raccoon, RvScript and RvTest serializers.</li>
-          <li>Other minor changes.</li>
-        </ul>
-        <h2>Changes up to version 1.2.4</h2>
-        <ul>
-          <li>Added operation <em>Edit → Filter by Selected Subject</em> with accelerator key ctrl-y.</li>
-          <li>Added operation <em>Edit → Filter by Subject</em> with accelerator key ctrl-shift-y.</li>
-        </ul>
-        <h2>Changes up to version 1.2.3</h2>
-        <ul>
-          <li><em>Configure → Save</em> will now save: window position, table column width, splitter pane positions, date format, font settings</li>
-        </ul>
-        <h2>Changes up to version 1.2.1</h2>
-        <ul>
-          <li>Minimized number of objects sent to garbage collection (more work on this to follow). I used <a href="http://www.compuware.com">CompuWare</a> <a href="http://www.compuware.com/products/devpartner/previews/java.htm">DevPartner</a> for this. Remember to use the <em>Configure → Set Max Number of Records</em> to limit the number of records contained in memory.</li>
-          <li>Batched creation of new log information objects, thus increasing performance under high load.</li>
-          <li>Changed <acronym>HTML</acronym> output format to include intendation of RvScript <acronym>XML</acronym>.</li>
-        </ul>
       </div>
       <div class="navigation">
         <ul>
@@ -110,10 +88,10 @@
           <li><a href="links@suffix@">Links</a></li>
           <li>Change Log</li>
           <li><a href="http://www.sourceforge.net/projects/rvsn00p">Project Page</a></li>
-          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-bin.tgz?download">Binary Download</a></li>
-          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-src.tgz?download">Source Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsnoop-@version@-bin.tgz?download">Binary Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsnoop-@version@-src.tgz?download">Source Download</a></li>
         </ul>
-        <a href="http://mozilla.com/firefox"><img src="images/getFirefox.png" alt="Get Firefox" /></a>
+        <a href="http://mozilla.com/firefox"><img src="images/get_firefox.png" alt="Get Firefox" /></a>
       </div>
       <div class="footer">
         <a href="http://sourceforge.net"><img id="sflogo" src="http://sourceforge.net/sflogo.php?group_id=63447&amp;type=4" alt="SourceForge Logo" /></a>
