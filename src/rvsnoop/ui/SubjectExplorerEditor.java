@@ -25,6 +25,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
@@ -52,7 +53,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         public void actionPerformed(ActionEvent event) {
             final Enumeration e = element.depthFirstEnumeration();
             while (e.hasMoreElements())
-                tree.collapsePath(new TreePath(((SubjectElement) e.nextElement()).getPath()));
+                tree.collapsePath(new TreePath(((DefaultMutableTreeNode) e.nextElement()).getPath()));
         }
     }
     
@@ -74,7 +75,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         public void actionPerformed(ActionEvent event) {
             final Enumeration e = element.breadthFirstEnumeration();
             while (e.hasMoreElements())
-                tree.expandPath(new TreePath(((SubjectElement) e.nextElement()).getPath()));
+                tree.expandPath(new TreePath(((DefaultMutableTreeNode) e.nextElement()).getPath()));
         }
     }
 
