@@ -12,8 +12,10 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.AbstractButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import nu.xom.Document;
@@ -60,7 +62,7 @@ public final class Project extends XMLConfigFile {
     /**
      * @param path The path to convert.
      * @param buffer The buffer to work with.
-     * @return
+     * @return The converted path.
      */
     private static StringBuffer pathToString(TreePath path, StringBuffer buffer) {
         buffer.setLength(0);
@@ -83,12 +85,23 @@ public final class Project extends XMLConfigFile {
         Project.currentProject = currentProject;
         if (currentProject != null) {
             currentProject.load();
-            RecentProjects.getInstance().add(currentProject);
+            RecentProjects.INSTANCE.add(currentProject);
         }
     }
 
     public Project(File file) {
         super(file);
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (file != null)
+            return obj instanceof Project && file.equals(((Project) obj).file);
+        else
+            return obj instanceof Project && ((Project) obj).file == null;
     }
 
     protected Document getDocument() {
@@ -97,6 +110,13 @@ public final class Project extends XMLConfigFile {
         storeSubjectTree(root);
         storeConnections(root);
         return new Document(root);
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        return file.hashCode();
     }
 
     protected void load(Element root) {
@@ -121,7 +141,7 @@ public final class Project extends XMLConfigFile {
             connection.start();
         }
     }
-
+    
     private void loadSubjectTree(Element parent) {
         final JTree tree = RvSnooperGUI.getInstance().getCategoryExplorerTree();
         final Element subjectsRoot = parent.getFirstChildElement(SUBJECTS);
@@ -135,7 +155,7 @@ public final class Project extends XMLConfigFile {
                 tree.expandPath(new TreePath(node.getPath()));
         }
     }
-
+    
     private void loadTypes(Element parent) {
         final Map menuItems = RvSnooperGUI.getInstance().getLogLevelMenuItems();
         final Elements types = parent.getChildElements(TYPE);
@@ -160,7 +180,7 @@ public final class Project extends XMLConfigFile {
             }
         }
     }
-    
+
     /**
      * Resets the state of the subject explorer tree.
      * <p>
@@ -173,13 +193,9 @@ public final class Project extends XMLConfigFile {
         // Collapse everything except the root node.
         for (int i = tree.getRowCount() - 1; i != 0; --i)
             tree.collapseRow(i);
-        final Enumeration nodes = ((SubjectElement) model.getRoot()).breadthFirstEnumeration();
+        final Enumeration nodes = ((DefaultMutableTreeNode) model.getRoot()).breadthFirstEnumeration();
         while (nodes.hasMoreElements())
             ((SubjectElement) nodes.nextElement()).setSelected(true);
-    }
-    
-    public void setFile(File file) {
-        if (file != null) this.file = file;
     }
 
     private void storeConnections(Element parent) {
@@ -199,7 +215,7 @@ public final class Project extends XMLConfigFile {
         final JTree tree = RvSnooperGUI.getInstance().getCategoryExplorerTree();
         final SubjectHierarchy model = (SubjectHierarchy) tree.getModel();
         final Element subjects = appendElement(parent, SUBJECTS);
-        final Enumeration nodes = ((SubjectElement) model.getRoot()).breadthFirstEnumeration();
+        final Enumeration nodes = ((DefaultMutableTreeNode) model.getRoot()).breadthFirstEnumeration();
         final StringBuffer buffer = new StringBuffer();
         // Skip the root node, which does not represent a subject name element.
         nodes.nextElement();
@@ -220,7 +236,7 @@ public final class Project extends XMLConfigFile {
             final MsgType type = (MsgType) it.next();
             final Element typeElt = appendElement(parent, TYPE);
             setString(typeElt, TYPE_NAME, type.getLabel());
-            final boolean selected = ((JCheckBoxMenuItem) menuItems.get(type)).isSelected();
+            final boolean selected = ((AbstractButton) menuItems.get(type)).isSelected();
             setBoolean(typeElt, TYPE_SELECTED, selected);
             final Color colour = (Color) colours.get(type);
             final Element colourElt = appendElement(typeElt, COLOUR);
