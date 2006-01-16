@@ -14,6 +14,7 @@ import java.util.Enumeration;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import rvsnoop.SubjectElement;
 import rvsnoop.SubjectHierarchy;
@@ -48,7 +49,7 @@ final class PruneEmptySubjects extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        final Enumeration e = ((SubjectElement) SubjectHierarchy.INSTANCE.getRoot()).depthFirstEnumeration();
+        final Enumeration e = ((DefaultMutableTreeNode) SubjectHierarchy.INSTANCE.getRoot()).depthFirstEnumeration();
         while (e.hasMoreElements()) {
             final SubjectElement child = (SubjectElement) e.nextElement();
             if (child.isLeaf() && child.getNumRecordsHere() == 0 && child.getParent() != null)
