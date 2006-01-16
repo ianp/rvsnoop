@@ -12,15 +12,13 @@ import java.util.List;
 
 import javax.swing.Action;
 
-import com.tibco.tibrv.TibrvException;
-
-import rvsnoop.ui.Icons;
-import rvsnoop.ui.UIUtils;
-
-import rvsnoop.Logger;
 import rvsnoop.Record;
 import rvsnoop.RvConnection;
 import rvsnoop.StringUtils;
+import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIUtils;
+
+import com.tibco.tibrv.TibrvException;
 
 /**
  * Republish the currently selected record(s) to the transport on which they were received.
@@ -31,12 +29,10 @@ import rvsnoop.StringUtils;
  */
 final class Republish extends LedgerSelectionAction {
     
-    static String CONFIRM = "Really republish {0,choice,1#this|1<these} {0} messages?";
+    static String CONFIRM = "Really republish {0,choice,1#this|1<these} {0} {0,choice,1#message|1<messages}?";
     
     private static final String ID = "republish";
 
-    private static final Logger logger = Logger.getLogger(Republish.class);
-    
     static String NAME = "Republish";
 
     /**
@@ -59,10 +55,10 @@ final class Republish extends LedgerSelectionAction {
             final Record record = (Record) i.next();
             try {
                 final RvConnection connection = RvConnection.getConnection(record.getConnection());
-                if (connection == null)
+                if (connection != null)
                     connection.publish(record);
                 else
-                    UIUtils.showInformation("No connection exists to send message " + record.getSequenceNumber() + " on.");
+                    UIUtils.showInformation("No connection named " + record.getConnection() + " could be found to send message " + record.getSequenceNumber() + " on.");
             } catch (IllegalStateException e) {
                 UIUtils.showError("Could not republish record " + record.getSequenceNumber(), e);
             } catch (TibrvException e) {
