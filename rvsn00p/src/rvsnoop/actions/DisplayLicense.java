@@ -52,10 +52,10 @@ final class DisplayLicense extends AbstractAction {
         try {
             final File home = new File(System.getProperty("rvsnoop.home"));
             final File docs = new File(home, "doc");
-            final File license = new File(docs, "license.html");
+            final File license = new File(docs, "license@suffix@");
             final String prefix = System.getProperty("os.name").startsWith("Win")
-            ? "" : "file://";
-        BrowserLauncher.openURL(prefix + license.getAbsolutePath());
+                ? "" : "file://";
+            BrowserLauncher.openURL(prefix + license.getAbsolutePath());
         } catch (Exception e) {
             logger.error(ERROR_BROWSER, e);
         }
