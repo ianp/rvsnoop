@@ -10,6 +10,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
 import javax.swing.BorderFactory;
@@ -17,7 +19,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JToolTip;
+import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
 
@@ -36,40 +38,49 @@ import rvsnoop.State;
  */
 public final class ConnectionListRenderer extends JPanel implements ListCellRenderer {
 
-    private class ToolTipLabel extends JLabel {
-        private static final long serialVersionUID = -7051868410968909731L;
-        ToolTipLabel() {
+    private class ConnectionListListener extends MouseAdapter {
+        ConnectionListListener() {
             super();
         }
-        public final JToolTip createToolTip() {
-            return tooltip;
-        }
-        public void repaint(long tm, int x, int y, int width, int height) {
-            // Do nothing.
-        }
-        public void repaint(Rectangle r) {
-            // Do nothing.
+        public void mousePressed(MouseEvent e) {
+            if (!e.isPopupTrigger()) return;
+            final int index = list.locationToIndex(e.getPoint());
+            if (index == -1) return;
+            final RvConnection connection = (RvConnection) list.getModel().getElementAt(index);
+            if (connection == null) return;
+            popup(connection, e.getX(), e.getY());
         }
     }
 
     private static final long serialVersionUID = -8798068540266967995L;
-    
+
     final StringBuffer buffer = new StringBuffer();
-    
-    private final JLabel daemon = new ToolTipLabel();
-    
-    private final JLabel description = new ToolTipLabel();
+
+    private final JLabel daemon = new JLabel();
+
+    private final JLabel description = new JLabel();
 
     private final boolean isHidingNonDefaults;
-    
-    private final JLabel network = new ToolTipLabel();
-    
-    private final JLabel service = new ToolTipLabel();
 
-    private final JToolTip tooltip = new MultiLineToolTip();
+    private final JList list;
+    
+    private final JLabel network = new JLabel();
 
-    public ConnectionListRenderer(boolean isHidingNonDefaults) {
+    private JPopupMenu popupMenu;
+
+    private final JLabel service = new JLabel();
+
+    /**
+     * Create a new renderer instance.
+     * <p>
+     * Connection list renderers must be bound to a specific connection list.
+     *
+     * @param list The list to be rendered.
+     * @param isHidingNonDefaults
+     */
+    public ConnectionListRenderer(JList list, boolean isHidingNonDefaults) {
         super();
+        this.list = list;
         this.isHidingNonDefaults = isHidingNonDefaults;
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         // Indent the labels a little.
@@ -98,8 +109,14 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         add(service);
         add(network);
         add(daemon);
+        final ConnectionListListener listener = new ConnectionListListener();
+        list.addMouseListener(listener);
+        description.addMouseListener(listener);
+        service.addMouseListener(listener);
+        network.addMouseListener(listener);
+        daemon.addMouseListener(listener);
     }
-    
+
     private void configureDetails(final RvConnection connection) {
         final String s = connection.getService();
         if (isHidingNonDefaults && RvConnection.DEFAULT_SERVICE.equals(s)) {
@@ -125,7 +142,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
     }
 
     private void configureTooltip(final RvConnection connection) {
-        for (final Iterator i = connection.getSubjects().iterator(); i.hasNext(); )
+        for (final Iterator i = connection.getSubjects().iterator(); i.hasNext();)
             buffer.append(i.next()).append("\n");
         if (buffer.length() == 0)
             buffer.append("No subjects subscribed to");
@@ -135,14 +152,14 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         buffer.setLength(0);
     }
 
-    public JToolTip createToolTip() {
-        return tooltip;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList,
+     *      java.lang.Object, int, boolean, boolean)
      */
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList list, Object value,
+            int index, boolean isSelected, boolean cellHasFocus) {
         final RvConnection connection = (RvConnection) value;
         description.setText(connection.getDescription());
         final State state = connection.getState();
@@ -156,7 +173,16 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         configureTooltip(connection);
         return this;
     }
-
+    
+    void popup(RvConnection connection, int x, int y) {
+        if (popupMenu == null) popupMenu = new JPopupMenu();
+        popupMenu.removeAll();
+        popupMenu.add(connection.getStartAction());
+        popupMenu.add(connection.getPauseAction());
+        popupMenu.add(connection.getStopAction());
+        popupMenu.show(list, x, y);
+    }
+    
     /**
      * Overridden for performance reasons.
      * <p>
