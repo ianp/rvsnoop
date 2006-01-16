@@ -12,9 +12,9 @@ import java.util.EventListener;
 import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
-
 
 /**
  * A hierarchy of rendezvous subjects.
@@ -30,13 +30,13 @@ import javax.swing.tree.TreeNode;
 public final class SubjectHierarchy extends DefaultTreeModel {
 
     public static final SubjectHierarchy INSTANCE = new SubjectHierarchy();
-    
+
     private static final long serialVersionUID = -3629858078509052804L;
-    
+
     private static final Pattern SPLITTER = Pattern.compile("\\.");
 
     private SubjectElement noSubjectElement;
-    
+
     private SubjectHierarchy() {
         super(new SubjectElement());
     }
@@ -44,7 +44,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
     public void addActionListener(ActionListener listener) {
         listenerList.add(ActionListener.class, listener);
     }
-    
+
     public void addRecord(Record record) {
         final SubjectElement element = record.getSubject();
         element.incNumRecordsHere();
@@ -62,13 +62,13 @@ public final class SubjectHierarchy extends DefaultTreeModel {
         for (int i = 0, imax = listeners.length; i < imax; ++i)
             ((ActionListener) listeners[i]).actionPerformed(event);
     }
-    
+
     private synchronized SubjectElement getNoSubjectElement() {
         if (noSubjectElement == null)
             noSubjectElement = insertNewChild((SubjectElement) getRoot(), "[No Subject!]", 0, true);
         return noSubjectElement;
     }
-    
+
     /**
      * Convert a subject string into a subject element object.
      * <p>
@@ -132,12 +132,12 @@ public final class SubjectHierarchy extends DefaultTreeModel {
         final SubjectElement root = (SubjectElement) this.root;
         root.removeAllChildren();
     }
-    
+
     /**
      * Resets all counters and error flags in the hierarchy.
      */
     public void reset() {
-        final Enumeration nodes = ((SubjectElement) getRoot()).depthFirstEnumeration();
+        final Enumeration nodes = ((DefaultMutableTreeNode) getRoot()).depthFirstEnumeration();
         while (nodes.hasMoreElements()) {
             final SubjectElement current = (SubjectElement) nodes.nextElement();
             current.reset();

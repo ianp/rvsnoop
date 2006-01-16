@@ -72,7 +72,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
         if (obj == this) return true;
         if (!(obj instanceof SubjectElement)) return false;
         final Object[] thisPath = getUserObjectPath();
-        final Object[] thatPath = ((SubjectElement) obj).getUserObjectPath();
+        final Object[] thatPath = ((DefaultMutableTreeNode) obj).getUserObjectPath();
         if (thisPath.length != thatPath.length) return false;
         // OK, we need to test the path element by element then...
         for (int i = thisPath.length - 1; i >= 0; --i)
