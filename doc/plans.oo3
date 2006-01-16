@@ -22,8 +22,8 @@
       <print-info-key name="NSPaperSize" type="size">{595.276, 841.89}</print-info-key>
     </print-info>
   </settings>
-  <editor content-size="{547, 535}" status-visible="no">
-    <selected-columns ids="c3HznGdCICO"/>
+  <editor content-size="{582, 593}" scroll-position="{0, 600}" status-visible="no">
+    <selected-rows ids="hU7T67mCtyM"/>
   </editor>
   <columns>
     <column id="pwiOVsj48Wr" type="text" width="18" minimum-width="18" maximum-width="18" text-export-width="1" is-note-column="yes">
@@ -80,7 +80,7 @@
         </member>
       </enumeration>
     </column>
-    <column id="kwlwOuZOYQi" type="text" width="444" minimum-width="13" maximum-width="1000000" text-export-width="72" is-outline-column="yes">
+    <column id="kwlwOuZOYQi" type="text" width="467" minimum-width="13" maximum-width="1000000" text-export-width="72" is-outline-column="yes">
       <title>
         <text>
           <p>
@@ -111,11 +111,11 @@
       <children>
         <item id="hsEsBP3P-15">
           <values>
-            <enum>Testing</enum>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
-                  <lit>Add RVDetailPanel and AEDetailPanel classes based on current tree view.</lit>
+                  <lit>Add RvDetailPanel and AeDetailPanel classes based on current tree view.</lit>
                 </run>
               </p>
             </text>
@@ -147,7 +147,7 @@
         </item>
         <item id="aBbyOq7gtsd">
           <values>
-            <null/>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
@@ -173,7 +173,7 @@
         </item>
         <item id="lpmNH0rC8y1">
           <values>
-            <enum>Testing</enum>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
@@ -185,7 +185,7 @@
         </item>
         <item id="ns4F4mzOjoh">
           <values>
-            <null/>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
@@ -197,7 +197,7 @@
         </item>
         <item id="cHkPwHdcMuX">
           <values>
-            <null/>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
@@ -275,6 +275,27 @@
         </text>
       </values>
       <children>
+        <item id="nwO7Li8NpLg">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Build system clean up.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Add in all of the planned dependencied, this should be no problem because proguard will strip the classes at dist time until they are used. This will let us selectively use classes as they are needed (e.g. the tuple binding stuff from BDB).</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
         <item id="kkEerXG9y8Y">
           <values>
             <null/>
@@ -286,6 +307,15 @@
               </p>
             </text>
           </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Probably the best approach to this is to make everything that references connections create an actual connection object, but add an isVisible() property to the connection class and use this to control what gets displayed in the connection list. This would be easier to do once GL is in place as the CL could be a filtered list.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
         </item>
         <item id="c1YTE--UnmN">
           <values>
@@ -298,6 +328,15 @@
               </p>
             </text>
           </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Probably a better approach would be to stick with the file. For opening projects allow directories to be selected if (and only if) they contain a single file with an RSP extension. In the project file should be a name attribute on the project, and a files element with a bunch of file elements under it containing pointers to the different project files. Currently this would be empty, but soon add in the message store folder at least. Once projects have names display the name in the title bar.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
         </item>
         <item id="aJZl4U6tq7n">
           <values>
@@ -355,7 +394,7 @@
               </p>
             </text>
           </values>
-          <note>
+          <note expanded="yes">
             <text>
               <p>
                 <run>
@@ -365,6 +404,32 @@
               <p>
                 <run>
                   <lit>Allow types to be used in filters.</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>Rename to RecordType.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
+        <item id="cpgaB88LzCt">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Check for changes to the config files before saving.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note>
+            <text>
+              <p>
+                <run>
+                  <lit>Use CRC32 or similar, hash on opening and save hash.</lit>
                 </run>
               </p>
             </text>
@@ -381,6 +446,27 @@
               </p>
             </text>
           </values>
+        </item>
+        <item id="jjuHIIVFA4x">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Move the preferences to a dedicated dialog.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note>
+            <text>
+              <p>
+                <run>
+                  <lit>Get rid of the configure menu.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
         </item>
       </children>
     </item>
@@ -419,7 +505,7 @@
               </p>
             </text>
           </values>
-          <note>
+          <note expanded="yes">
             <text>
               <p>
                 <run>
@@ -431,25 +517,9 @@
                   <lit>Filter by selection should  try to produce a filter matching all selected records.</lit>
                 </run>
               </p>
-            </text>
-          </note>
-        </item>
-        <item id="jjuHIIVFA4x">
-          <values>
-            <null/>
-            <text>
               <p>
                 <run>
-                  <lit>Move the preferences to a dedicated dialog.</lit>
-                </run>
-              </p>
-            </text>
-          </values>
-          <note>
-            <text>
-              <p>
-                <run>
-                  <lit>Get rid of the configure menu.</lit>
+                  <lit>Thr first time filter is applied it should work like filter by selection, aftwerwards it should edit the current filter.</lit>
                 </run>
               </p>
             </text>
@@ -481,6 +551,27 @@
         </text>
       </values>
       <children>
+        <item id="hU7T67mCtyM">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Add support for flying saucer and use that to display help, &amp;c. (maybe).</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Not too sure how useful this will be in practice, it may make more sense to clean up the browserlauncher code and stick with that.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
         <item id="jt-WbJOET7F">
           <values>
             <null/>
@@ -492,6 +583,76 @@
               </p>
             </text>
           </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Look at the RecordSelection code to reuse in tuplebindings.</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>For stream format use:</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>RVMBSF01 - magic string - RV message byte stream format</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>int - number of messages</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>...</lit>
+                </run>
+              </p>
+              <p>
+                <run/>
+              </p>
+              <p>
+                <run>
+                  <lit>For each message use</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>RVMBSF02 - magic string</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>connection - connection - store as name or serialized data? (XML, packed strings, &amp;c.) Serialized data would be better, packed strings I think.</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>long - timestamp</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>bytebuffer - message.toByteArray()</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>....</lit>
+                </run>
+              </p>
+              <p>
+                <run/>
+              </p>
+              <p>
+                <run>
+                  <lit>Some of this work could/should be done earlier. Maybe update the copy-and-paste support as part of the 1.6 release. Look at adding drag-and-drop at the same time. This would mean adding in a BDB dependency on the build, but proguard would then strip out almost everything so the overhead should be minimal for end users, the benefit would be that the serialization format gets nailed down as quickly as possib;e, which is a Good Thing.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
         </item>
         <item id="obyGoCU_jCr">
           <values>
@@ -504,7 +665,7 @@
               </p>
             </text>
           </values>
-          <note>
+          <note expanded="yes">
             <text>
               <p>
                 <run>
@@ -524,6 +685,32 @@
               <p>
                 <run>
                   <lit>trees to be used in the table, and table sorting.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
+        <item id="dfbHP_jxLT7">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Externalize all strings.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Speak to Orjan L about getting a Swedish translation.</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>Speak to Jone A about getting a Norwegian translation.</lit>
                 </run>
               </p>
             </text>
