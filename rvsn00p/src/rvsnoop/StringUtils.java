@@ -13,6 +13,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +33,9 @@ public final class StringUtils {
     
     private static final Object[] NO_FIELDS = new Object[0];
     
-    private static final Pattern SPLIT_LINES = Pattern.compile("[\r|\r\n|\n]", Pattern.MULTILINE | Pattern.UNIX_LINES); //$NON-NLS-1$
+    private static final String[] NO_LINES = new String[0];
+    
+    //private static final Pattern SPLIT_LINES = Pattern.compile("[\r|\r\n|\n]", Pattern.MULTILINE | Pattern.UNIX_LINES); //$NON-NLS-1$
     
     private static final Pattern WHITESPACE = Pattern.compile("\\p{Space}"); //$NON-NLS-1$
 
@@ -171,15 +174,12 @@ public final class StringUtils {
      * @return The split lines.
      */
     public static String[] split(String string) {
-        final String[] lines = SPLIT_LINES.split(string);
-        if (logger.isDebugEnabled()) {
-            final StringBuffer buffer = new StringBuffer(string.length() * 2);
-            buffer.append("Split string '").append(string).append("' into ");
-            for (int i = 0, imax = lines.length; i < imax; ++i)
-                buffer.append("'").append(lines[i]).append("' ");
-            buffer.setLength(buffer.length() - 1);
-            logger.debug(buffer.toString());
-        }
+        if (string == null || string.length() == 0) return NO_LINES;
+        final StringTokenizer stok = new StringTokenizer(string, "\n");
+        final String[] lines = new String[stok.countTokens()];
+        int i = 0;
+        while(stok.hasMoreTokens())
+            lines[i++] = stok.nextToken();
         return lines;
     }
 
