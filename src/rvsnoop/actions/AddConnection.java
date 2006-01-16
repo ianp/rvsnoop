@@ -49,7 +49,7 @@ final class AddConnection extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        RvConnection connection = RecentConnections.getInstance().getLastConnection();
+        RvConnection connection = RecentConnections.INSTANCE.getLastConnection();
         final RvConnectionDialog inputDialog = new RvConnectionDialog(connection);
         inputDialog.setVisible(true);
         if (inputDialog.isCancelled())
