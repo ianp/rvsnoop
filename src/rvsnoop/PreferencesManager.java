@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractButton;
 import javax.swing.JCheckBoxMenuItem;
 
 import nu.xom.Attribute;
@@ -59,12 +60,10 @@ public final class PreferencesManager extends XMLConfigFile {
     private static final String WINDOW_WIDTH = "w";
     private static final String WINDOW_X = "x";
     private static final String WINDOW_Y = "y";
-
-    private static final PreferencesManager instance = new PreferencesManager();
     
-    public static PreferencesManager getInstance() {
-        return instance;
-    }
+    private static final Logger logger = Logger.getLogger(PreferencesManager.class);
+
+    public static final PreferencesManager INSTANCE = new PreferencesManager();
     
     private static File getPreferencesFile() {
         final String home = System.getProperty("user.home");
@@ -102,6 +101,8 @@ public final class PreferencesManager extends XMLConfigFile {
             final int style = getInteger(elt, FONT_STYLE, font.getStyle());
             RvSnooperGUI.getInstance().setTableFont(new Font(name != null ? name : font.getName(), style, size));
         } catch (Exception e) {
+            if (logger.isWarnEnabled())
+                logger.warn("Unable to restore font preferences.", e);
             RvSnooperGUI.getInstance().setTableFont(new Font("Dialog", Font.PLAIN, 11));
         }
     }
@@ -125,15 +126,15 @@ public final class PreferencesManager extends XMLConfigFile {
     }
 
     private void splitPositionExport(Element parent) {
-        final Element split1 = appendElement(parent, SPLIT_POSITION);
-        setString(split1, SPLIT_NAME, SPLIT_LEDGER);
-        setInteger(split1, SPLIT_DIVIDER, RvSnooperGUI.getInstance().getMessageLedgerDividerLocation());
-        final Element split2 = appendElement(parent, SPLIT_POSITION);
-        setString(split2, SPLIT_NAME, SPLIT_EXPLORER);
-        setInteger(split2, SPLIT_DIVIDER, RvSnooperGUI.getInstance().getSubjectExplorerDividerLocation());
-        final Element split3 = appendElement(parent, SPLIT_POSITION);
-        setString(split3, SPLIT_NAME, SPLIT_CONNECTIONS);
-        setInteger(split3, SPLIT_DIVIDER, RvSnooperGUI.getInstance().getConnectionListDividerLocation());
+        final Element mlSplit = appendElement(parent, SPLIT_POSITION);
+        setString(mlSplit, SPLIT_NAME, SPLIT_LEDGER);
+        setInteger(mlSplit, SPLIT_DIVIDER, RvSnooperGUI.getInstance().getMessageLedgerDividerLocation());
+        final Element seSplit = appendElement(parent, SPLIT_POSITION);
+        setString(seSplit, SPLIT_NAME, SPLIT_EXPLORER);
+        setInteger(seSplit, SPLIT_DIVIDER, RvSnooperGUI.getInstance().getSubjectExplorerDividerLocation());
+        final Element clSplit = appendElement(parent, SPLIT_POSITION);
+        setString(clSplit, SPLIT_NAME, SPLIT_CONNECTIONS);
+        setInteger(clSplit, SPLIT_DIVIDER, RvSnooperGUI.getInstance().getConnectionListDividerLocation());
     }
 
     private void splitPositionImport(Element parent) {
@@ -180,7 +181,7 @@ public final class PreferencesManager extends XMLConfigFile {
                 final Object item = menuItems.get(columnElt);
                 final Boolean selected = Boolean.valueOf(columnElt.getAttributeValue(COLUMN_SELECTED));
                 if (selected.booleanValue()) {
-                    ((JCheckBoxMenuItem) item).setSelected(true);
+                    ((AbstractButton) item).setSelected(true);
                     selectedColumns.add(column);
                 }
             } catch (Exception ignored) {
