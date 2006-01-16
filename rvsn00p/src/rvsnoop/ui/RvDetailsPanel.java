@@ -25,7 +25,7 @@ import javax.swing.tree.TreeNode;
 
 import rvsnoop.LazyTreeNode;
 import rvsnoop.Logger;
-import rvsnoop.RvMsgTreeNode;
+import rvsnoop.RvMessageTreeNode;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -48,14 +48,16 @@ public final class RvDetailsPanel extends JPanel {
     private static final Logger logger = Logger.getLogger(RvDetailsPanel.class);
     
     static {
-        Class aeMsgTreeNodeClass = null;
+        Class aeMsgTreeNodeClass;
         Constructor aeMsgTreeNodeConstructor = null;
         try {
             aeMsgTreeNodeClass = Class.forName("rvsnoop.AeMsgTreeNode");
             aeMsgTreeNodeConstructor = aeMsgTreeNodeClass.getConstructor(new Class[] { TibrvMsg.class });
-        } catch (Exception ignored) {
             if (logger.isInfoEnabled())
-                logger.info("SDK not found, AE tree view will be disabled.");
+                logger.info("SDK found, AE tree view will be enabled.");
+        } catch (Exception e) {
+            if (logger.isInfoEnabled())
+                logger.info("SDK not found, AE tree view will be disabled.", e);
             // Do nothing if SDK not on class path.
         }
         aeMsgTreeNode = aeMsgTreeNodeConstructor;
@@ -70,9 +72,9 @@ public final class RvDetailsPanel extends JPanel {
     private final TreeNode emptyRoot = new DefaultMutableTreeNode("[Nothing Selected]", false);
 
     final Font headerFont = getFont().deriveFont(getFont().getSize() - 2.0f);
-    
-    private Icon icon;
 
+    private Icon icon;
+    
     private final JLabel iconLabel = new JLabel();
 
     private final DefaultTreeModel model = new DefaultTreeModel(emptyRoot);
@@ -156,7 +158,6 @@ public final class RvDetailsPanel extends JPanel {
             clearPanel();
             return;
         }
-        icon = null;
         numFields.setText(Integer.toString(message.getNumFields()));
         replySubject.setText(message.getReplySubject());
         sendSubject.setText(message.getSendSubject());
@@ -170,16 +171,15 @@ public final class RvDetailsPanel extends JPanel {
             else
                 icon = Banners.MESSAGE;
         iconLabel.setIcon(icon);
-        try {
-            // We need to do this reflectively in case the SDK isn't available.
-            if (aeMsgTreeNode != null)
+        if (aeMsgTreeNode == null) {
+            model.setRoot(new RvMessageTreeNode(message));
+        } else {
+            try {
+                // We need to do this reflectively in case the SDK isn't available.
                 model.setRoot((TreeNode) aeMsgTreeNode.newInstance(new Object[] { message }));
-            else
-                model.setRoot(new RvMsgTreeNode(message));
-        } catch (Exception e) {
-            if (logger.isWarnEnabled())
-                logger.warn("", e);
-            model.setRoot(new RvMsgTreeNode(message));
+            } catch (Exception e) {
+                model.setRoot(new RvMessageTreeNode(message));
+            }
         }
     }
 
