@@ -5,16 +5,19 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import rvsn00p.viewer.RvSnooperGUI;
+import rvsnoop.ui.MultiLineToolTipUI;
 
 /**
- * Starts an instance of RvSn00p.
+ * Starts an instance of RvSnoop.
  * <p>
  * This is just a collection of bootstrap methods to ensure that the environment
  * is suitable and parse the command line arguments.
@@ -29,16 +32,6 @@ import rvsn00p.viewer.RvSnooperGUI;
 public final class StartRvSnooper {
     
     private static final Logger logger = Logger.getLogger(StartRvSnooper.class);
-
-//    private static void displayUsageAndExit() {
-//        System.out.print(Version.getAsStringWithName());
-//        System.out.println("Usage: java rvsnoop.StartRvSnooper [-title <t>] [-{textonly|treeonly}]");
-//        System.out.println("");
-//        System.out.println("  -title    : set the window title to <title>.");
-//        System.out.println("  -treeonly : show only the tree view of message details (new-style).");
-//        System.out.println("  -textonly : show only the text view of message details (old-style).");
-//        System.exit(-1);
-//    }
 
     /**
      * Checks whether the JVM version is suitable.
@@ -65,46 +58,46 @@ public final class StartRvSnooper {
      * 
      * @param args The command line arguments.
      */
-    public static void main(String[] args) {
-//        args = args != null ? args : new String[0];
-//        int startAt = 0;
-//        String title = null;
-//        boolean text = true, tree = true;
-//
-//        while (startAt < args.length && args[startAt].charAt(0) == '-') {
-//            final String arg = args[startAt++].substring(1);
-//            if ("h".equals(arg)) {
-//                displayUsageAndExit();
-//            } else if ("title".equals(arg)) {
-//                title = args[startAt++];
-//            } else if ("textonly".equals(arg)) {
-//                tree = false;
-//            } else if ("treeonly".equals(arg)) {
-//                text = false;
-//            }
-//        }
-//
-//        if (!text && !tree)
-//            displayUsageAndExit();
+    public static void main(final String[] args) {
+        final String toolTipUI = MultiLineToolTipUI.class.getName();
+        UIManager.put("ToolTipUI", toolTipUI);
+        UIManager.put(toolTipUI, MultiLineToolTipUI.class);
         if (!isCorrectJavaVersion() && logger.isWarnEnabled())
-            logger.warn("Java version 1.4.2 or higher is required, RvSnoop may fail unexpectedly with earlier versions.");
-
+            logger.warn("Java version 1.4.2 or higher is required, rvSnoop may fail unexpectedly with earlier versions.");
+        final ArgParser parser = new ArgParser(Version.getAsStringWithName());
+        parser.addArgument('h', "help", true, "Display a short help message.");
+        parser.addArgument('p', "project", false, "Load a project file on startup.");
+        parser.parseArgs(args);
+        if (parser.getBooleanArg("help"))
+            parser.printUsage(System.out);
+        final String filename = parser.getStringArg("project");
+        if (filename != null && logger.isDebugEnabled()) logger.debug("Loading project file: " + filename);
+        final File file = filename == null ? null : new File(filename);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 new RvSnooperGUI().show();
-                PreferencesManager.getInstance().load();
+                PreferencesManager.INSTANCE.load();
+                if (file != null && file.exists() && file.canRead()) {
+                    try {
+                        final Project project = new Project(file.getCanonicalFile());
+                        project.load();
+                        RecentProjects.INSTANCE.add(project);
+                    } catch(IOException e) {
+                        logger.error("Could not load project from " + filename, e);
+                    }
+                }
             }
         });
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             public void run() {
                 try {
-                    PreferencesManager.getInstance().store();
-                    RecentConnections.getInstance().store();
-                    RecentProjects.getInstance().store();
+                    PreferencesManager.INSTANCE.store();
+                    RecentConnections.INSTANCE.store();
+                    RecentProjects.INSTANCE.store();
                     logger.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + ".");
                     Logger.flush();
                 } catch (IOException ignored) {
-                    // Oh well, lose the preferences then.
+                    // Oh well, we may lose the preferences then.
                 }
             }
         }, "shutdownHook"));
