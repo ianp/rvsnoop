@@ -153,7 +153,7 @@ public final class RvConnectionDialog extends JDialog {
         final RvConnection newConnection = RvConnection.createConnection(service.getText(), network.getText(), daemon.getText());
         newConnection.setDescription(description.getText());
         newConnection.addSubjects(Arrays.asList(StringUtils.split(subject.getText())));
-        RecentConnections.getInstance().add(newConnection);
+        RecentConnections.INSTANCE.add(newConnection);
         return newConnection;
     }
 
