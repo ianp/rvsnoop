@@ -1,4 +1,4 @@
-RvSn00p Version Information
+rvSnoop Version Information
 
   Build Version: @version@
   Build Number:  @build.number@
