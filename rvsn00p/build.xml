@@ -2,10 +2,10 @@
 <!-- Build file tested with Ant version 1.6.5. -->
 <!-- $Id$ -->
 <project name="rvsnoop" default="-usage" basedir=".">
-  <description>Build file for RvSnoop. A TIBCO message viewing utility.</description>
-
-  <taskdef resource="proguard/ant/task.properties" classpath="${proguard}/lib/proguard.jar"/>
-
+  <description>Build file for rvSnoop. A TIBCO Rendezvous message viewing utility.</description>
+  
+  <property file="build.properties"/>
+  
   <property name="version.major" value="1"/>
   <property name="version.minor" value="5"/>
   <property name="version.patch" value="0"/>
@@ -29,7 +29,7 @@
   <property name="dir.dist.src"  value="${dir.dist}/src"/>
   <property name="file.version"  value="version.txt"/>
 
-  <property file="build.properties"/>
+  <taskdef resource="proguard/ant/task.properties" classpath="${proguard}/lib/proguard.jar"/>
 
   <!-- Import environment variables as properties, prefixed with "env". -->
   <property environment="env"/>
@@ -47,18 +47,6 @@
     <pathelement path="${env.java.class.path}"/>
   </path>
 
-  <filterset id="filter.version">
-    <filter token="version.major" value="${version.major}"/>
-    <filter token="version.minor" value="${version.minor}"/>
-    <filter token="version.patch" value="${version.patch}"/>
-    <filter token="version"       value="${version}"/>
-    <filter token="java.vendor"   value="${java.vendor}"/>
-    <filter token="java.version"  value="${java.version}"/>
-    <filter token="os.name"       value="${os.name}"/>
-    <filter token="os.version"    value="${os.version}"/>
-    <filter token="os.arch"       value="${os.arch}"/>
-  </filterset>
-
   <!-- Helper targets. -->
 
   <target name="-usage" description="Display a short help message.">
@@ -71,6 +59,21 @@
     <tstamp><format property="build.date" pattern="yyyy-MM-dd HH:mm:ss"/></tstamp>
     <tstamp><format property="build.year" pattern="yyyy"/></tstamp>
     <buildnumber/>
+    <filterset id="filters">
+      <filter token="version.major" value="${version.major}"/>
+      <filter token="version.minor" value="${version.minor}"/>
+      <filter token="version.patch" value="${version.patch}"/>
+      <filter token="version"       value="${version}"/>
+      <filter token="java.vendor"   value="${java.vendor}"/>
+      <filter token="java.version"  value="${java.version}"/>
+      <filter token="os.name"       value="${os.name}"/>
+      <filter token="os.version"    value="${os.version}"/>
+      <filter token="os.arch"       value="${os.arch}"/>
+      <filter token="build.number"  value="${build.number}"/>
+      <filter token="build.date"    value="${build.date}"/>
+      <filter token="suffix"        value=".html"/>
+      <filter token="year"          value="${build.year}"/>
+    </filterset>
   </target>
 
   <target name="cvs.update" description="Fetch the latest copy of the source code from CVS.">
@@ -88,10 +91,7 @@
     <mkdir dir="${dir.build.lib}"/>
     <mkdir dir="${dir.build.src}"/>
     <copy todir="${dir.build.src}" encoding="UTF-8">
-      <filterset>
-        <filter token="year" value="${build.year}"/>
-      </filterset>
-      <filterset refid="filter.version"/>
+      <filterset refid="filters"/>
       <fileset dir="${dir.orig.src}" includes="**/*.*"/>
     </copy>
     <javac srcdir="${dir.build.src}" destdir="${dir.build.lib}" includes="**/*.java"
@@ -101,33 +101,30 @@
     </javac>
     <echo>Copying supporting files into the build.</echo>
     <copy todir="${dir.build.lib}">
-      <filterset refid="filter.version"/>
+      <filterset refid="filters"/>
       <fileset dir="${dir.orig.src}" includes="**/*.properties"/>
     </copy>
     <copy todir="${dir.build.bin}">
-      <filterset refid="filter.version"/>
+      <filterset refid="filters"/>
       <fileset dir="${dir.orig.bin}" includes="*.cmd, *.sh"/>
     </copy>
     <copy todir="${dir.build.bin}">
       <fileset dir="${dir.orig.bin}" includes="*.ico"/>
     </copy>
     <copy todir="${dir.build.doc}">
-      <filterset refid="filter.version"/>
-      <filterset>
-        <filter token="year" value="${build.year}"/>
-        <filter token="suffix" value=".html"/>
-      </filterset>
-      <fileset dir="${dir.orig.doc}" includes="*.xhtml, *.css"/>
+      <filterset refid="filters"/>
+      <fileset dir="${dir.orig.doc}" includes="*.xhtml"/>
+      <mapper type="glob" from="*.xhtml" to="*.html"/>
+    </copy>
+    <copy todir="${dir.build.doc}">
+      <filterset refid="filters"/>
+      <fileset dir="${dir.orig.doc}" includes="*.css"/>
     </copy>
     <copy todir="${dir.build.doc}">
       <fileset dir="${dir.orig.doc}" includes="**/*.png"/>
     </copy>
     <copy file="${file.version}" tofile="${dir.build}/${file.version}">
-      <filterset refid="filter.version"/>
-      <filterset>
-        <filter token="build.number"  value="${build.number}"/>
-        <filter token="build.date"  value="${build.date}"/>
-      </filterset>
+      <filterset refid="filters"/>
     </copy>
     <copy todir="${dir.build.lib}">
       <fileset dir="${dir.orig.src}" includes="**/*.png"/>
@@ -140,7 +137,7 @@
     <mkdir dir="${dir.build.doc}"/>
     <javadoc destdir="${dir.build.doc}/api" version="true" author="true" use="true"
              access="${javadoc.access}" windowtitle="RvSnoop ${version} API Documentation">
-      <doctitle><![CDATA[<h1>RvSnoop ${version}</h1>]]></doctitle>
+      <doctitle><![CDATA[<h1>rvSnoop ${version}</h1>]]></doctitle>
       <bottom><![CDATA[Copyright &copy; 2002-2006 <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright &copy; 2002-2006 <a href="http://ianp.org">Ian Phillips</a>.]]></bottom>
       <packageset dir="${dir.build.src}" defaultexcludes="true" includes="**"/>
       <link href="http://java.sun.com/j2se/1.4.2/docs/api" offline="${javadoc.offline}"/>
@@ -160,12 +157,13 @@
     <chmod dir="${dir.dist.bin}" includes="*.sh" perm="750"/>
     <echo>Packaging the documentation.</echo>
     <mkdir dir="${dir.dist.doc}"/>
-    <copy todir="${dir.dist.doc}">
-      <fileset dir="${dir.build.doc}" includes="*.xhtml, *.css"/>
-      <!-- This turns out to be needed because MSIE is a festering turd. -->
-      <mapper type="glob" from="*.xhtml" to="*.html"/>
-    </copy>
     <mkdir dir="${dir.dist.doc}/images"/>
+    <copy todir="${dir.dist.doc}">
+      <fileset dir="${dir.build.doc}" includes="*.html"/>
+    </copy>
+    <copy todir="${dir.dist.doc}">
+      <fileset dir="${dir.build.doc}" includes="*.css"/>
+    </copy>
     <copy todir="${dir.dist.doc}/images">
       <fileset dir="${dir.build.doc}/images" includes="*.png"/>
     </copy>
@@ -175,7 +173,7 @@
       manifestencoding="utf-8" index="true" basedir="${dir.build.lib}"
       includes="**/*.class, **/*.png, **/*.properties">
       <manifest>
-        <attribute name="Implementation-Title" value="RvSnoop"/>
+        <attribute name="Implementation-Title" value="rvSnoop"/>
         <attribute name="Implementation-Version" value="${version}"/>
         <attribute name="Implementation-Vendor" value="Örjan Lundberg &amp; Ian Phillips"/>
         <attribute name="Implementation-URL" value="http://rvsn00p.sf.net"/>
@@ -205,10 +203,16 @@
       <keep name="rvsnoop.StartRvSnooper">
         <method access="public static" type="void" name="main" parameters="java.lang.String[]"/>
       </keep>
+      <keep name="rvsnoop.AeMsgTreeNode">
+        <constructor access="public" parameters="com.tibco.tibrv.TibrvMsg"/>
+      </keep>
       <keep name="rvsnoop.*" extends="rvsnoop.Marshaller$Implementation">
         <method access="public" type="java.lang.String" name="getName" parameters=""/>
         <method access="public" type="java.lang.String" name="marshal" parameters="java.lang.String,com.tibco.tibrv.TibrvMsg"/>
         <method access="public" type="com.tibco.tibrv.TibrvMsg" name="unmarshal" parameters="java.lang.String"/>
+      </keep>
+      <keep name="rvsnoop.ui.MultiLineToolTipUI">
+        <method access="public static" type="javax.swing.plaf.ComponentUI" name="createUI" parameters="javax.swing.JComponent"/>
       </keep>
     </proguard>
     <echo>Packaging the binary distributable.</echo>
@@ -284,23 +288,13 @@
         <exclude name="license.xhtml"/>
         <exclude name="readme.xhtml"/>
       </fileset>
-      <filterset refid="filter.version"/>
-      <filterset>
-        <filter token="build.number"  value="${build.number}"/>
-        <filter token="build.date"  value="${build.date}"/>
-        <filter token="year" value="${build.year}"></filter>
-        <filter token="suffix" value=".html"/>
-      </filterset>
+      <filterset refid="filters"/>
       <!-- This mapper is needed because we are changing the file suffix. -->
       <!-- This is a sourceforge limitation, we have to live with it...   -->
       <mapper type="glob" from="*.xhtml" to="*.html"/>
     </copy>
     <copy file="${file.version}" todir="${dir.build.www}">
-      <filterset refid="filter.version"/>
-      <filterset>
-        <filter token="build.number"  value="${build.number}"/>
-        <filter token="build.date"  value="${build.date}"/>
-      </filterset>
+      <filterset refid="filters"/>
     </copy>
     <copy todir="${dir.build.www}">
       <fileset dir="${dir.orig.doc}" includes="*.css"/>
