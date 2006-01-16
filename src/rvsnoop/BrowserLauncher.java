@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
  * doing anything else similarly evil.
  * <p>
  * This version of the class does not handle very old operating systems (e.g Mac
- * Classic or win9x) since they are not supported by RvSn00p. This version of
+ * Classic or win9x) since they are not supported by RvSnoop. This version of
  * the class has had a lot of functionality removed, if you are considering
  * using this class in an application you should probably grab the full version
  * from SourceForge rather than using this one.
@@ -52,11 +52,8 @@ public class BrowserLauncher {
 	/** The browser for the system */
 	private static Object browser;
 
-	/** The com.apple.mrj.MRJFileUtils class */
-	private static Class mrjFileUtilsClass;
-
-	/** The openURL method of com.apple.mrj.MRJFileUtils */
-	private static Method openURL;
+    /** The openURL method of com.apple.mrj.MRJFileUtils */
+    private static Method openURL;
 
 	/** JVM constant for Macintosh */
 	private static final int MACOSX = 0;
@@ -105,7 +102,7 @@ public class BrowserLauncher {
 		if (osName.startsWith("Mac OS")) {
 		    jvm = MACOSX;
             try {
-                mrjFileUtilsClass = Class.forName("com.apple.mrj.MRJFileUtils");
+                final Class mrjFileUtilsClass = Class.forName("com.apple.mrj.MRJFileUtils");
                 openURL = mrjFileUtilsClass.getDeclaredMethod("openURL", new Class[] { String.class });
             } catch (ClassNotFoundException cnfe) {
                 errorMessage = cnfe.getMessage();
