@@ -140,21 +140,23 @@ public final class Marshaller {
 
     }
 
-    static final Implementation implementation;
+    private static final Implementation implementation;
     
     private static final Logger logger = Logger.getLogger(Marshaller.class);
 
     private static final String[] PREFERRED = {
-        "rvsnoop.Marshaller.RvTestImpl",
-        "rvsnoop.Marshaller.RvScriptImpl",
-        "rvsnoop.Marshaller.MTreeImpl",
-        "rvsnoop.Marshaller.RvMsgImpl"
+        "rvsnoop.Marshaller$RvTestImpl",
+        "rvsnoop.Marshaller$RvScriptImpl",
+        "rvsnoop.Marshaller$MTreeImpl",
+        "rvsnoop.Marshaller$RvMsgImpl"
     };
     
     public static Implementation getImplementation(String className) {
         try {
             return (Implementation) Class.forName(className).newInstance();
         } catch (Exception e) {
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to load marshaller: " + className);
             return null;
         } catch (NoClassDefFoundError e) {
             return null;
@@ -172,6 +174,11 @@ public final class Marshaller {
             if ((impl = getImplementation(preferred[i])) != null)
                 break;
         implementation = impl;
+        if (logger.isInfoEnabled())
+            if (impl == null)
+                logger.info("No marshaller loaded!");
+            else
+                logger.info("Using marshaller: " + impl.name);
     }
 
     /**
