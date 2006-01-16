@@ -49,6 +49,7 @@ public final class AeMsgTreeNode extends LazyTreeNode {
             break;
         case MMessageFormat.XMLRV :
             label = "AE Message (format: XML, version: " + message.getField("^ver^").data + ")";
+            // final TibrvMsg m = (TibrvMsg) message.getField("^data^").data;
             children.add(new RvFieldTreeNode(this, message.getField("^xmldata^")));
             break;
         default:
