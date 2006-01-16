@@ -10,7 +10,7 @@
     <meta name="Author" content="Örjan Lundberg" />
     <meta name="Author" content="Ian Phillips" />
     <style type="text/css" media="all">@import "style.css";</style>
-    <title>RvSn00p @version@ Release Notes</title>
+    <title>rvSnoop @version@ Release Notes</title>
   </head>
   <body>
     <div class="section">
@@ -22,16 +22,17 @@
         <p>You can get started by running the scripts in the <em>bin</em> directory, there is one for Windows and one for Unix.</p>
         <p>More detailed information can be found in the <a href="index@suffix@">local help files</a>.</p>
         <h2>Summary of Changes</h2>
-        <p>Some general changes in terminology have taken place in the documentation. The tree view on the left of the window is now known as the ‘Subject Explorer’ since that is what it actually shows, and the main table view is the ‘Message Ledger’ since again, that is what it shows. The old ‘Category’ names were a holdover from Log Factor 5. Some areas in the <acronym>UI</acronym> and documentation may still use the old names, if you spot any please <a href="http://sourceforge.net/tracker/?group_id=63447">mark it as a bug</a> on SourceForge.</p>
-        <p>In a similar vein, there has been some class renaming. I feel that this is <acronym>OK</acronym> at this stage as RvSn00p has never had a public <acronym>API</acronym> before. The idea is, in broad terms, to introduce some scriptablility around the 2.0 timeframe, and there needs to be a clean public <acronym>API</acronym> before then. For an example of what has changed: <code>rvsn00p.LogRecord</code> is now <code>rvsn00p.Record</code>. There <em>will</em> be more changes like this in the upcoming point releases, but it will cease once 2.0 is announced.</p>
-        <p>The standard cut/copy/paste menu actions have been added. Also, it is now possible to delete records from the ledger and to prune empty subjects from the subject explorer.</p>
+        <p>Some general changes in terminology have taken place in the documentation. The tree view on the left of the window is now known as the ‘Subject Explorer’ since that is what it actually shows, and the main table view is the ‘Message Ledger’ since again, that is what it shows. The old ‘Category’ names were a holdover from Log Factor 5.</p>
+        <p>There is now a list of connections which allows them to be started, paused, and stopped independently.</p>
+        <p>Messages are now displayed using a custom ‘Message Details Panel’ component instead of just displaying a text dump.</p>
         <h2>Future Plans</h2>
+        <p>Can anybody think of something more usefult than ‘Number of Fields’ to display in the message details panel header? If so, <a href="mailto:ianp@ianp.org">drop me a mail</a>.</p>
         <p>Please suggest further enhancements via the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge tracker</a>.</p>
-        <p>Main plans for the next version are the addition of a view of the current listeners, along with listener details and listener specific actions (e.g. pause a single listener). Also, the export to <acronym>HTML</acronym> facility will be altered to use <acronym>XHTML 1.0 Strict</acronym>. Finally, the ability to resend message <em>may</em> be added (this may slip to the following version however).</p>
-        <p>There is also ongoing work to clean-up and refactoring the code base with a view to having a public <acronym>API</acronym> as part of the 2.0 release (this will allow scripting). I plan to put all of the expected class name changes into the next release, this was the <acronym>API</acronym> should be fairly stable from that point on leading up to the next major release.</p>
+        <p>This version contained a lot of changes so the next release will be smaller, plans include enhancements to the details panel to display more data types (e.g. serialized Java objects).</p>
+        <p>There is also ongoing work to clean-up and refactoring the code base with a view to having a public <acronym>API</acronym> as part of the 2.0 release (this will allow scripting).</p>
         <h2>Acknowledgements</h2>
-        <p>RvSn00p has been written by <a href="mailto:lundberg@home.se">Örjan Lundberg</a> and <a href="mailto:ianp@ianp.org">Ian Phillips</a>, it is based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a> which was originally written by ThoughtWorks and later donated to the Apache Software Foundation.</p>
-        <p><acronym>TIBCO</acronym> and <acronym>TIBCO</acronym> Rendezvous are registered trademarks of <acronym>TIBCO</acronym> Software Inc.</p>
+        <p>rvSnoop has been written by <a href="mailto:lundberg@home.se">Örjan Lundberg</a> and <a href="mailto:ianp@ianp.org">Ian Phillips</a>, it is based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a> (although almost no <acronym>LF5</acronym> code now remains) which was originally written by ThoughtWorks and later donated to the Apache Software Foundation.</p>
+        <p><acronym>TIBCO</acronym> and <acronym>TIBCO</acronym> Rendezvous are registered trademarks of <a href="http://www.tibco.com"><acronym>TIBCO</acronym> Software Inc.</a></p>
       </div>
       <div class="navigation">
         <ul>
@@ -41,10 +42,10 @@
           <li><a href="links@suffix@">Links</a></li>
           <li><a href="changes@suffix@">Change Log</a></li>
           <li><a href="http://www.sourceforge.net/projects/rvsn00p">Project Page</a></li>
-          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-bin.tgz?download">Binary Download</a></li>
-          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-src.tgz?download">Source Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsnoop-@version@-bin.tgz?download">Binary Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsnoop-@version@-src.tgz?download">Source Download</a></li>
         </ul>
-        <a href="http://mozilla.com/firefox"><img src="images/getFirefox.png" alt="Get Firefox" /></a>
+        <a href="http://mozilla.com/firefox"><img src="images/get_firefox.png" alt="Get Firefox" /></a>
       </div>
       <div class="footer">
         <a href="http://sourceforge.net"><img id="sflogo" src="http://sourceforge.net/sflogo.php?group_id=63447&amp;type=4" alt="SourceForge Logo" /></a>

@@ -10,7 +10,7 @@
     <meta name="Author" content="Örjan Lundberg" />
     <meta name="Author" content="Ian Phillips" />
     <style type="text/css" media="all">@import "style.css";</style>
-    <title>RvSn00p @version@ Features</title>
+    <title>rvSnoop @version@ Features</title>
   </head>
   <body>
     <div class="section">
@@ -18,22 +18,29 @@
         <h1>Feature Summary</h1>
       </div>
       <div class="content">
-        <p>RvSn00p provides many features to make your life easier.</p>
-        <img src="images/tour.png" alt="RvSn00p Interface Tour" />
-        <h2>Message Ledger (1)</h2>
-        <p>When you startup RvSn00p you find the main interface screen that shows you a ledger like table showing information about all of the captured messages.</p>
+        <p>On startup the rvSnoop display is split into four main sections: the connection list, the subject explorer, the message ledger, and the message details panel.</p>
+        <img src="images/tour.png" alt="RvSnoop Interface Tour" class="wide"/>
+        <h2>Connection List (1)</h2>
+        <p><img src="images/connection_list.png" alt="Connection List"/>The connection list shows all of the connections to Rendezvous daemons, for each connection the connection name is displayed (this will also be visible in the description field of the <acronym>RVD</acronym>s <acronym>HTTP</acronym> interface). In a smaller typeface the list also displays the parameters (service, network, and daemon) for each connection. The list of subjects subscribed to is available as a tooltip, and an icon next to the connection name shows the current state of the connection. A context (right-click) menu is available to alter the state of individual connections.</p>
         <h2>Subject Explorer (2)</h2>
-        <p>The subject explorer displays all of the subjects that have been published to in a hierarchical tree-like fashion. You can use this to browse through all of the subscribed subjects.</p>
-        <p>Filter out the subjects you are not interested in, messages published on any subject element which is not checked will not appear in the ledger.</p>
-        <h2>Hierarchical Tree View (3)</h2>
-        <p>View your messages in a convenient tree format. The tree view can also parse <acronym>XML</acronym> messages so you can view their contents easily as well.</p>
-        <h2>Export to <acronym>HTML</acronym> or <em>RvScript</em> (4)</h2>
-        <p><img src="images/fileMenu.png" alt="File Menu" />Save the current contents of the ledger to a <acronym>HTML</acronym> table, this way you can easily include this information in bug reports and training documents.</p>
-        <p>Save the current contents of the ledger to an <code>rvscript</code> formatted <acronym>XML</acronym> file, this is a great way to produce data for testing purposes.</p>
-        <h2>Saved Configurations (5)</h2>
-        <p>You can now choose to save your configuration to a file, this will save all of the subscribers, the state of the subject explorer, and all of the window positions and style settings.</p>
-        <h2>Full Text Searching (6)</h2>
-        <p><img src="images/editMenu.png" alt="Edit Menu" />Support for full text searches of all messages in the ledger. Search subject names and message contents.</p>
+        <p><img src="images/subject_explorer.png" alt="Subject Explorer"/>The subject explorer displays all of the subjects that have been published to in a hierarchical tree-like fashion. You can use this to browse through all of the subscribed subjects. Subjects on which error messages have been received are highlighed in red, all of there parent subject nodes are highlighted in orange, this allows you to quickly spot error conditions in the subject hierarchy even when it is collapsed.</p>
+        <p>The checkboxes can be used to filter out subjects that you are not interested in, messages received on any subject element which is not checked will not appear in the ledger. A context menu provides some quick options for checking and unchecking messages as well as collapsing and expanding tree nodes.</p>
+        <h2>Message Ledger (3)</h2>
+        <img src="images/message_ledger.png" alt="Message Ledger" class="wide"/>
+        <p>The message ledger shows a summary of all of the received messages, the columns which are displayed can be configured via the view menu (the example screen shot shows some of the columns being hidden).</p>
+        <p>Entries in the ledger are called ‘records’ since they contain both the message and some additional information such as when it was received and on which connection (transport). Selecting a record in the ledger will cause more detailed information about it to be displayed in the details panel below the ledger.</p>
+        <h2>Message Details Panel (4)</h2>
+        <img src="images/message_details.png" alt="Message Details" class="wide"/>
+        <p>The details panel is split into two sections, the header shows some summary information about the message: the send and reply subjects, the message string encoding, and any <acronym>RVCM</acronym> information in the case of certified messages. The icon in the header changes based on the type of message shown (currently plain, certified, <acronym>RVFT</acronym> heartbeats, and advisories are supported).</p>
+        <p>The body of the details panel shows the contents of the message in a convenient tree format. The tree view also displays <acronym>XML</acronym> messages if they are encoded as the Rendezvous <acronym>XML</acronym> datatype or as Rendezvous strings, so you can view their contents easily.</p>
+        <h2>Republish Message</h2>
+        <p>A simple republishing facility has been added, this will republish the selected messages from the ledger. At the moment there is no facility to edit messages before publishing but this is planned for a future release.</p>
+        <h2>Export Message Data</h2>
+        <p>The export sub-menu allows you to save the currently selected messages from ledger to a number of formats: a basic <acronym>XHTML</acronym> table to allow you to easily include this information in bug reports and training documents; and RvScript and RvTest format mesage files. The RvScript and RvTest options will only be available if those libraries are found by rvSnoop at runtime.</p>
+        <h2>Saved Project Settings</h2>
+        <p>You can now choose to save your configuration to a file, this will save all of the connections and the state of the subject explorer. Recent projects are easily availoable from a sub-menu, as are recent connections (which are stored independently of their projects.</p>
+        <h2>Full Text Search</h2>
+        <p>rvSnoop supports full text searches across all messages in the ledger. The searches will find text in subject names as well and message contents.</p>
       </div>
       <div class="navigation">
         <ul>
@@ -43,10 +50,10 @@
           <li><a href="links@suffix@">Links</a></li>
           <li><a href="changes@suffix@">Change Log</a></li>
           <li><a href="http://www.sourceforge.net/projects/rvsn00p">Project Page</a></li>
-          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-bin.tgz?download">Binary Download</a></li>
-          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsn00p-@version@-src.tgz?download">Source Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsnoop-@version@-bin.tgz?download">Binary Download</a></li>
+          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsnoop-@version@-src.tgz?download">Source Download</a></li>
         </ul>
-        <a href="http://mozilla.com/firefox"><img src="images/getFirefox.png" alt="Get Firefox" /></a>
+        <a href="http://mozilla.com/firefox"><img src="images/get_firefox.png" alt="Get Firefox" /></a>
       </div>
       <div class="footer">
         <a href="http://sourceforge.net"><img id="sflogo" src="http://sourceforge.net/sflogo.php?group_id=63447&amp;type=4" alt="SourceForge Logo" /></a>
