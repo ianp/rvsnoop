@@ -72,7 +72,7 @@ final class ExportToHtml extends LedgerSelectionAction {
         final File file = chooser.getSelectedFile();
         FileWriter fw = null;
         BufferedWriter bw = null;
-        XMLOutputter xmlout = null;
+        XMLOutputter xmlout;
         try {
             fw = new FileWriter(file);
             bw = new BufferedWriter(fw);
