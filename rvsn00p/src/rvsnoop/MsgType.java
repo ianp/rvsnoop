@@ -77,11 +77,8 @@ public class MsgType implements Serializable {
      * a MsgType encompasses itself.
      */
     public boolean encompasses(MsgType level) {
-        if (level.getPrecedence() <= getPrecedence()) {
-            return true;
-        }
+        return level.getPrecedence() <= getPrecedence();
 
-        return false;
     }
 
     /**
