@@ -20,7 +20,7 @@ import rvsnoop.StringUtils;
 
 /**
  * A TableModel for LogRecords which includes filtering support.
- * <p>
+ * <p/>
  * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
@@ -29,12 +29,16 @@ import rvsnoop.StringUtils;
  */
 public final class FilteredLogTableModel extends AbstractTableModel {
 
+    private static final int DEFAULT_MAX_RECORDS = 5000;
     private static final long serialVersionUID = 3614054890778884099L;
+
     private LogRecordFilter _filter = new PassingLogRecordFilter();
+
     private final List _allRecords = new ArrayList();
+
     private List _filteredRecords;
 
-    private int maxRecords = 5000;
+    private int maxRecords = DEFAULT_MAX_RECORDS;
 
     public FilteredLogTableModel() {
         super();
@@ -83,7 +87,7 @@ public final class FilteredLogTableModel extends AbstractTableModel {
         _filteredRecords = createFilteredRecordsList();
         fireTableDataChanged();
     }
-    
+
     public synchronized void removeAll(Collection records) {
         _allRecords.removeAll(records);
         _filteredRecords.removeAll(records);
