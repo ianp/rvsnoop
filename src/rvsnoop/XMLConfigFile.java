@@ -27,11 +27,11 @@ import nu.xom.Text;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-abstract class XMLConfigFile extends Object {
+abstract class XMLConfigFile {
 
     private static final Logger logger = Logger.getLogger(XMLConfigFile.class);
     
-    protected File file;
+    protected final File file;
 
     public XMLConfigFile(File file) {
         super();
