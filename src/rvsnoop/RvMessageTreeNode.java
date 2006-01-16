@@ -1,4 +1,4 @@
-//:File:    RvMsgTreeNode.java
+//:File:    RvMessageTreeNode.java
 //:Created: Dec 12, 2005
 //:Legal:   Copyright © 2005-@year@ Apache Software Foundation.
 //:Legal:   Copyright © 2005-@year@ Ian Phillips.
@@ -25,16 +25,16 @@ import com.tibco.tibrv.TibrvMsg;
  * @version $Revision$, $Date$
  * @since 1.3
  */
-public final class RvMsgTreeNode extends LazyTreeNode {
+public final class RvMessageTreeNode extends LazyTreeNode {
     
-    private static final Logger logger = Logger.getLogger(RvMsgTreeNode.class);
+    private static final Logger logger = Logger.getLogger(RvMessageTreeNode.class);
     
     private final TibrvMsg message;
     
     /**
      * @param message The message represented by this node.
      */
-    public RvMsgTreeNode(TibrvMsg message) {
+    public RvMessageTreeNode(TibrvMsg message) {
         super(null);
         this.message = message;
     }
