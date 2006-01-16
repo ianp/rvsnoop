@@ -8,6 +8,8 @@ package rvsnoop;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,24 +57,9 @@ final class RvFieldTreeNode extends LazyTreeNode {
         List children = null;
         if (field.type == TibrvMsg.XML) {
             final InputStream stream = new ByteArrayInputStream(((TibrvXml) field.data).getBytes());
-            final Builder builder = new Builder(false, new InterningTrimmingNodeFactory());
-            try {
-                children = createChildrenFromXML(builder.build(stream).getDocument());
-            } catch (Exception e) {
-                logger.error("Error extracting XML.", e);
-            } finally {
-                IOUtils.closeQuietly(stream);
-            }
+            children = createChildrenFromXML(new InputStreamReader(stream));
         } else if (field.type == TibrvMsg.STRING && ((String) field.data).startsWith("<?xml ")) {
-            final StringReader reader = new StringReader((String) field.data);
-            final Builder builder = new Builder(false, new InterningTrimmingNodeFactory());
-            try {
-                children = createChildrenFromXML(builder.build(reader).getDocument());
-            } catch (Exception e) {
-                logger.error("Error extracting XML.", e);
-            } finally {
-                IOUtils.closeQuietly(reader);
-            }
+            children = createChildrenFromXML(new StringReader((String) field.data));
         } else if (field.type == TibrvMsg.MSG) {
             final TibrvMsg msg = (TibrvMsg) field.data;
             final int numChildren = msg.getNumFields();
@@ -87,12 +74,20 @@ final class RvFieldTreeNode extends LazyTreeNode {
         return children != null ? children : Collections.EMPTY_LIST;
     }
 
-    private List createChildrenFromXML(final Document doc) {
-        List children;
-        final int numChildren = doc.getChildCount();
-        children = new ArrayList(numChildren);
-        for (int i = 0; i < numChildren; ++i)
-            children.add(new XMLTreeNode(this, doc.getChild(i)));
+    private List createChildrenFromXML(final Reader reader) {
+        List children = null;
+        final Builder builder = new Builder(false, new InterningTrimmingNodeFactory());
+        try {
+            final Document doc = builder.build(reader).getDocument();
+            final int numChildren = doc.getChildCount();
+            children = new ArrayList(numChildren);
+            for (int i = 0; i < numChildren; ++i)
+                children.add(new XMLTreeNode(this, doc.getChild(i)));
+        } catch (Exception e) {
+            logger.error("Error extracting XML.", e);
+        } finally {
+            IOUtils.closeQuietly(reader);
+        }
         return children;
     }
 
