@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
@@ -18,13 +19,13 @@ import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
-import com.tibco.tibrv.TibrvException;
-
 import rvsn00p.viewer.RvSnooperGUI;
 import rvsnoop.Logger;
 import rvsnoop.Project;
 import rvsnoop.RvConnection;
 import rvsnoop.ui.Icons;
+
+import com.tibco.tibrv.TibrvException;
 
 /**
  * Open a new project.
@@ -64,14 +65,19 @@ final class Open extends AbstractAction {
                 return f.isDirectory() || f.getName().toLowerCase(Locale.ENGLISH).endsWith(".rsp");
             }
             public String getDescription() {
-                return "RvSnoop Project Files";
+                return "rvSnoop Project Files";
             }
         });
         if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(RvSnooperGUI.getFrame()))
             return;
-        final File file = chooser.getSelectedFile();
-        Project.setCurrentProject(new Project(file));
-        logger.info("Loaded project from " + file.getName());
+        try {
+            final File file = chooser.getSelectedFile().getCanonicalFile();
+            logger.info("Loading project from " + file.getName());
+            Project.setCurrentProject(new Project(file));
+            logger.info("Loaded project from " + file.getName());
+        } catch (IOException e) {
+            logger.error("Could not load project file.", e);
+        }
         try {
             RvConnection.resumeQueue();
         } catch (TibrvException e) {
