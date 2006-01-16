@@ -51,11 +51,11 @@ public final class Record implements Serializable {
 
     private MsgType type = MsgType.UNKNOWN;
 
-    public Record(String connection, TibrvMsg message, SubjectElement subject) {
+    public Record(String connection, TibrvMsg message) {
         super();
         this.connection = connection;
         this.message = message;
-        this.subject = subject;
+        this.subject = SubjectHierarchy.INSTANCE.getSubjectElement(message.getSendSubject());
         synchronized (Record.class) {
             sequenceNumber = nextSequenceNumber++;
         }
@@ -138,7 +138,7 @@ public final class Record implements Serializable {
     
     /**
      * Gets the subject element representing the subject that this record was sent to.
-     * @return
+     * @return The subject element holding this record.
      */
     public SubjectElement getSubject() {
         return subject;
@@ -158,9 +158,7 @@ public final class Record implements Serializable {
     /**
      * Extracts an Active Enterprise style tracking ID from a message.
      * 
-     * @param message The message to extract the tracking ID from.
      * @return A string containing tracking ID, or the empty string if no ID was found.
-     * @throws TibrvException
      */
     public String getTrackingId() {
         if (trackingId == null)
