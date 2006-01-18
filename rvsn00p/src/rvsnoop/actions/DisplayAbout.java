@@ -13,9 +13,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
-import rvsn00p.viewer.RvSnooperGUI;
 import rvsnoop.Version;
 import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIManager;
 
 /**
  * Display the about dialog.
@@ -26,13 +26,13 @@ import rvsnoop.ui.Icons;
  */
 final class DisplayAbout extends AbstractAction {
 
-    public static final String ID = "displayAbout";
+    private static final String ID = "displayAbout";
     
-    static String NAME = "About RvSn00p";
+    private static String NAME = "About RvSn00p";
     
     private static final long serialVersionUID = 1725655570348239778L;
 
-    static String TOOLTIP = "Show some information about RvSn00p";
+    private static String TOOLTIP = "Show some information about RvSn00p";
 
     public DisplayAbout() {
         super(NAME);
@@ -47,7 +47,7 @@ final class DisplayAbout extends AbstractAction {
      */
     public void actionPerformed(ActionEvent event) {
         JOptionPane.showMessageDialog(
-            RvSnooperGUI.getFrame(),
+            UIManager.INSTANCE.getFrame(),
             new String[] { "RvSn00p " + Version.getAsString(),
                            " ",
                            "Constructed by Örjan Lundberg (lundberg@home.se)",
@@ -57,18 +57,18 @@ final class DisplayAbout extends AbstractAction {
                            "The Apache Software Foundation (http://www.apache.org).",
                            " ",
                            "Thanks goes to (in no special order):",
-                           "  Eric Albert, Stefan Axelsson, Thomas Bonderud,",
-                           "  Stefan Farestam, Johan Hjort, Joe Jensen",
-                           "  Magnus L Johansson, Anders Lindlof, Linda Lundberg",
-                           "  Stephanie Lundberg, Cedric Rouvrais, and Richard Valk.",
+                           "\tEric Albert, Stefan Axelsson, Thomas Bonderud,",
+                           "\tStefan Farestam, Johan Hjort, Joe Jensen",
+                           "\tMagnus L Johansson, Anders Lindlof, Linda Lundberg",
+                           "\tStephanie Lundberg, Cedric Rouvrais, and Richard Valk.",
                            " ",
                            "Copyright © 2002-@year@ Apache Software Foundation.",
                            "Copyright © 2005-@year@ Ian Phillips.",
                            " ",
                            "Licensed under the Apache License, Version 2.0.",
-                           "  A copy of the license has been included with this",
-                           "  distribution as doc/license.@suffix@, or may be obtained",
-                           "  from http://www.apache.org/licenses/LICENSE-2.0.html" },
+                           "\tA copy of the license has been included with this",
+                           "\tdistribution as doc/license.@suffix@, or may be obtained",
+                           "\tfrom http://www.apache.org/licenses/LICENSE-2.0.html" },
             NAME, JOptionPane.PLAIN_MESSAGE);
     }
 

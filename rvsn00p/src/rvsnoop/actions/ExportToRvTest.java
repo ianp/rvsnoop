@@ -6,6 +6,15 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
+import rvsnoop.IOUtils;
+import rvsnoop.Logger;
+import rvsnoop.Marshaller;
+import rvsnoop.Record;
+import rvsnoop.ui.UIManager;
+
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,16 +22,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-
-import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-
-import rvsn00p.viewer.RvSnooperGUI;
-import rvsnoop.IOUtils;
-import rvsnoop.Logger;
-import rvsnoop.Marshaller;
-import rvsnoop.Record;
 
 /**
  * Export the current ledger selction to an RvTest format message file.
@@ -32,16 +31,28 @@ import rvsnoop.Record;
  * @since 1.5
  */
 final class ExportToRvTest extends LedgerSelectionAction {
-    
+    private static class RvTestMessagesFileFilter extends FileFilter {
+        RvTestMessagesFileFilter() {
+            super();
+        }
+        public boolean accept(File f) {
+            return f.isDirectory() || f.getName().toLowerCase(Locale.ENGLISH).endsWith(".msgs");
+        }
+
+        public String getDescription() {
+            return "RvTest Messages Files";
+        }
+    }
+
     private static final String ID = "exportToRvTest";
 
     private static final Logger logger = Logger.getLogger(ExportToRvTest.class);
     
-    static String NAME = "RvTest Messages File";
+    private static String NAME = "RvTest Messages File";
     
     private static final long serialVersionUID = -483492422948058345L;
     
-    static String TOOLTIP = "Export the current ledger selction to an RvTest format message file";
+    private static String TOOLTIP = "Export the current ledger selction to an RvTest format message file";
 
     private final Marshaller.Implementation marshaller = Marshaller.getImplementation("rvsnoop.Marshaller.RvTestImpl");
     
@@ -57,15 +68,8 @@ final class ExportToRvTest extends LedgerSelectionAction {
      */
     protected void actionPerformed(List selected) {
         final JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                return f.getName().toLowerCase(Locale.ENGLISH).endsWith(".msgs");
-            }
-            public String getDescription() {
-                return "RvTest Messages Files";
-            }
-        });
-        if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(RvSnooperGUI.getFrame()))
+        chooser.setFileFilter(new RvTestMessagesFileFilter());
+        if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
             return;
         final File file = chooser.getSelectedFile();
         FileWriter fw = null;

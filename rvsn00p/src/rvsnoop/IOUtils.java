@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.Socket;
 
 /**
  * A collection of static utility methods for working with the <code>java.io</code> package.
@@ -29,7 +30,7 @@ public final class IOUtils {
             // Intentionally ignored.
         }
     }
-    
+
     public static void closeQuietly(OutputStream stream) {
         if (stream == null) return;
         try {
@@ -38,7 +39,16 @@ public final class IOUtils {
             // Intentionally ignored.
         }
     }
-    
+
+    public static void closeQuietly(Socket socket) {
+        if (socket == null) return;
+        try {
+            socket.close();
+        } catch (IOException ignored) {
+            // Intentionally ignored.
+        }
+    }
+
     public static void closeQuietly(Reader reader) {
         if (reader == null) return;
         try {
@@ -47,7 +57,7 @@ public final class IOUtils {
             // Intentionally ignored.
         }
     }
-    
+
     public static void closeQuietly(Writer writer) {
         if (writer == null) return;
         try {
@@ -56,7 +66,7 @@ public final class IOUtils {
             // Intentionally ignored.
         }
     }
-    
+
     /**
      * Do not instantiate.
      */

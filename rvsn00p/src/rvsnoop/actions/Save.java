@@ -28,15 +28,15 @@ import rvsnoop.ui.Icons;
  */
 final class Save extends AbstractAction {
 
-    public static final String ID = "save";
+    private static final String ID = "save";
 
     private static final Logger logger = Logger.getLogger(Save.class);
 
-    static String NAME = "Save";
+    private static String NAME = "Save";
 
     private static final long serialVersionUID = 1873782974936025367L;
 
-    static String TOOLTIP = "Save the current project";
+    private static String TOOLTIP = "Save the current project";
 
     public Save() {
         super(NAME, Icons.SAVE);

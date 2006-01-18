@@ -15,8 +15,8 @@ import java.util.List;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import rvsn00p.viewer.RvSnooperGUI;
 import rvsnoop.Logger;
+import rvsnoop.MessageLedger;
 import rvsnoop.RecordSelection;
 import rvsnoop.ui.Icons;
 
@@ -31,19 +31,19 @@ import com.tibco.tibrv.TibrvException;
  */
 final class Cut extends LedgerSelectionAction {
     
-    static String ERROR_IO = "There was an I/O error whilst writing data to the clipboard.";
+    private static String ERROR_IO = "There was an I/O error whilst writing data to the clipboard.";
 
-    static String ERROR_RV = "There was a Rendezvous error whilst serializing the messages.";
+    private static String ERROR_RV = "There was a Rendezvous error whilst serializing the messages.";
     
     private static final String ID = "cut";
     
     private static final Logger logger = Logger.getLogger(Cut.class);
     
-    static String NAME = "Cut";
+    private static String NAME = "Cut";
 
     private static final long serialVersionUID = 795156697514723501L;
 
-    static String TOOLTIP = "Delete the selected records but place copies on the clipboard";
+    private static String TOOLTIP = "Delete the selected records but place copies on the clipboard";
     
     public Cut() {
         super(ID, NAME, Icons.CUT);
@@ -58,7 +58,7 @@ final class Cut extends LedgerSelectionAction {
         try {
             final RecordSelection selection = new RecordSelection(selected);
             clipboard.setContents(selection, selection);
-            RvSnooperGUI.getInstance().removeAll(selected);
+            MessageLedger.INSTANCE.removeAll(selected);
         } catch (TibrvException e) {
             logger.error(ERROR_RV, e);
         } catch (IOException e) {

@@ -23,15 +23,15 @@ import rvsnoop.Logger;
  */
 final class DisplayWishList extends AbstractAction {
 
-    static String ERROR_BROWSER = "The default browser could not be opened.";
+    private static String ERROR_BROWSER = "The default browser could not be opened.";
 
-    public static final String ID = "displayWishList";
+    private static final String ID = "displayWishList";
     
     private static final Logger logger = Logger.getLogger(DisplayWishList.class);
     
     private static final long serialVersionUID = 9191769758987689387L;
 
-    static String TOOLTIP = "Show the wish list in the default browser";
+    private static String TOOLTIP = "Show the wish list in the default browser";
 
     private final String url;
 

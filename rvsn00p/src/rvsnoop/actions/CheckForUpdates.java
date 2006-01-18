@@ -6,6 +6,15 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
+import rvsnoop.IOUtils;
+import rvsnoop.Logger;
+import rvsnoop.Version;
+import rvsnoop.ui.Banners;
+import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIUtils;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -16,16 +25,6 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-
-import rvsnoop.IOUtils;
-import rvsnoop.Logger;
-import rvsnoop.Version;
-import rvsnoop.ui.Banners;
-import rvsnoop.ui.Icons;
-import rvsnoop.ui.UIUtils;
-
 /**
  * Check for updates.
  *
@@ -35,21 +34,21 @@ import rvsnoop.ui.UIUtils;
  */
 final class CheckForUpdates extends AbstractAction {
 
-    static String ERROR = "Could not complete version check.";
+    private static String ERROR = "Could not complete version check.";
     
-    public static final String ID = "checkForUpdates";
+    private static final String ID = "checkForUpdates";
     
     private static final Logger logger = Logger.getLogger(CheckForUpdates.class);
     
-    static String MESSAGE_NEW_VERSION = "A new version has been released: ";
+    private static String MESSAGE_NEW_VERSION = "A new version has been released: ";
     
-    static String MESSAGE_UP_TO_DATE = "Your version is up to date.";
+    private static String MESSAGE_UP_TO_DATE = "Your version is up to date.";
     
-    static String NAME = "Check for Updates";
+    private static String NAME = "Check for Updates";
     
     private static final long serialVersionUID = 947745941196389522L;
 
-    static String TOOLTIP = "Check for newer versions of RvSn00p";
+    private static String TOOLTIP = "Check for newer versions of RvSn00p";
     
     public CheckForUpdates() {
         super(NAME, Icons.CHECK_UPDATES);
@@ -74,7 +73,7 @@ final class CheckForUpdates extends AbstractAction {
         }
     }
     
-    private boolean isVersionCurrent(Matcher matcher) {
+    private static boolean isVersionCurrent(Matcher matcher) {
         final int major = Integer.parseInt(matcher.group(1));
         if (major > Version.getMajor()) return false;
         final int minor = Integer.parseInt(matcher.group(2));
@@ -83,12 +82,13 @@ final class CheckForUpdates extends AbstractAction {
         return patch <= Version.getPatch();
     }
 
-    private String[] readVersionInfo() throws UnknownHostException, IOException {
+    private static String[] readVersionInfo() throws UnknownHostException, IOException {
         InputStream istream = null;
-        OutputStream ostream;
+        OutputStream ostream = null;
+        Socket socket = null;
         try {
             // Open a socket.
-            final Socket socket = new Socket("rvsn00p.sourceforge.net", 80);
+            socket = new Socket("rvsn00p.sourceforge.net", 80);
             istream = socket.getInputStream();
             ostream = socket.getOutputStream();
             // Send the HTTP get request.
@@ -110,16 +110,18 @@ final class CheckForUpdates extends AbstractAction {
             System.arraycopy(lines, i, tmp, 0, tmp.length);
             return tmp;
         } finally {
+            IOUtils.closeQuietly(socket);
             IOUtils.closeQuietly(istream);
+            IOUtils.closeQuietly(ostream);
         }
     }
 
-    private void showNewVersionAvailableDialog(String[] lines) {
+    private static void showNewVersionAvailableDialog(String[] lines) {
         lines[0] = MESSAGE_NEW_VERSION;
         UIUtils.showInformation(lines, Banners.UPDATE_AVAILABLE);
     }
 
-    private void showVersionIsUpToDateDialog() {
+    private static void showVersionIsUpToDateDialog() {
         UIUtils.showInformation(MESSAGE_UP_TO_DATE, Banners.UPDATE_ALREADY);
     }
 

@@ -6,6 +6,18 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
+import com.tibco.tibrv.TibrvException;
+import com.tibco.tibrv.TibrvIPAddr;
+import com.tibco.tibrv.TibrvIPPort;
+import com.tibco.tibrv.TibrvMsg;
+import com.tibco.tibrv.TibrvMsgField;
+import com.tibco.tibrv.TibrvXml;
+import nu.xom.Builder;
+import nu.xom.Document;
+import rvsnoop.ui.Icons;
+
+import javax.swing.Icon;
+import javax.swing.tree.TreeNode;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,20 +26,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.swing.Icon;
-import javax.swing.tree.TreeNode;
-
-import nu.xom.Builder;
-import nu.xom.Document;
-import rvsnoop.ui.Icons;
-
-import com.tibco.tibrv.TibrvException;
-import com.tibco.tibrv.TibrvIPAddr;
-import com.tibco.tibrv.TibrvIPPort;
-import com.tibco.tibrv.TibrvMsg;
-import com.tibco.tibrv.TibrvMsgField;
-import com.tibco.tibrv.TibrvXml;
 
 /**
  * A {@link TreeNode} that wraps a Rendezvous message field.
@@ -38,7 +36,7 @@ import com.tibco.tibrv.TibrvXml;
  */
 final class RvFieldTreeNode extends LazyTreeNode {
 
-    static String ARRAY_OF = "Array of ";
+    private static String ARRAY_OF = "Array of ";
     
     private static final Logger logger = Logger.getLogger(RvFieldTreeNode.class);
     

@@ -6,6 +6,11 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
+import rvsnoop.Logger;
+import rvsnoop.StringUtils;
+
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -16,12 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-
-import rvsnoop.Logger;
-import rvsnoop.StringUtils;
 
 /**
  * Singleton action instances.
@@ -37,18 +36,23 @@ import rvsnoop.StringUtils;
  */
 public final class Actions {
 
-    // KeyStroke -> Action
-    static final Map acceleratorKeyMap = new HashMap();
-    
-    private static final KeyListener acceleratorKeyListener = new KeyAdapter() {
+    private static class GlobalAcceleratorListener extends KeyAdapter {
+        GlobalAcceleratorListener() {
+            super();
+        }
         public void keyTyped(KeyEvent e) {
             final Action a = (Action) acceleratorKeyMap.get(KeyStroke.getKeyStrokeForEvent(e));
             if (a == null) return;
             a.actionPerformed(new ActionEvent(e.getSource(), e.getID(),
-                (String) a.getValue(Action.ACTION_COMMAND_KEY)));
+                    (String) a.getValue(Action.ACTION_COMMAND_KEY)));
             e.consume();
         }
-    };
+    }
+
+    // KeyStroke -> Action
+    private static final Map acceleratorKeyMap = new HashMap();
+    
+    private static final KeyListener acceleratorKeyListener = new GlobalAcceleratorListener();
     
     // String -> Action
     private static final Map actionCommandMap = new HashMap();
@@ -85,6 +89,10 @@ public final class Actions {
 
     public static final Action EXPORT_TO_RVTEST = add(new ExportToRvTest());
 
+    public static final Action FILTER = add(new Filter(Filter.FILTER, "Filter...", "Filter the records visible in the ledger"));
+
+    public static final Action FILTER_BY_SELECTION = add(new Filter(Filter.FILTER_BY_SELECTION, "Filter by Selection", "Filter the records visible in the ledger"));
+
     public static final Action HELP = add(new Help());
 
     public static final Action OPEN = add(new Open());
@@ -107,11 +115,13 @@ public final class Actions {
 
     public static final Action SEARCH = add(new Search(Search.SEARCH, "Find...", "Search for text in the messages", KeyEvent.VK_F));
 
-    public static final Action SEARCH_AGAIN = add(new Search(Search.SEARCH_AGAIN, "Find Again", "Repeat the last search", KeyEvent.VK_G));
+    public static final Action SEARCH_AGAIN = add(new Search(Search.SEARCH_AGAIN, "Find Next", "Repeat the last search", KeyEvent.VK_G));
 
-    public static final Action SUBSCRIBE_TO_UPDATES = add(new SubscribeToUpdates());
+    public static final Action SELECT_ALL_MESSAGES = add(new SelectAllMessages());
+
+    public static final Action SHOW_ALL_COLUMNS = add(new ShowAllColumns());
     
-    static String WARN_ACCEL_REDEFINITION = "Redefining accelerator key '{0}' from {1} to {2}.";
+    public static final Action SUBSCRIBE_TO_UPDATES = add(new SubscribeToUpdates());
     
     private static Action add(Action action) {
         final String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
@@ -119,9 +129,10 @@ public final class Actions {
         final KeyStroke accelerator = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
         if (accelerator != null) {
             final Object old = acceleratorKeyMap.put(accelerator, action);
-            if (old != null && logger.isWarnEnabled()) {
+            if (old != null && Logger.isWarnEnabled()) {
                 final Object[] fields = new Object[] { accelerator.toString(), ((Action) old).getValue(Action.ACTION_COMMAND_KEY), command };
-                logger.warn(StringUtils.format(WARN_ACCEL_REDEFINITION, fields));
+                if (Logger.isWarnEnabled())
+                    logger.warn(StringUtils.format("Redefining accelerator key '{0}' from {1} to {2}.", fields));
             }
         }
         return action;

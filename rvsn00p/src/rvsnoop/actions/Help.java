@@ -26,17 +26,17 @@ import rvsnoop.ui.Icons;
  */
 final class Help extends AbstractAction {
 
-    static String ERROR_BROWSER = "The default browser could not be opened.";
+    private static String ERROR_BROWSER = "The default browser could not be opened.";
 
-    public static final String ID = "help";
+    private static final String ID = "help";
     
     private static final Logger logger = Logger.getLogger(Help.class);
     
-    static String NAME = "Help Contents";
+    private static String NAME = "Help Contents";
 
     private static final long serialVersionUID = 7014627089362478531L;
 
-    static String TOOLTIP = "Show the help files in the default browser";
+    private static String TOOLTIP = "Show the help files in the default browser";
 
     public Help() {
         super(NAME, Icons.HELP);

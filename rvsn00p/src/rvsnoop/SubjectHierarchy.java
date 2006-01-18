@@ -5,10 +5,7 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Enumeration;
-import java.util.EventListener;
 import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
@@ -16,11 +13,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
+import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
+import ca.odell.glazedlists.matchers.Matcher;
+import ca.odell.glazedlists.matchers.MatcherEditor;
+
 /**
  * A hierarchy of rendezvous subjects.
  * <p>
- * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
- *
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor
+ * 5</a>.
+ * 
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -29,11 +31,36 @@ import javax.swing.tree.TreeNode;
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/4/06 2:03 PM
 public final class SubjectHierarchy extends DefaultTreeModel {
 
+    private static class SubjectHierarchyMatcherEditor extends AbstractMatcherEditor {
+        SubjectHierarchyMatcherEditor() {
+            super();
+        }
+        public Matcher getMatcher() {
+            return new Matcher() {
+                public boolean matches(Object item) {
+                    SubjectElement elt = ((Record) item).getSubject();
+                    if (!elt.isSelected()) return false;
+                    while ((elt = ((SubjectElement) elt.getParent())) != null)
+                        if (!elt.isSelected()) return false;
+                    return true;
+                }
+            };
+        }
+        void update(boolean selected) {
+            if (selected)
+                fireRelaxed(getMatcher());
+            else
+                fireConstrained(getMatcher());
+        }
+    }
+
     public static final SubjectHierarchy INSTANCE = new SubjectHierarchy();
 
     private static final long serialVersionUID = -3629858078509052804L;
 
     private static final Pattern SPLITTER = Pattern.compile("\\.");
+
+    private final SubjectHierarchyMatcherEditor matcherEditor = new SubjectHierarchyMatcherEditor();
 
     private SubjectElement noSubjectElement;
 
@@ -41,26 +68,18 @@ public final class SubjectHierarchy extends DefaultTreeModel {
         super(new SubjectElement());
     }
 
-    public void addActionListener(ActionListener listener) {
-        listenerList.add(ActionListener.class, listener);
-    }
-
     public void addRecord(Record record) {
         final SubjectElement element = record.getSubject();
         element.incNumRecordsHere();
-        if (MsgType.ERROR.equals(record.getType()))
-            element.setErrorHere(true);
+        if (RecordType.ERROR_TYPE.matches(record))
+            element.setErrorHere();
         final TreeNode[] nodes = element.getPath();
         for (int i = 0, imax = nodes.length; i < imax; ++i)
             nodeChanged(nodes[i]);
     }
 
-    private void fireSelectionChanged() {
-        final EventListener[] listeners = listenerList.getListeners(ActionListener.class);
-        if (listeners == null || listeners.length == 0) return;
-        final ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Node Selection Changed");
-        for (int i = 0, imax = listeners.length; i < imax; ++i)
-            ((ActionListener) listeners[i]).actionPerformed(event);
+    public MatcherEditor getMatcherEditor() {
+        return matcherEditor;
     }
 
     private synchronized SubjectElement getNoSubjectElement() {
@@ -83,9 +102,9 @@ public final class SubjectHierarchy extends DefaultTreeModel {
         SubjectElement current = (SubjectElement) getRoot();
         final String[] subjectElts = SPLITTER.split(subject);
         final String[] pathElts = new String[subjectElts.length + 1];
-        boolean isSelected = true;
         pathElts[0] = (String) current.getUserObject();
         System.arraycopy(subjectElts, 0, pathElts, 1, subjectElts.length);
+        boolean isSelected = true;
         // Skipping the root node...
         WALK_PATH: for (int i = 1, imax = pathElts.length; i < imax; ++i) {
             final String element = pathElts[i];
@@ -104,28 +123,26 @@ public final class SubjectHierarchy extends DefaultTreeModel {
                         continue WALK_PATH;
                     } else if (compared < 0) {
                         // If we have found a child which should be sorted after this then
-                        // we should insert the new child here and immeniately scan it.
+                        // we should insert the new child here and immediately scan it.
                         current = insertNewChild(current, element, j, isSelected);
                         continue WALK_PATH;
                     }
                 }
-                // If we have reached the end of the children with no match then append
-                // a new child and scan it.
-                current = insertNewChild(current, element, numChildren, isSelected);
+                // If we have reached the end of the children with no match then
+                // append a new child and scan it.
+                current = insertNewChild(current, element, numChildren,
+                    isSelected);
             }
         }
         return current;
     }
 
-    private SubjectElement insertNewChild(final SubjectElement current, final String element, final int index, final boolean isSelected) {
+    private SubjectElement insertNewChild(final SubjectElement current,
+            final String element, final int index, final boolean isSelected) {
         final SubjectElement newChild = new SubjectElement(current, element);
         newChild.setSelected(isSelected);
         insertNodeInto(newChild, current, index);
         return newChild;
-    }
-
-    public void removeActionListener(ActionListener listener) {
-        listenerList.remove(ActionListener.class, listener);
     }
 
     public void removeAll() {
@@ -155,7 +172,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
         final Enumeration descendants = node.depthFirstEnumeration();
         while (descendants.hasMoreElements())
             updateElement((SubjectElement) descendants.nextElement(), selected);
-        fireSelectionChanged();
+        matcherEditor.update(selected);
     }
 
     /**
@@ -176,7 +193,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
             // Skip the 0-index root node.
             for (int i = nodes.length - 1; i != 0; --i)
                 updateElement((SubjectElement) nodes[i], selected);
-            fireSelectionChanged();
+            matcherEditor.update(selected);
         } else {
             setAllSelected(node, false);
         }

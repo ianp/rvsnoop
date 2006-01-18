@@ -38,7 +38,7 @@ public class SubjectExplorerRenderer extends JPanel implements TreeCellRenderer 
 
     private final StringBuffer buffer = new StringBuffer();
     
-    protected final JCheckBox checkbox = new JCheckBox();
+    final JCheckBox checkbox = new JCheckBox();
 
     private final JLabel label = new JLabel();
 

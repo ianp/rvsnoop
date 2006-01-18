@@ -26,17 +26,17 @@ import rvsnoop.ui.Icons;
  */
 final class DisplayLicense extends AbstractAction {
 
-    static String ERROR_BROWSER = "The default browser could not be opened.";
+    private static String ERROR_BROWSER = "The default browser could not be opened.";
 
-    public static final String ID = "displayLicense";
+    private static final String ID = "displayLicense";
     
     private static final Logger logger = Logger.getLogger(DisplayLicense.class);
     
-    static String NAME = "Show License";
+    private static String NAME = "Show License";
     
     private static final long serialVersionUID = -6587535307193015605L;
 
-    static String TOOLTIP = "Show the license in the default browser";
+    private static String TOOLTIP = "Show the license in the default browser";
 
     public DisplayLicense() {
         super(NAME, Icons.LICENSE);

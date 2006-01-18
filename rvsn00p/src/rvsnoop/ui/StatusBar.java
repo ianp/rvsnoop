@@ -6,6 +6,13 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -15,14 +22,6 @@ import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 
 /**
  * A status bar capable of displaying notifications to the user.
@@ -38,6 +37,20 @@ import javax.swing.border.Border;
  */
 public final class StatusBar extends JPanel {
 
+    private class FullWidthLabel extends JLabel {
+        private static final long serialVersionUID = 6925029135681793153L;
+
+        public FullWidthLabel() {
+            super(StatusBar.NO_MESSAGE);
+        }
+
+        public Dimension getPreferredSize() {
+            final Dimension d = super.getPreferredSize();
+            d.width = StatusBar.this.getWidth();
+            return d;
+        }
+    }
+
     public class StatusBarItem {
         final JLabel label;
         StatusBarItem(JLabel label) {
@@ -48,6 +61,9 @@ public final class StatusBar extends JPanel {
         }
         public String getText() {
             return label.getText();
+        }
+        public String getToolTipText() {
+            return label.getToolTipText();
         }
         public void set(String text, String tooltip, Icon icon) {
             label.setText(text != null ? text : NO_MESSAGE);
@@ -80,14 +96,7 @@ public final class StatusBar extends JPanel {
 
     private List items;
 
-    private final JLabel message = new JLabel(NO_MESSAGE) {
-        private static final long serialVersionUID = 6925029135681793153L;
-        public Dimension getPreferredSize() {
-            final Dimension d = super.getPreferredSize();
-            d.width = StatusBar.this.getWidth();
-            return d;
-        }
-    };
+    private final JLabel message = new FullWidthLabel();
 
     /**
      * Create a new <code>StatusBar</code>.
@@ -130,7 +139,7 @@ public final class StatusBar extends JPanel {
     /**
      * Get the message currently displayed in the status bar.
      * 
-     * @return
+     * @return The currently displayed text.
      */
     public String getMessage() {
         return message.getText();
@@ -140,7 +149,7 @@ public final class StatusBar extends JPanel {
      * Make sure that the font is correctly sized and then call the super
      * implementation.
      * 
-     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     * @see javax.swing.JComponent#paintComponent(Graphics)
      */
     protected void paintComponent(Graphics g) {
         if (font == null)

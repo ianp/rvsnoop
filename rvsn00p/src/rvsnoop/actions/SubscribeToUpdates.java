@@ -25,17 +25,17 @@ import rvsnoop.ui.Icons;
  */
 final class SubscribeToUpdates extends AbstractAction {
 
-    static String ERROR_BROWSER = "The default browser could not be opened.";
+    private static String ERROR_BROWSER = "The default browser could not be opened.";
 
-    public static final String ID = "subscribeToUpdates";
+    private static final String ID = "subscribeToUpdates";
     
     private static final Logger logger = Logger.getLogger(SubscribeToUpdates.class);
     
-    static String NAME = "Subscribe to Updates";
+    private static String NAME = "Subscribe to Updates";
 
     private static final long serialVersionUID = -2927101571954736097L;
 
-    static String TOOLTIP = "Subscribe to update notifications";
+    private static String TOOLTIP = "Subscribe to update notifications";
 
     public SubscribeToUpdates() {
         super(NAME, Icons.SUBSCRIBE_UPDATES);

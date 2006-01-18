@@ -42,7 +42,7 @@ final class InterningTrimmingNodeFactory extends NodeFactory {
      * 
      * @param trim Should text nodes be trimmed or not.
      */
-    public InterningTrimmingNodeFactory(boolean trim) {
+    private InterningTrimmingNodeFactory(boolean trim) {
         super();
         this.trim = trim;
     }

@@ -6,11 +6,14 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
+import java.awt.Toolkit;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import rvsnoop.Record;
 import rvsnoop.RvConnection;
@@ -29,23 +32,25 @@ import com.tibco.tibrv.TibrvException;
  */
 final class Republish extends LedgerSelectionAction {
     
-    static String CONFIRM = "Really republish {0,choice,1#this|1<these} {0} {0,choice,1#message|1<messages}?";
+    private static String CONFIRM = "Really republish {0,choice,1#this|1<these} {0} {0,choice,1#message|1<messages}?";
     
     private static final String ID = "republish";
 
-    static String NAME = "Republish";
+    private static String NAME = "Republish";
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
     
-    static String TOOLTIP = "Republish the selected records";
+    private static String TOOLTIP = "Republish the selected records";
     
     public Republish() {
         super(ID, NAME, Icons.REPUBLISH);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
-        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_C));
+        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_R));
+        final int mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() + InputEvent.SHIFT_DOWN_MASK;
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, mask));
     }
 
     public void actionPerformed(List selected) {
@@ -54,11 +59,11 @@ final class Republish extends LedgerSelectionAction {
         for (final Iterator i = selected.iterator(); i.hasNext(); ) {
             final Record record = (Record) i.next();
             try {
-                final RvConnection connection = RvConnection.getConnection(record.getConnection());
+                final RvConnection connection = record.getConnection();
                 if (connection != null)
                     connection.publish(record);
                 else
-                    UIUtils.showInformation("No connection named " + record.getConnection() + " could be found to send message " + record.getSequenceNumber() + " on.");
+                    UIUtils.showInformation("No connection is configured to publish the record on.");
             } catch (IllegalStateException e) {
                 UIUtils.showError("Could not republish record " + record.getSequenceNumber(), e);
             } catch (TibrvException e) {

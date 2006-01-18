@@ -28,13 +28,13 @@ import rvsnoop.SubjectHierarchy;
  */
 final class PruneEmptySubjects extends AbstractAction {
 
-    public static final String ID = "pruneEmptySubjects";
+    private static final String ID = "pruneEmptySubjects";
 
-    static String NAME = "Prune Subjects";
+    private static String NAME = "Prune Subjects";
 
     private static final long serialVersionUID = -2325639617635989562L;
     
-    static String TOOLTIP = "Remove any subject nodes from the tree that have no records in them";
+    private static String TOOLTIP = "Remove any subject nodes from the tree that have no records in them";
 
     public PruneEmptySubjects() {
         super(NAME);

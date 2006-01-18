@@ -6,13 +6,8 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Iterator;
+import rvsnoop.RvConnection;
+import rvsnoop.State;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -22,9 +17,13 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
-
-import rvsnoop.RvConnection;
-import rvsnoop.State;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Iterator;
 
 /**
  * A list renderer for connection objects.
@@ -54,7 +53,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
 
     private static final long serialVersionUID = -8798068540266967995L;
 
-    final StringBuffer buffer = new StringBuffer();
+    private final StringBuffer buffer = new StringBuffer();
 
     private final JLabel daemon = new JLabel();
 
@@ -174,7 +173,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         return this;
     }
     
-    void popup(RvConnection connection, int x, int y) {
+    private void popup(RvConnection connection, int x, int y) {
         if (popupMenu == null) popupMenu = new JPopupMenu();
         popupMenu.removeAll();
         popupMenu.add(connection.getStartAction());

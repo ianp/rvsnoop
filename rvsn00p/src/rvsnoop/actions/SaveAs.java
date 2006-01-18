@@ -6,21 +6,23 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.Locale;
+import rvsnoop.Logger;
+import rvsnoop.Project;
+import rvsnoop.ProjectFileFilter;
+import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIManager;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.KeyStroke;
 
-import rvsn00p.viewer.RvSnooperGUI;
-import rvsnoop.Logger;
-import rvsnoop.Project;
-import rvsnoop.ui.Icons;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Save the current project in a new file.
@@ -31,21 +33,23 @@ import rvsnoop.ui.Icons;
  */
 final class SaveAs extends AbstractAction {
 
-    public static final String ID = "saveAs";
+    private static final String ID = "saveAs";
 
     private static final Logger logger = Logger.getLogger(SaveAs.class);
 
-    static String NAME = "Save As...";
+    private static String NAME = "Save As...";
 
     private static final long serialVersionUID = 369112751492856127L;
 
-    static String TOOLTIP = "Save the current project into a new file";
+    private static String TOOLTIP = "Save the current project into a new file";
 
     public SaveAs() {
         super(NAME, Icons.SAVE_AS);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_A));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
+        final int mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() + InputEvent.SHIFT_DOWN_MASK;
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, mask));
     }
 
     /* (non-Javadoc)
@@ -53,15 +57,8 @@ final class SaveAs extends AbstractAction {
      */
     public void actionPerformed(ActionEvent event) {
         final JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase(Locale.ENGLISH).endsWith(".rsp");
-            }
-            public String getDescription() {
-                return "rvSnoop Project Files";
-            }
-        });
-        if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(RvSnooperGUI.getFrame()))
+        chooser.setFileFilter(ProjectFileFilter.INSTANCE);
+        if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
             return;
         try {
             final File file = chooser.getSelectedFile().getCanonicalFile();

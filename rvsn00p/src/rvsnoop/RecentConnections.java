@@ -5,13 +5,9 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Elements;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -19,10 +15,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.Elements;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Provides access to a list of recently used connections.
@@ -78,18 +77,18 @@ public final class RecentConnections extends XMLConfigFile {
             if (o == this) return true;
             // Match ConnectionDescriptor
             if (o instanceof ConnectionDescriptor) {
-            final ConnectionDescriptor that = (ConnectionDescriptor) o;
-            if (service.equals(that.service)
-             && network.equals(that.network)
-              && daemon.equals(that.daemon))
-                return true;
-            // but alse RvConnection
+                final ConnectionDescriptor that = (ConnectionDescriptor) o;
+                if (service.equals(that.service)
+                        && network.equals(that.network)
+                        && daemon.equals(that.daemon))
+                    return true;
+            // but also RvConnection
             } else if (o instanceof RvConnection) {
                 final RvConnection that = (RvConnection) o;
                 if (hashCode() == that.hashCode()
-                    && service.equals(that.getService())
-                    && network.equals(that.getNetwork())
-                    && daemon.equals(that.getDaemon()))
+                        && service.equals(that.getService())
+                        && network.equals(that.getNetwork())
+                        && daemon.equals(that.getDaemon()))
                     return true;
             }
             return false;
@@ -125,11 +124,9 @@ public final class RecentConnections extends XMLConfigFile {
         public void popupMenuCanceled(PopupMenuEvent e) {
             // Do nothing.
         }
-
         public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
             // Do nothing.
         }
-
         public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
             final JPopupMenu menu = (JPopupMenu) e.getSource();
             menu.removeAll();
@@ -144,8 +141,6 @@ public final class RecentConnections extends XMLConfigFile {
         }
     }
 
-    public static RecentConnections INSTANCE = new RecentConnections();
-
     private static final String CONFIG_DIRECTORY = ".rvsnoop";
     private static final String CONFIG_FILE = "recentConnections.xml";
     private static final int DEFAULT_MAX_SIZE = 10;
@@ -155,15 +150,17 @@ public final class RecentConnections extends XMLConfigFile {
     private static final String RV_DESCRIPTION = "description";
     private static final String RV_NETWORK = "network";
     private static final String RV_SERVICE = "service";
-
     private static final String SUBJECT = "subject";
-    
+
+    public static RecentConnections INSTANCE = new RecentConnections();
+
     private static File getRecentConnectionsFile() {
         final String home = System.getProperty("user.home");
         final String fs = System.getProperty("file.separator");
         return new File(home + fs + CONFIG_DIRECTORY + fs + CONFIG_FILE);
     }
 
+    // This needs to be LinkedList then we can use the removeLast method.
     private final LinkedList connections = new LinkedList();
     
     private RvConnection lastConnection;
@@ -181,7 +178,6 @@ public final class RecentConnections extends XMLConfigFile {
      * If the connection is already in the list then it is promoted instead.
      * 
      * @param connection The listener to add.
-     * @see #promote(RvConnection)
      */
     public void add(RvConnection connection) {
         if (connection == null) throw new NullPointerException();
@@ -244,7 +240,7 @@ public final class RecentConnections extends XMLConfigFile {
      * 
      * @param maxSize
      */
-    public void setMaxSize(int maxSize) {
+    private void setMaxSize(int maxSize) {
         this.maxSize = maxSize;
         while (connections.size() > maxSize)
             connections.removeLast();
@@ -253,7 +249,7 @@ public final class RecentConnections extends XMLConfigFile {
     /**
      * Gets the current number of entries in the recent listeners list.
      * 
-     * @return
+     * @return The size of the recent connections list.
      */
     public int size() {
         return connections.size();

@@ -40,8 +40,8 @@ public final class Icons {
     public static final Icon CUT = createIcon("/resources/icons/cut.png", ICON_SIZE);
     public static final Icon DELETE = createIcon("/resources/icons/delete.png", ICON_SIZE);
     public static final Icon EXPORT = createIcon("/resources/icons/export.png", ICON_SIZE);
-    public static final Icon SEARCH = createIcon("/resources/icons/search.png", ICON_SIZE);
-    public static final Icon SEARCH_AGAIN = createIcon("/resources/icons/search_again.png", ICON_SIZE);
+    public static final Icon FILTER = createIcon("/resources/icons/filter.png", ICON_SIZE);
+    public static final Icon FILTER_COLUMNS = createIcon("/resources/icons/filter_columns.png", ICON_SIZE);
     public static final Icon FONT = createIcon("/resources/icons/font.png", ICON_SIZE);
     public static final Icon HELP = createIcon("/resources/icons/help.png", ICON_SIZE);
     public static final Icon LICENSE = createIcon("/resources/icons/license.png", ICON_SIZE);
@@ -58,6 +58,9 @@ public final class Icons {
     public static final Icon RVD_STOPPED = createIcon("/resources/icons/rvd_stopped.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon SAVE = createIcon("/resources/icons/save.png", ICON_SIZE);
     public static final Icon SAVE_AS = createIcon("/resources/icons/save_as.png", ICON_SIZE);
+    public static final Icon SEARCH = createIcon("/resources/icons/search.png", ICON_SIZE);
+    public static final Icon SEARCH_AGAIN = createIcon("/resources/icons/search_again.png", ICON_SIZE);
+    public static final Icon SELECT_ALL_MESSAGES = createIcon("/resources/icons/select_all.png", ICON_SIZE);
     public static final Icon SUBJECT = createIcon("/resources/icons/subject.png", ICON_SIZE);
     public static final Icon SUBSCRIBE_UPDATES = createIcon("/resources/icons/subscribe_updates.png", ICON_SIZE);
     public static final Icon WEB = createIcon("/resources/icons/web.png", ICON_SIZE);

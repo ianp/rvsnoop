@@ -25,17 +25,17 @@ import rvsnoop.ui.Icons;
  */
 final class ReportBug extends AbstractAction {
 
-    static String ERROR_BROWSER = "The default browser could not be opened.";
+    private static String ERROR_BROWSER = "The default browser could not be opened.";
 
-    public static final String ID = "reportBug";
+    private static final String ID = "reportBug";
     
     private static final Logger logger = Logger.getLogger(ReportBug.class);
     
-    static String NAME = "Report Bug";
+    private static String NAME = "Report Bug";
     
     private static final long serialVersionUID = -4375842586768327328L;
 
-    static String TOOLTIP = "Report a bug or request a new feature";
+    private static String TOOLTIP = "Report a bug or request a new feature";
 
     public ReportBug() {
         super(NAME, Icons.BUG);

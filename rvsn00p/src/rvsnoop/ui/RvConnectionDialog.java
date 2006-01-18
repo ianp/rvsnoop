@@ -5,11 +5,13 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.util.Arrays;
-import java.util.Iterator;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.layout.FormLayout;
+import rvsnoop.RecentConnections;
+import rvsnoop.RvConnection;
+import rvsnoop.StringUtils;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -18,17 +20,11 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
-import rvsn00p.viewer.RvSnooperGUI;
-import rvsnoop.RecentConnections;
-import rvsnoop.RvConnection;
-import rvsnoop.StringUtils;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * An input dialog for entry of Rendezvous parameters and subjects.
@@ -60,7 +56,21 @@ public final class RvConnectionDialog extends JDialog {
             dispose();
         }
     }
-    
+
+    /**
+     * The maximum height of the dialog.
+     * <p>
+     * This helps to protect us from buggy {@link #pack()} implementations.
+     */
+    private static final int MAX_HEIGHT = 160;
+
+    /**
+     * The maximum width of the dialog.
+     * <p>
+     * This helps to protect us from buggy {@link #pack()} implementations.
+     */
+    private static final int MAX_WIDTH = 160;
+
     private static final long serialVersionUID = 8834430809279507334L;
     
     private final JTextField daemon  = new JTextField(10);
@@ -76,19 +86,22 @@ public final class RvConnectionDialog extends JDialog {
     private final JTextField service = new JTextField(10);
     
     private final JTextArea  subject = new JTextArea(3, 10);
-    
+
     /**
      * Create a new dialog.
      * 
      * @param initial The initial parameter values to display, may be <code>null</code>.
      */
     public RvConnectionDialog(RvConnection initial) {
-        super(RvSnooperGUI.getFrame(), "Add Connection", true);
+        super(UIManager.INSTANCE.getFrame(), "Add Connection", true);
         this.connection = initial;
         buildContentArea();
         buildButtonArea();
         pack();
-        ensureMinimumSize(160, 160);
+        final Dimension size = getSize();
+        size.width = Math.max(size.width, MAX_WIDTH);
+        size.height = Math.max(size.height, MAX_HEIGHT);
+        setSize(size);
         UIUtils.centerWindowOnScreen(this);
     }
     
@@ -102,22 +115,20 @@ public final class RvConnectionDialog extends JDialog {
     }
 
     private void buildContentArea() {
-        final DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout(
-            "r:default, 3dlu, p:grow",
-            "p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p, 3dlu, p"));
-        final CellConstraints cc = new CellConstraints();
-        builder.addSeparator("Rendezvous Parameters", cc.xyw(1, 1, 3));
-        builder.addLabel("Description", cc.xy(1, 3)).setLabelFor(description);
-        builder.add(description,        cc.xy(3, 3));
-        builder.addLabel("Service", cc.xy(1, 5)).setLabelFor(service);
-        builder.add(service,        cc.xy(3, 5));
-        builder.addLabel("Network", cc.xy(1, 7)).setLabelFor(network);
-        builder.add(network,        cc.xy(3, 7));
-        builder.addLabel("Daemon",  cc.xy(1, 9)).setLabelFor(daemon);
-        builder.add(daemon,         cc.xy(3, 9));
-        builder.addSeparator("Subscribed Subjects", cc.xyw(1, 11, 3));
-        builder.addLabel("Subjects", cc.xy(1, 13)).setLabelFor(subject);
-        builder.add(subject,         cc.xy(3, 13));
+        final DefaultFormBuilder builder = new DefaultFormBuilder(
+                new FormLayout("r:default, 3dlu, p:grow", ""));
+        builder.appendSeparator("Rendezvous Parameters");
+        builder.append("Description", description).setLabelFor(description);
+        builder.nextLine();
+        builder.append("Service", service).setLabelFor(service);
+        builder.nextLine();
+        builder.append("Network", network).setLabelFor(network);
+        builder.nextLine();
+        builder.append("Daemon",  daemon).setLabelFor(daemon);
+        builder.nextLine();
+        builder.appendSeparator("Subscribed Subjects");
+        builder.append("Subjects", subject).setLabelFor(subject);
+        builder.nextLine();
         description.setText(connection != null ? connection.getDescription() : RvConnection.gensym());
         service.setText(connection != null ? connection.getService() : RvConnection.DEFAULT_SERVICE);
         network.setText(connection != null ? connection.getNetwork() : RvConnection.DEFAULT_NETWORK);
@@ -134,19 +145,6 @@ public final class RvConnectionDialog extends JDialog {
         final JPanel panel = builder.getPanel();
         panel.setBorder(Borders.DLU2_BORDER);
         getContentPane().add(panel, BorderLayout.CENTER);
-    }
-
-    /**
-     * Ensure that the dialog is a certain minimum size.
-     * 
-     * @param w The minimum width in pixels.
-     * @param h The minimum height in pixels.
-     */
-    protected void ensureMinimumSize(int w, int h) {
-        final Dimension size = getSize();
-        size.width = Math.max(size.width, w);
-        size.height = Math.max(size.height, h);
-        setSize(size);
     }
 
     public RvConnection getConnection() {

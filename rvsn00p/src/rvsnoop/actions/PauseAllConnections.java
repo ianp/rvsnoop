@@ -30,17 +30,17 @@ import com.tibco.tibrv.TibrvException;
  */
 final class PauseAllConnections extends AbstractAction {
 
-    public static final String ID = "pauseAllConnections";
+    private static final String ID = "pauseAllConnections";
 
     private static final Logger logger = Logger.getLogger(PauseAllConnections.class);
 
-    static String NAME_PAUSE = "Pause All";
+    private static String NAME_PAUSE = "Pause All";
     
-    static String NAME_RESUME = "Resume All";
+    private static String NAME_RESUME = "Resume All";
 
     private static final long serialVersionUID = -986608950126010165L;
     
-    static String TOOLTIP = "Resume all paused all Rendezvous connections";
+    private static String TOOLTIP = "Resume all paused all Rendezvous connections";
 
     private boolean isPaused = false;
 

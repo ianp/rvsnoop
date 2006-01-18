@@ -26,7 +26,7 @@ public final class Marshaller {
     
     public static abstract class Implementation {
         private final String name;
-        protected Implementation(String name) {
+        Implementation(String name) {
             this.name = name;
         }
         public final String getName() {
@@ -52,7 +52,7 @@ public final class Marshaller {
         MTreeImpl() {
             super("MTree");
             // Just a sanity check for the classpath.
-            new MTree("garbage");
+            MTree.class.getName();
         }
 
         public String marshal(String name, TibrvMsg message) {
@@ -133,7 +133,7 @@ public final class Marshaller {
             try {
                 return converter.createXML(message).toString();
             } catch (MsgTestException e) {
-                if (logger.isErrorEnabled()) logger.error("Unable to marshal message.", e);
+                if (Logger.isErrorEnabled()) logger.error("Unable to marshal message.", e);
                 return "";
             }
         }
@@ -155,7 +155,7 @@ public final class Marshaller {
         try {
             return (Implementation) Class.forName(className).newInstance();
         } catch (Exception e) {
-            if (logger.isDebugEnabled())
+            if (Logger.isDebugEnabled())
                 logger.debug("Failed to load marshaller: " + className);
             return null;
         } catch (NoClassDefFoundError e) {
@@ -174,7 +174,7 @@ public final class Marshaller {
             if ((impl = getImplementation(preferred[i])) != null)
                 break;
         implementation = impl;
-        if (logger.isInfoEnabled())
+        if (Logger.isInfoEnabled())
             if (impl == null)
                 logger.info("No marshaller loaded!");
             else

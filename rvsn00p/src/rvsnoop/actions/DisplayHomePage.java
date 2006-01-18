@@ -25,17 +25,17 @@ import rvsnoop.ui.Icons;
  */
 final class DisplayHomePage extends AbstractAction {
 
-    static String ERROR_BROWSER = "The default browser could not be opened.";
+    private static String ERROR_BROWSER = "The default browser could not be opened.";
 
-    public static final String ID = "displayHomePage";
+    private static final String ID = "displayHomePage";
     
     private static final Logger logger = Logger.getLogger(DisplayHomePage.class);
     
-    static String NAME = "rvSnoop Web Site";
+    private static String NAME = "rvSnoop Web Site";
     
     private static final long serialVersionUID = -6587535307193015605L;
 
-    static String TOOLTIP = "Show the web site in the default browser";
+    private static String TOOLTIP = "Show the web site in the default browser";
 
     public DisplayHomePage() {
         super(NAME, Icons.WEB);

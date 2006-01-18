@@ -6,26 +6,23 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.Locale;
+import com.tibco.tibrv.TibrvException;
+import rvsnoop.Logger;
+import rvsnoop.Project;
+import rvsnoop.RvConnection;
+import rvsnoop.ProjectFileFilter;
+import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIManager;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
-import javax.swing.filechooser.FileFilter;
-
-import rvsn00p.viewer.RvSnooperGUI;
-import rvsnoop.Logger;
-import rvsnoop.Project;
-import rvsnoop.RvConnection;
-import rvsnoop.ui.Icons;
-
-import com.tibco.tibrv.TibrvException;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Open a new project.
@@ -36,15 +33,15 @@ import com.tibco.tibrv.TibrvException;
  */
 final class Open extends AbstractAction {
 
-    public static final String ID = "open";
+    private static final String ID = "open";
 
     private static final Logger logger = Logger.getLogger(Open.class);
 
-    static String NAME = "Open...";
-    
+    private static String NAME = "Open...";
+
     private static final long serialVersionUID = -454491079895050133L;
 
-    static String TOOLTIP = "Open an existing project or initialize a new one";
+    private static String TOOLTIP = "Open an existing project or initialize a new one";
 
     public Open() {
         super(NAME, Icons.OPEN);
@@ -60,15 +57,8 @@ final class Open extends AbstractAction {
      */
     public void actionPerformed(ActionEvent event) {
         final JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase(Locale.ENGLISH).endsWith(".rsp");
-            }
-            public String getDescription() {
-                return "rvSnoop Project Files";
-            }
-        });
-        if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(RvSnooperGUI.getFrame()))
+        chooser.setFileFilter(ProjectFileFilter.INSTANCE);
+        if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(UIManager.INSTANCE.getFrame()))
             return;
         try {
             final File file = chooser.getSelectedFile().getCanonicalFile();
