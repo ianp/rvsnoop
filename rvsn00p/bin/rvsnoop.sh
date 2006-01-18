@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start script for RvSnoop @version@ on Unix platforms.
+# Start script for rvSnoop @version@ on Unix platforms.
 # $Id$
 
 export RVSNOOP_HOME=`dirname $0`/..
