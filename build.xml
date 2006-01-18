@@ -27,7 +27,9 @@
   <property name="dir.dist.doc"  value="${dir.dist}/doc"/>
   <property name="dir.dist.lib"  value="${dir.dist}/lib"/>
   <property name="dir.dist.src"  value="${dir.dist}/src"/>
+
   <property name="file.version"  value="version.txt"/>
+  <property name="file.suffix"   value=".html"/>
 
   <taskdef resource="proguard/ant/task.properties" classpath="${proguard}/lib/proguard.jar"/>
 
@@ -40,9 +42,11 @@
     <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
     <pathelement location="${tibco.rvscript}"/>
     <pathelement location="${tibco.rvtest}"/>
+    <pathelement location="${berkdb}/lib/je.jar"/>
     <pathelement location="${forms}/forms-1.0.5.jar"/>
-    <pathelement location="${xom}/xom-1.1.jar"/>
+    <pathelement location="${glazed}/glazedlists.jar"/>
     <pathelement location="${xmlenc}/xmlenc.jar"/>
+    <pathelement location="${xom}/xom-1.1.jar"/>
     <!-- Append the system class path. -->
     <pathelement path="${env.java.class.path}"/>
   </path>
@@ -71,7 +75,7 @@
       <filter token="os.arch"       value="${os.arch}"/>
       <filter token="build.number"  value="${build.number}"/>
       <filter token="build.date"    value="${build.date}"/>
-      <filter token="suffix"        value=".html"/>
+      <filter token="suffix"        value="${file.suffix}"/>
       <filter token="year"          value="${build.year}"/>
     </filterset>
   </target>
@@ -90,9 +94,10 @@
     <mkdir dir="${dir.build.doc}"/>
     <mkdir dir="${dir.build.lib}"/>
     <mkdir dir="${dir.build.src}"/>
+    <echo>Preparing the source code (replacing place-holders).</echo>
     <copy todir="${dir.build.src}" encoding="UTF-8">
       <filterset refid="filters"/>
-      <fileset dir="${dir.orig.src}" includes="**/*.*"/>
+      <fileset dir="${dir.orig.src}" includes="**/*.java"/>
     </copy>
     <javac srcdir="${dir.build.src}" destdir="${dir.build.lib}" includes="**/*.java"
            debug="${javac.debug}" optimize="${javac.optimize}"
@@ -114,7 +119,7 @@
     <copy todir="${dir.build.doc}">
       <filterset refid="filters"/>
       <fileset dir="${dir.orig.doc}" includes="*.xhtml"/>
-      <mapper type="glob" from="*.xhtml" to="*.html"/>
+      <mapper type="glob" from="*.xhtml" to="*${file.suffix}"/>
     </copy>
     <copy todir="${dir.build.doc}">
       <filterset refid="filters"/>
@@ -159,7 +164,7 @@
     <mkdir dir="${dir.dist.doc}"/>
     <mkdir dir="${dir.dist.doc}/images"/>
     <copy todir="${dir.dist.doc}">
-      <fileset dir="${dir.build.doc}" includes="*.html"/>
+      <fileset dir="${dir.build.doc}" includes="*${file.suffix}"/>
     </copy>
     <copy todir="${dir.dist.doc}">
       <fileset dir="${dir.build.doc}" includes="*.css"/>
@@ -170,7 +175,7 @@
     <echo>Packaging the libraries.</echo>
     <mkdir dir="${dir.dist.lib}"/>
     <jar jarfile="${dir.build.lib}/rvsnoop.jar" compress="true"
-      manifestencoding="utf-8" index="true" basedir="${dir.build.lib}"
+      manifestencoding="UTF-8" index="true" basedir="${dir.build.lib}"
       includes="**/*.class, **/*.png, **/*.properties">
       <manifest>
         <attribute name="Implementation-Title" value="rvSnoop"/>
@@ -185,9 +190,11 @@
     <proguard obfuscate="false" warn="false" ignorewarnings="true" printusage="${dir.build}/proguardusage.txt">
       <injar>
         <pathelement location="${dir.build.lib}/rvsnoop.jar"/>
+        <pathelement location="${berkdb}/lib/je.jar"/>
         <pathelement location="${forms}/forms-1.0.5.jar"/>
-        <pathelement location="${xom}/xom-1.1.jar"/>
+        <pathelement location="${glazed}/glazedlists.jar"/>
         <pathelement location="${xmlenc}/xmlenc.jar"/>
+        <pathelement location="${xom}/xom-1.1.jar"/>
       </injar>
       <outjar file="${dir.dist.lib}"/>
       <libraryjar>
