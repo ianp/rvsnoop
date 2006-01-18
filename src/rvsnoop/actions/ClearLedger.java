@@ -11,10 +11,11 @@ import java.util.List;
 
 import javax.swing.Action;
 
-import rvsn00p.viewer.RvSnooperGUI;
+import rvsnoop.MessageLedger;
 import rvsnoop.Record;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIManager;
 
 /**
  * Clear the contents of the ledger.
@@ -27,11 +28,11 @@ final class ClearLedger extends LedgerSelectionAction {
     
     private static final String ID = "clearLedger";
 
-    static String NAME = "Clear Ledger";
+    private static String NAME = "Clear Ledger";
     
     private static final long serialVersionUID = -3869401903230005506L;
 
-    static String TOOLTIP = "Delete all records from the ledger";
+    private static String TOOLTIP = "Delete all records from the ledger";
     
     public ClearLedger() {
         super(ID, NAME, Icons.CLEAR_LEDGER);
@@ -40,10 +41,10 @@ final class ClearLedger extends LedgerSelectionAction {
     }
 
     public void actionPerformed(List selected) {
-        RvSnooperGUI.getInstance().getMessageLedger().clearLogRecords();
+        MessageLedger.INSTANCE.clear();
         SubjectHierarchy.INSTANCE.reset();
-        RvSnooperGUI.getInstance().updateStatusLabel();
-        RvSnooperGUI.getInstance().clearDetails();
+        UIManager.INSTANCE.updateStatusLabel();
+        UIManager.INSTANCE.clearDetails();
         Record.resetSequence();
     }
 

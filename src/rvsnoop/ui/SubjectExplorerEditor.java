@@ -5,16 +5,10 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Enumeration;
-import java.util.EventListener;
-import java.util.EventObject;
-import java.util.Iterator;
-import java.util.List;
+import rvsnoop.MessageLedger;
+import rvsnoop.Record;
+import rvsnoop.SubjectElement;
+import rvsnoop.SubjectHierarchy;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
@@ -29,10 +23,18 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
-import rvsn00p.viewer.RvSnooperGUI;
-import rvsnoop.Record;
-import rvsnoop.SubjectElement;
-import rvsnoop.SubjectHierarchy;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.util.concurrent.Lock;
+
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Enumeration;
+import java.util.EventListener;
+import java.util.EventObject;
+import java.util.Iterator;
 
 /**
  * A custom editor for nodes in the subject explorer tree.
@@ -79,6 +81,16 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         }
     }
 
+    private class PopupMenuListener extends MouseAdapter {
+        PopupMenuListener() {
+            super();
+        }
+        public void mousePressed(MouseEvent e) {
+            if (e.isPopupTrigger() && element != null)
+                popup(e.getX(), e.getY());
+        }
+    }
+
     private class Select extends AbstractAction {
         private static final long serialVersionUID = 6270358401502502833L;
         Select() {
@@ -96,17 +108,23 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         }
         public void actionPerformed(ActionEvent e) {
             final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
-            final ListSelectionModel model = RvSnooperGUI.getInstance().getMessageLedger().getSelectionModel();
-            final List records = RvSnooperGUI.getInstance().getFilteredRecords();
-            model.setValueIsAdjusting(true);
-            model.clearSelection();
-            int index = 0;
-            for (final Iterator i = records.iterator(); i.hasNext(); ++index) {
-                final Record record = (Record) i.next();
-                if (subject.equals(record.getSubject()))
-                    model.addSelectionInterval(index, index);
+            final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
+            final EventList list = MessageLedger.INSTANCE.getEventList();
+            final Lock lock = list.getReadWriteLock().readLock();
+            try {
+                lock.lock();
+                model.setValueIsAdjusting(true);
+                model.clearSelection();
+                int index = 0;
+                for (final Iterator i = list.iterator(); i.hasNext(); ++index) {
+                    final Record record = (Record) i.next();
+                    if (subject.equals(record.getSubject()))
+                        model.addSelectionInterval(index, index);
+                }
+            } finally {
+                lock.unlock();
+                model.setValueIsAdjusting(false);
             }
-            model.setValueIsAdjusting(false);
         }
     }
     
@@ -117,17 +135,33 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         }
         public void actionPerformed(ActionEvent e) {
             final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
-            final ListSelectionModel model = RvSnooperGUI.getInstance().getMessageLedger().getSelectionModel();
-            final List records = RvSnooperGUI.getInstance().getFilteredRecords();
-            model.setValueIsAdjusting(true);
-            model.clearSelection();
-            int index = 0;
-            for (final Iterator i = records.iterator(); i.hasNext(); ++index) {
-                final Record record = (Record) i.next();
-                if (subject.isNodeDescendant(record.getSubject()))
-                    model.addSelectionInterval(index, index);
+            final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
+            final EventList list = MessageLedger.INSTANCE.getEventList();
+            final Lock lock = list.getReadWriteLock().readLock();
+            try {
+                lock.lock();
+                model.setValueIsAdjusting(true);
+                model.clearSelection();
+                int index = 0;
+                for (final Iterator i = list.iterator(); i.hasNext(); ++index) {
+                    final Record record = (Record) i.next();
+                    if (subject.isNodeDescendant(record.getSubject()))
+                        model.addSelectionInterval(index, index);
+                }
+            } finally {
+                lock.unlock();
+                model.setValueIsAdjusting(false);
             }
-            model.setValueIsAdjusting(false);
+        }
+    }
+
+    private class SubjectSelectionListener implements ActionListener {
+        SubjectSelectionListener() {
+            super();
+        }
+        public void actionPerformed(ActionEvent e) {
+            if (element != null)
+                SubjectHierarchy.INSTANCE.setSelected(element, !element.isSelected());
         }
     }
 
@@ -135,7 +169,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
 
     private SubjectElement element;
     
-    final EventListenerList listenerList = new EventListenerList();
+    private final EventListenerList listenerList = new EventListenerList();
     
     private JPopupMenu popupMenu;
 
@@ -145,18 +179,8 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         super();
         this.tree = tree;
         tree.addTreeSelectionListener(this);
-        tree.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger() && element != null)
-                    popup(element, e.getX(), e.getY());
-            }
-        });
-        checkbox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (element != null)
-                    SubjectHierarchy.INSTANCE.setSelected(element, !element.isSelected());
-            }
-        });
+        tree.addMouseListener(new PopupMenuListener());
+        checkbox.addActionListener(new SubjectSelectionListener());
     }
     
     public void addCellEditorListener(CellEditorListener l) {
@@ -184,7 +208,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         return event instanceof MouseEvent && ((MouseEvent) event).getClickCount() == 1;
     }
 
-    void popup(SubjectElement target, int x, int y) {
+    private void popup(int x, int y) {
         if (popupMenu == null) {
             popupMenu = new JPopupMenu();
             popupMenu.add(new Select());

@@ -61,6 +61,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
         if (parent instanceof SubjectElement) {
             Object[] pp = parent.getUserObjectPath();
             userObjectPath = new String[pp.length + 1];
+            // This is safe because the user objects for SubjectElements are always strings.
             System.arraycopy(pp, 0, userObjectPath, 0, pp.length);
             userObjectPath[pp.length] = element;
         } else {
@@ -106,7 +107,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
     /**
      * Since this class does not support re-parenting this can cache the result.
      * 
-     * @see javax.swing.tree.DefaultMutableTreeNode#getPath()
+     * @see DefaultMutableTreeNode#getPath()
      */
     public TreeNode[] getPath() {
         if (path == null) path = super.getPath();
@@ -121,7 +122,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
      * 1-index, the 0-th elements in the array is undefined. All other elements
      * may be cast to strings.
      * 
-     * @see javax.swing.tree.DefaultMutableTreeNode#getUserObjectPath()
+     * @see DefaultMutableTreeNode#getUserObjectPath()
      */
     public Object[] getUserObjectPath() {
         return userObjectPath;
@@ -165,27 +166,25 @@ public final class SubjectElement extends DefaultMutableTreeNode {
         isErrorUnder = false;
     }
 
-    public void setErrorHere(boolean error) {
-        isErrorHere = error;
-        if (error) {
-            final TreeNode parent = getParent();
-            if (parent instanceof SubjectElement)
-                ((SubjectElement) parent).setErrorUnder(true);
-        }
-    }
-
-    public void setErrorUnder(boolean error) {
-        isErrorUnder = error;
+    public void setErrorHere() {
+        isErrorHere = true;
         final TreeNode parent = getParent();
         if (parent instanceof SubjectElement)
-            ((SubjectElement) parent).setErrorUnder(true);
+            ((SubjectElement) parent).setErrorUnder();
+    }
+
+    private void setErrorUnder() {
+        isErrorUnder = true;
+        final TreeNode parent = getParent();
+        if (parent instanceof SubjectElement)
+            ((SubjectElement) parent).setErrorUnder();
     }
     
     /**
      * This has some additional checks to ensure that once a subject tree node
      * has been removed from the tree it is not reattched at a later time.
      * 
-     * @see javax.swing.tree.DefaultMutableTreeNode#setParent(javax.swing.tree.MutableTreeNode)
+     * @see DefaultMutableTreeNode#setParent(MutableTreeNode)
      */
     public void setParent(MutableTreeNode newParent) {
         // Use setting parent = this as a marker that we have been removed from a hierarchy.
@@ -198,6 +197,10 @@ public final class SubjectElement extends DefaultMutableTreeNode {
 
     public void setSelected(boolean selected) {
         this.isSelected = selected;
+    }
+
+    public void setUserObject(Object userObject) {
+        throw new UnsupportedOperationException();
     }
 
 }

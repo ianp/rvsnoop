@@ -35,23 +35,23 @@ import com.tibco.tibrv.TibrvMsg;
  */
 final class Paste extends AbstractAction {
     
-    static String ERROR_CLIPBOARD_LOST = "The Rendezvous message data was removed from the clipboard before it could be read.";
+    private static String ERROR_CLIPBOARD_LOST = "The Rendezvous message data was removed from the clipboard before it could be read.";
     
-    static String ERROR_IO = "There was an I/O error whilst reading data from the clipboard.";
+    private static String ERROR_IO = "There was an I/O error whilst reading data from the clipboard.";
 
-    static String ERROR_RV = "There was a Rendezvous error whilst deserializing the messages.";
+    private static String ERROR_RV = "There was a Rendezvous error whilst deserializing the messages.";
     
-    static String INFO_BAD_CLIP_DATA = "The clipboard does not contain Rendezvous message data.";
+    private static String INFO_BAD_CLIP_DATA = "The clipboard does not contain Rendezvous message data.";
     
     private static final String ID = "paste";
     
     private static final Logger logger = Logger.getLogger(Paste.class);
     
-    static String NAME = "Paste";
+    private static String NAME = "Paste";
 
     private static final long serialVersionUID = -814650863486148247L;
 
-    static String TOOLTIP = "Paste the contents of the clipboard to the message ledger";
+    private static String TOOLTIP = "Paste the contents of the clipboard to the message ledger";
     
     public Paste() {
         super(NAME, Icons.PASTE);

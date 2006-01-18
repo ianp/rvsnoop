@@ -6,6 +6,19 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
+import org.znerd.xmlenc.XMLOutputter;
+import rvsnoop.IOUtils;
+import rvsnoop.Logger;
+import rvsnoop.Marshaller;
+import rvsnoop.RecordType;
+import rvsnoop.Record;
+import rvsnoop.StringUtils;
+import rvsnoop.Version;
+import rvsnoop.ui.UIManager;
+
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,20 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-
-import org.znerd.xmlenc.XMLOutputter;
-
-import rvsn00p.viewer.RvSnooperGUI;
-import rvsnoop.IOUtils;
-import rvsnoop.Logger;
-import rvsnoop.Marshaller;
-import rvsnoop.Record;
-import rvsnoop.StringUtils;
-import rvsnoop.Version;
-
 /**
  * Export the current ledger selction to XHTML.
  *
@@ -37,16 +36,28 @@ import rvsnoop.Version;
  * @since 1.5
  */
 final class ExportToHtml extends LedgerSelectionAction {
+    private static class HTMLFileFilter extends FileFilter {
+        HTMLFileFilter() {
+            super();
+        }
+        public boolean accept(File f) {
+            return f.isDirectory() || f.getName().toLowerCase(Locale.ENGLISH).endsWith(".html");
+        }
+
+        public String getDescription() {
+            return "HTML Files";
+        }
+    }
 
     private static final String ID = "exportToHtml";
 
     private static final Logger logger = Logger.getLogger(ExportToHtml.class);
     
-    static String NAME = "HTML Report";
+    private static String NAME = "HTML Report";
     
     private static final long serialVersionUID = -483492422948058345L;
     
-    static String TOOLTIP = "Export the selected records to HTML";
+    private static String TOOLTIP = "Export the selected records to HTML";
     
     public ExportToHtml() {
         super(ID, NAME, null);
@@ -59,24 +70,16 @@ final class ExportToHtml extends LedgerSelectionAction {
      */
     protected void actionPerformed(List selected) {
         final JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                return f.getName().toLowerCase(Locale.ENGLISH).endsWith(".html");
-            }
-            public String getDescription() {
-                return "HTML Files";
-            }
-        });
-        if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(RvSnooperGUI.getFrame()))
+        chooser.setFileFilter(new HTMLFileFilter());
+        if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
             return;
         final File file = chooser.getSelectedFile();
         FileWriter fw = null;
         BufferedWriter bw = null;
-        XMLOutputter xmlout;
         try {
             fw = new FileWriter(file);
             bw = new BufferedWriter(fw);
-            xmlout = new XMLOutputter(bw, "UTF-8");
+            final XMLOutputter xmlout = new XMLOutputter(bw, "UTF-8");
             writeHeader(xmlout);
             for (int i = 0, imax = selected.size(); i < imax; ++i)
                 writeRecord(xmlout, (Record) selected.get(i));
@@ -90,7 +93,7 @@ final class ExportToHtml extends LedgerSelectionAction {
         }
     }
 
-    private void writeHeader(XMLOutputter out) throws IllegalStateException, IllegalArgumentException, IOException {
+    private static void writeHeader(XMLOutputter out) throws IllegalStateException, IllegalArgumentException, IOException {
         final String title = Version.getAsStringWithName() + " HTML Report (" + Marshaller.getImplementationName() + " marshaller)";
         out.declaration();
         out.dtd("html", "-//W3C//DTD XHTML 1.0 Strict//EN", "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
@@ -115,25 +118,25 @@ final class ExportToHtml extends LedgerSelectionAction {
         out.endTag(); // tr
     }
 
-    private void writeHttpEquiv(XMLOutputter out, String equiv, String content) throws IllegalStateException, IllegalArgumentException, IOException {
+    private static void writeHttpEquiv(XMLOutputter out, String equiv, String content) throws IllegalStateException, IllegalArgumentException, IOException {
         out.startTag("meta");
         out.attribute("http-equiv", equiv);
         out.attribute("content", content);
         out.endTag();
     }
 
-    private void writeMeta(XMLOutputter out, String name, String content) throws IllegalStateException, IllegalArgumentException, IOException {
+    private static void writeMeta(XMLOutputter out, String name, String content) throws IllegalStateException, IllegalArgumentException, IOException {
         out.startTag("meta");
         out.attribute("name", name);
         out.attribute("content", content);
         out.endTag();
     }
     
-    private void writeRecord(XMLOutputter out, Record record) throws IllegalStateException, IOException {
+    private static void writeRecord(XMLOutputter out, Record record) throws IllegalStateException, IOException {
         out.startTag("tr");
         writeTagged(out, "td", StringUtils.format(new Date(record.getTimestamp())));
         writeTagged(out, "td", Long.toString(record.getSequenceNumber()));
-        writeTagged(out, "td", record.getType().getLabel());
+        writeTagged(out, "td", RecordType.getFirstMatchingType(record).getName());
         writeTagged(out, "td", record.getSendSubject());
         writeTagged(out, "td", record.getTrackingId());
         out.startTag("td");
@@ -142,7 +145,7 @@ final class ExportToHtml extends LedgerSelectionAction {
         out.endTag();
     }
     
-    private void writeTagged(XMLOutputter out, String tag, String pcdata) throws IllegalStateException, IllegalArgumentException, IOException {
+    private static void writeTagged(XMLOutputter out, String tag, String pcdata) throws IllegalStateException, IllegalArgumentException, IOException {
         out.startTag(tag);
         out.pcdata(pcdata);
         out.endTag();

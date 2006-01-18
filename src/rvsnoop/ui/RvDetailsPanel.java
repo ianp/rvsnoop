@@ -6,10 +6,15 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.lang.reflect.Constructor;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+import com.tibco.tibrv.TibrvCmMsg;
+import com.tibco.tibrv.TibrvException;
+import com.tibco.tibrv.TibrvMsg;
+import rvsnoop.LazyTreeNode;
+import rvsnoop.Logger;
+import rvsnoop.RvMessageTreeNode;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -22,17 +27,10 @@ import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
-
-import rvsnoop.LazyTreeNode;
-import rvsnoop.Logger;
-import rvsnoop.RvMessageTreeNode;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
-import com.tibco.tibrv.TibrvCmMsg;
-import com.tibco.tibrv.TibrvException;
-import com.tibco.tibrv.TibrvMsg;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.lang.reflect.Constructor;
 
 /**
  * A panel that can show details about a Rendezvous message.
@@ -48,15 +46,14 @@ public final class RvDetailsPanel extends JPanel {
     private static final Logger logger = Logger.getLogger(RvDetailsPanel.class);
     
     static {
-        Class aeMsgTreeNodeClass;
         Constructor aeMsgTreeNodeConstructor = null;
         try {
-            aeMsgTreeNodeClass = Class.forName("rvsnoop.AeMsgTreeNode");
+            Class aeMsgTreeNodeClass = Class.forName("rvsnoop.AeMsgTreeNode");
             aeMsgTreeNodeConstructor = aeMsgTreeNodeClass.getConstructor(new Class[] { TibrvMsg.class });
-            if (logger.isInfoEnabled())
+            if (Logger.isInfoEnabled())
                 logger.info("SDK found, AE tree view will be enabled.");
         } catch (Exception e) {
-            if (logger.isInfoEnabled())
+            if (Logger.isInfoEnabled())
                 logger.info("SDK not found, AE tree view will be disabled.", e);
             // Do nothing if SDK not on class path.
         }
@@ -71,7 +68,7 @@ public final class RvDetailsPanel extends JPanel {
 
     private final TreeNode emptyRoot = new DefaultMutableTreeNode("[Nothing Selected]", false);
 
-    final Font headerFont = getFont().deriveFont(getFont().getSize() - 2.0f);
+    private final Font headerFont = getFont().deriveFont(getFont().getSize() - 2.0f);
 
     private Icon icon;
     

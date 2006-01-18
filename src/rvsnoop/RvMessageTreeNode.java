@@ -6,15 +6,13 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.Icon;
-
-import rvsnoop.ui.Icons;
-
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
+import rvsnoop.ui.Icons;
+
+import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A {@link javax.swing.tree.TreeNode TreeNode} that wraps a Rendezvous message.
@@ -41,7 +39,7 @@ public final class RvMessageTreeNode extends LazyTreeNode {
 
     protected List createChildren() {
         final int numFields = message.getNumFields();
-        final ArrayList children = new ArrayList(numFields);
+        final List children = new ArrayList(numFields);
         for (int i = 0; i < numFields; ++i)
             try {
                 children.add(new RvFieldTreeNode(this, message.getFieldByIndex(i)));

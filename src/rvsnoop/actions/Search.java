@@ -9,17 +9,21 @@ package rvsnoop.actions;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import rvsn00p.viewer.RvSnooperGUI;
 import rvsnoop.Logger;
+import rvsnoop.MessageLedger;
 import rvsnoop.Record;
 import rvsnoop.ui.Icons;
+import rvsnoop.ui.SearchDialog;
+import rvsnoop.ui.UIManager;
+
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.util.concurrent.Lock;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
@@ -33,7 +37,7 @@ import com.tibco.tibrv.TibrvMsgField;
  * @since 1.4
  */
 final class Search extends AbstractAction {
-
+    
     private static final Logger logger = Logger.getLogger(Search.class);
     
     public static final String SEARCH = "search";
@@ -42,7 +46,14 @@ final class Search extends AbstractAction {
     
     private static final long serialVersionUID = -5833838900255559506L;
     
-    private String text = "";
+    private String searchText = "Enter your search text here";
+    
+    private int lastSearchedRow;
+    
+    private boolean trackingId;
+    private boolean message = true;
+    private boolean sendSubject;
+    private boolean replySubject;
     
     public Search(String id, String name, String tooltip, int accel) {
         super(name);
@@ -62,15 +73,27 @@ final class Search extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        if (SEARCH.equals(event.getActionCommand()))
-            text = JOptionPane.showInputDialog(RvSnooperGUI.getFrame(), "Text to search for", text);
-        if (text == null || text.trim().length() == 0) return;
-        final RvSnooperGUI ui = RvSnooperGUI.getInstance();
-        final int start = ui.getFirstSelectedRow();
-        if (text == null || text.length() == 0) return;
-        ui.selectRow(search(ui.getFilteredRecords(), start < 0 ? 0 : start + 1, text));
+        if (SEARCH.equals(event.getActionCommand()) && !showDialog()) return;
+        if (searchText == null || (searchText = searchText.trim()).length() == 0) return;
+        final EventList list = MessageLedger.INSTANCE.getEventList();
+        final Lock lock = list.getReadWriteLock().readLock();
+        int row = -1;
+        SEARCH:
+        try {
+            lock.lock();
+            lastSearchedRow = Math.min(lastSearchedRow, list.size() - 1);
+            row = search(list, lastSearchedRow, list.size());
+            // If we get here without matching, wrap to the start of the list.
+            if (row == -1) row = search(list, 0, lastSearchedRow);
+            if (row >= 0)
+                UIManager.INSTANCE.selectRecordInLedger(row);
+            else
+                JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), "Nothing matched.");
+        } finally {
+            lock.unlock();
+        }
     }
-
+    
     private boolean isTextInFieldData(String text, TibrvMsgField field) throws TibrvException {
         switch (field.type) {
         case TibrvMsg.MSG:
@@ -95,34 +118,62 @@ final class Search extends AbstractAction {
      *         otherwise.
      * @throws TibrvException
      */
-    public boolean isTextInMessageData(String text, TibrvMsg message) throws TibrvException {
+    private boolean isTextInMessageData(String text, TibrvMsg message) throws TibrvException {
         for (int i = 0, imax = message.getNumFields(); i < imax; ++i)
             if (isTextInFieldData(text, message.getField(i)))
                 return true;
         return false;
     }
+    
+    private boolean matches(Record record) {
+        if (message && matchMessage(record)) return true;
+        if (sendSubject && matchSendSubject(record)) return true;
+        if (replySubject && matchReplySubject(record)) return true;
+        if (trackingId && matchTrackingId(record)) return true;
+        return false;
+    }
 
-    private boolean matches(TibrvMsg message, String text, String trackingId) {
+    private boolean matchMessage(Record record) {
         try {
-            return isTextInMessageData(text, message)
-                || trackingId.indexOf(text.toLowerCase(Locale.ENGLISH)) >= 0;
+            return isTextInMessageData(searchText, record.getMessage());
         } catch (TibrvException e) {
             logger.error("Error reading field", e);
             return false;
         }
     }
 
-    private int search(final List records, final int start, String text) {
-        final String trackingId = RvSnooperGUI.getTrackingIdTextFilter();
-        for (int i = start, imax = records.size(); i < imax; ++i)
-            if (matches(((Record) records.get(i)).getMessage(), text, trackingId))
+    private boolean matchReplySubject(Record record) {
+        final String replySubject = record.getReplySubject();
+        return replySubject != null && replySubject.indexOf(searchText) >= 0;
+    }
+
+    private boolean matchSendSubject(Record record) {
+        final String sendSubject = record.getSendSubject();
+        return sendSubject != null && sendSubject.indexOf(searchText) >= 0;
+    }
+    
+    private boolean matchTrackingId(Record record) {
+        final String trackingId = record.getTrackingId();
+        return trackingId != null && trackingId.indexOf(searchText) >= 0;
+    }
+
+    private int search(List list, int from, int to) {
+        for (int i = from; i < to; ++i)
+            if (matches((Record) list.get(i)))
                 return i;
-        // If we get here without matching, wrap to the start of the list.
-        for (int i = 0; i < start; ++i)
-            if (matches(((Record) records.get(i)).getMessage(), text, trackingId))
-                return i;
-        // Return -1 to signal nothing matched.
         return -1;
+    }
+    
+    private boolean showDialog() {
+        final SearchDialog dialog = new SearchDialog(searchText, message, sendSubject, replySubject, trackingId);
+        dialog.setVisible(true);
+        if (dialog.isCancelled()) return false;
+        searchText = dialog.getSearchText();
+        message = dialog.isMessageSelected();
+        sendSubject = dialog.isSendSubjectSelected();
+        replySubject = dialog.isReplySubjectSelected();
+        trackingId = dialog.isTrackingIdSelected();
+        return true;
     }
 
 }

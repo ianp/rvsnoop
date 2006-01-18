@@ -54,7 +54,7 @@ public abstract class LazyTreeNode implements TreeNode {
     /**
      * @param parent The parent of this node.
      */
-    public LazyTreeNode(TreeNode parent) {
+    LazyTreeNode(TreeNode parent) {
         super();
         this.parent = parent;
     }
@@ -103,7 +103,7 @@ public abstract class LazyTreeNode implements TreeNode {
      * 
      * @return The icon or <code>null</code>.
      */
-    public Icon getIcon() {
+    Icon getIcon() {
         return null;
     }
 
@@ -128,7 +128,7 @@ public abstract class LazyTreeNode implements TreeNode {
      * 
      * @return The text string, should not be <code>null</code>.
      */
-    public abstract String getText();
+    protected abstract String getText();
 
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeNode#isLeaf()

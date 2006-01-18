@@ -28,13 +28,13 @@ import rvsnoop.ui.RvConnectionDialog;
  */
 final class AddConnection extends AbstractAction {
 
-    public static final String ID = "addConnection";
+    private static final String ID = "addConnection";
 
-    static String NAME = "Add Connection...";
+    private static String NAME = "Add Connection...";
 
     private static final long serialVersionUID = 7508828375114300486L;
     
-    static String TOOLTIP = "Create a new Rendezvous connection";
+    private static String TOOLTIP = "Create a new Rendezvous connection";
 
     public AddConnection() {
         super(NAME, Icons.ADD_CONNECTION);

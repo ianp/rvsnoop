@@ -13,9 +13,14 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import rvsn00p.viewer.RvSnooperGUI;
+import rvsnoop.MessageLedger;
+import rvsnoop.ui.UIManager;
 import rvsnoop.ui.UIUtils;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.util.concurrent.Lock;
 
 /**
  * An action that operates on the currently selected records in the record ledger.
@@ -24,11 +29,11 @@ import rvsnoop.ui.UIUtils;
  * @version $Revision$, $Date$
  * @since 1.5
  */
-abstract class LedgerSelectionAction extends AbstractAction {
+abstract class LedgerSelectionAction extends AbstractAction implements ListSelectionListener {
     
-    static String INFO_NOTHING_SELECTED = "No selection to operate on!";
+    private static String INFO_NOTHING_SELECTED = "No selection to operate on!";
     
-    protected LedgerSelectionAction(String id, String name, Icon icon) {
+    LedgerSelectionAction(String id, String name, Icon icon) {
         super(name, icon);
         putValue(Action.ACTION_COMMAND_KEY, id);
     }
@@ -37,19 +42,26 @@ abstract class LedgerSelectionAction extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public final void actionPerformed(ActionEvent event) {
-        final RvSnooperGUI ui = RvSnooperGUI.getInstance();
+        final UIManager ui = UIManager.INSTANCE;
         final int[] indexes = ui.getSelectedRecords();
         if (indexes == null || indexes.length == 0) {
             UIUtils.showInformation(INFO_NOTHING_SELECTED);
             return;
         }
         // First, make a local reference to the selected records.
-        final List records = ui.getFilteredRecords();
-        final List selected = new ArrayList(indexes.length);
-        for (int i = 0, imax = indexes.length; i < imax; ++i)
-            selected.add(records.get(indexes[i]));
-        // Now we can take our time working on the selection.
-        actionPerformed(selected);
+        final EventList list = MessageLedger.INSTANCE.getEventList();
+        final Lock lock = list.getReadWriteLock().readLock();
+        try {
+            lock.lock();
+            final int[] rows = UIManager.INSTANCE.getSelectedRecords();
+            final List selected = new ArrayList(rows.length);
+            for (int i = 0, imax = rows.length; i < imax; ++i)
+                selected.add(list.get(rows[i]));
+            // Now we can take our time working on the selection.
+            actionPerformed(selected);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -58,5 +70,9 @@ abstract class LedgerSelectionAction extends AbstractAction {
      * @param selected The selected records, elements can be cast to {@link rvsnoop.Record} safely.
      */
     protected abstract void actionPerformed(List selected);
+
+    public void valueChanged(ListSelectionEvent e) {
+        setEnabled(UIManager.INSTANCE.getSelectedRecord() != null);
+    }
 
 }

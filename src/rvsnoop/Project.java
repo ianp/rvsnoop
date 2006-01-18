@@ -10,18 +10,18 @@ import java.awt.Color;
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Map;
 
-import javax.swing.AbstractButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import ca.odell.glazedlists.matchers.Matcher;
+
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
-import rvsn00p.viewer.RvSnooperGUI;
+import rvsnoop.RecordMatcher.NameValueMatcher;
+import rvsnoop.ui.UIManager;
 
 /**
  * Handles all of the project specific settings.
@@ -49,7 +49,9 @@ public final class Project extends XMLConfigFile {
     private static final String SUBJECTS = "subjects";
     private static final String TYPE = "messageType";
     private static final String TYPE_NAME = "name";
-    
+    private static final String TYPE_MATCHER = "matcher";
+    private static final String TYPE_MATCHER_NAME = "name";
+    private static final String TYPE_MATCHER_VALUE = "value";
     private static final String TYPE_SELECTED = "selected";
     
     /**
@@ -81,7 +83,6 @@ public final class Project extends XMLConfigFile {
         for (final Iterator i = RvConnection.allConnections().iterator(); i.hasNext(); )
             RvConnection.destroyConnection((RvConnection) i.next());
         SubjectHierarchy.INSTANCE.removeAll();
-        // TODO: Remove all user defined types.
         Project.currentProject = currentProject;
         if (currentProject != null) {
             currentProject.load();
@@ -125,7 +126,7 @@ public final class Project extends XMLConfigFile {
         loadConnections(root);
     }
 
-    private void loadConnections(Element parent) {
+    private static void loadConnections(Element parent) {
         final Elements elements = parent.getChildElements(RV_CONNECTION);
         for (int i = elements.size(); i != 0;) {
             final Element element = elements.get(--i);
@@ -142,8 +143,8 @@ public final class Project extends XMLConfigFile {
         }
     }
     
-    private void loadSubjectTree(Element parent) {
-        final JTree tree = RvSnooperGUI.getInstance().getCategoryExplorerTree();
+    private static void loadSubjectTree(Element parent) {
+        final JTree tree = UIManager.INSTANCE.getSubjectExplorer();
         final Element subjectsRoot = parent.getFirstChildElement(SUBJECTS);
         if (subjectsRoot == null) return;
         final Elements subjects = subjectsRoot.getChildElements(SUBJECT);
@@ -156,25 +157,31 @@ public final class Project extends XMLConfigFile {
         }
     }
     
-    private void loadTypes(Element parent) {
-        final Map menuItems = RvSnooperGUI.getInstance().getLogLevelMenuItems();
+    private static void loadTypes(Element parent) {
         final Elements types = parent.getChildElements(TYPE);
+        if (types.size() > 0)
+            // If there are types defined in the project then use them.
+            RecordType.clear();
+        else
+            // Otherwise add in the default set of types.
+            RecordType.reset();
         for (int i = types.size(); i != 0;) {
-            final Element typeElt = types.get(--i);
-            final String name = getString(typeElt, TYPE_NAME);
             try {
-                final MsgType type = MsgType.valueOf(name);
-                if (type == null)
-                    continue;
-                final JCheckBoxMenuItem item = (JCheckBoxMenuItem) menuItems.get(MsgType.valueOf(name));
-                item.setSelected(getBoolean(typeElt, TYPE_SELECTED, true));
-                final Element colour = typeElt.getFirstChildElement(COLOUR);
+                final Element typeElt = types.get(--i);
+                final String name = getString(typeElt, TYPE_NAME);
+                final Element colourElt = typeElt.getFirstChildElement(COLOUR);
                 // Using -1 for the deefault will cause no colour to be set if
                 // any component is missing or corrupted.
-                final int r = getInteger(colour, COLOUR_RED, -1);
-                final int g = getInteger(colour, COLOUR_GREEN, -1);
-                final int b = getInteger(colour, COLOUR_BLUE, -1);
-                MsgType.setLogLevelColorMap(type, new Color(r, g, b));
+                final int r = getInteger(colourElt, COLOUR_RED, -1);
+                final int g = getInteger(colourElt, COLOUR_GREEN, -1);
+                final int b = getInteger(colourElt, COLOUR_BLUE, -1);
+                final Color colour = new Color(r, g, b);
+                final Element matcherElt = typeElt.getFirstChildElement(TYPE_MATCHER);
+                final String matcherName = getString(matcherElt, TYPE_MATCHER_NAME);
+                final String matcherValue = getString(matcherElt, TYPE_MATCHER_VALUE);
+                final Matcher matcher = RecordMatcher.getMatcher(matcherName, matcherValue);
+                final RecordType type = RecordType.createType(name, colour, matcher);
+                type.setSelected(getBoolean(typeElt, TYPE_SELECTED, true));
             } catch (Exception ignored) {
                 // Intentionally ignored.
             }
@@ -188,7 +195,7 @@ public final class Project extends XMLConfigFile {
      * reset the state of the subject explorer tree.
      */
     protected void postDeleteHook() {
-        final JTree tree = RvSnooperGUI.getInstance().getCategoryExplorerTree();
+        final JTree tree = UIManager.INSTANCE.getSubjectExplorer();
         final SubjectHierarchy model = (SubjectHierarchy) tree.getModel();
         // Collapse everything except the root node.
         for (int i = tree.getRowCount() - 1; i != 0; --i)
@@ -198,7 +205,7 @@ public final class Project extends XMLConfigFile {
             ((SubjectElement) nodes.nextElement()).setSelected(true);
     }
 
-    private void storeConnections(Element parent) {
+    private static void storeConnections(Element parent) {
         for (final Iterator i = RvConnection.allConnections().iterator(); i.hasNext(); ) {
             final RvConnection connection = (RvConnection) i.next();
             final Element element = appendElement(parent, RV_CONNECTION);
@@ -211,8 +218,8 @@ public final class Project extends XMLConfigFile {
         }
     }
 
-    private void storeSubjectTree(Element parent) {
-        final JTree tree = RvSnooperGUI.getInstance().getCategoryExplorerTree();
+    private static void storeSubjectTree(Element parent) {
+        final JTree tree = UIManager.INSTANCE.getSubjectExplorer();
         final SubjectHierarchy model = (SubjectHierarchy) tree.getModel();
         final Element subjects = appendElement(parent, SUBJECTS);
         final Enumeration nodes = ((DefaultMutableTreeNode) model.getRoot()).breadthFirstEnumeration();
@@ -228,17 +235,19 @@ public final class Project extends XMLConfigFile {
         }
     }
 
-    private void storeTypes(Element parent) {
-        final Map menuItems = RvSnooperGUI.getInstance().getLogLevelMenuItems();
-        final Map colours = MsgType.getLogLevelColorMap();
-        final Iterator it = menuItems.keySet().iterator();
-        while (it.hasNext()) {
-            final MsgType type = (MsgType) it.next();
+    private static void storeTypes(Element parent) {
+        final Iterator i = RecordType.getAllMessageTypes().iterator();
+        while (i.hasNext()) {
+            final RecordType type = (RecordType) i.next();
+            if (RecordType.DEFAULT_TYPE.equals(type)) continue;
             final Element typeElt = appendElement(parent, TYPE);
-            setString(typeElt, TYPE_NAME, type.getLabel());
-            final boolean selected = ((AbstractButton) menuItems.get(type)).isSelected();
-            setBoolean(typeElt, TYPE_SELECTED, selected);
-            final Color colour = (Color) colours.get(type);
+            setString(typeElt, TYPE_NAME, type.getName());
+            setBoolean(typeElt, TYPE_SELECTED, type.isSelected());
+            final RecordMatcher.NameValueMatcher matcher = (NameValueMatcher) type.getMatcher();
+            final Element matcherElt = appendElement(typeElt, TYPE_MATCHER);
+            setString(matcherElt, TYPE_MATCHER_NAME, matcher.getName());
+            setString(matcherElt, TYPE_MATCHER_VALUE, matcher.getValue());
+            final Color colour = type.getColor();
             final Element colourElt = appendElement(typeElt, COLOUR);
             setInteger(colourElt, COLOUR_RED, colour.getRed());
             setInteger(colourElt, COLOUR_GREEN, colour.getGreen());

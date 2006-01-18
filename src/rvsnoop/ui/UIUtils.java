@@ -7,22 +7,27 @@
 package rvsnoop.ui;
 
 import com.tibco.tibrv.TibrvException;
-import rvsn00p.viewer.RvSnooperGUI;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
@@ -33,15 +38,15 @@ import java.awt.event.KeyEvent;
  */
 public final class UIUtils {
     
-    static String CONFIRM_TITLE = "Confirm";
+    private static String CONFIRM_TITLE = "Confirm";
     
-    static String ERROR_TITLE = "Error";
+    private static String ERROR_TITLE = "Error";
 
-    static String INFORMATION_TITLE = "Information";
+    private static String INFORMATION_TITLE = "Information";
 
     public static boolean askForConfirmation(Object message, Icon icon) {
         return JOptionPane.YES_NO_OPTION
-            == JOptionPane.showConfirmDialog(RvSnooperGUI.getFrame(), message, CONFIRM_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
+            == JOptionPane.showConfirmDialog(UIManager.INSTANCE.getFrame(), message, CONFIRM_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
     }
     
     public static void centerWindowOnScreen(final Window window) {
@@ -63,6 +68,22 @@ public final class UIUtils {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ok.getValue(Action.ACTION_COMMAND_KEY));
     }
     
+    public static JButton createSmallButton(Icon icon, String tooltip, ActionListener listener) {
+        final JButton btn = new JButton(icon);
+        btn.setBorder(BorderFactory.createEmptyBorder());
+        final Dimension size = new Dimension(16, 16);
+        btn.setMinimumSize(size);
+        btn.setPreferredSize(size);
+        btn.setMaximumSize(size);
+        btn.setMargin(new Insets(0, 0, 0, 0));
+        if (listener != null)
+            btn.addActionListener(listener);
+        btn.setToolTipText(tooltip);
+        btn.setHorizontalAlignment(SwingConstants.CENTER);
+        btn.setVerticalAlignment(SwingConstants.CENTER);
+        return btn;
+    }
+    
     public static GradientPaint paintGradient(Graphics2D g, int w, int h, Color start, Color end, GradientPaint paint) {
         if (paint == null)
             paint = new GradientPaint(0, 0, start, 0, h, end);
@@ -78,15 +99,15 @@ public final class UIUtils {
         m[0] = message;
         m[1] = s != null ? s : "";
         m[2] = exception instanceof TibrvException ? "Rendezvous Error Code: " + ((TibrvException) exception).error : "";
-        JOptionPane.showMessageDialog(RvSnooperGUI.getFrame(), m, title, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), m, title, JOptionPane.ERROR_MESSAGE);
     }
     
     public static void showInformation(Object message) {
-        JOptionPane.showMessageDialog(RvSnooperGUI.getFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
     
     public static void showInformation(Object message, Icon icon) {
-        JOptionPane.showMessageDialog(RvSnooperGUI.getFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE, icon);
+        JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE, icon);
     }
     
     /**

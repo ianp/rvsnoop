@@ -13,7 +13,7 @@ import java.util.List;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import rvsn00p.viewer.RvSnooperGUI;
+import rvsnoop.MessageLedger;
 import rvsnoop.ui.Icons;
 
 /**
@@ -27,11 +27,11 @@ final class Delete extends LedgerSelectionAction {
     
     private static final String ID = "delete";
     
-    static String NAME = "Delete";
+    private static String NAME = "Delete";
 
     private static final long serialVersionUID = -4082252661195745678L;
     
-    static String TOOLTIP = "Delete the currently selected record(s) from the ledger";
+    private static String TOOLTIP = "Delete the currently selected record(s) from the ledger";
     
     public Delete() {
         super(ID, NAME, Icons.DELETE);
@@ -42,7 +42,7 @@ final class Delete extends LedgerSelectionAction {
     }
 
     public void actionPerformed(List selected) {
-        RvSnooperGUI.getInstance().removeAll(selected);
+        MessageLedger.INSTANCE.removeAll(selected);
     }
 
 }

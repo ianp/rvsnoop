@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +45,14 @@ public final class StringUtils {
         for (int i = 0, size = fields.length; i < size; ++i)
             if (fields[i] == null)
                 fields[i] = "null"; // $NON-NLS-1$
+        if (message == null) {
+            final StringBuffer buffer = new StringBuffer();
+            buffer.append("Null pattern passed to format! Fields: { ");
+            for (int i = 0, size = fields.length; i < size; ++i)
+                buffer.append("'").append(fields[i]).append("', ");
+            buffer.setLength(buffer.length() - 2);
+            return buffer.append(" }").toString();
+        }
         return MessageFormat.format(message, fields);
     }
 
@@ -61,7 +70,7 @@ public final class StringUtils {
      * Gets the pattern string for the current date format.
      * 
      * @return The pattern string.
-     * @see java.text.SimpleDateFormat
+     * @see SimpleDateFormat
      */
     public static String getDateFormat() {
         return dateFormat;
@@ -97,7 +106,7 @@ public final class StringUtils {
      * Set the date format.
      * 
      * @param pattern The pattern to set, must not be <code>null</code>.
-     * @see java.text.SimpleDateFormat
+     * @see SimpleDateFormat
      */
     public static void setDateFormat(String pattern) {
         if (pattern == null) throw new NullPointerException();
@@ -153,7 +162,7 @@ public final class StringUtils {
     public static String[] split(String string, double maxLength, Font font, FontRenderContext frc) {
         Rectangle2D bounds = font.getStringBounds(string, frc);
         final char[] chars = string.toCharArray();
-        final ArrayList lines = new ArrayList();
+        final List lines = new ArrayList();
         int pos = chars.length - 1;
         while (bounds.getWidth() > maxLength) {
             bounds = font.getStringBounds(chars, 0, --pos, frc);

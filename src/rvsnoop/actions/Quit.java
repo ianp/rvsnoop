@@ -15,11 +15,11 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 
-import rvsn00p.viewer.RvSnooperGUI;
 import rvsnoop.Logger;
 import rvsnoop.RvConnection;
 import rvsnoop.ui.Banners;
 import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIManager;
 import rvsnoop.ui.UIUtils;
 
 /**
@@ -32,17 +32,17 @@ import rvsnoop.ui.UIUtils;
  */
 final class Quit extends AbstractAction {
 
-    static String CONFIRM_QUESTION = "Are you sure that you want to quit?";
+    private static String CONFIRM_QUESTION = "Are you sure that you want to quit?";
 
     private static final String ID = "quit";
 
     private static final Logger logger = Logger.getLogger(Quit.class);
     
-    static String NAME = "Quit";
+    private static String NAME = "Quit";
     
     private static final long serialVersionUID = -75328795847562924L;
     
-    static String TOOLTIP = "Close all listeners and exit RvSn00p";
+    private static String TOOLTIP = "Close all listeners and exit RvSn00p";
     
     public Quit() {
         super(NAME, Icons.QUIT);
@@ -57,14 +57,14 @@ final class Quit extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        final JFrame frame = RvSnooperGUI.getFrame();
+        final JFrame frame = UIManager.INSTANCE.getFrame();
         if (!UIUtils.askForConfirmation(CONFIRM_QUESTION, Banners.QUIT))
             return;
         frame.dispose();
         try {
             RvConnection.shutdown();
         } catch (Exception e) {
-            if (logger.isErrorEnabled())
+            if (Logger.isErrorEnabled())
                 logger.error("Problem whilst shutting down.", e);
         } finally {
             System.exit(0);

@@ -87,10 +87,10 @@ public final class RecentProjects extends XMLConfigFile {
     private static final int DEFAULT_MAX_SIZE = 5;
     private static final String PROJECT = "project";
     private static final String ROOT = "recentProjects";
-    
-    public static RecentProjects INSTANCE = new RecentProjects();
 
     private static final Logger logger = Logger.getLogger(RecentProjects.class);
+    
+    public static RecentProjects INSTANCE = new RecentProjects();
 
     private static File getRecentConnectionsFile() {
         final String home = System.getProperty("user.home");
@@ -100,6 +100,7 @@ public final class RecentProjects extends XMLConfigFile {
 
     private int maxSize = DEFAULT_MAX_SIZE;
 
+    // This needs to be LinkedList then we can use the removeLast method.
     private final LinkedList projects = new LinkedList();
 
     private RecentProjects() {
@@ -156,7 +157,7 @@ public final class RecentProjects extends XMLConfigFile {
                 try {
                     add(new Project(file.getCanonicalFile()));
                 } catch (IOException e) {
-                    if (logger.isWarnEnabled())
+                    if (Logger.isWarnEnabled())
                         logger.warn("Could not canonicalize file name: " + file.getPath(), e);
                 }
         }

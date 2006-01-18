@@ -11,13 +11,14 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
+import com.sleepycat.bind.tuple.TupleInput;
+import com.sleepycat.bind.tuple.TupleOutput;
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
 
@@ -41,31 +42,33 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      * @throws IOException If there was an exception thrown when reading from the transferable.
      * @throws TibrvException If any of the chunks in the stream could not be converted into messages.
      * @throws java.nio.BufferUnderflowException If there are not enough bytes in the stream to reconstruct all of the messages described in the header.
+     * @see Record#BIND_RECORD_SET_MAGIC For details about the stream format.
      */
     public static TibrvMsg[] unmarshal(Transferable selection) throws UnsupportedFlavorException, IOException, TibrvException {
         final ByteBuffer data = (ByteBuffer) selection.getTransferData(BYTES_FLAVOUR);
-        final int numMessages = data.getInt();
-        final TibrvMsg[] messages = new TibrvMsg[numMessages];
-        final int[] lengths = new int[numMessages];
-        for (int i = 0; i < numMessages; ++i)
-            lengths[i] = data.getInt();
-        byte[] message = new byte[lengths[0]];
-        for (int i = 0; i < numMessages; ++i) {
-            if (message.length != lengths[i])
-                message = new byte[lengths[i]];
-            data.get(message);
-            messages[i] = new TibrvMsg(message);
+        byte[] bytes = null;
+        if (data.hasArray()) {
+            bytes = data.array();
+        } else {
+            bytes = new byte[data.remaining()];
+            data.get(bytes);
         }
+        final TupleInput input = new TupleInput(bytes);
+        final byte[] magic = new byte[Record.BIND_RECORD_SET_MAGIC.length];
+        input.readFast(magic);
+        if (!Arrays.equals(Record.BIND_RECORD_SET_MAGIC, magic))
+            throw new IllegalArgumentException("Selection does not contain a valid records stream.");
+        final int numMessages = input.readInt();
+        final TibrvMsg[] messages = new TibrvMsg[numMessages];
+        for (int i = 0; i < numMessages; ++i)
+            messages[i] = (TibrvMsg) Record.BINDING.entryToObject(input);
         return messages;
     }
     
     /**
      * The messages as a stream of bytes.
-     * <p>
-     * The format for the stream is a single integer, <code>n</code> detailing
-     * the number of messages in the stream, followed by <code>n</code>
-     * integers giving the size in bytes of each message, followed by
-     * <code>n</code> chunks of data which can be used to create messages.
+     * 
+     * @see Record#BIND_RECORD_SET_MAGIC For details about the stream format.
      */
     private ByteBuffer data;
     
@@ -80,26 +83,13 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
     public RecordSelection(List messages) throws TibrvException, IOException {
         super();
         final int numMessages = messages.size();
-        final int[] lengths = new int[numMessages];
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream(1024);
-        final DataOutputStream dataStream = new DataOutputStream(stream);
-        // Write the space for the stream header.
-        dataStream.writeInt(numMessages);
-        for (int i = 0; i < numMessages; ++i) {
-            // Start by seting the sizes to 0, we will go back and set them later.
-            dataStream.writeInt(0);
-        }
-        // Now write the messages.
-        for (int i = 0; i < numMessages; ++i) {
-            final byte[] message = ((Record) messages.get(i)).getMessage().getAsBytes();
-            lengths[i] = message.length;
-            stream.write(message);
-        }
-        data = ByteBuffer.wrap(stream.toByteArray());
+        final TupleOutput output = new TupleOutput();
+        output.writeFast(Record.BIND_RECORD_SET_MAGIC);
+        output.writeInt(numMessages);
+        for (final Iterator i = messages.iterator(); i.hasNext();)
+            Record.BINDING.objectToEntry(i.next(), output);
+        data = ByteBuffer.wrap(output.getBufferBytes());
         data.rewind();
-        // Finally go back and fill in the correct sizes in the header.
-        for (int i = 0, offset = 0; i < numMessages; ++i)
-            data.putInt(offset += 4, lengths[i]);
     }
 
     /**
@@ -115,13 +105,8 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
     
     /**
      * The returned object may be cast to <code>byte[]</code>.
-     * <p>
-     * The format for the stream is a single integer, <code>n</code> detailing
-     * the number of messages in the stream, followed by <code>n</code>
-     * integers giving the size in bytes of each message, followed by
-     * <code>n</code> chunks of data which can be used to create messages.
      * 
-     * @see java.awt.datatransfer.Transferable#getTransferData(java.awt.datatransfer.DataFlavor)
+     * @see Transferable#getTransferData(DataFlavor)
      */
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
         if (!isDataFlavorSupported(flavor))

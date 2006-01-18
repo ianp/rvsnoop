@@ -11,10 +11,9 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
-import rvsn00p.viewer.RvSnooperGUI;
 import rvsnoop.ui.MultiLineToolTipUI;
+import rvsnoop.ui.UIManager;
 
 /**
  * Starts an instance of RvSnoop.
@@ -30,7 +29,48 @@ import rvsnoop.ui.MultiLineToolTipUI;
  * @version $Revision$, $Date$
  */
 public final class StartRvSnooper {
+
+    private static class CreateAndShowTask implements Runnable {
+        private final String filename;
+        private final File file;
+
+        public CreateAndShowTask(String filename, File file) {
+            this.filename = filename;
+            this.file = file;
+        }
+
+        public void run() {
+            UIManager.INSTANCE.setVisible(true);
+            PreferencesManager.INSTANCE.load();
+            if (file != null && file.exists() && file.canRead()) {
+                try {
+                    final Project project = new Project(file.getCanonicalFile());
+                    project.load();
+                    RecentProjects.INSTANCE.add(project);
+                } catch(IOException e) {
+                    logger.error("Could not load project from " + filename, e);
+                }
+            }
+        }
+    }
     
+    private static class ShutdownHookTask implements Runnable {
+        ShutdownHookTask() {
+            super();
+        }
+        public void run() {
+            try {
+                PreferencesManager.INSTANCE.store();
+                RecentConnections.INSTANCE.store();
+                RecentProjects.INSTANCE.store();
+                logger.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + ".");
+                Logger.flush();
+            } catch (IOException ignored) {
+                // Oh well, we may lose the preferences then.
+            }
+        }
+    }
+
     private static final Logger logger = Logger.getLogger(StartRvSnooper.class);
 
     /**
@@ -48,7 +88,7 @@ public final class StartRvSnooper {
             if (b > 4) return true;
             return st.hasMoreTokens() && Integer.parseInt(st.nextToken()) > 1;
         } catch(Exception e) {
-            if (logger.isWarnEnabled()) logger.warn("Unable to determine Java version.", e);
+            if (Logger.isWarnEnabled()) logger.warn("Unable to determine Java version.", e);
             return true;
         }
     }
@@ -59,10 +99,8 @@ public final class StartRvSnooper {
      * @param args The command line arguments.
      */
     public static void main(final String[] args) {
-        final String toolTipUI = MultiLineToolTipUI.class.getName();
-        UIManager.put("ToolTipUI", toolTipUI);
-        UIManager.put(toolTipUI, MultiLineToolTipUI.class);
-        if (!isCorrectJavaVersion() && logger.isWarnEnabled())
+        MultiLineToolTipUI.configure();
+        if (!isCorrectJavaVersion() && Logger.isWarnEnabled())
             logger.warn("Java version 1.4.2 or higher is required, rvSnoop may fail unexpectedly with earlier versions.");
         final ArgParser parser = new ArgParser(Version.getAsStringWithName());
         parser.addArgument('h', "help", true, "Display a short help message.");
@@ -71,36 +109,10 @@ public final class StartRvSnooper {
         if (parser.getBooleanArg("help"))
             parser.printUsage(System.out);
         final String filename = parser.getStringArg("project");
-        if (filename != null && logger.isDebugEnabled()) logger.debug("Loading project file: " + filename);
+        if (filename != null && Logger.isDebugEnabled()) logger.debug("Loading project file: " + filename);
         final File file = filename == null ? null : new File(filename);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new RvSnooperGUI().show();
-                PreferencesManager.INSTANCE.load();
-                if (file != null && file.exists() && file.canRead()) {
-                    try {
-                        final Project project = new Project(file.getCanonicalFile());
-                        project.load();
-                        RecentProjects.INSTANCE.add(project);
-                    } catch(IOException e) {
-                        logger.error("Could not load project from " + filename, e);
-                    }
-                }
-            }
-        });
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            public void run() {
-                try {
-                    PreferencesManager.INSTANCE.store();
-                    RecentConnections.INSTANCE.store();
-                    RecentProjects.INSTANCE.store();
-                    logger.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + ".");
-                    Logger.flush();
-                } catch (IOException ignored) {
-                    // Oh well, we may lose the preferences then.
-                }
-            }
-        }, "shutdownHook"));
+        SwingUtilities.invokeLater(new CreateAndShowTask(filename, file));
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookTask(), "shutdownHook"));
     }
     
     /**

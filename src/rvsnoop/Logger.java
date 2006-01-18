@@ -6,6 +6,9 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
+import rvsnoop.ui.UIManager;
+import rvsnoop.ui.UIUtils;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,9 +16,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import rvsn00p.viewer.RvSnooperGUI;
-import rvsnoop.ui.UIUtils;
 
 /**
  * A trivial logging facility.
@@ -65,6 +65,8 @@ public final class Logger {
 
     private static final Date date = new Date();
 
+    private static boolean isRunningHeadless = true;
+    
     private static final int level;
     
     private static final Writer writer;
@@ -128,6 +130,10 @@ public final class Logger {
         buffer.setLength(0);
     }
     
+    public static void setRunningHeadless(boolean isRunningHeadless) {
+        Logger.isRunningHeadless = isRunningHeadless;
+    }
+    
     private final String simpleName;
 
     private Logger(Class clazz) {
@@ -150,15 +156,19 @@ public final class Logger {
     public synchronized void error(String message) {
         if (isErrorEnabled())
             log(simpleName, ERROR_LABEL, message, null);
-        RvSnooperGUI.setStatusBarWarning(message);
-        UIUtils.showError(message, null);
+        if (!isRunningHeadless) {
+            UIManager.INSTANCE.setStatusBarWarning(message);
+            UIUtils.showError(message, null);
+        }
     }
 
     public synchronized void error(String message, Throwable throwable) {
         if (isErrorEnabled())
             log(simpleName, ERROR_LABEL, message, throwable);
-        RvSnooperGUI.setStatusBarWarning(message);
-        UIUtils.showError(message, throwable);
+        if (!isRunningHeadless) {
+            UIManager.INSTANCE.setStatusBarWarning(message);
+            UIUtils.showError(message, throwable);
+        }
     }
 
     public synchronized void fatal(String message) {
@@ -174,42 +184,46 @@ public final class Logger {
     public synchronized void info(String message) {
         if (isInfoEnabled())
             log(simpleName, INFO_LABEL, message, null);
-        RvSnooperGUI.setStatusBarMessage(message);
+        if (!isRunningHeadless)
+            UIManager.INSTANCE.setStatusBarMessage(message);
     }
     
     public synchronized void info(String message, Throwable throwable) {
         if (isInfoEnabled())
             log(simpleName, INFO_LABEL, message, throwable);
-        RvSnooperGUI.setStatusBarMessage(message);
+        if (!isRunningHeadless)
+            UIManager.INSTANCE.setStatusBarMessage(message);
     }
     
-    public boolean isDebugEnabled() {
+    public static boolean isDebugEnabled() {
         return level >= DEBUG;
     }
     
-    public boolean isErrorEnabled() {
+    public static boolean isErrorEnabled() {
         return level >= ERROR;
     }
     
-    public boolean isFatalEnabled() {
+    private static boolean isFatalEnabled() {
         return level >= FATAL;
     }
     
-    public boolean isInfoEnabled() {
+    public static boolean isInfoEnabled() {
         return level >= INFO;
     }
     
-    public boolean isWarnEnabled() {
+    public static boolean isWarnEnabled() {
         return level >= WARN;
     }
     
     public synchronized void warn(String message) {
-        RvSnooperGUI.setStatusBarWarning(message);
         log(simpleName, WARN_LABEL, message, null);
+        if (!isRunningHeadless)
+            UIManager.INSTANCE.setStatusBarWarning(message);
     }
     
     public synchronized void warn(String message, Throwable throwable) {
-        RvSnooperGUI.setStatusBarWarning(message);
         log(simpleName, WARN_LABEL, message, throwable);
+        if (!isRunningHeadless)
+            UIManager.INSTANCE.setStatusBarWarning(message);
     }
 }
