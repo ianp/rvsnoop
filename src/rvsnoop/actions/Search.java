@@ -21,13 +21,13 @@ import rvsnoop.Record;
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.SearchDialog;
 import rvsnoop.ui.UIManager;
-
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.util.concurrent.Lock;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
 import com.tibco.tibrv.TibrvMsgField;
+import com.tibco.tibrv.TibrvXml;
 
 /**
  * Search for text in the message bodies.
@@ -51,7 +51,8 @@ final class Search extends AbstractAction {
     private int lastSearchedRow;
     
     private boolean trackingId;
-    private boolean message = true;
+    private boolean fieldData = true;
+    private boolean fieldNames;
     private boolean sendSubject;
     private boolean replySubject;
     
@@ -84,7 +85,8 @@ final class Search extends AbstractAction {
             lastSearchedRow = Math.min(lastSearchedRow, list.size() - 1);
             row = search(list, lastSearchedRow, list.size());
             // If we get here without matching, wrap to the start of the list.
-            if (row == -1) row = search(list, 0, lastSearchedRow);
+            if (row == -1)
+                row = search(list, 0, lastSearchedRow);
             if (row >= 0)
                 UIManager.INSTANCE.selectRecordInLedger(row);
             else
@@ -95,12 +97,15 @@ final class Search extends AbstractAction {
     }
     
     private boolean isTextInFieldData(String text, TibrvMsgField field) throws TibrvException {
+        if (fieldNames && field.name.indexOf(text) >= 0) return true;
         switch (field.type) {
         case TibrvMsg.MSG:
             return isTextInMessageData(text, (TibrvMsg) field.data);
         case TibrvMsg.STRING:
+            return ((String) field.data).indexOf(text) >= 0;
         case TibrvMsg.XML:
-            return ((String) field.data).equalsIgnoreCase(text);
+            // XXX: Should we do something here to sniff the correct encoding from the bytes?
+            return isTextInXmlData(text.getBytes(), ((TibrvXml) field.data).getBytes());
         default:
             return false;
         }
@@ -120,13 +125,30 @@ final class Search extends AbstractAction {
      */
     private boolean isTextInMessageData(String text, TibrvMsg message) throws TibrvException {
         for (int i = 0, imax = message.getNumFields(); i < imax; ++i)
-            if (isTextInFieldData(text, message.getField(i)))
+            if (isTextInFieldData(text, message.getFieldByIndex(i)))
                 return true;
         return false;
     }
     
+    private boolean isTextInXmlData(byte[] text, byte[] xml) {
+        final byte firstByte = text[0];
+        SCAN_XML:
+        for (int i = 0, imax = xml.length; i < imax; ++i) {
+            if (xml[i] != firstByte) continue;
+            if (text.length == 1) return true; // Guard for single byte text.
+            if (++i == xml.length) return false; // Guard for end of XML.
+            SCAN_TEXT: // OK, now look for the rest of the text...
+            for (int j = 1, jmax = text.length; j < jmax; ) {
+                if (xml[i] != text[j]) continue SCAN_XML;
+                if (++i == xml.length) return false; // Guard for end of XML.
+                if (++j == text.length) return true;
+            }
+        }
+        return false;
+    }
+    
     private boolean matches(Record record) {
-        if (message && matchMessage(record)) return true;
+        if ((fieldData || fieldNames) && matchMessage(record)) return true;
         if (sendSubject && matchSendSubject(record)) return true;
         if (replySubject && matchReplySubject(record)) return true;
         if (trackingId && matchTrackingId(record)) return true;
@@ -137,7 +159,7 @@ final class Search extends AbstractAction {
         try {
             return isTextInMessageData(searchText, record.getMessage());
         } catch (TibrvException e) {
-            logger.error("Error reading field", e);
+            logger.error("Error reading message field.", e);
             return false;
         }
     }
@@ -165,11 +187,12 @@ final class Search extends AbstractAction {
     }
     
     private boolean showDialog() {
-        final SearchDialog dialog = new SearchDialog(searchText, message, sendSubject, replySubject, trackingId);
+        final SearchDialog dialog = new SearchDialog(searchText, fieldData, fieldNames, sendSubject, replySubject, trackingId);
         dialog.setVisible(true);
         if (dialog.isCancelled()) return false;
         searchText = dialog.getSearchText();
-        message = dialog.isMessageSelected();
+        fieldData = dialog.isFieldDataSelected();
+        fieldNames = dialog.isFieldNamesSelected();
         sendSubject = dialog.isSendSubjectSelected();
         replySubject = dialog.isReplySubjectSelected();
         trackingId = dialog.isTrackingIdSelected();

@@ -72,18 +72,20 @@ public final class SearchDialog extends JDialog {
     
     private boolean isCancelled;
 
-    private final JCheckBox  message      = new JCheckBox();
+    private final JCheckBox  fieldData    = new JCheckBox();
+    private final JCheckBox  fieldNames   = new JCheckBox();
     private final JCheckBox  replySubject = new JCheckBox();
     private final JTextField searchText   = new JTextField(20);
     private final JCheckBox  sendSubject  = new JCheckBox();
     private final JCheckBox  trackingId   = new JCheckBox();
     
-    public SearchDialog(String searchText, boolean message, boolean sendSubject, boolean replySubject, boolean trackingId) {
+    public SearchDialog(String searchText, boolean fieldData, boolean fieldNames, boolean sendSubject, boolean replySubject, boolean trackingId) {
         super(UIManager.INSTANCE.getFrame(), "Find", true);
         buildContentArea();
         buildButtonArea();
         this.searchText.setText(searchText);
-        this.message.setSelected(message);
+        this.fieldData.setSelected(fieldData);
+        this.fieldNames.setSelected(fieldNames);
         this.sendSubject.setSelected(sendSubject);
         this.replySubject.setSelected(replySubject);
         this.trackingId.setSelected(trackingId);
@@ -109,13 +111,15 @@ public final class SearchDialog extends JDialog {
                 new FormLayout("r:default, 3dlu, p:grow", ""));
         builder.append("Search Text", searchText).setLabelFor(searchText);
         builder.nextLine();
-        builder.append("Message?", message).setLabelFor(message);
+        builder.append("Include Field Contents", fieldData).setLabelFor(fieldData);
         builder.nextLine();
-        builder.append("Tracking ID?", trackingId).setLabelFor(trackingId);
+        builder.append("Include Field Names", fieldNames).setLabelFor(fieldNames);
         builder.nextLine();
-        builder.append("Send Subbject?", sendSubject).setLabelFor(sendSubject);
+        builder.append("Include Tracking ID", trackingId).setLabelFor(trackingId);
         builder.nextLine();
-        builder.append("Reply Subject?", replySubject).setLabelFor(replySubject);
+        builder.append("Include Send Subbject", sendSubject).setLabelFor(sendSubject);
+        builder.nextLine();
+        builder.append("Include Reply Subject", replySubject).setLabelFor(replySubject);
         final JPanel panel = builder.getPanel();
         panel.setBorder(Borders.DLU2_BORDER);
         getContentPane().add(panel, BorderLayout.CENTER);
@@ -129,8 +133,12 @@ public final class SearchDialog extends JDialog {
         return searchText.getText();
     }
     
-    public boolean isMessageSelected() {
-        return message.isSelected();
+    public boolean isFieldDataSelected() {
+        return fieldData.isSelected();
+    }
+    
+    public boolean isFieldNamesSelected() {
+        return fieldNames.isSelected();
     }
     
     public boolean isSendSubjectSelected() {
