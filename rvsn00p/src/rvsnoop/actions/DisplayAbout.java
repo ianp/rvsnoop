@@ -28,11 +28,11 @@ final class DisplayAbout extends AbstractAction {
 
     private static final String ID = "displayAbout";
     
-    private static String NAME = "About RvSn00p";
+    private static String NAME = "About rvSnoop";
     
     private static final long serialVersionUID = 1725655570348239778L;
 
-    private static String TOOLTIP = "Show some information about RvSn00p";
+    private static String TOOLTIP = "Show some information about rvSnoop";
 
     public DisplayAbout() {
         super(NAME);
@@ -48,7 +48,7 @@ final class DisplayAbout extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         JOptionPane.showMessageDialog(
             UIManager.INSTANCE.getFrame(),
-            new String[] { "RvSn00p " + Version.getAsString(),
+            new String[] { Version.getAsStringWithName(),
                            " ",
                            "Constructed by Örjan Lundberg (lundberg@home.se)",
                            " and Ian Phillips (ianp@ianp.org)",
