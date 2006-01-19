@@ -40,8 +40,8 @@ public final class StartRvSnooper {
         }
 
         public void run() {
-            UIManager.INSTANCE.setVisible(true);
             PreferencesManager.INSTANCE.load();
+            UIManager.INSTANCE.setVisible(true);
             if (file != null && file.exists() && file.canRead()) {
                 try {
                     final Project project = new Project(file.getCanonicalFile());
@@ -64,7 +64,6 @@ public final class StartRvSnooper {
                 RecentConnections.INSTANCE.store();
                 RecentProjects.INSTANCE.store();
                 logger.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + ".");
-                Logger.flush();
             } catch (IOException ignored) {
                 // Oh well, we may lose the preferences then.
             }
