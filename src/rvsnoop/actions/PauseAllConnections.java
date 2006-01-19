@@ -40,15 +40,17 @@ final class PauseAllConnections extends AbstractAction {
 
     private static final long serialVersionUID = -986608950126010165L;
     
-    private static String TOOLTIP = "Resume all paused all Rendezvous connections";
+    private static String TOOLTIP_PAUSE = "Pause all Rendezvous connections";
+    
+    private static String TOOLTIP_RESUME = "Resume all paused Rendezvous connections";
 
     private boolean isPaused = false;
 
     public PauseAllConnections() {
-        super(NAME, Icons.PAUSE);
+        super(NAME_PAUSE, Icons.PAUSE);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_P));
-        putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
+        putValue(Action.SHORT_DESCRIPTION, TOOLTIP_PAUSE);
     }
 
     /* (non-Javadoc)
@@ -59,16 +61,18 @@ final class PauseAllConnections extends AbstractAction {
             try {
                 RvConnection.resumeQueue();
                 putValue(Action.NAME, NAME_PAUSE);
+                putValue(Action.SHORT_DESCRIPTION, TOOLTIP_PAUSE);
                 putValue(Action.SMALL_ICON, Icons.PAUSE);
                 isPaused = false;
                 logger.info("All connections have now been resumed.");
             } catch (TibrvException e) {
-                logger.error("There was a problem pausing the connections.", e);
+                logger.error("There was a problem resuming the connections.", e);
             }
         } else {
             try {
                 RvConnection.pauseQueue();
                 putValue(Action.NAME, NAME_RESUME);
+                putValue(Action.SHORT_DESCRIPTION, TOOLTIP_RESUME);
                 putValue(Action.SMALL_ICON, Icons.RESUME);
                 isPaused = true;
                 logger.info("All connections have now been paused.");
