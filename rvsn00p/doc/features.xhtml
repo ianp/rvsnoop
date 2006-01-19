@@ -29,10 +29,12 @@
         <img src="images/message_ledger.png" alt="Message Ledger" class="wide"/>
         <p>The message ledger shows a summary of all of the received messages, the columns which are displayed can be configured via the view menu (the example screen shot shows some of the columns being hidden).</p>
         <p>Entries in the ledger are called ‘records’ since they contain both the message and some additional information such as when it was received and on which connection (transport). Selecting a record in the ledger will cause more detailed information about it to be displayed in the details panel below the ledger.</p>
+        <p><img src="images/columns_button.png" alt="Columns Button"/>The small button in the top right hand corner of the ledger can be used to selectively show or hide columns. This functionality is also available from the View menu.</p>
         <h2>Message Details Panel (4)</h2>
         <img src="images/message_details.png" alt="Message Details" class="wide"/>
         <p>The details panel is split into two sections, the header shows some summary information about the message: the send and reply subjects, the message string encoding, and any <acronym>RVCM</acronym> information in the case of certified messages. The icon in the header changes based on the type of message shown (currently plain, certified, <acronym>RVFT</acronym> heartbeats, and advisories are supported).</p>
         <p>The body of the details panel shows the contents of the message in a convenient tree format. The tree view also displays <acronym>XML</acronym> messages if they are encoded as the Rendezvous <acronym>XML</acronym> datatype or as Rendezvous strings, so you can view their contents easily.</p>
+        <p><img src="images/status_bar.png" alt="Status Bar"/>To the right of the status bar, below the details panel, are two small areas showing the current filoe encoding which is in use and the current number of messages in the ledger. The message count displays visible and total messages, the small ‘funnel’ icon indicates that filtering is applied and the actual filters will be visible as a tooltip on this section of the status bar.</p>
         <h2>Republish Message</h2>
         <p>A simple republishing facility has been added, this will republish the selected messages from the ledger. At the moment there is no facility to edit messages before publishing but this is planned for a future release.</p>
         <h2>Export Message Data</h2>
