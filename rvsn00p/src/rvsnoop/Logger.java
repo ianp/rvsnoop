@@ -105,10 +105,6 @@ public final class Logger {
         log("Logger", INFO_LABEL, "Log level set to " + (s != null ? s : "info") + ".", null);
     }
 
-    public static void flush() throws IOException {
-        writer.flush();
-    }
-    
     public static Logger getLogger(Class clazz) {
         return new Logger(clazz);
     }
