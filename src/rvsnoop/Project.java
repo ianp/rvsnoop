@@ -37,7 +37,7 @@ public final class Project extends XMLConfigFile {
     private static final String COLOUR_GREEN = "green";
     private static final String COLOUR_RED = "red";
     private static Project currentProject;
-    private static final String ROOT = "rvsnoop";
+    private static final String ROOT = "rvsnoopProject";
     private static final String RV_CONNECTION = "connection";
     private static final String RV_DAEMON = "daemon";
     private static final String RV_DESCRIPTION = "description";
@@ -47,7 +47,7 @@ public final class Project extends XMLConfigFile {
     private static final String SUBJECT_EXPANDED = "expanded";
     private static final String SUBJECT_SELECTED = "selected";
     private static final String SUBJECTS = "subjects";
-    private static final String TYPE = "messageType";
+    private static final String TYPE = "recordType";
     private static final String TYPE_NAME = "name";
     private static final String TYPE_MATCHER = "matcher";
     private static final String TYPE_MATCHER_NAME = "name";
