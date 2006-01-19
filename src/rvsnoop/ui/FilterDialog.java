@@ -105,11 +105,10 @@ public final class FilterDialog extends JDialog {
 
     private void buildContentArea() {
         final DefaultFormBuilder builder = new DefaultFormBuilder(
-                new FormLayout("r:default, 3dlu, p, 3dlu, p:grow", ""));
-        builder.append("Send Subbject?", sendSubjectEnabled, sendSubject).setLabelFor(sendSubject);
+                new FormLayout("r:default, 3dlu, p:grow, 3dlu, p", ""));
+        builder.append("Send Subject", sendSubject, sendSubjectEnabled).setLabelFor(sendSubject);
         builder.nextLine();
-        builder.append("Tracking ID?", trackingIdEnabled, trackingId).setLabelFor(trackingId);
-        builder.nextLine();
+        builder.append("Tracking ID", trackingId, trackingIdEnabled).setLabelFor(trackingId);
         final JPanel panel = builder.getPanel();
         panel.setBorder(Borders.DLU2_BORDER);
         getContentPane().add(panel, BorderLayout.CENTER);
