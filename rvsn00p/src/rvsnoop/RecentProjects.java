@@ -65,7 +65,7 @@ public final class RecentProjects extends XMLConfigFile {
             }
         }
     }
-    
+
     private static class OpenRecentAction extends AbstractAction {
         private static final long serialVersionUID = 663435715412125115L;
         private final Project project;
@@ -79,9 +79,9 @@ public final class RecentProjects extends XMLConfigFile {
             Project.setCurrentProject(project);
             logger.info("Loaded project from " + project.getFile().getName());
         }
-        
+
     }
-    
+
     private static final String CONFIG_DIRECTORY = ".rvsnoop";
     private static final String CONFIG_FILE = "recentProjects.xml";
     private static final int DEFAULT_MAX_SIZE = 5;
@@ -89,7 +89,7 @@ public final class RecentProjects extends XMLConfigFile {
     private static final String ROOT = "recentProjects";
 
     private static final Logger logger = Logger.getLogger(RecentProjects.class);
-    
+
     public static RecentProjects INSTANCE = new RecentProjects();
 
     private static File getRecentConnectionsFile() {
@@ -112,9 +112,8 @@ public final class RecentProjects extends XMLConfigFile {
      * Adds a project to the list.
      * <p>
      * If the project is already in the list then it is promoted instead.
-     * 
+     *
      * @param project The project to add.
-     * @see #promote(RvConnection)
      */
     public void add(Project project) {
         projects.remove(project);
@@ -122,11 +121,11 @@ public final class RecentProjects extends XMLConfigFile {
         while (projects.size() > maxSize)
             projects.removeLast();
     }
-    
+
     public boolean contains(Project project) {
         return projects.contains(project);
     }
-    
+
     protected Document getDocument() {
         final Element root = new Element(ROOT);
         for (final Iterator i = projects.iterator(); i.hasNext(); ) {
@@ -141,7 +140,7 @@ public final class RecentProjects extends XMLConfigFile {
 
     /**
      * Gets a read only view of the list of projects.
-     * 
+     *
      * @return The list of projects.
      */
     public List getProjects() {
@@ -165,7 +164,7 @@ public final class RecentProjects extends XMLConfigFile {
 
     /**
      * Set a size limit for the list.
-     * 
+     *
      * @param maxSize
      */
     public void setMaxSize(int maxSize) {
@@ -176,8 +175,8 @@ public final class RecentProjects extends XMLConfigFile {
 
     /**
      * Gets the current number of entries in the recent listeners list.
-     * 
-     * @return
+     *
+     * @return The size of the list.
      */
     public int size() {
         return projects.size();
