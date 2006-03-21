@@ -30,9 +30,9 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  * @since 1.5
  */
 abstract class LedgerSelectionAction extends AbstractAction implements ListSelectionListener {
-    
+
     private static String INFO_NOTHING_SELECTED = "No selection to operate on!";
-    
+
     LedgerSelectionAction(String id, String name, Icon icon) {
         super(name, icon);
         putValue(Action.ACTION_COMMAND_KEY, id);
@@ -50,7 +50,7 @@ abstract class LedgerSelectionAction extends AbstractAction implements ListSelec
         }
         // First, make a local reference to the selected records.
         final EventList list = MessageLedger.INSTANCE.getEventList();
-        final Lock lock = list.getReadWriteLock().readLock();
+        final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
         try {
             lock.lock();
             final int[] rows = UIManager.INSTANCE.getSelectedRecords();
@@ -66,7 +66,7 @@ abstract class LedgerSelectionAction extends AbstractAction implements ListSelec
 
     /**
      * Perform the action.
-     * 
+     *
      * @param selected The selected records, elements can be cast to {@link rvsnoop.Record} safely.
      */
     protected abstract void actionPerformed(List selected);
