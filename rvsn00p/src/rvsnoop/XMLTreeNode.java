@@ -32,14 +32,14 @@ import rvsnoop.ui.Icons;
  * @since 1.3
  */
 final class XMLTreeNode extends LazyTreeNode {
-    
+
     private final Node node;
-    
+
     public XMLTreeNode(TreeNode parent, Node node) {
         super(parent);
         this.node = node;
     }
-    
+
     protected List createChildren() {
         final ParentNode pn = (ParentNode) node;
         final int numChildren = pn.getChildCount();
@@ -75,17 +75,17 @@ final class XMLTreeNode extends LazyTreeNode {
     public String getText() {
         if (node instanceof Attribute)
             return ((Attribute) node).getLocalName();
-        if (node instanceof Element) 
+        if (node instanceof Element)
             return ((Element) node).getLocalName();
-        if (node instanceof Comment) 
+        if (node instanceof Comment)
             return "<!-- " + node.getValue(); //$NON-NLS-1$
-        if (node instanceof Document) 
+        if (node instanceof Document)
             return "XML Document"; //$NON-NLS-1$
-        if (node instanceof DocType) 
+        if (node instanceof DocType)
             return "<!DocType " + ((DocType) node).getRootElementName(); //$NON-NLS-1$
-        if (node instanceof ProcessingInstruction) 
+        if (node instanceof ProcessingInstruction)
             return "<? " + ((ProcessingInstruction) node).getTarget();
-        if (node instanceof Text) 
+        if (node instanceof Text)
             return node.getValue(); //$NON-NLS-1$
         return "[Unsupported node type!]"; //$NON-NLS-1$
     }
