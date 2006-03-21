@@ -27,7 +27,7 @@ import javax.swing.tree.TreeNode;
  * @since 1.5
  */
 public abstract class LazyTreeNode implements TreeNode {
-    
+
     public static class Renderer extends DefaultTreeCellRenderer {
         private static final long serialVersionUID = -1587671692812026948L;
         public Renderer() {
@@ -42,15 +42,16 @@ public abstract class LazyTreeNode implements TreeNode {
             final JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
             label.setText(treeNode.getText());
             label.setIcon(treeNode.getIcon());
+            label.setToolTipText(treeNode.getTooltip());
             return label;
         }
-        
+
     }
-    
+
     private List children;
-    
+
     private final TreeNode parent;
-    
+
     /**
      * @param parent The parent of this node.
      */
@@ -58,7 +59,7 @@ public abstract class LazyTreeNode implements TreeNode {
         super();
         this.parent = parent;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeNode#children()
      */
@@ -67,14 +68,14 @@ public abstract class LazyTreeNode implements TreeNode {
             children = getAllowsChildren() ? createChildren() : Collections.EMPTY_LIST;
         return Collections.enumeration(children);
     }
-    
+
     /**
      * Concrete subclasses should use this hook to create the list of children.
-     * 
+     *
      * @return A list of tree nodes.
      */
     protected abstract List createChildren();
-    
+
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeNode#getAllowsChildren()
      */
@@ -100,7 +101,7 @@ public abstract class LazyTreeNode implements TreeNode {
 
     /**
      * Get an icon suitable for decorating a graphical widget.
-     * 
+     *
      * @return The icon or <code>null</code>.
      */
     Icon getIcon() {
@@ -125,10 +126,19 @@ public abstract class LazyTreeNode implements TreeNode {
 
     /**
      * Get a text string suitable for displaying in a graphical widget.
-     * 
+     *
      * @return The text string, should not be <code>null</code>.
      */
     protected abstract String getText();
+
+    /**
+     * Get a text string suitable for displaying in a graphical widget.
+     *
+     * @return The text string, may be <code>null</code>.
+     */
+    protected String getTooltip() {
+        return null;
+    }
 
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeNode#isLeaf()
