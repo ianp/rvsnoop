@@ -22,6 +22,7 @@ import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
 import ca.odell.glazedlists.util.concurrent.Lock;
+import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
 
 /**
  * The message ledger is the main store for received messages.
@@ -48,7 +49,7 @@ public final class MessageLedger {
             fireChanged(getMatcher());
         }
     }
-    
+
     private static final class NullMatcher implements Matcher {
         NullMatcher() {
             super();
@@ -57,11 +58,11 @@ public final class MessageLedger {
             return true;
         }
     }
-    
+
     public static final MessageLedger INSTANCE = new MessageLedger();
-    
+
     final EventList eventList = new BasicEventList();
-    
+
     final SortedList sortedList = new SortedList(eventList, new Comparator() {
         public int compare(Object o1, Object o2) {
             final long seq1 = ((Record) o1).getSequenceNumber();
@@ -71,10 +72,10 @@ public final class MessageLedger {
             return 0;
         }
     });
-    
+
     final FilterList filterList = new FilterList(sortedList);
-    
-    final FilterMatcherEditor filterMatcherEditor = new FilterMatcherEditor(); 
+
+    final FilterMatcherEditor filterMatcherEditor = new FilterMatcherEditor();
 
     public MessageLedger() {
         super();
@@ -86,9 +87,9 @@ public final class MessageLedger {
         matcherEditor.setMode(CompositeMatcherEditor.AND);
         filterList.setMatcherEditor(matcherEditor);
     }
-    
+
     public void addRecord(Record record) {
-        final Lock lock = eventList.getReadWriteLock().writeLock();
+        final Lock lock = getLock().writeLock();
         try {
             lock.lock();
             eventList.add(record);
@@ -96,7 +97,7 @@ public final class MessageLedger {
             lock.unlock();
         }
     }
-    
+
     public void clear() {
         final Lock lock = eventList.getReadWriteLock().writeLock();
         try {
@@ -106,7 +107,7 @@ public final class MessageLedger {
             lock.unlock();
         }
     }
-    
+
     public int getColumnCount() {
         return MessageLedgerFormat.INSTANCE.getColumnCount();
     }
@@ -119,8 +120,12 @@ public final class MessageLedger {
         return filterList;
     }
 
+    public ReadWriteLock getLock() {
+        return eventList.getReadWriteLock();
+    }
+
     public Record getRecord(int index) {
-        final Lock lock = eventList.getReadWriteLock().readLock();
+        final Lock lock = getLock().readLock();
         try {
             lock.lock();
             return (Record) filterList.get(index);
@@ -140,9 +145,9 @@ public final class MessageLedger {
     public void provideSorter(JTable table) {
         new TableComparatorChooser(table, sortedList, true);
     }
-    
+
     public void removeAll(Collection records) {
-        final Lock lock = eventList.getReadWriteLock().writeLock();
+        final Lock lock = getLock().writeLock();
         try {
             lock.lock();
             eventList.removeAll(records);
