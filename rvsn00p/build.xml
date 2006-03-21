@@ -3,9 +3,9 @@
 <!-- $Id$ -->
 <project name="rvsnoop" default="-usage" basedir=".">
   <description>Build file for rvSnoop. A TIBCO Rendezvous message viewing utility.</description>
-  
-  <property file="build.properties"/>
-  
+
+  <property file="local.properties"/>
+
   <property name="version.major" value="1"/>
   <property name="version.minor" value="5"/>
   <property name="version.patch" value="0"/>
@@ -31,22 +31,21 @@
   <property name="file.version"  value="version.txt"/>
   <property name="file.suffix"   value=".html"/>
 
-  <taskdef resource="proguard/ant/task.properties" classpath="${proguard}/lib/proguard.jar"/>
-
   <!-- Import environment variables as properties, prefixed with "env". -->
   <property environment="env"/>
-  
+
   <path id="path.class">
     <!-- Define our class path first. -->
     <pathelement location="${tibco.rv}/lib/tibrvj.jar"/>
     <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
     <pathelement location="${tibco.rvscript}"/>
     <pathelement location="${tibco.rvtest}"/>
-    <pathelement location="${berkdb}/lib/je.jar"/>
-    <pathelement location="${forms}/forms-1.0.5.jar"/>
-    <pathelement location="${glazed}/glazedlists.jar"/>
-    <pathelement location="${xmlenc}/xmlenc.jar"/>
-    <pathelement location="${xom}/xom-1.1.jar"/>
+    <pathelement location="${berkdb}"/>
+    <pathelement location="${forms}"/>
+    <pathelement location="${glazed}"/>
+    <pathelement location="${looks}"/>
+    <pathelement location="${xmlenc}"/>
+    <pathelement location="${xom}"/>
     <!-- Append the system class path. -->
     <pathelement path="${env.java.class.path}"/>
   </path>
@@ -55,7 +54,8 @@
 
   <target name="-usage" description="Display a short help message.">
     <echo>Use "ant -projecthelp" to get a list of build targets.</echo>
-    <echo>Edit build.properties to configure your build environment.</echo>
+    <echo>Copy build.properties to local.properties and configure your build environment.</echo>
+    <echo>This will prevent your changes from being overwritten when you sync. your working folder.</echo>
   </target>
 
   <target name="-init" description="Set the timestamp for the build.">
@@ -86,7 +86,7 @@
            cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/rvsn00p">
       </cvs>
   </target>
-  
+
   <!-- Targets to build and package a release. -->
 
   <target name="compile" depends="-init" description="Compile all of the Java class files.">
@@ -126,13 +126,13 @@
       <fileset dir="${dir.orig.doc}" includes="*.css"/>
     </copy>
     <copy todir="${dir.build.doc}">
-      <fileset dir="${dir.orig.doc}" includes="**/*.png"/>
+      <fileset dir="${dir.orig.doc}" includes="**/*.png, **/*.gif"/>
     </copy>
     <copy file="${file.version}" tofile="${dir.build}/${file.version}">
       <filterset refid="filters"/>
     </copy>
     <copy todir="${dir.build.lib}">
-      <fileset dir="${dir.orig.src}" includes="**/*.png"/>
+      <fileset dir="${dir.orig.src}" includes="**/*.png, **/*.gif"/>
     </copy>
   </target>
 
@@ -143,7 +143,7 @@
     <javadoc destdir="${dir.build.doc}/api" version="true" author="true" use="true"
              access="${javadoc.access}" windowtitle="RvSnoop ${version} API Documentation">
       <doctitle><![CDATA[<h1>rvSnoop ${version}</h1>]]></doctitle>
-      <bottom><![CDATA[Copyright &copy; 2002-2006 <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright &copy; 2002-2006 <a href="http://ianp.org">Ian Phillips</a>.]]></bottom>
+      <bottom><![CDATA[Copyright &copy; 2002-2006 <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright &copy; 2005-2006 <a href="http://ianp.org">Ian Phillips</a>.]]></bottom>
       <packageset dir="${dir.build.src}" defaultexcludes="true" includes="**"/>
       <link href="http://java.sun.com/j2se/1.4.2/docs/api" offline="${javadoc.offline}"/>
       <link href="http://www.xom.nu/apidocs" offline="${javadoc.offline}"/>
@@ -170,13 +170,13 @@
       <fileset dir="${dir.build.doc}" includes="*.css"/>
     </copy>
     <copy todir="${dir.dist.doc}/images">
-      <fileset dir="${dir.build.doc}/images" includes="*.png"/>
+      <fileset dir="${dir.build.doc}/images" includes="*.png, *.gif"/>
     </copy>
     <echo>Packaging the libraries.</echo>
     <mkdir dir="${dir.dist.lib}"/>
     <jar jarfile="${dir.build.lib}/rvsnoop.jar" compress="true"
       manifestencoding="UTF-8" index="true" basedir="${dir.build.lib}"
-      includes="**/*.class, **/*.png, **/*.properties">
+      includes="**/*.class, **/*.png, **/*.gif, **/*.properties">
       <manifest>
         <attribute name="Implementation-Title" value="rvSnoop"/>
         <attribute name="Implementation-Version" value="${version}"/>
@@ -185,16 +185,17 @@
         <attribute name="Main-Class" value="rvsnoop.StartRvSnooper"/>
       </manifest>
     </jar>
+    <taskdef resource="proguard/ant/task.properties" classpath="${proguard}"/>
     <!-- Ignore warnings is there to skip classes referenced by XOM's -->
     <!-- test suite but not actually used by the application.-->
     <proguard obfuscate="false" warn="false" ignorewarnings="true" printusage="${dir.build}/proguardusage.txt">
       <injar>
         <pathelement location="${dir.build.lib}/rvsnoop.jar"/>
-        <pathelement location="${berkdb}/lib/je.jar"/>
-        <pathelement location="${forms}/forms-1.0.5.jar"/>
-        <pathelement location="${glazed}/glazedlists.jar"/>
-        <pathelement location="${xmlenc}/xmlenc.jar"/>
-        <pathelement location="${xom}/xom-1.1.jar"/>
+        <pathelement location="${berkdb}"/>
+        <pathelement location="${forms}"/>
+        <pathelement location="${glazed}"/>
+        <pathelement location="${xmlenc}"/>
+        <pathelement location="${xom}"/>
       </injar>
       <outjar file="${dir.dist.lib}"/>
       <libraryjar>
@@ -222,6 +223,8 @@
         <method access="public static" type="javax.swing.plaf.ComponentUI" name="createUI" parameters="javax.swing.JComponent"/>
       </keep>
     </proguard>
+    <!-- Almost eveything in Swing PLAFs is loaded dynamically, so just copy it all. -->
+    <copy file="${looks}" todir="${dir.dist.lib}"/>
     <echo>Packaging the binary distributable.</echo>
     <tar destfile="rvsnoop-${version}-bin.tar">
       <tarfileset dir="${dir.dist}/.." mode="440" dirmode="750">
@@ -238,12 +241,13 @@
       </tarfileset>
     </tar>
     <gzip destfile="rvsnoop-${version}-bin.tgz" src="rvsnoop-${version}-bin.tar"/>
-    <delete file="rvsnoop-${version}-bin.tar" />
+    <delete file="rvsnoop-${version}-bin.tar"/>
   </target>
 
-  <target name="dist" depends="dist.bin, javadoc"
+  <target name="dist" depends="dist.bin, javadoc, analyze"
           description="Package all files required for a source distributions.">
     <echo>Packaging the API documentation.</echo>
+    <copy file="${dir.build.doc}/reportFromPMD.html" todir="${dir.dist.doc}"/>
     <jar jarfile="${dir.dist.doc}/rvsnoop-api.jar" basedir="${dir.build.doc}/api"
          includes="**/*.*" compress="true"/>
     <echo>Packaging the source code.</echo>
@@ -305,10 +309,10 @@
     </copy>
     <copy todir="${dir.build.www}">
       <fileset dir="${dir.orig.doc}" includes="*.css"/>
-      <fileset dir="${dir.orig.doc}" includes="**/*.png"/>
+      <fileset dir="${dir.orig.doc}" includes="**/*.png, **/*.gif"/>
     </copy>
   </target>
-  
+
   <target name="web.publish" depends="web.compile"
     description="Publish the files to the web server.">
     <input addproperty="ssh.user">Enter your SourceForge username:</input>
@@ -324,17 +328,28 @@
     <scp todir="${ssh.user}@shell.sourceforge.net:/home/groups/r/rv/rvsn00p/htdocs/images"
       password="${ssh.pass}" trust="false">
       <fileset dir="${dir.build.www}/images">
-        <include name="*.png"/>
+        <include name="*.png, *.gif"/>
       </fileset>
     </scp>
   </target>
-  
+
+  <!-- Static analysis & report generation. -->
+
+  <target name="analyze" depends="-init" description="Analyze the code base and generate reports.">
+    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpath="${pmd}"/>
+    <pmd shortFilenames="true">
+      <ruleset>rvsnoop.pmd</ruleset>
+      <formatter type="html" toFile="${dir.build.doc}/reportFromPMD.html"/>
+      <fileset dir="${dir.build.src}" includes="**/*.java"/>
+    </pmd>
+  </target>
+
   <!-- Targets to clean up the workspace. -->
-  
+
   <target name="clean" description="Remove all of the generated files (build only).">
     <delete dir="${dir.build}/"/>
   </target>
-  
+
   <target name="cleanall" depends="clean"
     description="Remove all of the generated files (build &amp; distribution).">
     <delete dir="${dir.dist}"/>
