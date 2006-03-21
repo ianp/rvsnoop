@@ -15,17 +15,17 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import ca.odell.glazedlists.matchers.Matcher;
-
+import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import rvsnoop.RecordMatcher.NameValueMatcher;
 import rvsnoop.ui.UIManager;
+import ca.odell.glazedlists.matchers.Matcher;
 
 /**
  * Handles all of the project specific settings.
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.5
@@ -33,9 +33,6 @@ import rvsnoop.ui.UIManager;
 public final class Project extends XMLConfigFile {
 
     private static final String COLOUR = "colour";
-    private static final String COLOUR_BLUE = "blue";
-    private static final String COLOUR_GREEN = "green";
-    private static final String COLOUR_RED = "red";
     private static Project currentProject;
     private static final String ROOT = "rvsnoopProject";
     private static final String RV_CONNECTION = "connection";
@@ -45,6 +42,7 @@ public final class Project extends XMLConfigFile {
     private static final String RV_SERVICE = "service";
     private static final String SUBJECT = "subject";
     private static final String SUBJECT_EXPANDED = "expanded";
+    private static final String SUBJECT_NAME = "name";
     private static final String SUBJECT_SELECTED = "selected";
     private static final String SUBJECTS = "subjects";
     private static final String TYPE = "recordType";
@@ -53,27 +51,12 @@ public final class Project extends XMLConfigFile {
     private static final String TYPE_MATCHER_NAME = "name";
     private static final String TYPE_MATCHER_VALUE = "value";
     private static final String TYPE_SELECTED = "selected";
-    
+
     /**
      * @return Returns the currentProject.
      */
     public static Project getCurrentProject() {
         return currentProject;
-    }
-
-    /**
-     * @param path The path to convert.
-     * @param buffer The buffer to work with.
-     * @return The converted path.
-     */
-    private static StringBuffer pathToString(TreePath path, StringBuffer buffer) {
-        buffer.setLength(0);
-        // Begin at one to skip the 'Categories' root node.
-        final Object[] nodes = path.getPath();
-        for (int i = 1; i < nodes.length; ++i)
-            buffer.append(((SubjectElement) nodes[i]).getElementName()).append(".");
-        buffer.setLength(buffer.length() - 1);
-        return buffer;
     }
 
     /**
@@ -142,21 +125,30 @@ public final class Project extends XMLConfigFile {
             connection.start();
         }
     }
-    
+
     private static void loadSubjectTree(Element parent) {
         final JTree tree = UIManager.INSTANCE.getSubjectExplorer();
         final Element subjectsRoot = parent.getFirstChildElement(SUBJECTS);
         if (subjectsRoot == null) return;
+        final SubjectElement root = (SubjectElement) SubjectHierarchy.INSTANCE.getRoot();
         final Elements subjects = subjectsRoot.getChildElements(SUBJECT);
         for (int i = subjects.size(); i != 0;) {
-            final Element subject = subjects.get(--i);
-            final SubjectElement node = SubjectHierarchy.INSTANCE.getSubjectElement(subject.getValue().trim());
-            node.setSelected(getBoolean(subject, SUBJECT_SELECTED, true));
-            if (getBoolean(subject, SUBJECT_EXPANDED, false))
-                tree.expandPath(new TreePath(node.getPath()));
+            loadSubjectTreeElement(subjects.get(--i), root, tree);
         }
     }
-    
+
+    private static void loadSubjectTreeElement(Element xmlElement, SubjectElement parent, JTree tree) {
+        final String name = xmlElement.getAttributeValue(SUBJECT_NAME);
+        final boolean selected = getBoolean(xmlElement, SUBJECT_SELECTED, true);
+        SubjectElement node = SubjectHierarchy.INSTANCE.getSubjectElement(parent, name, selected);
+        if (getBoolean(xmlElement, SUBJECT_EXPANDED, true))
+            tree.expandPath(new TreePath(node.getPath()));
+        final Elements children = xmlElement.getChildElements(SUBJECT);
+        for (int i = children.size(); i != 0;) {
+            loadSubjectTreeElement(children.get(--i), node, tree);
+        }
+    }
+
     private static void loadTypes(Element parent) {
         final Elements types = parent.getChildElements(TYPE);
         if (types.size() > 0)
@@ -169,13 +161,7 @@ public final class Project extends XMLConfigFile {
             try {
                 final Element typeElt = types.get(--i);
                 final String name = getString(typeElt, TYPE_NAME);
-                final Element colourElt = typeElt.getFirstChildElement(COLOUR);
-                // Using -1 for the deefault will cause no colour to be set if
-                // any component is missing or corrupted.
-                final int r = getInteger(colourElt, COLOUR_RED, -1);
-                final int g = getInteger(colourElt, COLOUR_GREEN, -1);
-                final int b = getInteger(colourElt, COLOUR_BLUE, -1);
-                final Color colour = new Color(r, g, b);
+                final Color colour = getColour(typeElt, COLOUR, Color.BLACK);
                 final Element matcherElt = typeElt.getFirstChildElement(TYPE_MATCHER);
                 final String matcherName = getString(matcherElt, TYPE_MATCHER_NAME);
                 final String matcherValue = getString(matcherElt, TYPE_MATCHER_VALUE);
@@ -222,16 +208,33 @@ public final class Project extends XMLConfigFile {
         final JTree tree = UIManager.INSTANCE.getSubjectExplorer();
         final SubjectHierarchy model = (SubjectHierarchy) tree.getModel();
         final Element subjects = appendElement(parent, SUBJECTS);
-        final Enumeration nodes = ((DefaultMutableTreeNode) model.getRoot()).breadthFirstEnumeration();
-        final StringBuffer buffer = new StringBuffer();
-        // Skip the root node, which does not represent a subject name element.
-        nodes.nextElement();
-        while (nodes.hasMoreElements()) {
-            final SubjectElement node = (SubjectElement) nodes.nextElement();
-            final TreePath path = new TreePath(node.getPath());
-            final Element subject = setString(subjects, SUBJECT, pathToString(path, buffer).toString());
-            setBoolean(subject, SUBJECT_EXPANDED, tree.isExpanded(path));
-            setBoolean(subject, SUBJECT_SELECTED, node.isSelected());
+        final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        for (Enumeration e = root.children(); e.hasMoreElements(); ) {
+            storeSubjectTreeElement(subjects, (SubjectElement) e.nextElement());
+        }
+//        final Enumeration nodes = ((DefaultMutableTreeNode) model.getRoot()).breadthFirstEnumeration();
+//        final StringBuffer buffer = new StringBuffer();
+//        // Skip the root node, which does not represent a subject name element.
+//        nodes.nextElement();
+//        while (nodes.hasMoreElements()) {
+//            final SubjectElement node = (SubjectElement) nodes.nextElement();
+//            final TreePath path = new TreePath(node.getPath());
+//            final Element subject = setString(subjects, SUBJECT, pathToString(path, buffer).toString());
+//            setBoolean(subject, SUBJECT_EXPANDED, tree.isExpanded(path));
+//            setBoolean(subject, SUBJECT_SELECTED, node.isSelected());
+//        }
+    }
+
+    private static void storeSubjectTreeElement(Element parent, SubjectElement node) {
+        final JTree tree = UIManager.INSTANCE.getSubjectExplorer();
+        final Element child = new Element(SUBJECT);
+        final TreePath path = new TreePath(node.getPath());
+        child.addAttribute(new Attribute(SUBJECT_NAME, node.getElementName()));
+        setBoolean(child, SUBJECT_EXPANDED, tree.isExpanded(path));
+        setBoolean(child, SUBJECT_SELECTED, node.isSelected());
+        parent.appendChild(child);
+        for (Enumeration e = node.children(); e.hasMoreElements(); ) {
+            storeSubjectTreeElement(child, (SubjectElement) e.nextElement());
         }
     }
 
@@ -247,11 +250,7 @@ public final class Project extends XMLConfigFile {
             final Element matcherElt = appendElement(typeElt, TYPE_MATCHER);
             setString(matcherElt, TYPE_MATCHER_NAME, matcher.getName());
             setString(matcherElt, TYPE_MATCHER_VALUE, matcher.getValue());
-            final Color colour = type.getColor();
-            final Element colourElt = appendElement(typeElt, COLOUR);
-            setInteger(colourElt, COLOUR_RED, colour.getRed());
-            setInteger(colourElt, COLOUR_GREEN, colour.getGreen());
-            setInteger(colourElt, COLOUR_BLUE, colour.getBlue());
+            setColour(typeElt, COLOUR, type.getColor());
         }
     }
 
