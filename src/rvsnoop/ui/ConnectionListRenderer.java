@@ -6,8 +6,13 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
-import rvsnoop.RvConnection;
-import rvsnoop.State;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -17,13 +22,9 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Iterator;
+
+import rvsnoop.RvConnection;
+import rvsnoop.State;
 
 /**
  * A list renderer for connection objects.

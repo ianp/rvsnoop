@@ -6,7 +6,15 @@
 //:SVNID:   $Id$
 package rvsnoop.ui;
 
-import com.tibco.tibrv.TibrvException;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -20,15 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import com.tibco.tibrv.TibrvException;
 
 /**
  * A collection of static utility methods for working with Swing.
