@@ -6,23 +6,25 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
-import com.tibco.tibrv.TibrvException;
-import rvsnoop.Logger;
-import rvsnoop.Project;
-import rvsnoop.RvConnection;
-import rvsnoop.ProjectFileFilter;
-import rvsnoop.ui.Icons;
-import rvsnoop.ui.UIManager;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.KeyStroke;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.KeyStroke;
+
+import rvsnoop.Logger;
+import rvsnoop.Project;
+import rvsnoop.ProjectFileFilter;
+import rvsnoop.RvConnection;
+import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIManager;
+
+import com.tibco.tibrv.TibrvException;
 
 /**
  * Open a new project.
