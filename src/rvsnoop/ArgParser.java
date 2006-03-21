@@ -37,30 +37,32 @@ final class ArgParser {
     }
 
     private static final String INDENT = "  ";
-    
+
     private final String appName;
-    
+
     private final Map args = new LinkedHashMap();
-    
+
     private int longestArg;
-    
+
     public ArgParser(String appName) {
         super();
         this.appName = appName;
     }
 
     public void addArgument(char s, String l, boolean isBoolean, String description) {
+        if (s == '-') throw new IllegalArgumentException("Unsupported short argument.");
         final Argument a = new Argument(s, l, isBoolean, description);
-        int length = 0;
+        int length = 1; // space for the trailing colon.
         if (s != 0) {
             args.put(new Character(s), a);
-            length += 1; // length of argument.
-            length += isBoolean ? 1 : 8; // see printUsage for string lengths.
+            length += 2; // initial hyphen and argument letter.
+            if (isBoolean) length += 7; // "<value>" string.
+            if (l != null) length += 2; // comma and space between args.
         }
         if (l != null) {
             args.put(l, a);
-            length += l.length(); // length of argument.
-            length += isBoolean ? 4 : 12; // see printUsage for string lengths.
+            length += 2 + l.length(); // initial hyphens and argument.
+            if (isBoolean) length += 8; // "=<value>" string.
         }
         longestArg = Math.max(length, longestArg);
     }
@@ -68,17 +70,16 @@ final class ArgParser {
     public boolean getBooleanArg(String name) {
         return ((Boolean) ((Argument) args.get(name)).value).booleanValue();
     }
-    
+
     public String getStringArg(String name) {
         return (String) ((Argument) args.get(name)).value;
     }
-    
+
     private void pad(StringBuffer buffer) {
         final int indents = longestArg - INDENT.length() - buffer.length();
-        for (int i = 0; i < indents; ++i)
-            buffer.append(" ");
+        for (int i = 0; i < indents; ++i) buffer.append(" ");
     }
-    
+
     public void parseArgs(String[] args) {
         for (int i = 0, imax = args.length; i < imax; ++i) {
             final String arg = args[i];
@@ -88,11 +89,11 @@ final class ArgParser {
                 parseShortArg(arg);
         }
     }
-    
+
     private void parseLongArg(String arg) {
         final int index = arg.indexOf('=');
-        final String v = index == -1 ? null : arg.substring(index);
-        arg = index == -1 ? arg.substring(2) : arg.substring(2, index - 1);
+        final String v = index == -1 ? null : arg.substring(index + 1);
+        arg = index == -1 ? arg.substring(2) : arg.substring(2, index);
         final Argument argument = (Argument) args.get(arg);
         if (argument == null) return;
         if (argument.isBoolean)
@@ -109,7 +110,7 @@ final class ArgParser {
         else
             argument.value = arg.substring(2);
     }
-    
+
     public void printUsage(PrintStream out) {
         final StringBuffer buffer = new StringBuffer();
         out.println(appName);
@@ -123,9 +124,10 @@ final class ArgParser {
                 if (next.shortForm != 0) {
                     buffer.append("-").append(next.shortForm);
                     if (!next.isBoolean) buffer.append("<value>");
+                    if (next.longForm != null) buffer.append(", ");
                 }
                 if (next.longForm != null) {
-                    buffer.append(", --").append(next.longForm);
+                    buffer.append("--").append(next.longForm);
                     if (!next.isBoolean) buffer.append("=<value>");
                 }
                 pad(buffer);
