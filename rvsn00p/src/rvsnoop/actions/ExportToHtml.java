@@ -6,19 +6,6 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
-import org.znerd.xmlenc.XMLOutputter;
-import rvsnoop.IOUtils;
-import rvsnoop.Logger;
-import rvsnoop.Marshaller;
-import rvsnoop.RecordType;
-import rvsnoop.Record;
-import rvsnoop.StringUtils;
-import rvsnoop.Version;
-import rvsnoop.ui.UIManager;
-
-import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,6 +14,21 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+
+import org.znerd.xmlenc.XMLOutputter;
+
+import rvsnoop.IOUtils;
+import rvsnoop.Logger;
+import rvsnoop.Marshaller;
+import rvsnoop.Record;
+import rvsnoop.RecordType;
+import rvsnoop.StringUtils;
+import rvsnoop.Version;
+import rvsnoop.ui.UIManager;
 
 /**
  * Export the current ledger selction to XHTML.
@@ -52,13 +54,13 @@ final class ExportToHtml extends LedgerSelectionAction {
     private static final String ID = "exportToHtml";
 
     private static final Logger logger = Logger.getLogger(ExportToHtml.class);
-    
+
     private static String NAME = "HTML Report";
-    
+
     private static final long serialVersionUID = -483492422948058345L;
-    
+
     private static String TOOLTIP = "Export the selected records to HTML";
-    
+
     public ExportToHtml() {
         super(ID, NAME, null);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
@@ -74,11 +76,9 @@ final class ExportToHtml extends LedgerSelectionAction {
         if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
             return;
         final File file = chooser.getSelectedFile();
-        FileWriter fw = null;
         BufferedWriter bw = null;
         try {
-            fw = new FileWriter(file);
-            bw = new BufferedWriter(fw);
+            bw = new BufferedWriter(new FileWriter(file));
             final XMLOutputter xmlout = new XMLOutputter(bw, "UTF-8");
             writeHeader(xmlout);
             for (int i = 0, imax = selected.size(); i < imax; ++i)
@@ -89,7 +89,6 @@ final class ExportToHtml extends LedgerSelectionAction {
             logger.error("There was a problem writing the HTML report.", e);
         } finally {
             IOUtils.closeQuietly(bw);
-            IOUtils.closeQuietly(fw);
         }
     }
 
@@ -131,7 +130,7 @@ final class ExportToHtml extends LedgerSelectionAction {
         out.attribute("content", content);
         out.endTag();
     }
-    
+
     private static void writeRecord(XMLOutputter out, Record record) throws IllegalStateException, IOException {
         out.startTag("tr");
         writeTagged(out, "td", StringUtils.format(new Date(record.getTimestamp())));
@@ -144,7 +143,7 @@ final class ExportToHtml extends LedgerSelectionAction {
         out.endTag();
         out.endTag();
     }
-    
+
     private static void writeTagged(XMLOutputter out, String tag, String pcdata) throws IllegalStateException, IllegalArgumentException, IOException {
         out.startTag(tag);
         out.pcdata(pcdata);
