@@ -5,10 +5,15 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
-import rvsnoop.MessageLedger;
-import rvsnoop.Record;
-import rvsnoop.SubjectElement;
-import rvsnoop.SubjectHierarchy;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Enumeration;
+import java.util.EventListener;
+import java.util.EventObject;
+import java.util.Iterator;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
@@ -23,18 +28,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
+import rvsnoop.MessageLedger;
+import rvsnoop.Record;
+import rvsnoop.SubjectElement;
+import rvsnoop.SubjectHierarchy;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.util.concurrent.Lock;
-
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Enumeration;
-import java.util.EventListener;
-import java.util.EventObject;
-import java.util.Iterator;
 
 /**
  * A custom editor for nodes in the subject explorer tree.
@@ -58,7 +57,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
                 tree.collapsePath(new TreePath(((DefaultMutableTreeNode) e.nextElement()).getPath()));
         }
     }
-    
+
     private class Deselect extends AbstractAction {
         private static final long serialVersionUID = -1003331904354240811L;
         Deselect() {
@@ -68,7 +67,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             SubjectHierarchy.INSTANCE.setAllSelected(element, false);
         }
     }
-    
+
     private class Expand extends AbstractAction {
         private static final long serialVersionUID = -3907465331493944891L;
         Expand() {
@@ -110,7 +109,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
             final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
             final EventList list = MessageLedger.INSTANCE.getEventList();
-            final Lock lock = list.getReadWriteLock().readLock();
+            final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
             try {
                 lock.lock();
                 model.setValueIsAdjusting(true);
@@ -127,7 +126,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             }
         }
     }
-    
+
     private class SelectAllRecordsUnder extends AbstractAction {
         private static final long serialVersionUID = -7342058243983715186L;
         SelectAllRecordsUnder() {
@@ -137,7 +136,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
             final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
             final EventList list = MessageLedger.INSTANCE.getEventList();
-            final Lock lock = list.getReadWriteLock().readLock();
+            final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
             try {
                 lock.lock();
                 model.setValueIsAdjusting(true);
@@ -168,9 +167,9 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
     private static final long serialVersionUID = 7957683568277521431L;
 
     private SubjectElement element;
-    
+
     private final EventListenerList listenerList = new EventListenerList();
-    
+
     private JPopupMenu popupMenu;
 
     private final JTree tree;
@@ -182,11 +181,11 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         tree.addMouseListener(new PopupMenuListener());
         checkbox.addActionListener(new SubjectSelectionListener());
     }
-    
+
     public void addCellEditorListener(CellEditorListener l) {
         listenerList.add(CellEditorListener.class, l);
     }
-    
+
     public void cancelCellEditing() {
         final EventListener[] listeners = listenerList.getListeners(CellEditorListener.class);
         if (listeners != null && listeners.length > 0) {
