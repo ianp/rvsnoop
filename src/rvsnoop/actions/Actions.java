@@ -6,11 +6,6 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
-import rvsnoop.Logger;
-import rvsnoop.StringUtils;
-
-import javax.swing.Action;
-import javax.swing.KeyStroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -22,6 +17,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.Action;
+import javax.swing.KeyStroke;
+
+import rvsnoop.Logger;
+import rvsnoop.StringUtils;
+
 /**
  * Singleton action instances.
  * <p>
@@ -29,7 +30,7 @@ import java.util.Set;
  * This is done to allow the use of actions to enforce modularity in the code
  * whilst preventing application state from being scattered throughout too many
  * classes.
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.4
@@ -51,14 +52,14 @@ public final class Actions {
 
     // KeyStroke -> Action
     private static final Map acceleratorKeyMap = new HashMap();
-    
+
     private static final KeyListener acceleratorKeyListener = new GlobalAcceleratorListener();
-    
+
     // String -> Action
     private static final Map actionCommandMap = new HashMap();
 
     private static final Logger logger = Logger.getLogger(Actions.class);
-    
+
     public static final Action ADD_CONNECTION = add(new AddConnection());
 
     public static final Action CHANGE_TABLE_FONT = add(new ChangeTableFont());
@@ -72,16 +73,12 @@ public final class Actions {
     public static final Action CUT = add(new Cut());
 
     public static final Action DELETE = add(new Delete());
-    
+
     public static final Action DISPLAY_ABOUT = add(new DisplayAbout());
-    
+
     public static final Action DISPLAY_HOME_PAGE = add(new DisplayHomePage());
-    
+
     public static final Action DISPLAY_LICENSE = add(new DisplayLicense());
-
-    public static final Action DISPLAY_WL_IAN = add(new DisplayWishList("Ian’s Wish List", "http://www.amazon.co.uk/gp/registry/registry.html/202-6461367-3647865?id=32RLYO966NV3B"));
-
-    public static final Action DISPLAY_WL_ORJAN = add(new DisplayWishList("Örjan’s Wish List", "http://www.amazon.co.uk/gp/registry/registry.html/203-5255811-7236765?id=14PROST9BIEH3"));
 
     public static final Action EXPORT_TO_HTML = add(new ExportToHtml());
 
@@ -102,11 +99,11 @@ public final class Actions {
     public static final Action PAUSE_ALL = add(new PauseAllConnections());
 
     public static final Action PRUNE_EMPTY_SUBJECTS = add(new PruneEmptySubjects());
-    
+
     public static final Action QUIT = add(new Quit());
-    
+
     public static final Action REPORT_BUG = add(new ReportBug());
-    
+
     public static final Action REPUBLISH = add(new Republish());
 
     public static final Action SAVE = add(new Save());
@@ -120,9 +117,9 @@ public final class Actions {
     public static final Action SELECT_ALL_MESSAGES = add(new SelectAllMessages());
 
     public static final Action SHOW_ALL_COLUMNS = add(new ShowAllColumns());
-    
+
     public static final Action SUBSCRIBE_TO_UPDATES = add(new SubscribeToUpdates());
-    
+
     private static Action add(Action action) {
         final String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
         actionCommandMap.put(command, action);
@@ -137,10 +134,10 @@ public final class Actions {
         }
         return action;
     }
-    
+
     /**
      * Perform an action.
-     * 
+     *
      * @param actionCommand
      * @throws NullPointerException if the action does not exist.
      */
@@ -151,7 +148,7 @@ public final class Actions {
     /**
      * Returns a read-only collection containing all of the actions known to the
      * application.
-     * 
+     *
      * @return All known actions.
      */
     public static Collection getActions() {
@@ -167,7 +164,7 @@ public final class Actions {
     public static Set getActionCommands() {
         return Collections.unmodifiableSet(actionCommandMap.keySet());
     }
-    
+
     public static KeyListener getAcceleratorKeyListener() {
         return acceleratorKeyListener;
     }
