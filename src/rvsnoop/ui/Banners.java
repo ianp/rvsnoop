@@ -9,7 +9,7 @@ package rvsnoop.ui;
 import javax.swing.Icon;
 
 /**
- * All of the icons used by RvSn00p.
+ * All of the icons used by rvSnoop.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -54,7 +54,7 @@ public final class Banners {
      * This image is used when a new update is available.
      */
     public static final Icon UPDATE_AVAILABLE = Icons.createIcon("/resources/banners/update_available.png", ICON_SIZE);
-    
+
     /**
      * Do not instantiate.
      */
