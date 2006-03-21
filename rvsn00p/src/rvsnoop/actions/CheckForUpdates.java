@@ -6,15 +6,6 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
-import rvsnoop.IOUtils;
-import rvsnoop.Logger;
-import rvsnoop.Version;
-import rvsnoop.ui.Banners;
-import rvsnoop.ui.Icons;
-import rvsnoop.ui.UIUtils;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -24,6 +15,16 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+
+import rvsnoop.IOUtils;
+import rvsnoop.Logger;
+import rvsnoop.Version;
+import rvsnoop.ui.Banners;
+import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIUtils;
 
 /**
  * Check for updates.
@@ -35,21 +36,21 @@ import java.util.regex.Pattern;
 final class CheckForUpdates extends AbstractAction {
 
     private static String ERROR = "Could not complete version check.";
-    
+
     private static final String ID = "checkForUpdates";
-    
+
     private static final Logger logger = Logger.getLogger(CheckForUpdates.class);
-    
+
     private static String MESSAGE_NEW_VERSION = "A new version has been released: ";
-    
+
     private static String MESSAGE_UP_TO_DATE = "Your version is up to date.";
-    
+
     private static String NAME = "Check for Updates";
-    
+
     private static final long serialVersionUID = 947745941196389522L;
 
-    private static String TOOLTIP = "Check for newer versions of RvSn00p";
-    
+    private static String TOOLTIP = "Check for newer versions of rvSnoop";
+
     public CheckForUpdates() {
         super(NAME, Icons.CHECK_UPDATES);
         putValue(Action.ACTION_COMMAND_KEY, ID);
@@ -72,7 +73,7 @@ final class CheckForUpdates extends AbstractAction {
             logger.error(ERROR, e);
         }
     }
-    
+
     private static boolean isVersionCurrent(Matcher matcher) {
         final int major = Integer.parseInt(matcher.group(1));
         if (major > Version.getMajor()) return false;
@@ -110,9 +111,9 @@ final class CheckForUpdates extends AbstractAction {
             System.arraycopy(lines, i, tmp, 0, tmp.length);
             return tmp;
         } finally {
-            IOUtils.closeQuietly(socket);
             IOUtils.closeQuietly(istream);
             IOUtils.closeQuietly(ostream);
+            IOUtils.closeQuietly(socket);
         }
     }
 
