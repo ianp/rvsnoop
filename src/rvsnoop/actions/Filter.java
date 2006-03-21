@@ -31,7 +31,7 @@ final class Filter extends AbstractAction {
     private static class FilterMatcher implements Matcher {
         private final String sendSubject;
         private final String trackingId;
-        
+
         private final boolean sendSubjectEnabled;
         private final boolean trackingIdEnabled;
 
@@ -51,21 +51,21 @@ final class Filter extends AbstractAction {
         }
 
     }
-    
+
     private static final long serialVersionUID = 1L;
 
     private static final Logger logger = Logger.getLogger(Filter.class);
-    
+
     public static final String FILTER = "filter";
 
     public static final String FILTER_BY_SELECTION = "filterBySelection";
 
     private String sendSubject;
     private String trackingId;
-    
+
     private boolean sendSubjectEnabled;
     private boolean trackingIdEnabled;
-    
+
     public Filter(String id, String name, String tooltip) {
         super(name);
         putValue(Action.ACTION_COMMAND_KEY, id);
