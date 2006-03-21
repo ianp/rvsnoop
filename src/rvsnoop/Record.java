@@ -70,7 +70,7 @@ public final class Record implements Serializable {
                 output.writeString(record.connection.getDaemon());
             }
             output.writeLong(record.timestamp);
-            byte[] bytes = null;
+            byte[] bytes;
             try {
                 bytes = record.message.getAsBytes();
                 output.writeInt(bytes.length);
@@ -82,9 +82,9 @@ public final class Record implements Serializable {
             }
         }
     }
-    
+
     private static final Logger logger = Logger.getLogger(Record.class);
-    
+
     private static long nextSequenceNumber = 0;
 
     /**
@@ -107,7 +107,7 @@ public final class Record implements Serializable {
      * The format of a record set is <pre>MAGIC_NUMBER LENGTH RECORD*</pre>.
      */
     public static final byte[] BIND_RECORD_SET_MAGIC;
-    
+
     public static final TupleBinding BINDING = new RecordBinding();
 
     private static final long serialVersionUID = 4866817496310259124L;
@@ -120,7 +120,7 @@ public final class Record implements Serializable {
             throw new ExceptionInInitializerError(e);
         }
     }
-    
+
     /**
      * Resets that sequence number to zero.
      */
@@ -129,7 +129,7 @@ public final class Record implements Serializable {
             nextSequenceNumber = 0;
         }
     }
-    
+
     private final RvConnection connection;
 
     private final TibrvMsg message;
@@ -139,7 +139,7 @@ public final class Record implements Serializable {
     private final SubjectElement subject;
 
     private final long timestamp;
-    
+
     private String trackingId;
 
     /**
@@ -158,7 +158,7 @@ public final class Record implements Serializable {
             sequenceNumber = nextSequenceNumber++;
         }
     }
-    
+
     public Record(RvConnection connection, TibrvMsg message) {
         this(connection, message, System.currentTimeMillis());
     }
@@ -174,16 +174,16 @@ public final class Record implements Serializable {
 
     /**
      * Get the connection upon which the message in this record was received.
-     * 
+     *
      * @return The connection.
      */
     public RvConnection getConnection() {
         return connection;
     }
-    
+
     /**
      * Get the string encoding used by this message.
-     * 
+     *
      * @return The string encoding.
      */
     public String getEncoding() {
@@ -204,7 +204,7 @@ public final class Record implements Serializable {
      * <p>
      * If there is no reply subject for the message this method return the empty
      * string.
-     * 
+     *
      * @return The reply subject.
      */
     public String getReplySubject() {
@@ -219,7 +219,7 @@ public final class Record implements Serializable {
      * string ‘<code>[No Subject!]</code>’. A message may have no send
      * subject it was reconstructed from a byte array, for example as the result
      * of a copy and paste operation or loading the message from a file.
-     * 
+     *
      * @return The send subject.
      */
     public String getSendSubject() {
@@ -237,7 +237,7 @@ public final class Record implements Serializable {
     public long getSequenceNumber() {
         return sequenceNumber;
     }
-    
+
     /**
      * Gets the subject element representing the subject that this record was sent to.
      * @return The subject element holding this record.
@@ -259,7 +259,7 @@ public final class Record implements Serializable {
 
     /**
      * Extracts an Active Enterprise style tracking ID from a message.
-     * 
+     *
      * @return A string containing tracking ID, or the empty string if no ID was found.
      */
     public String getTrackingId() {

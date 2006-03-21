@@ -35,7 +35,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
 
     /**
      * A convenience method to unpack an array of messages from a transferrable.
-     * 
+     *
      * @param selection The transferable to read from.
      * @return The array of messages.
      * @throws UnsupportedFlavorException If the transferrable does not support {@link #BYTES_FLAVOUR}.
@@ -46,7 +46,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      */
     public static TibrvMsg[] unmarshal(Transferable selection) throws UnsupportedFlavorException, IOException, TibrvException {
         final ByteBuffer data = (ByteBuffer) selection.getTransferData(BYTES_FLAVOUR);
-        byte[] bytes = null;
+        byte[] bytes;
         if (data.hasArray()) {
             bytes = data.array();
         } else {
@@ -64,17 +64,17 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
             messages[i] = (TibrvMsg) Record.BINDING.entryToObject(input);
         return messages;
     }
-    
+
     /**
      * The messages as a stream of bytes.
-     * 
+     *
      * @see Record#BIND_RECORD_SET_MAGIC For details about the stream format.
      */
     private ByteBuffer data;
-    
+
     /**
      * Creates an instance that transfers a multiple messages.
-     * 
+     *
      * @param messages The list of messages to transfer.
      * @throws TibrvException If the data could not be extracted from the message.
      * @throws IOException If the messages could not be serialized to the clipboard.
@@ -94,7 +94,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
 
     /**
      * Creates an instance that transfers a single message.
-     * 
+     *
      * @param message The message to transfer.
      * @throws TibrvException If the data could not be extracted from the message.
      * @throws IOException If the messages could not be serialized to the clipboard.
@@ -102,10 +102,10 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
     public RecordSelection(Record message) throws TibrvException, IOException {
         this(Arrays.asList(new Record[] { message }));
     }
-    
+
     /**
      * The returned object may be cast to <code>byte[]</code>.
-     * 
+     *
      * @see Transferable#getTransferData(DataFlavor)
      */
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
