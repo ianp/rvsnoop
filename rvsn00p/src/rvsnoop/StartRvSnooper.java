@@ -23,7 +23,7 @@ import rvsnoop.ui.UIManager;
  * <p>
  * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor
  * 5</a>.
- * 
+ *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -53,7 +53,7 @@ public final class StartRvSnooper {
             }
         }
     }
-    
+
     private static class ShutdownHookTask implements Runnable {
         ShutdownHookTask() {
             super();
@@ -74,13 +74,12 @@ public final class StartRvSnooper {
 
     /**
      * Checks whether the JVM version is suitable.
-     * 
+     *
      * @return <code>true</code> if the JVM is OK, <code>false</code> otherwise.
      */
     private static boolean isCorrectJavaVersion() {
-        final String ver = System.getProperty("java.version");
         try {
-            final StringTokenizer st = new StringTokenizer(ver, "._-");
+            final StringTokenizer st = new StringTokenizer(System.getProperty("java.version"), "._-");
             final int a = Integer.parseInt(st.nextToken());
             final int b = Integer.parseInt(st.nextToken());
             if (a > 1) return true;
@@ -94,7 +93,7 @@ public final class StartRvSnooper {
 
     /**
      * The application entry point.
-     * 
+     *
      * @param args The command line arguments.
      */
     public static void main(final String[] args) {
@@ -102,18 +101,39 @@ public final class StartRvSnooper {
         if (!isCorrectJavaVersion() && Logger.isWarnEnabled())
             logger.warn("Java version 1.4.2 or higher is required, rvSnoop may fail unexpectedly with earlier versions.");
         final ArgParser parser = new ArgParser(Version.getAsStringWithName());
-        parser.addArgument('h', "help", true, "Display a short help message.");
+        parser.addArgument('h', "help", true, "Display a short help message and exit.");
         parser.addArgument('p', "project", false, "Load a project file on startup.");
+        parser.addArgument('i', "interface", false, "Use the specified look and feel (class name).");
+        parser.addArgument('l', "logging", false, "Set the log level to {off|fatal|error|warn|info|debug}.");
         parser.parseArgs(args);
-        if (parser.getBooleanArg("help"))
+        final String logLevel = parser.getStringArg("logging");
+        if (logLevel != null) Logger.setLevel(logLevel);
+        if (parser.getBooleanArg("help")) {
             parser.printUsage(System.out);
+            System.exit(0);
+        }
+        setLookAndFeel(parser.getStringArg("interface"));
         final String filename = parser.getStringArg("project");
         if (filename != null && Logger.isDebugEnabled()) logger.debug("Loading project file: " + filename);
         final File file = filename == null ? null : new File(filename);
         SwingUtilities.invokeLater(new CreateAndShowTask(filename, file));
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookTask(), "shutdownHook"));
     }
-    
+
+    private static void setLookAndFeel(String className) {
+        try {
+            if (className != null)
+                javax.swing.UIManager.setLookAndFeel(className);
+            else if (System.getProperty("os.name").toLowerCase().startsWith("win"))
+                javax.swing.UIManager.setLookAndFeel("com.jgoodies.looks.windows.WindowsLookAndFeel");
+            else
+                javax.swing.UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
+        } catch(Exception e) {
+            if (Logger.isWarnEnabled())
+                logger.warn("Could not set look and feel: " + className, e);
+        }
+    }
+
     /**
      * Do not instantiate.
      */
