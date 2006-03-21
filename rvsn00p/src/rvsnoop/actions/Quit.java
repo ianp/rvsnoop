@@ -37,13 +37,13 @@ final class Quit extends AbstractAction {
     private static final String ID = "quit";
 
     private static final Logger logger = Logger.getLogger(Quit.class);
-    
+
     private static String NAME = "Quit";
-    
+
     private static final long serialVersionUID = -75328795847562924L;
-    
-    private static String TOOLTIP = "Close all listeners and exit RvSn00p";
-    
+
+    private static String TOOLTIP = "Close all listeners and exit rvSnoop";
+
     public Quit() {
         super(NAME, Icons.QUIT);
         putValue(Action.ACTION_COMMAND_KEY, ID);
@@ -68,7 +68,7 @@ final class Quit extends AbstractAction {
                 logger.error("Problem whilst shutting down.", e);
         } finally {
             System.exit(0);
-        }   
+        }
     }
 
 }
