@@ -6,23 +6,23 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
-import rvsnoop.Logger;
-import rvsnoop.Project;
-import rvsnoop.ProjectFileFilter;
-import rvsnoop.ui.Icons;
-import rvsnoop.ui.UIManager;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.KeyStroke;
-
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.KeyStroke;
+
+import rvsnoop.Logger;
+import rvsnoop.Project;
+import rvsnoop.ProjectFileFilter;
+import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIManager;
 
 /**
  * Save the current project in a new file.
