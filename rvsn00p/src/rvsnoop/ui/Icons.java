@@ -20,14 +20,14 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 /**
- * All of the icons used by RvSn00p.
+ * All of the icons used by rvSnoop.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.3
  */
 public final class Icons {
-    
+
     private static final int ICON_SIZE = 16;
 
     public static final Image APPLICATION = createImage("/resources/icons/rvsnoop.png", ICON_SIZE);
@@ -36,6 +36,7 @@ public final class Icons {
     public static final Icon BUG = createIcon("/resources/icons/bug.png", ICON_SIZE);
     public static final Icon CHECK_UPDATES = createIcon("/resources/icons/check_updates.png", ICON_SIZE);
     public static final Icon CLEAR_LEDGER = createIcon("/resources/icons/clear_ledger.png", ICON_SIZE);
+    public static final Icon COLUMNS_CORNER = createIcon("/resources/icons/columns_corner_button.png", 14);
     public static final Icon COPY = createIcon("/resources/icons/copy.png", ICON_SIZE);
     public static final Icon CUT = createIcon("/resources/icons/cut.png", ICON_SIZE);
     public static final Icon DELETE = createIcon("/resources/icons/delete.png", ICON_SIZE);
@@ -61,12 +62,13 @@ public final class Icons {
     public static final Icon SEARCH = createIcon("/resources/icons/search.png", ICON_SIZE);
     public static final Icon SEARCH_AGAIN = createIcon("/resources/icons/search_again.png", ICON_SIZE);
     public static final Icon SELECT_ALL_MESSAGES = createIcon("/resources/icons/select_all.png", ICON_SIZE);
-    public static final Icon SUBJECT = createIcon("/resources/icons/subject.png", ICON_SIZE);
+    //public static final Icon SUBJECT = createIcon("/resources/icons/subject.png", ICON_SIZE);
     public static final Icon SUBSCRIBE_UPDATES = createIcon("/resources/icons/subscribe_updates.png", ICON_SIZE);
+    public static final Icon TRACKING = createIcon("/resources/icons/tracking.png", ICON_SIZE);
     public static final Icon WEB = createIcon("/resources/icons/web.png", ICON_SIZE);
     public static final Icon XML_ATTRIBUTE = createIcon("/resources/icons/xml_attribute.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon XML_ELEMENT = createIcon("/resources/icons/xml_element.png", ICON_SIZE); //$NON-NLS-1$
-    
+
     private static BufferedImage createCompatibleImage(int w, int h) {
         final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
         return config.createCompatibleImage(w, h, Transparency.TRANSLUCENT);
@@ -89,7 +91,7 @@ public final class Icons {
             return null;
         }
     }
-    
+
     private static Icon getMissingIcon(int size) {
         try {
             final BufferedImage image = createCompatibleImage(size, size);
