@@ -5,13 +5,11 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
-import com.jgoodies.forms.layout.FormLayout;
-import rvsnoop.RecentConnections;
-import rvsnoop.RvConnection;
-import rvsnoop.StringUtils;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -20,11 +18,15 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.util.Arrays;
-import java.util.Iterator;
+
+import rvsnoop.RecentConnections;
+import rvsnoop.RvConnection;
+import rvsnoop.StringUtils;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * An input dialog for entry of Rendezvous parameters and subjects.

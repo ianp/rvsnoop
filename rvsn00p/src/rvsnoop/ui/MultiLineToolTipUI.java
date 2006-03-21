@@ -6,7 +6,10 @@
 //:CVSID:   $Id$
 package rvsnoop.ui;
 
-import rvsnoop.StringUtils;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
@@ -14,10 +17,8 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.ToolTipUI;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
+
+import rvsnoop.StringUtils;
 
 public final class MultiLineToolTipUI extends ToolTipUI {
 
