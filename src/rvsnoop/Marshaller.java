@@ -17,13 +17,13 @@ import com.tibco.tibrv.TibrvMsg;
  * <p>
  * This class will select the "best" conversion method on loading. Not all
  * conversion methods work both ways, but all can convert messages to strings.
- * 
+ *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
 public final class Marshaller {
-    
+
     public static abstract class Implementation {
         private final String name;
         Implementation(String name) {
@@ -115,7 +115,7 @@ public final class Marshaller {
      * <p>
      * The XML String is rather verbose because it works with either plain
      * Rendezvous or SDK-style Active enterprise messages.
-     * 
+     *
      * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
      * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
      * @version $Revision$, $Date$
@@ -124,11 +124,11 @@ public final class Marshaller {
     static final class RvTestImpl extends Marshaller.Implementation {
 
         private final XMLConverter converter = new XMLConverter();
-        
+
         RvTestImpl() {
             super("RvTest");
         }
-        
+
         public String marshal(String name, TibrvMsg message) {
             try {
                 return converter.createXML(message).toString();
@@ -141,7 +141,7 @@ public final class Marshaller {
     }
 
     private static final Implementation implementation;
-    
+
     private static final Logger logger = Logger.getLogger(Marshaller.class);
 
     private static final String[] PREFERRED = {
@@ -150,7 +150,7 @@ public final class Marshaller {
         "rvsnoop.Marshaller$MTreeImpl",
         "rvsnoop.Marshaller$RvMsgImpl"
     };
-    
+
     public static Implementation getImplementation(String className) {
         try {
             return (Implementation) Class.forName(className).newInstance();
@@ -159,6 +159,8 @@ public final class Marshaller {
                 logger.debug("Failed to load marshaller: " + className);
             return null;
         } catch (NoClassDefFoundError e) {
+            if (Logger.isDebugEnabled())
+                logger.debug("Failed to load marshaller: " + className);
             return null;
         }
     }
@@ -174,16 +176,17 @@ public final class Marshaller {
             if ((impl = getImplementation(preferred[i])) != null)
                 break;
         implementation = impl;
-        if (Logger.isInfoEnabled())
+        if (Logger.isInfoEnabled()) {
             if (impl == null)
                 logger.info("No marshaller loaded!");
             else
                 logger.info("Using marshaller: " + impl.name);
+        }
     }
 
     /**
      * Get the name of the marshaller implementation that is in use.
-     * 
+     *
      * @return The name of the marshaller.
      */
     public static String getImplementationName() {
@@ -193,7 +196,7 @@ public final class Marshaller {
 
     /**
      * Marshal a given message to it's string representation.
-     * 
+     *
      * @param name The "name" of the message. Some marshallers will use this as
      *        part of the output while others will ignore it.
      * @param message The message to marshal.
@@ -208,7 +211,7 @@ public final class Marshaller {
      * Unmarshal a message from it's string form.
      * <p>
      * In general, only the more advanced marshallers can perform this operation.
-     * 
+     *
      * @param string The string form of the message.
      * @return The message.
      * @throws UnsupportedOperationException
