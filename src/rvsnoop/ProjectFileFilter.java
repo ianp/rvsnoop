@@ -6,9 +6,10 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
-import javax.swing.filechooser.FileFilter;
 import java.io.File;
 import java.util.Locale;
+
+import javax.swing.filechooser.FileFilter;
 
 /**
  * Filter for project files.
