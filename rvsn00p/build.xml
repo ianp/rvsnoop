@@ -31,6 +31,8 @@
   <property name="file.version"  value="version.txt"/>
   <property name="file.suffix"   value=".html"/>
 
+  <property name="report.pmd" value="pmd"/>
+
   <!-- Import environment variables as properties, prefixed with "env". -->
   <property environment="env"/>
 
@@ -247,7 +249,7 @@
   <target name="dist" depends="dist.bin, javadoc, analyze"
           description="Package all files required for a source distributions.">
     <echo>Packaging the API documentation.</echo>
-    <copy file="${dir.build.doc}/reportFromPMD.html" todir="${dir.dist.doc}"/>
+    <copy file="${dir.build.doc}/${report.pmd}${file.suffix}" todir="${dir.dist.doc}"/>
     <jar jarfile="${dir.dist.doc}/rvsnoop-api.jar" basedir="${dir.build.doc}/api"
          includes="**/*.*" compress="true"/>
     <echo>Packaging the source code.</echo>
@@ -293,6 +295,7 @@
 
   <target name="web.compile" depends="-init"
     description="Prepare the files that make up the web site.">
+    <!-- TODO: Add in the PMD report once it has been nicely formatted. -->
     <copy todir="${dir.build.www}">
       <fileset dir="${dir.orig.doc}">
         <include name="*.xhtml"/>
@@ -315,9 +318,9 @@
 
   <target name="web.publish" depends="web.compile"
     description="Publish the files to the web server.">
-    <input addproperty="ssh.user">Enter your SourceForge username:</input>
-    <input addproperty="ssh.pass">Enter your SourceForge password:</input>
-    <scp todir="${ssh.user}@shell.sourceforge.net:/home/groups/r/rv/rvsn00p/htdocs"
+    <input addproperty="ssh.user">Enter your SSH username:</input>
+    <input addproperty="ssh.pass">Enter your SSH password:</input>
+    <scp todir="${ssh.user}@rvsnoop.org:/users/home/iphillips/domains/rvsnoop.org/web/public"
       password="${ssh.pass}" trust="false">
       <fileset dir="${dir.build.www}">
         <include name="*.html"/>
@@ -325,10 +328,11 @@
         <include name="*.txt"/>
       </fileset>
     </scp>
-    <scp todir="${ssh.user}@shell.sourceforge.net:/home/groups/r/rv/rvsn00p/htdocs/images"
+    <scp todir="${ssh.user}@rvsnoop.org:/users/home/iphillips/domains/rvsnoop.org/web/public/images"
       password="${ssh.pass}" trust="false">
       <fileset dir="${dir.build.www}/images">
-        <include name="*.png, *.gif"/>
+        <include name="*.gif"/>
+        <include name="*.png"/>
       </fileset>
     </scp>
   </target>
@@ -339,7 +343,7 @@
     <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpath="${pmd}"/>
     <pmd shortFilenames="true">
       <ruleset>rvsnoop.pmd</ruleset>
-      <formatter type="html" toFile="${dir.build.doc}/reportFromPMD.html"/>
+      <formatter type="html" toFile="${dir.build.doc}/${report.pmd}${file.suffix}"/>
       <fileset dir="${dir.build.src}" includes="**/*.java"/>
     </pmd>
   </target>
