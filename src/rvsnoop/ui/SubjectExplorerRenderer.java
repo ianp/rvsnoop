@@ -30,14 +30,10 @@ import rvsnoop.SubjectElement;
  */
 public class SubjectExplorerRenderer extends JPanel implements TreeCellRenderer {
 
-    private static final Color ERROR_COLOUR = Color.RED.brighter();
-
     private static final long serialVersionUID = 5695225783544033925L;
 
-    private static final Color WARNING_COLOUR = Color.ORANGE.brighter();
-
     private final StringBuffer buffer = new StringBuffer();
-    
+
     final JCheckBox checkbox = new JCheckBox();
 
     private final JLabel label = new JLabel();
@@ -52,7 +48,7 @@ public class SubjectExplorerRenderer extends JPanel implements TreeCellRenderer 
         add(label);
     }
 
-    protected final void firePropertyChange(String propertyName, Object oldValue, Object newValue) { 
+    protected final void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         // Overridden for performance reasons.
         if ("text".equals(propertyName) || "selected".equals(propertyName))
             super.firePropertyChange(propertyName, oldValue, newValue);
@@ -73,7 +69,6 @@ public class SubjectExplorerRenderer extends JPanel implements TreeCellRenderer 
         } else {
             label.setForeground(Color.BLACK);
         }
-        label.setIcon(Icons.SUBJECT);
         setToolTipText(buffer.toString());
         buffer.setLength(0);
         return this;
