@@ -6,13 +6,15 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
-import com.tibco.tibrv.TibrvException;
-import com.tibco.tibrv.TibrvMsg;
-import rvsnoop.ui.Icons;
-
-import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.Icon;
+
+import rvsnoop.ui.Icons;
+
+import com.tibco.tibrv.TibrvException;
+import com.tibco.tibrv.TibrvMsg;
 
 /**
  * A {@link javax.swing.tree.TreeNode TreeNode} that wraps a Rendezvous message.
