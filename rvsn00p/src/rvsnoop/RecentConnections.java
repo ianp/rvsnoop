@@ -5,16 +5,6 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.Elements;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -22,6 +12,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Elements;
 
 /**
  * Provides access to a list of recently used connections.
