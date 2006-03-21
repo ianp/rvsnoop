@@ -19,7 +19,7 @@ import javax.swing.tree.TreeNode;
  * @version $Revision$, $Date$
  */
 public final class SubjectElement extends DefaultMutableTreeNode {
-    
+
     private static final String[] ROOT_PATH = { "root" };
 
     private static final long serialVersionUID = -3670587626244234923L;
@@ -27,37 +27,36 @@ public final class SubjectElement extends DefaultMutableTreeNode {
     private int hashCode;
 
     private boolean isErrorHere = false;
-    
+
     private boolean isErrorUnder = false;
-    
+
+    private boolean isParentSet = false;
+
     private boolean isSelected = true;
 
     private int numRecordsHere = 0;
 
     private int numRecordsUnder = 0;
 
-    private TreeNode parent;
-    
     private TreeNode[] path;
-    
+
     private final String[] userObjectPath;
-    
+
     public SubjectElement() {
         super(ROOT_PATH[0]);
-        this.parent = null;
         this.userObjectPath = ROOT_PATH;
     }
-    
+
     /**
      * Create a new subject tree node by appending a new subject element to an
-     * existing node.
-     * 
+     * existing node. This should be used like so:
+     * <code>parent.add(new SubjectElement(parent, "foo"));</code>
+     *
      * @param parent Must be a <code>SubjectElement</code>.
      * @param element The subject element name.
      */
     public SubjectElement(DefaultMutableTreeNode parent, String element) {
         super(element);
-        this.parent = parent;
         if (parent instanceof SubjectElement) {
             Object[] pp = parent.getUserObjectPath();
             userObjectPath = new String[pp.length + 1];
@@ -81,23 +80,23 @@ public final class SubjectElement extends DefaultMutableTreeNode {
                 return false;
         return true;
     }
-    
+
     public String getElementName() {
         return (String) getUserObject();
     }
 
     /**
      * The number of records directly at this element.
-     * 
+     *
      * @return The number of records.
      */
     public int getNumRecordsHere() {
         return numRecordsHere;
     }
-    
+
     /**
      * The number of records at this element and all descendents.
-     * 
+     *
      * @return The number of records.
      */
     public int getNumRecordsUnder() {
@@ -106,7 +105,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
 
     /**
      * Since this class does not support re-parenting this can cache the result.
-     * 
+     *
      * @see DefaultMutableTreeNode#getPath()
      */
     public TreeNode[] getPath() {
@@ -121,7 +120,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
      * Since there must be a root node however, the actual elements start at the
      * 1-index, the 0-th elements in the array is undefined. All other elements
      * may be cast to strings.
-     * 
+     *
      * @see DefaultMutableTreeNode#getUserObjectPath()
      */
     public Object[] getUserObjectPath() {
@@ -179,20 +178,20 @@ public final class SubjectElement extends DefaultMutableTreeNode {
         if (parent instanceof SubjectElement)
             ((SubjectElement) parent).setErrorUnder();
     }
-    
+
     /**
      * This has some additional checks to ensure that once a subject tree node
      * has been removed from the tree it is not reattched at a later time.
-     * 
+     *
      * @see DefaultMutableTreeNode#setParent(MutableTreeNode)
      */
     public void setParent(MutableTreeNode newParent) {
+        if (newParent == getParent()) return;
         // Use setting parent = this as a marker that we have been removed from a hierarchy.
-        if (parent == this)
+        if (isParentSet && newParent != null)
             throw new UnsupportedOperationException("SubjectElement instances can not be re-used.");
-        else if (parent != null && parent != this)
-            parent = this;
         super.setParent(newParent);
+        isParentSet = true;
     }
 
     public void setSelected(boolean selected) {
