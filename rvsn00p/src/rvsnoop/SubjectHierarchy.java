@@ -22,7 +22,7 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
  * <p>
  * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor
  * 5</a>.
- * 
+ *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -92,7 +92,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
      * Convert a subject string into a subject element object.
      * <p>
      * The element will be created if it does not already exists.
-     * 
+     *
      * @param subject The subject as a string.
      * @return The <code>SubjectElement</code> representing the subject.
      */
@@ -106,39 +106,52 @@ public final class SubjectHierarchy extends DefaultTreeModel {
         System.arraycopy(subjectElts, 0, pathElts, 1, subjectElts.length);
         boolean isSelected = true;
         // Skipping the root node...
-        WALK_PATH: for (int i = 1, imax = pathElts.length; i < imax; ++i) {
+        for (int i = 1, imax = pathElts.length; i < imax; ++i) {
             final String element = pathElts[i];
             final int numChildren = current.getChildCount();
             // If there are no children just add a child and continue.
             if (numChildren == 0) {
                 current = insertNewChild(current, element, 0, isSelected);
             } else {
-                SCAN_CHILDREN: for (int j = 0; j < numChildren; ++j) {
-                    final SubjectElement child = (SubjectElement) current.getChildAt(j);
-                    if (isSelected) isSelected = child.isSelected();
-                    final int compared = element.compareTo(child.getElementName());
-                    // If this child already exists scan it.
-                    if (compared == 0) {
-                        current = child;
-                        continue WALK_PATH;
-                    } else if (compared < 0) {
-                        // If we have found a child which should be sorted after this then
-                        // we should insert the new child here and immediately scan it.
-                        current = insertNewChild(current, element, j, isSelected);
-                        continue WALK_PATH;
-                    }
-                }
-                // If we have reached the end of the children with no match then
-                // append a new child and scan it.
-                current = insertNewChild(current, element, numChildren,
-                    isSelected);
+                current = getSubjectElement(current, element, isSelected);
             }
+            isSelected = current.isSelected();
         }
         return current;
     }
 
+    /**
+     * Get a subject element given a parent element.
+     * <p>
+     * This method will return an existing element if there is one, or will create
+     * a new element if one does not currently exist.
+     *
+     * @param parent The parent of the new element.
+     * @param name The name of the new element.
+     * @param selected Should the element be selected or not.
+     * @return The subject element.
+     */
+    public SubjectElement getSubjectElement(SubjectElement parent, String name, boolean selected) {
+        final int numChildren = parent.getChildCount();
+        for (int j = 0; j < numChildren; ++j) {
+            final SubjectElement child = (SubjectElement) parent.getChildAt(j);
+            final int compared = name.compareTo(child.getElementName());
+            // If this child already exists scan it.
+            if (compared == 0) {
+                return child;
+            } else if (compared < 0) {
+                // If we have found a child which should be sorted after this then
+                // we should insert the new child here and immediately scan it.
+                return insertNewChild(parent, name, j, selected && parent.isSelected());
+            }
+        }
+        // If we have reached the end of the children with no match then
+        // append a new child and scan it.
+        return insertNewChild(parent, name, numChildren, selected && parent.isSelected());
+    }
+
     private SubjectElement insertNewChild(final SubjectElement current,
-            final String element, final int index, final boolean isSelected) {
+                                          final String element, final int index, final boolean isSelected) {
         final SubjectElement newChild = new SubjectElement(current, element);
         newChild.setSelected(isSelected);
         insertNodeInto(newChild, current, index);
@@ -164,7 +177,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
 
     /**
      * Set the selction on a given node and all descendants.
-     * 
+     *
      * @param node The root of the subtree to set.
      * @param selected The new selection value.
      */
@@ -181,7 +194,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
      * If <code>selection</code> is <code>false</code> then this also
      * unselects all descendants, if it is <code>true</code> then this also
      * selects the path to root.
-     * 
+     *
      * @param node The node to select from.
      * @param selected the new selection value.
      */
