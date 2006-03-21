@@ -52,11 +52,11 @@ import javax.swing.tree.TreeNode;
 import rvsnoop.Logger;
 import rvsnoop.MessageLedger;
 import rvsnoop.MessageLedgerFormat;
-import rvsnoop.RecordType;
 import rvsnoop.PreferencesManager;
 import rvsnoop.RecentConnections;
 import rvsnoop.RecentProjects;
 import rvsnoop.Record;
+import rvsnoop.RecordType;
 import rvsnoop.RvConnection;
 import rvsnoop.StringUtils;
 import rvsnoop.SubjectHierarchy;
@@ -87,7 +87,7 @@ public final class UIManager {
             Actions.FILTER_BY_SELECTION.setEnabled(getSelectedRecord() != null);
         }
     }
-    
+
     private final class MessageLedgerListener implements ListSelectionListener {
         MessageLedgerListener() {
             super();
@@ -97,7 +97,7 @@ public final class UIManager {
             if (record != null) detailsPanel.setMessage(record.getMessage());
         }
     }
-    
+
     private final class TreeExpander extends TreeModelAdapter {
         private boolean isExpanded;
 
@@ -125,42 +125,42 @@ public final class UIManager {
             Actions.QUIT.actionPerformed(null);
         }
     }
-    
+
     private static final int DEFAULT_HEIGHT = 480;
-    
+
     private static final int DEFAULT_WIDTH = 640;
 
     private static final Icon ICON_FILTER = Icons.createIcon("/resources/icons/filter.png", 14);
-    
+
     private static final String TOOLTIP_VISIBLE_COLUMNS = "Show or hide individual table columns";
-    
+
     private static final Logger logger = Logger.getLogger(UIManager.class);
 
     public static final UIManager INSTANCE = new UIManager();
 
     // Popup menus.
-    
+
     private final JPopupMenu columnsPopup = new JPopupMenu();
 
     // Main frame.
-    
+
     private final JFrame frame = new JFrame(Version.getAsStringWithName());
-    
+
     // Widgets.
 
     private final JList connectionList = createConnectionList();
     private final JTree subjectExplorer = createSubjectExplorer();
     private final RvDetailsPanel detailsPanel = new RvDetailsPanel();
     private final JTable messageLedger = createMessageLedger();
-    
+
     // Widget scrollers.
 
     private final JScrollPane connectionListScroller = createConnectionListScroller(connectionList);
     private final JScrollPane subjectExplorerScroller = createSubjectExplorerScroller(subjectExplorer);
     private final JScrollPane messageLedgerScroller = createMessageLedgerScroller(messageLedger);
-    
+
     // Widget splitters.
-    
+
     private final JSplitPane messageLedgerSplitter = createMessageLedgerSplitter(messageLedgerScroller, detailsPanel);
     private final JSplitPane subjectExplorerSplitter = createSubjectExplorerSplitter(subjectExplorerScroller, messageLedgerSplitter);
     private final JSplitPane connectionListSplitter = createConnectionListSplitter(connectionListScroller, subjectExplorerSplitter);
@@ -191,7 +191,7 @@ public final class UIManager {
     public void clearDetails() {
         detailsPanel.setMessage(null);
     }
-    
+
     private void connectListeners() {
         final ListSelectionModel messageLedgerSelectionModel = messageLedger.getSelectionModel();
         messageLedgerSelectionModel.addListSelectionListener(new FilterBySelectionListener());
@@ -204,7 +204,7 @@ public final class UIManager {
         frame.addWindowListener(new WindowCloseListener());
     }
 
-    private void createColumnMenuItem(JPopupMenu popupMenu, final MessageLedgerFormat.ValueColumn column, final EventTableModel model, boolean selected) {
+    private static void createColumnMenuItem(JPopupMenu popupMenu, final MessageLedgerFormat.ValueColumn column, final EventTableModel model, boolean selected) {
         final JCheckBoxMenuItem item = new JCheckBoxMenuItem(column.getName());
         popupMenu.addPopupMenuListener(new PopupMenuListener() {
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -257,7 +257,7 @@ public final class UIManager {
         return configure;
     }
 
-    private JMenuItem createConfigureReset() {
+    private static JMenuItem createConfigureReset() {
         final JMenuItem result = new JMenuItem("Reset");
         result.setMnemonic('r');
         result.addActionListener(new ActionListener() {
@@ -268,7 +268,7 @@ public final class UIManager {
         return result;
     }
 
-    private JList createConnectionList() {
+    private static JList createConnectionList() {
         final JList list = new JList(RvConnection.getListModel());
         list.setBorder(BorderFactory.createEmptyBorder());
         list.setCellRenderer(new ConnectionListRenderer(list, false));
@@ -277,13 +277,13 @@ public final class UIManager {
         return list;
     }
 
-    private JScrollPane createConnectionListScroller(JList listenerList) {
+    private static JScrollPane createConnectionListScroller(JList listenerList) {
         final JScrollPane scrollPane = new JScrollPane(listenerList);
         scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY));
         return scrollPane;
     }
 
-    private JSplitPane createConnectionListSplitter(JScrollPane connectionList, JSplitPane subjectExplorerSplitter) {
+    private static JSplitPane createConnectionListSplitter(JScrollPane connectionList, JSplitPane subjectExplorerSplitter) {
         final JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, connectionList, subjectExplorerSplitter);
         splitter.setOneTouchExpandable(false);
         splitter.setDividerLocation(0.20);
@@ -292,7 +292,7 @@ public final class UIManager {
     }
 
 
-    private JMenu createEditMenu() {
+    private static JMenu createEditMenu() {
         final JMenu edit = new JMenu("Edit");
         edit.setMnemonic('e');
         edit.add(Actions.CUT);
@@ -309,7 +309,7 @@ public final class UIManager {
         edit.add(Actions.DELETE);
         return edit;
     }
-    
+
     private JMenu createFileMenu() {
         final JMenu file = new JMenu("File");
         file.setMnemonic('f');
@@ -339,8 +339,8 @@ public final class UIManager {
         file.add(Actions.QUIT);
         return file;
     }
-    
-    private JMenu createHelpMenu() {
+
+    private static JMenu createHelpMenu() {
         final JMenu help = new JMenu("Help");
         help.setMnemonic('h');
         help.add(Actions.HELP);
@@ -348,9 +348,6 @@ public final class UIManager {
         help.add(Actions.REPORT_BUG);
         help.add(Actions.CHECK_FOR_UPDATES);
         help.add(Actions.SUBSCRIBE_TO_UPDATES);
-        help.addSeparator();
-        help.add(Actions.DISPLAY_WL_ORJAN);
-        help.add(Actions.DISPLAY_WL_IAN);
         help.addSeparator();
         help.add(Actions.DISPLAY_LICENSE);
         help.add(Actions.DISPLAY_ABOUT);
@@ -370,6 +367,7 @@ public final class UIManager {
     private JTable createMessageLedger() {
         final EventTableModel model = new EventTableModel(MessageLedger.INSTANCE.getEventList(), MessageLedgerFormat.INSTANCE);
         final JTable table = new JTable(model);
+        table.setBackground(Color.WHITE);
         table.setBorder(BorderFactory.createEmptyBorder());
         table.setShowGrid(true);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -389,9 +387,7 @@ public final class UIManager {
         scrollPane.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 0, Color.GRAY));
         scrollPane.getVerticalScrollBar().addAdjustmentListener(new TrackingAdjustmentListener());
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        final JButton colsButton = UIUtils.createSmallButton(
-            Icons.createIcon("/resources/icons/filter_columns.png", 12), //$NON-NLS-1$
-            TOOLTIP_VISIBLE_COLUMNS, null);
+        final JButton colsButton = UIUtils.createSmallButton(Icons.COLUMNS_CORNER, TOOLTIP_VISIBLE_COLUMNS, null);
         colsButton.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 columnsPopup.show(colsButton, e.getX(), e.getY());
@@ -402,7 +398,7 @@ public final class UIManager {
         return scrollPane;
     }
 
-    private JSplitPane createMessageLedgerSplitter(JScrollPane ledger, RvDetailsPanel details) {
+    private static JSplitPane createMessageLedgerSplitter(JScrollPane ledger, RvDetailsPanel details) {
         final JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT, ledger, details);
         splitter.setOneTouchExpandable(true);
         splitter.setDividerLocation(0.5);
@@ -424,13 +420,13 @@ public final class UIManager {
         return tree;
     }
 
-    private JScrollPane createSubjectExplorerScroller(JTree subjectExplorer) {
+    private static JScrollPane createSubjectExplorerScroller(JTree subjectExplorer) {
         final JScrollPane scroller = new JScrollPane(subjectExplorer);
         scroller.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.GRAY));
         return scroller;
     }
 
-    private JSplitPane createSubjectExplorerSplitter(JScrollPane subjectExplorer, JSplitPane messageLedger) {
+    private static JSplitPane createSubjectExplorerSplitter(JScrollPane subjectExplorer, JSplitPane messageLedger) {
         final JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, subjectExplorer, messageLedger);
         splitter.setOneTouchExpandable(false);
         splitter.setDividerLocation(0.25);
@@ -438,7 +434,7 @@ public final class UIManager {
         return splitter;
     }
 
-    private JToolBar createToolBar() {
+    private static JToolBar createToolBar() {
         final JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
         toolBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
@@ -454,7 +450,7 @@ public final class UIManager {
         return toolBar;
     }
 
-    private void createToolBarButton(JToolBar toolBar, Action action) {
+    private static void createToolBarButton(JToolBar toolBar, Action action) {
         final JButton button = toolBar.add(action);
         // The painted borders on Java toolbar buttons look really bad...
         button.setBorderPainted(false);
@@ -472,7 +468,7 @@ public final class UIManager {
         view.addSeparator();
         final JMenu viewColumns = new JMenu("Columns");
         viewColumns.setIcon(Icons.FILTER_COLUMNS);
-        final JPopupMenu viewColumnsPopup = viewColumns.getPopupMenu(); 
+        final JPopupMenu viewColumnsPopup = viewColumns.getPopupMenu();
         final EventTableModel model = (EventTableModel) messageLedger.getModel();
         final List columns = MessageLedgerFormat.INSTANCE.getColumns();
         final Iterator i = MessageLedgerFormat.INSTANCE.getAllColumns().iterator();
@@ -487,7 +483,7 @@ public final class UIManager {
         view.add(viewTypes);
         return view;
     }
-    
+
     public int getConnectionListDividerLocation() {
         return connectionListSplitter.getDividerLocation();
     }
@@ -510,16 +506,20 @@ public final class UIManager {
 
     public Record getSelectedRecord() {
         final EventList list = MessageLedger.INSTANCE.getEventList();
-        final Lock lock = list.getReadWriteLock().readLock();
+        final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
         try {
             lock.lock();
             final int index = messageLedger.getSelectedRow();
             return index >= 0 ? (Record) list.get(index) : null;
+        } catch (IndexOutOfBoundsException e) {
+            if (Logger.isErrorEnabled())
+                logger.error("Failed to get selected record from ledger.", e);
+            return null;
         } finally {
             lock.unlock();
         }
     }
-    
+
     public int[] getSelectedRecords() {
         return messageLedger.getSelectedRows();
     }
@@ -533,7 +533,8 @@ public final class UIManager {
     }
 
     public void selectRecordInLedger(int index) {
-        messageLedger.getSelectionModel().setLeadSelectionIndex(index);
+        logger.info("Selecting record " + index);
+        messageLedger.getSelectionModel().setSelectionInterval(index, index);
         messageLedgerScroller.getVerticalScrollBar().setValue(index);
     }
 
@@ -557,11 +558,11 @@ public final class UIManager {
         final Icon icon = statusBarItemCount.getIcon();
         statusBarItemCount.set(text, filters, icon);
     }
-    
+
     public void setStatusBarMessage(String message) {
         statusBar.setMessage(message);
     }
-    
+
     public void setStatusBarWarning(String message) {
         statusBar.setWarning(message);
     }
@@ -573,13 +574,13 @@ public final class UIManager {
     public void setTitle(final String title) {
         frame.setTitle(title);
     }
-    
+
     public void setVisible(boolean visible) {
         frame.setVisible(visible);
         // Enable UI notification from the logger if the frame is visible.
         Logger.setRunningHeadless(visible);
     }
-    
+
     public void updateStatusLabel() {
         final int visible = MessageLedger.INSTANCE.getRowCount();
         final int total = MessageLedger.INSTANCE.getTotalRowCount();
