@@ -42,7 +42,7 @@ public final class SearchDialog extends JDialog {
             dispose();
         }
     }
-    
+
     private class OKAction extends AbstractAction {
         private static final long serialVersionUID = -3493879318583249233L;
         OKAction() {
@@ -62,23 +62,23 @@ public final class SearchDialog extends JDialog {
      * This helps to protect us from buggy {@link #pack()} implementations.
      */
     private static final int MAX_HEIGHT = 160;
-    
+
     /**
      * The maximum width of the dialog.
      * <p>
      * This helps to protect us from buggy {@link #pack()} implementations.
      */
     private static final int MAX_WIDTH = 160;
-    
+
     private boolean isCancelled;
 
     private final JCheckBox  fieldData    = new JCheckBox();
     private final JCheckBox  fieldNames   = new JCheckBox();
     private final JCheckBox  replySubject = new JCheckBox();
-    private final JTextField searchText   = new JTextField(20);
+    private final JTextField searchText   = new JTextField();
     private final JCheckBox  sendSubject  = new JCheckBox();
     private final JCheckBox  trackingId   = new JCheckBox();
-    
+
     public SearchDialog(String searchText, boolean fieldData, boolean fieldNames, boolean sendSubject, boolean replySubject, boolean trackingId) {
         super(UIManager.INSTANCE.getFrame(), "Find", true);
         buildContentArea();
@@ -108,23 +108,23 @@ public final class SearchDialog extends JDialog {
 
     private void buildContentArea() {
         final DefaultFormBuilder builder = new DefaultFormBuilder(
-                new FormLayout("r:default, 3dlu, p:grow", ""));
-        builder.append("Search Text", searchText).setLabelFor(searchText);
+                new FormLayout("r:default, 3dlu, p, 3dlu, r:default, 3dlu, p:grow", ""));
+        builder.append("Search Text", searchText, 5).setLabelFor(searchText);
         builder.nextLine();
-        builder.append("Include Field Contents", fieldData).setLabelFor(fieldData);
+        builder.appendSeparator("Include");
         builder.nextLine();
-        builder.append("Include Field Names", fieldNames).setLabelFor(fieldNames);
+        builder.append("Send Subject", sendSubject).setLabelFor(sendSubject);
+        builder.append("Reply Subject", replySubject).setLabelFor(replySubject);
         builder.nextLine();
-        builder.append("Include Tracking ID", trackingId).setLabelFor(trackingId);
+        builder.append("Field Names", fieldNames).setLabelFor(fieldNames);
+        builder.append("Field Contents", fieldData).setLabelFor(fieldData);
         builder.nextLine();
-        builder.append("Include Send Subbject", sendSubject).setLabelFor(sendSubject);
-        builder.nextLine();
-        builder.append("Include Reply Subject", replySubject).setLabelFor(replySubject);
+        builder.append("Tracking ID", trackingId).setLabelFor(trackingId);
         final JPanel panel = builder.getPanel();
         panel.setBorder(Borders.DLU2_BORDER);
         getContentPane().add(panel, BorderLayout.CENTER);
     }
-    
+
     public boolean isCancelled() {
         return isCancelled;
     }
@@ -132,25 +132,25 @@ public final class SearchDialog extends JDialog {
     public String getSearchText() {
         return searchText.getText();
     }
-    
+
     public boolean isFieldDataSelected() {
         return fieldData.isSelected();
     }
-    
+
     public boolean isFieldNamesSelected() {
         return fieldNames.isSelected();
     }
-    
+
     public boolean isSendSubjectSelected() {
         return sendSubject.isSelected();
     }
-    
+
     public boolean isReplySubjectSelected() {
         return replySubject.isSelected();
     }
-    
+
     public boolean isTrackingIdSelected() {
         return trackingId.isSelected();
     }
-    
+
 }
