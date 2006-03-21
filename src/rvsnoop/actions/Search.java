@@ -37,25 +37,25 @@ import com.tibco.tibrv.TibrvXml;
  * @since 1.4
  */
 final class Search extends AbstractAction {
-    
+
     private static final Logger logger = Logger.getLogger(Search.class);
-    
+
     public static final String SEARCH = "search";
 
     public static final String SEARCH_AGAIN = "searchAgain";
-    
+
     private static final long serialVersionUID = -5833838900255559506L;
-    
+
     private String searchText = "Enter your search text here";
-    
-    private int lastSearchedRow;
-    
+
+    private int lastSearchedRow = -1;
+
     private boolean trackingId;
     private boolean fieldData = true;
     private boolean fieldNames;
     private boolean sendSubject;
     private boolean replySubject;
-    
+
     public Search(String id, String name, String tooltip, int accel) {
         super(name);
         putValue(Action.ACTION_COMMAND_KEY, id);
@@ -77,14 +77,14 @@ final class Search extends AbstractAction {
         if (SEARCH.equals(event.getActionCommand()) && !showDialog()) return;
         if (searchText == null || (searchText = searchText.trim()).length() == 0) return;
         final EventList list = MessageLedger.INSTANCE.getEventList();
-        final Lock lock = list.getReadWriteLock().readLock();
-        int row = -1;
-        SEARCH:
+        final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
+        int row;
         try {
             lock.lock();
-            lastSearchedRow = Math.min(lastSearchedRow, list.size() - 1);
+            lastSearchedRow = Math.min(lastSearchedRow + 1, list.size());
+            // Search towards the end of the list first.
             row = search(list, lastSearchedRow, list.size());
-            // If we get here without matching, wrap to the start of the list.
+            // If we get there without matching, wrap to the start of the list.
             if (row == -1)
                 row = search(list, 0, lastSearchedRow);
             if (row >= 0)
@@ -95,7 +95,7 @@ final class Search extends AbstractAction {
             lock.unlock();
         }
     }
-    
+
     private boolean isTextInFieldData(String text, TibrvMsgField field) throws TibrvException {
         if (fieldNames && field.name.indexOf(text) >= 0) return true;
         switch (field.type) {
@@ -110,13 +110,13 @@ final class Search extends AbstractAction {
             return false;
         }
     }
-    
+
     /**
      * Search all of the text in a message for a given string.
      * <p>
      * This will search all fields which contain strings, and recursively search
      * all nested messages.
-     * 
+     *
      * @param text The text to search for.
      * @param message The message to search.
      * @return <code>true</code> if the text was matched, <code>false</code>
@@ -129,7 +129,7 @@ final class Search extends AbstractAction {
                 return true;
         return false;
     }
-    
+
     private boolean isTextInXmlData(byte[] text, byte[] xml) {
         final byte firstByte = text[0];
         SCAN_XML:
@@ -146,13 +146,12 @@ final class Search extends AbstractAction {
         }
         return false;
     }
-    
+
     private boolean matches(Record record) {
         if ((fieldData || fieldNames) && matchMessage(record)) return true;
         if (sendSubject && matchSendSubject(record)) return true;
         if (replySubject && matchReplySubject(record)) return true;
-        if (trackingId && matchTrackingId(record)) return true;
-        return false;
+        return trackingId && matchTrackingId(record);
     }
 
     private boolean matchMessage(Record record) {
@@ -173,7 +172,7 @@ final class Search extends AbstractAction {
         final String sendSubject = record.getSendSubject();
         return sendSubject != null && sendSubject.indexOf(searchText) >= 0;
     }
-    
+
     private boolean matchTrackingId(Record record) {
         final String trackingId = record.getTrackingId();
         return trackingId != null && trackingId.indexOf(searchText) >= 0;
@@ -185,7 +184,7 @@ final class Search extends AbstractAction {
                 return i;
         return -1;
     }
-    
+
     private boolean showDialog() {
         final SearchDialog dialog = new SearchDialog(searchText, fieldData, fieldNames, sendSubject, replySubject, trackingId);
         dialog.setVisible(true);
