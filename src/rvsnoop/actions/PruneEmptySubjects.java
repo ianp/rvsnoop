@@ -33,7 +33,7 @@ final class PruneEmptySubjects extends AbstractAction {
     private static String NAME = "Prune Subjects";
 
     private static final long serialVersionUID = -2325639617635989562L;
-    
+
     private static String TOOLTIP = "Remove any subject nodes from the tree that have no records in them";
 
     public PruneEmptySubjects() {
@@ -49,12 +49,13 @@ final class PruneEmptySubjects extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        final Enumeration e = ((DefaultMutableTreeNode) SubjectHierarchy.INSTANCE.getRoot()).depthFirstEnumeration();
+        final SubjectHierarchy hierarchy = SubjectHierarchy.INSTANCE;
+        final Enumeration e = ((DefaultMutableTreeNode) hierarchy.getRoot()).depthFirstEnumeration();
         while (e.hasMoreElements()) {
             final SubjectElement child = (SubjectElement) e.nextElement();
             if (child.isLeaf() && child.getNumRecordsHere() == 0 && child.getParent() != null)
-                child.removeFromParent();
+                hierarchy.removeNodeFromParent(child);
         }
     }
-    
+
 }
