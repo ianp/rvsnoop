@@ -6,15 +6,6 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
-import rvsnoop.IOUtils;
-import rvsnoop.Logger;
-import rvsnoop.Marshaller;
-import rvsnoop.Record;
-import rvsnoop.ui.UIManager;
-
-import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,6 +13,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+
+import rvsnoop.IOUtils;
+import rvsnoop.Logger;
+import rvsnoop.Marshaller;
+import rvsnoop.Record;
+import rvsnoop.ui.UIManager;
 
 /**
  * Export the current ledger selction to an RvScript format message file.
@@ -47,11 +48,11 @@ final class ExportToRvScript extends LedgerSelectionAction {
     private static final String ID = "exportToRvScript";
 
     private static final Logger logger = Logger.getLogger(ExportToRvScript.class);
-    
+
     private static String NAME = "RvScript Message File";
-    
+
     private static final long serialVersionUID = -483492422948058345L;
-    
+
     private static String TOOLTIP = "Export the current ledger selction to an RvScript format messages file";
 
     private final Marshaller.Implementation marshaller = Marshaller.getImplementation("rvsnoop.Marshaller.RvScriptImpl");
@@ -72,11 +73,9 @@ final class ExportToRvScript extends LedgerSelectionAction {
         if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
             return;
         final File file = chooser.getSelectedFile();
-        FileWriter fw = null;
         BufferedWriter bw = null;
         try {
-            fw = new FileWriter(file);
-            bw = new BufferedWriter(fw);
+            bw = new BufferedWriter(new FileWriter(file));
             for (int i = 0, imax = selected.size(); i < imax; ++i)
                 bw.write(marshaller.marshal("", ((Record) selected.get(i)).getMessage()));
             logger.info("Written RvScript messages file to " + file.getName());
@@ -84,8 +83,10 @@ final class ExportToRvScript extends LedgerSelectionAction {
             logger.error("There was a problem writing the RvScript messages file.", e);
         } finally {
             IOUtils.closeQuietly(bw);
-            IOUtils.closeQuietly(fw);
         }
     }
 
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled && marshaller != null);
+    }
 }
