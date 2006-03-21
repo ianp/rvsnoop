@@ -26,8 +26,8 @@ import rvsnoop.StringUtils;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-final class MessageLedgerRenderer extends DefaultTableCellRenderer {
-    
+final class MessageLedgerRenderer implements TableCellRenderer {
+
     private static class DateCellRenderer extends DefaultTableCellRenderer {
         private static final long serialVersionUID = -6397207684112537883L;
         DateCellRenderer() {
@@ -39,15 +39,13 @@ final class MessageLedgerRenderer extends DefaultTableCellRenderer {
         }
     }
 
-    private static final long serialVersionUID = 5592123611978324729L;
-
     private static void installRenderer(JTable table, Color oddRowsColor, Color evenRowsColor, Class clazz) {
         table.setDefaultRenderer(clazz, new MessageLedgerRenderer(oddRowsColor, evenRowsColor, table.getDefaultRenderer(clazz)));
     }
 
     /**
-     * A utility method to install renderers for all of the default renderers in a typical {@link JTable}.
-     * 
+     * A utility method to install renderers for all of the default column types in a typical {@link JTable}.
+     *
      * @param table
      * @param oddRowsColor
      * @param evenRowsColor
@@ -65,7 +63,7 @@ final class MessageLedgerRenderer extends DefaultTableCellRenderer {
     }
 
     private final TableCellRenderer baseRenderer;
-    
+
     private final Color evenRowsColor;
 
     private final Color oddRowsColor;
@@ -76,7 +74,7 @@ final class MessageLedgerRenderer extends DefaultTableCellRenderer {
      */
     public MessageLedgerRenderer(Color evenRowsColor, Color oddRowsColor, TableCellRenderer baseRenderer) {
         super();
-        this.baseRenderer = baseRenderer;
+        this.baseRenderer = baseRenderer != null ? baseRenderer : new DefaultTableCellRenderer();
         this.evenRowsColor = evenRowsColor;
         this.oddRowsColor = oddRowsColor;
     }
