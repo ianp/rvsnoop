@@ -37,13 +37,16 @@
         <p>There is now a list of connections which allows them to be started, paused, and stopped independently.</p>
         <p>Messages are now displayed using a custom ‘Message Details Panel’ component instead of just displaying a text dump.</p>
         <h2>Future Plans</h2>
-        <p>Can anybody think of something more usefult than ‘Number of Fields’ to display in the message details panel header? If so, <a href="mailto:ianp@ianp.org">drop me a mail</a>.</p>
-        <p>Please suggest further enhancements via the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge tracker</a>.</p>
-        <p>This version contained a lot of changes so the next release will be smaller, plans include enhancements to the details panel to display more data types (e.g. serialized Java objects).</p>
-        <p>There is also ongoing work to clean-up and refactoring the code base with a view to having a public <acronym>API</acronym> as part of the 2.0 release (this will allow scripting).</p>
+        <p>The details panel will be enhanced to display more data types (e.g. serialized Java objects), also more user friendly display of type information will be added.</p>
+        <p>The republishing facility will be improved by allowing messages to be edited and then stored back to the ledger before being published.</p>
+        <p>The record types facility will be enhanced to allow user defined record types, these will be applied to records dynamically to reduce storage requirements and memory overhead at run time.</p>
+        <p>File based, and possibly database based, storage of messages in the ledger will be added. File based storage will use <a href="http://www.sleepycat.com/products/bdbje.html">Berkely <acronym>DB</acronym></a> to allow large ledgers to be used.</p>
+        <p>Real-time charting of arbitrary message data, initially this may be hard-coded to just allow charting of host status information (i.e. performance and error metrics) but I later plan to allow charting any information which can be extracted from a message.</p>
+        <p>There is also ongoing work to clean-up and refactoring the code base with a view to having a public <acronym>API</acronym> as part of the 2.0 release (this will allow scripting, probably via <a href="http://www.jython.org">Jython</a>).</p>
+        <p>Move to using Java 1.5 instead of 1.4 to allow use of generics and the concurrency framework. I haven't decided for certain whether this is a good idea, as not all platforms have good support for Java 1.5 yet.</p>
         <h2>Acknowledgements</h2>
-        <p>rvSnoop has been written by <a href="mailto:lundberg@home.se">Örjan Lundberg</a> and <a href="mailto:ianp@ianp.org">Ian Phillips</a>, it is based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a> (although almost no <acronym>LF5</acronym> code now remains) which was originally written by ThoughtWorks and later donated to the Apache Software Foundation.</p>
-        <p><acronym>TIBCO</acronym> and <acronym>TIBCO</acronym> Rendezvous are registered trademarks of <a href="http://www.tibco.com"><acronym>TIBCO</acronym> Software Inc.</a></p>
+        <p>rvSnoop has been written by <a href="mailto:lundberg@home.se">Örjan Lundberg</a> and <a href="mailto:ianp@ianp.org">Ian Phillips</a>, and is currently maintained by Ian. The original code was based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a> (although no <acronym>LF5</acronym> code now remains) which was originally written by ThoughtWorks and later donated to the Apache Software Foundation.</p>
+        <p><acronym>TIBCO</acronym> and Rendezvous are registered trademarks of <a href="http://www.tibco.com"><acronym>TIBCO</acronym> Software Inc.</a></p>
       </div>
       <div class="footer">
         <p>Copyright © 2002-@year@ <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright © 2005-@year@ <a href="http://ianp.org">Ian Phillips</a>.</p>
