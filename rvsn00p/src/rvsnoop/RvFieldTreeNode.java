@@ -6,11 +6,20 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
+import com.tibco.tibrv.TibrvException;
+import com.tibco.tibrv.TibrvIPAddr;
+import com.tibco.tibrv.TibrvIPPort;
+import com.tibco.tibrv.TibrvMsg;
+import com.tibco.tibrv.TibrvMsgField;
+import com.tibco.tibrv.TibrvXml;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Array;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,13 +30,6 @@ import javax.swing.tree.TreeNode;
 import nu.xom.Builder;
 import nu.xom.Document;
 import rvsnoop.ui.Icons;
-
-import com.tibco.tibrv.TibrvException;
-import com.tibco.tibrv.TibrvIPAddr;
-import com.tibco.tibrv.TibrvIPPort;
-import com.tibco.tibrv.TibrvMsg;
-import com.tibco.tibrv.TibrvMsgField;
-import com.tibco.tibrv.TibrvXml;
 
 /**
  * A {@link TreeNode} that wraps a Rendezvous message field.
@@ -67,55 +69,78 @@ final class RvFieldTreeNode extends LazyTreeNode {
         }
     }
 
-    private static String setText(TibrvMsgField field) {
-        final StringBuffer buffer = new StringBuffer();
-        buffer.append(field.name).append(" = ");
+    static String getFieldDescription(TibrvMsgField field) {
         final short type = field.type;
-        if (type >= TibrvMsg.USER_FIRST && type <= TibrvMsg.USER_LAST)
-            return buffer.append(((byte[]) field.data).length).append(" bytes of custom user data.").toString();
         switch (type) {
-            case TibrvMsg.ENCRYPTED:
-                return buffer.append(((byte[]) field.data).length).append(" bytes of encrypted data.").toString();
-            case TibrvMsg.F32ARRAY:
-                return buffer.append(ARRAY_OF).append(((float[]) field.data).length).append(" single precision floating point values.").toString();
-            case TibrvMsg.F64ARRAY:
-                return buffer.append(ARRAY_OF).append(((double[]) field.data).length).append(" double precision floating point values.").toString();
-            case TibrvMsg.I8ARRAY:
-                return buffer.append(ARRAY_OF).append(((int[]) field.data).length).append(" 8-bit signed integer values.").toString();
-            case TibrvMsg.I16ARRAY:
-                return buffer.append(ARRAY_OF).append(((long[]) field.data).length).append(" 16-bit signed integer values.").toString();
-            case TibrvMsg.I32ARRAY:
-                return buffer.append(ARRAY_OF).append(((int[]) field.data).length).append(" 32-bit signed integer values.").toString();
-            case TibrvMsg.I64ARRAY:
-                return buffer.append(ARRAY_OF).append(((long[]) field.data).length).append(" 64-bit signed integer values.").toString();
-            case TibrvMsg.U8ARRAY:
-                return buffer.append(ARRAY_OF).append(((int[]) field.data).length).append(" 8-bit unsigned integer values.").toString();
-            case TibrvMsg.U16ARRAY:
-                return buffer.append(ARRAY_OF).append(((long[]) field.data).length).append(" 16-bit unsigned integer values.").toString();
-            case TibrvMsg.U32ARRAY:
-                return buffer.append(ARRAY_OF).append(((int[]) field.data).length).append(" 32-bit unsigned integer values.").toString();
-            case TibrvMsg.U64ARRAY:
-                return buffer.append(ARRAY_OF).append(((long[]) field.data).length).append(" 64-bit unsigned integer values.").toString();
-            case TibrvMsg.IPADDR32:
-                return buffer.append("IP Address: ").append(((TibrvIPAddr) field.data).getAsString()).toString();
-            case TibrvMsg.IPPORT16:
-                return buffer.append("IP Port: ").append(Integer.toString(((TibrvIPPort) field.data).getPort())).toString();
-            case TibrvMsg.MSG:
-                return buffer.append("Nested Message").toString();
-            case TibrvMsg.OPAQUE:
-                return buffer.append(((byte[]) field.data).length).append(" bytes of opaque data.").toString();
-            case TibrvMsg.XML:
-                return buffer.append(((TibrvXml) field.data).getBytes().length).append(" bytes of compressed XML data.").toString();
+            case TibrvMsg.ENCRYPTED: return FD_ENCRYPTED.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.MSG:       return FD_MSG.format(new Object[] {field.name, Integer.toString(((TibrvMsg) field.data).getNumFields())});
+            case TibrvMsg.OPAQUE:    return FD_U64ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.BOOL:      return FD_BOOL.format(new Object[] {field.name, field.data});
+            case TibrvMsg.DATETIME:  return FD_DATETIME.format(new Object[] {field.name, field.data});
+            case TibrvMsg.IPADDR32:  return FD_IPADDR32.format(new Object[] {field.name, ((TibrvIPAddr) field.data).getAsString()});
+            case TibrvMsg.IPPORT16:  return FD_IPPORT16.format(new Object[] {field.name, Integer.toString(((TibrvIPPort) field.data).getPort())});
+            case TibrvMsg.F32ARRAY:  return FD_F32ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.F64ARRAY:  return FD_F64ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.I8ARRAY:   return FD_I8ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.I16ARRAY:  return FD_I16ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.I32ARRAY:  return FD_I32ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.I64ARRAY:  return FD_I64ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.U8ARRAY:   return FD_U8ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.U16ARRAY:  return FD_U16ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.U32ARRAY:  return FD_U32ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.U64ARRAY:  return FD_U64ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.F32: return FD_F32.format(new Object[] {field.name, field.data});
+            case TibrvMsg.F64: return FD_F64.format(new Object[] {field.name, field.data});
+            case TibrvMsg.I8:  return FD_I8.format(new Object[] {field.name, field.data});
+            case TibrvMsg.I16: return FD_I16.format(new Object[] {field.name, field.data});
+            case TibrvMsg.I32: return FD_I32.format(new Object[] {field.name, field.data});
+            case TibrvMsg.I64: return FD_I64.format(new Object[] {field.name, field.data});
+            case TibrvMsg.U8:  return FD_U8.format(new Object[] {field.name, field.data});
+            case TibrvMsg.U16: return FD_U16.format(new Object[] {field.name, field.data});
+            case TibrvMsg.U32: return FD_U32.format(new Object[] {field.name, field.data});
+            case TibrvMsg.U64: return FD_U64.format(new Object[] {field.name, field.data});
+            case TibrvMsg.XML: return FD_XML.format(new Object[] {field.name, Integer.toString(((TibrvXml) field.data).getBytes().length)});
             case TibrvMsg.STRING:
                 final String s = (String) field.data;
-                if (!s.startsWith("<?xml ")) return buffer.append(s).toString();
-                return buffer.append(s.length()).append(" characters of XML data (as a string).").toString();
-            default:
-                return buffer.append(field.data).toString();
+                if (s.startsWith("<?xml ")) return FD_STRING_XML.format(new Object[] {field.name, Integer.toString(s.length())});
+                if (s.length() > 60) return FD_STRING_LONG.format(new Object[] {field.name, Integer.toString(s.length()), s.substring(0, 60)});
+                return FD_STRING.format(new Object[] {field.name, s});
+            default: return FD_USER.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
         }
     }
 
-    private static String ARRAY_OF = "Array of ";
+    private static final MessageFormat FD_ENCRYPTED = new MessageFormat("{0} ({1} bytes of encrypted data)");
+    private static final MessageFormat FD_F32ARRAY = new MessageFormat("{0} ({1} single precision floating point values)");
+    private static final MessageFormat FD_F64ARRAY = new MessageFormat("{0} ({1} double precision floating point values)");
+    private static final MessageFormat FD_I8ARRAY = new MessageFormat("{0} ({1} 8-bit signed integer values)");
+    private static final MessageFormat FD_I16ARRAY = new MessageFormat("{0} ({1} 16-bit signed integer values)");
+    private static final MessageFormat FD_I32ARRAY = new MessageFormat("{0} ({1} 32-bit signed integer values)");
+    private static final MessageFormat FD_I64ARRAY = new MessageFormat("{0} ({1} 64-bit signed integer values)");
+    private static final MessageFormat FD_U8ARRAY = new MessageFormat("{0} ({1} 8-bit unsigned integer values)");
+    private static final MessageFormat FD_U16ARRAY = new MessageFormat("{0} ({1} 16-bit unsigned integer values)");
+    private static final MessageFormat FD_U32ARRAY = new MessageFormat("{0} ({1} 32-bit unsigned integer values)");
+    private static final MessageFormat FD_U64ARRAY = new MessageFormat("{0} ({1} 64-bit unsigned integer values)");
+    private static final MessageFormat FD_IPADDR32 = new MessageFormat("{0} (IP Address: {1})");
+    private static final MessageFormat FD_IPPORT16 = new MessageFormat("{0} (IP Port Number: {1})");
+    private static final MessageFormat FD_F32 = new MessageFormat("{0} ({1}, with single/32-bit precision)");
+    private static final MessageFormat FD_F64 = new MessageFormat("{0} ({1}, with double/64-bit precision)");
+    private static final MessageFormat FD_I8 = new MessageFormat("{0} ({1}, as an 8-bit signed integer)");
+    private static final MessageFormat FD_I16 = new MessageFormat("{0} ({1}, as a 16-bit signed integer)");
+    private static final MessageFormat FD_I32 = new MessageFormat("{0} ({1}, as a 32-bit signed integer)");
+    private static final MessageFormat FD_I64 = new MessageFormat("{0} ({1}, as a 64-bit signed integer)");
+    private static final MessageFormat FD_U8 = new MessageFormat("{0} ({1}, as an 8-bit unsigned integer)");
+    private static final MessageFormat FD_U16 = new MessageFormat("{0} ({1}, as a 16-bit unsigned integer)");
+    private static final MessageFormat FD_U32 = new MessageFormat("{0} ({1}, as a 32-bit unsigned integer)");
+    private static final MessageFormat FD_U64 = new MessageFormat("{0} ({1}, as a 64-bit unsigned integer)");
+    private static final MessageFormat FD_MSG = new MessageFormat("{0} (Message with {1,choice,0# no fields|1# 1 field|1<# {1} fields})");
+    private static final MessageFormat FD_OPAQUE = new MessageFormat("{0} ({1} bytes of opaque/binary data)");
+    private static final MessageFormat FD_BOOL = new MessageFormat("{0} ({1} as a boolean value)");
+    private static final MessageFormat FD_DATETIME = new MessageFormat("{0} ({1} as a Rendezvous time object)");
+    private static final MessageFormat FD_XML = new MessageFormat("{0} ({1} bytes of compressed XML data)");
+    private static final MessageFormat FD_STRING = new MessageFormat("{0} (\"{1}\")");
+    private static final MessageFormat FD_STRING_LONG = new MessageFormat("{0} ({1} characters of string data, starting with \"{2} ...\")");
+    private static final MessageFormat FD_STRING_XML = new MessageFormat("{0} ({1} characters of string encoded XML data)");
+    private static final MessageFormat FD_USER = new MessageFormat("{0} ({1} bytes of custom user data)");
 
     private final boolean allowsChildren;
 
@@ -136,7 +161,7 @@ final class RvFieldTreeNode extends LazyTreeNode {
     public RvFieldTreeNode(TreeNode parent, TibrvMsgField field, String text, Icon icon) {
         super(parent);
         this.icon = icon != null ? icon : setIcon(field);
-        this.text = text != null ? text : setText(field);
+        this.text = text != null ? text : getFieldDescription(field);
         this.field = field;
         if (field.type == TibrvMsg.MSG || field.type == TibrvMsg.XML) {
             allowsChildren = true;
