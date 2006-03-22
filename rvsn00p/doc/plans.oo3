@@ -17,13 +17,11 @@
       </enum-name-table>
     </style-attribute>
   </style-attribute-registry>
-  <settings>
-    <print-info>
-      <print-info-key name="NSPaperSize" type="size">{595.276, 841.89}</print-info-key>
-    </print-info>
-  </settings>
-  <editor content-size="{582, 593}" scroll-position="{0, 600}" status-visible="no">
-    <selected-rows ids="hU7T67mCtyM"/>
+  <settings/>
+  <editor content-size="{582, 593}" scroll-position="{0, 953}" status-visible="no">
+    <selected-rows ids="nBUPODFO3Sx"/>
+    <selected-columns ids="pwiOVsj48Wr"/>
+    <selected-characters range="{60, 0}"/>
   </editor>
   <columns>
     <column id="pwiOVsj48Wr" type="text" width="18" minimum-width="18" maximum-width="18" text-export-width="1" is-note-column="yes">
@@ -251,7 +249,7 @@
         </item>
         <item id="igFi-RhuQBv">
           <values>
-            <null/>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
@@ -260,6 +258,77 @@
               </p>
             </text>
           </values>
+          <note>
+            <text>
+              <p>
+                <run>
+                  <lit>Make web page navigation be a top bar instead of a side bar, reduce width to 600px, use px font sizes for everything, tidy up footer, remove SF image but leave a link, remove FF button but leave a link, Make all of the headers use serif fonts, only use sans serif for the nav bar.</lit>
+                </run>
+              </p>
+              <p>
+                <run/>
+              </p>
+              <p>
+                <run>
+                  <lit>Update screen shots. Use JGoodies Looks for the UI and a fake bunch of messages. Freds Fish Factory! fff.catch.{kipper, halibut, jellyfish} ;-)</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>Use AeSend to get TrackingIDs.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
+        <item id="h3dzm-TI_Sy">
+          <values>
+            <enum>Complete</enum>
+            <text>
+              <p>
+                <run>
+                  <lit>Change project file format.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note>
+            <text>
+              <p>
+                <run>
+                  <lit>&lt;subjects&gt;</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>  &lt;subject name=&quot;_RV&quot; ...&gt;</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>    &lt;subject name=&quot;INFO&quot; ... /&gt;</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>  &lt;/subject&gt;</lit>
+                </run>
+              </p>
+              <p>
+                <run>
+                  <lit>&lt;/subjects&gt;</lit>
+                </run>
+              </p>
+              <p>
+                <run/>
+              </p>
+              <p>
+                <run>
+                  <lit>Check that the subject hierarchy is still correctly sorted after this change.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
         </item>
       </children>
     </item>
@@ -277,7 +346,7 @@
       <children>
         <item id="nwO7Li8NpLg">
           <values>
-            <null/>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
@@ -286,11 +355,11 @@
               </p>
             </text>
           </values>
-          <note expanded="yes">
+          <note>
             <text>
               <p>
                 <run>
-                  <lit>Add in all of the planned dependencied, this should be no problem because proguard will strip the classes at dist time until they are used. This will let us selectively use classes as they are needed (e.g. the tuple binding stuff from BDB).</lit>
+                  <lit>Add in all of the planned dependencies, this should be no problem because proguard will strip the classes at dist time until they are used. This will let us selectively use classes as they are needed (e.g. the tuple binding stuff from BDB).</lit>
                 </run>
               </p>
             </text>
@@ -340,7 +409,7 @@
         </item>
         <item id="aJZl4U6tq7n">
           <values>
-            <null/>
+            <enum>In Progress</enum>
             <text>
               <p>
                 <run>
@@ -361,7 +430,7 @@
         </item>
         <item id="aRfmurVpiZ7">
           <values>
-            <enum>In Progress</enum>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
@@ -408,7 +477,7 @@
               </p>
               <p>
                 <run>
-                  <lit>Rename to RecordType.</lit>
+                  <lit>Rename to RecordType [Done].</lit>
                 </run>
               </p>
             </text>
@@ -484,7 +553,7 @@
       <children>
         <item id="hBD39zu2bUO">
           <values>
-            <null/>
+            <enum>Complete</enum>
             <text>
               <p>
                 <run>
@@ -496,7 +565,7 @@
         </item>
         <item id="i76F5uYeMQT">
           <values>
-            <null/>
+            <enum>Testing</enum>
             <text>
               <p>
                 <run>
@@ -537,6 +606,35 @@
             </text>
           </values>
         </item>
+        <item id="kpeSUtw8n93">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Smart date column rendering.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Render dates/times in different formats depending on the width of the column. Monitor column resizing to alter the formatting used by the CellRenderer and revalidate/repaint the table as needed.</lit>
+                </run>
+              </p>
+              <p>
+                <run/>
+              </p>
+              <p>
+                <run>
+                  <lit>Neat!</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
       </children>
     </item>
     <item id="dlON--x58LI" expanded="yes">
@@ -551,6 +649,39 @@
         </text>
       </values>
       <children>
+        <item id="bbjj8FgC0JR">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Break out utilities and make them a dependency.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>The utilities should be available from ianp.org and stored in subversion there. All of the utilities should be standalone. Allow the status bar to depend on Logger though.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
+        <item id="o_p683GUdbg">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Add LedgerSnoop tool based on TIB Ledger Viewer type idea.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+        </item>
         <item id="hU7T67mCtyM">
           <values>
             <null/>
@@ -648,7 +779,7 @@
               </p>
               <p>
                 <run>
-                  <lit>Some of this work could/should be done earlier. Maybe update the copy-and-paste support as part of the 1.6 release. Look at adding drag-and-drop at the same time. This would mean adding in a BDB dependency on the build, but proguard would then strip out almost everything so the overhead should be minimal for end users, the benefit would be that the serialization format gets nailed down as quickly as possib;e, which is a Good Thing.</lit>
+                  <lit>Some of this work could/should be done earlier. Maybe update the copy-and-paste support as part of the 1.6 release. Look at adding drag-and-drop at the same time. This would mean adding in a BDB dependency on the build, but proguard would then strip out almost everything so the overhead should be minimal for end users, the benefit would be that the serialization format gets nailed down as quickly as possible, which is a Good Thing.</lit>
                 </run>
               </p>
             </text>
@@ -684,7 +815,7 @@
               </p>
               <p>
                 <run>
-                  <lit>trees to be used in the table, and table sorting.</lit>
+                  <lit>trees to be used in the table, and table sorting. Embed the JS &amp; CSS though, don&apos;t use separate files.</lit>
                 </run>
               </p>
             </text>
@@ -705,12 +836,109 @@
             <text>
               <p>
                 <run>
+                  <lit>Use the NLSUtils class for this.</lit>
+                </run>
+              </p>
+              <p>
+                <run>
                   <lit>Speak to Orjan L about getting a Swedish translation.</lit>
                 </run>
               </p>
               <p>
                 <run>
                   <lit>Speak to Jone A about getting a Norwegian translation.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
+        <item id="dfOIxOi0aZx">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Add in support for using a list instead of a tree to view subjects.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Like the package explorer in IntelliJ.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
+        <item id="g6FbGXvco9u">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Add a real submit bug action and dialog.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>Maybe. This would require logging in to SF and submitting the correct form values. It should be possible using Commons HTTP Client.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
+        <item id="nBUPODFO3Sx">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Add a preview accessory to the file chooser.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>This should show the project name and a list of connections.</lit>
+                </run>
+              </p>
+            </text>
+          </note>
+        </item>
+        <item id="hXZvCgAdZ3c">
+          <values>
+            <null/>
+            <text>
+              <p>
+                <run>
+                  <lit>Add charting.</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <note expanded="yes">
+            <text>
+              <p>
+                <run>
+                  <lit>This should allow arbitrary fields from arbitrary subject patterns to be added to a chart. This will need a simple way of referring to fields from messages, it should be possible to set up a chart by clicking on a sample message and selecting some fields.</lit>
+                </run>
+              </p>
+              <p>
+                <run/>
+              </p>
+              <p>
+                <run>
+                  <lit>The code to select fields in a message should be generic, and should ideally be compiled rather than parsed at each invocation, this way it could be used to grab fields from a &quot;causal chain&quot; as well. Maybe make it XPath based using either Saxon-B or Jaxen? </lit>
                 </run>
               </p>
             </text>
