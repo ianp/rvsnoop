@@ -141,7 +141,7 @@
     </copy>
   </target>
 
-  <target name="javadoc" depends="-init, compile"
+  <target name="javadoc" depends="prepare"
           description="Compile all of the Java API documentation.">
           <!-- Needs to compile first to filter the source. -->
     <mkdir dir="${dir.build.doc}"/>
