@@ -32,14 +32,20 @@ public final class MessageLedgerFormat implements TableFormat {
     // TODO: Implement AdvancedTableFormat. Need to fix errors in renderer for this to work.
 
     private static final class MessageComparator implements Comparator {
+        MessageComparator() {
+            super();
+        }
         public int compare(Object o1, Object o2) {
-            String s1 = Marshaller.marshal("", (TibrvMsg) o1);
-            String s2 = Marshaller.marshal("", (TibrvMsg) o2);
+            final String s1 = Marshaller.marshal("", (TibrvMsg) o1);
+            final String s2 = Marshaller.marshal("", (TibrvMsg) o2);
             return s1.compareTo(s2);
         }
     }
 
     private static final class ComparableComparator implements Comparator {
+        ComparableComparator() {
+            super();
+        }
         public int compare(Object o1, Object o2) {
             return ((Comparable) o1).compareTo(o2);
         }

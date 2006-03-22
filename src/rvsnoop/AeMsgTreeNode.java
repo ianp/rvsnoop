@@ -6,15 +6,16 @@
 //:CVSID:   $Id$
 package rvsnoop;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.*;
-
 import com.tibco.sdk.MMessageFormat;
 import com.tibco.sdk.MTree;
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.Icon;
+
 import rvsnoop.ui.Icons;
 
 /**
@@ -31,7 +32,7 @@ import rvsnoop.ui.Icons;
  */
 public final class AeMsgTreeNode extends LazyTreeNode {
 
-    private static final Logger logger = Logger.getLogger(AeMsgTreeNode.class);
+    //private static final Logger logger = Logger.getLogger(AeMsgTreeNode.class);
 
     private final List children = new ArrayList(2);
 

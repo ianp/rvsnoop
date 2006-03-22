@@ -30,7 +30,7 @@ public final class StringUtils {
 
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(dateFormat);
 
-    private static final Logger logger = Logger.getLogger(StringUtils.class);
+    //private static final Logger logger = Logger.getLogger(StringUtils.class);
 
     private static final Object[] NO_FIELDS = new Object[0];
 

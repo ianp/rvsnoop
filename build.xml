@@ -91,19 +91,22 @@
 
   <!-- Targets to build and package a release. -->
 
-  <target name="compile" depends="-init" description="Compile all of the Java class files.">
-    <mkdir dir="${dir.build.bin}"/>
-    <mkdir dir="${dir.build.doc}"/>
-    <mkdir dir="${dir.build.lib}"/>
+  <target name="prepare" depends="-init" description="Prepare the source code for compilation.">
     <mkdir dir="${dir.build.src}"/>
     <echo>Preparing the source code (replacing place-holders).</echo>
     <copy todir="${dir.build.src}" encoding="UTF-8">
       <filterset refid="filters"/>
       <fileset dir="${dir.orig.src}" includes="**/*.java"/>
     </copy>
+  </target>
+
+  <target name="compile" depends="prepare" description="Compile all of the Java class files.">
+    <mkdir dir="${dir.build.bin}"/>
+    <mkdir dir="${dir.build.doc}"/>
+    <mkdir dir="${dir.build.lib}"/>
     <javac srcdir="${dir.build.src}" destdir="${dir.build.lib}" includes="**/*.java"
-           debug="${javac.debug}" optimize="${javac.optimize}"
-           deprecation="${javac.deprecation}" source="1.4" encoding="UTF-8">
+           debug="${javac.debug}" optimize="${javac.optimize}" encoding="UTF-8"
+           deprecation="${javac.deprecation}" source="1.4" target="1.4">
       <classpath refid="path.class"/>
     </javac>
     <echo>Copying supporting files into the build.</echo>
@@ -339,7 +342,7 @@
 
   <!-- Static analysis & report generation. -->
 
-  <target name="analyze" depends="-init" description="Analyze the code base and generate reports.">
+  <target name="analyze" depends="prepare" description="Analyze the code base and generate reports.">
     <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpath="${pmd}"/>
     <pmd shortFilenames="true">
       <ruleset>rvsnoop.pmd</ruleset>

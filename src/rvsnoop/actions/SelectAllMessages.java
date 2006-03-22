@@ -16,7 +16,6 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 
-import rvsnoop.Logger;
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIManager;
 
@@ -31,7 +30,7 @@ final class SelectAllMessages extends AbstractAction {
 
     private static final String ID = "selectAll";
 
-    private static final Logger logger = Logger.getLogger(SelectAllMessages.class);
+    //private static final Logger logger = Logger.getLogger(SelectAllMessages.class);
 
     private static String NAME = "Select All Messages";
 

@@ -6,18 +6,18 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
+import ca.odell.glazedlists.matchers.Matcher;
+
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import rvsnoop.Logger;
 import rvsnoop.MessageLedger;
 import rvsnoop.Record;
 import rvsnoop.ui.FilterDialog;
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIManager;
-import ca.odell.glazedlists.matchers.Matcher;
 
 /**
  * Filter the messages visible in the ledger.
@@ -54,7 +54,7 @@ final class Filter extends AbstractAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = Logger.getLogger(Filter.class);
+    //private static final Logger logger = Logger.getLogger(Filter.class);
 
     public static final String FILTER = "filter";
 

@@ -6,6 +6,8 @@
 //:CVSID:   $Id$
 package rvsnoop.actions;
 
+import ca.odell.glazedlists.swing.EventTableModel;
+
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -15,11 +17,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import rvsnoop.Logger;
 import rvsnoop.MessageLedgerFormat;
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIManager;
-import ca.odell.glazedlists.swing.EventTableModel;
 
 /**
  * Show all columns in the message ledger.
@@ -32,7 +32,7 @@ final class ShowAllColumns extends AbstractAction {
 
     private static final String ID = "showAllColumns";
 
-    private static final Logger logger = Logger.getLogger(ShowAllColumns.class);
+    //private static final Logger logger = Logger.getLogger(ShowAllColumns.class);
 
     private static String NAME = "Show All Columns";
 

@@ -150,9 +150,9 @@ abstract class XMLConfigFile {
     }
 
     static final void setColour(Element parent, String name, Color value) {
-        String r = Integer.toHexString(value.getRed());
-        String g = Integer.toHexString(value.getGreen());
-        String b = Integer.toHexString(value.getBlue());
+        final String r = Integer.toHexString(value.getRed());
+        final String g = Integer.toHexString(value.getGreen());
+        final String b = Integer.toHexString(value.getBlue());
         parent.addAttribute(new Attribute(name, (r + g + b).toUpperCase(Locale.ENGLISH)));
     }
 
