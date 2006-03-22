@@ -78,4 +78,9 @@
   <rule ref='rulesets/strings.xml/StringToString' />
   <rule ref='rulesets/strings.xml/UnnecessaryCaseChange' />
   <rule ref='rulesets/sunsecure.xml/ArrayIsStoredDirectly' />
+  <rule ref='rulesets/sunsecure.xml/MethodReturnsInternalArray' />
+  <rule ref='rulesets/unusedcode.xml/UnusedFormalParameter' />
+  <rule ref='rulesets/unusedcode.xml/UnusedLocalVariable' />
+  <rule ref='rulesets/unusedcode.xml/UnusedPrivateField' />
+  <rule ref='rulesets/unusedcode.xml/UnusedPrivateMethod' />
 </ruleset>

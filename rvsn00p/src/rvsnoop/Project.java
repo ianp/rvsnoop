@@ -140,7 +140,7 @@ public final class Project extends XMLConfigFile {
     private static void loadSubjectTreeElement(Element xmlElement, SubjectElement parent, JTree tree) {
         final String name = xmlElement.getAttributeValue(SUBJECT_NAME);
         final boolean selected = getBoolean(xmlElement, SUBJECT_SELECTED, true);
-        SubjectElement node = SubjectHierarchy.INSTANCE.getSubjectElement(parent, name, selected);
+        final SubjectElement node = SubjectHierarchy.INSTANCE.getSubjectElement(parent, name, selected);
         if (getBoolean(xmlElement, SUBJECT_EXPANDED, true))
             tree.expandPath(new TreePath(node.getPath()));
         final Elements children = xmlElement.getChildElements(SUBJECT);
@@ -209,20 +209,9 @@ public final class Project extends XMLConfigFile {
         final SubjectHierarchy model = (SubjectHierarchy) tree.getModel();
         final Element subjects = appendElement(parent, SUBJECTS);
         final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-        for (Enumeration e = root.children(); e.hasMoreElements(); ) {
+        for (final Enumeration e = root.children(); e.hasMoreElements(); ) {
             storeSubjectTreeElement(subjects, (SubjectElement) e.nextElement());
         }
-//        final Enumeration nodes = ((DefaultMutableTreeNode) model.getRoot()).breadthFirstEnumeration();
-//        final StringBuffer buffer = new StringBuffer();
-//        // Skip the root node, which does not represent a subject name element.
-//        nodes.nextElement();
-//        while (nodes.hasMoreElements()) {
-//            final SubjectElement node = (SubjectElement) nodes.nextElement();
-//            final TreePath path = new TreePath(node.getPath());
-//            final Element subject = setString(subjects, SUBJECT, pathToString(path, buffer).toString());
-//            setBoolean(subject, SUBJECT_EXPANDED, tree.isExpanded(path));
-//            setBoolean(subject, SUBJECT_SELECTED, node.isSelected());
-//        }
     }
 
     private static void storeSubjectTreeElement(Element parent, SubjectElement node) {
@@ -233,7 +222,7 @@ public final class Project extends XMLConfigFile {
         setBoolean(child, SUBJECT_EXPANDED, tree.isExpanded(path));
         setBoolean(child, SUBJECT_SELECTED, node.isSelected());
         parent.appendChild(child);
-        for (Enumeration e = node.children(); e.hasMoreElements(); ) {
+        for (final Enumeration e = node.children(); e.hasMoreElements(); ) {
             storeSubjectTreeElement(child, (SubjectElement) e.nextElement());
         }
     }
