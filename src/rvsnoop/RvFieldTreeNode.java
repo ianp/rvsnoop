@@ -74,7 +74,7 @@ final class RvFieldTreeNode extends LazyTreeNode {
         switch (type) {
             case TibrvMsg.ENCRYPTED: return FD_ENCRYPTED.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
             case TibrvMsg.MSG:       return FD_MSG.format(new Object[] {field.name, Integer.toString(((TibrvMsg) field.data).getNumFields())});
-            case TibrvMsg.OPAQUE:    return FD_U64ARRAY.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
+            case TibrvMsg.OPAQUE:    return FD_OPAQUE.format(new Object[] {field.name, Integer.toString(Array.getLength(field.data))});
             case TibrvMsg.BOOL:      return FD_BOOL.format(new Object[] {field.name, field.data});
             case TibrvMsg.DATETIME:  return FD_DATETIME.format(new Object[] {field.name, field.data});
             case TibrvMsg.IPADDR32:  return FD_IPADDR32.format(new Object[] {field.name, ((TibrvIPAddr) field.data).getAsString()});
