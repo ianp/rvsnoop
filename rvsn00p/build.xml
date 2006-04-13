@@ -60,11 +60,16 @@
     <echo>This will prevent your changes from being overwritten when you sync. your working folder.</echo>
   </target>
 
-  <target name="-init" description="Set the timestamp for the build.">
+  <target name="-init" description="Set the timestamp and revision number for the build.">
     <tstamp/>
     <tstamp><format property="build.date" pattern="yyyy-MM-dd HH:mm:ss"/></tstamp>
     <tstamp><format property="build.year" pattern="yyyy"/></tstamp>
-    <buildnumber/>
+    <exec executable="svnversion" spawn="false" dir="." output="build.number" failifexecutionfails="false">
+      <arg line="."/>
+    </exec>
+    <replaceregexp file="build.number" match="([0-9]+).*" replace="build.number=\1" />
+    <property file="build.number" />
+    <delete file="build.number" />
     <filterset id="filters">
       <filter token="version.major" value="${version.major}"/>
       <filter token="version.minor" value="${version.minor}"/>
