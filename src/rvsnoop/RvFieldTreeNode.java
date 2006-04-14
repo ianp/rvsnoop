@@ -132,7 +132,7 @@ final class RvFieldTreeNode extends LazyTreeNode {
     private static final MessageFormat FD_U16 = new MessageFormat("{0} ({1}, as a 16-bit unsigned integer)");
     private static final MessageFormat FD_U32 = new MessageFormat("{0} ({1}, as a 32-bit unsigned integer)");
     private static final MessageFormat FD_U64 = new MessageFormat("{0} ({1}, as a 64-bit unsigned integer)");
-    private static final MessageFormat FD_MSG = new MessageFormat("{0} (Message with {1,choice,0# no fields|1# 1 field|1<# {1} fields})");
+    private static final MessageFormat FD_MSG = new MessageFormat("{0} (Message with {1,choice,0# no fields|1# 1 field|1< {1,number,integer} fields})");
     private static final MessageFormat FD_OPAQUE = new MessageFormat("{0} ({1} bytes of opaque/binary data)");
     private static final MessageFormat FD_BOOL = new MessageFormat("{0} ({1} as a boolean value)");
     private static final MessageFormat FD_DATETIME = new MessageFormat("{0} ({1} as a Rendezvous time object)");
