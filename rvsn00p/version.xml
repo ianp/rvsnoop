@@ -2,8 +2,9 @@
 <appInfo>
     <name>rvSnoop</name>
     <description>
-        A graphical application that provides developers and operations support personnel
-        with a sophisticated and feature-rich interface for tracing TIBCO Rendezvous™ messages.
+        A graphical application that provides developers and operations
+        support personnel with a sophisticated and feature-rich interface
+        for tracing TIBCO Rendezvous™ messages.
     </description>
     <version>
         <major>@version.major@</major>
@@ -11,7 +12,7 @@
         <patch>@version.patch@</patch>
         <buildNumber>@build.number@</buildNumber>
     </version>
-    <date>Build Date: @build.date@</date>
+    <date>@build.date@</date>
     <compiler>
         <name>javac</name>
         <vendor>@java.vendor@</vendor>

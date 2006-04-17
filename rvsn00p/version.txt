@@ -1,8 +1,0 @@
-rvSnoop Version Information
-
-  Build Version: @version@
-  Build Number:  @build.number@
-  Build Date:    @build.date@
-  Javac Version: @java.vendor@ @java.version@
-  Platform:      @os.name@ @os.version@ @os.arch@
-

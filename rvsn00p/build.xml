@@ -28,7 +28,7 @@
   <property name="dir.dist.lib"  value="${dir.dist}/lib"/>
   <property name="dir.dist.src"  value="${dir.dist}/src"/>
 
-  <property name="file.version"  value="version.txt"/>
+  <property name="file.version"  value="version.xml"/>
   <property name="file.suffix"   value=".html"/>
 
   <property name="report.pmd" value="pmd"/>
@@ -232,6 +232,7 @@
       <keep name="rvsnoop.ui.MultiLineToolTipUI">
         <method access="public static" type="javax.swing.plaf.ComponentUI" name="createUI" parameters="javax.swing.JComponent"/>
       </keep>
+      <keep name="org.jaxen.saxpath.base.XPathReader"/>
     </proguard>
     <!-- Almost eveything in Swing PLAFs is loaded dynamically, so just copy it all. -->
     <copy file="${looks}" todir="${dir.dist.lib}"/>
@@ -333,7 +334,7 @@
       <fileset dir="${dir.build.www}">
         <include name="*.html"/>
         <include name="*.css"/>
-        <include name="*.txt"/>
+        <include name="*.xml"/>
       </fileset>
     </scp>
     <scp todir="${ssh.user}@rvsnoop.org:/users/home/iphillips/domains/rvsnoop.org/web/public/images"

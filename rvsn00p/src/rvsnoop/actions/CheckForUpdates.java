@@ -8,18 +8,13 @@ package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import rvsnoop.IOUtils;
+import nu.xom.Builder;
+import nu.xom.Document;
+
 import rvsnoop.Logger;
 import rvsnoop.Version;
 import rvsnoop.ui.Banners;
@@ -41,7 +36,7 @@ final class CheckForUpdates extends AbstractAction {
 
     private static final Logger logger = Logger.getLogger(CheckForUpdates.class);
 
-    private static String MESSAGE_NEW_VERSION = "A new version has been released: ";
+    private static String MESSAGE_NEW_VERSION = "A new version is available.";
 
     private static String MESSAGE_UP_TO_DATE = "Your version is up to date.";
 
@@ -63,67 +58,23 @@ final class CheckForUpdates extends AbstractAction {
      */
     public void actionPerformed(ActionEvent event) {
         try {
-            final String[] lines = readVersionInfo();
-            final Matcher matcher = Pattern.compile(".*([0-9]+)\\.([0-9]+)\\.([0-9]+).*").matcher(lines[2]);
-            if (matcher.matches() && !isVersionCurrent(matcher))
-                showNewVersionAvailableDialog(lines);
+            final Document doc = new Builder().build("http://rvsnoop.org/version.xml");
+            if (!isVersionCurrent(doc))
+                UIUtils.showInformation(MESSAGE_NEW_VERSION, Banners.UPDATE_AVAILABLE);
             else
-                showVersionIsUpToDateDialog();
+                UIUtils.showInformation(MESSAGE_UP_TO_DATE, Banners.UPDATE_ALREADY);
         } catch (Exception e) {
             logger.error(ERROR, e);
         }
     }
 
-    private static boolean isVersionCurrent(Matcher matcher) {
-        final int major = Integer.parseInt(matcher.group(1));
+    private static boolean isVersionCurrent(Document doc) {
+        final int major = Integer.parseInt(doc.query("//major").get(0).getValue());
         if (major > Version.getMajor()) return false;
-        final int minor = Integer.parseInt(matcher.group(2));
+        final int minor = Integer.parseInt(doc.query("//patch").get(0).getValue());
         if (minor > Version.getMinor()) return false;
-        final int patch = Integer.parseInt(matcher.group(3));
+        final int patch = Integer.parseInt(doc.query("//patch").get(0).getValue());
         return patch <= Version.getPatch();
-    }
-
-    private static String[] readVersionInfo() throws UnknownHostException, IOException {
-        InputStream istream = null;
-        OutputStream ostream = null;
-        Socket socket = null;
-        try {
-            // Open a socket.
-            socket = new Socket("rvsn00p.sourceforge.net", 80);
-            istream = socket.getInputStream();
-            ostream = socket.getOutputStream();
-            // Send the HTTP get request.
-            ostream.write("GET http://rvsn00p.sourceforge.net/version.txt HTTP/1.0\n\n".getBytes());
-            // Read the response.
-            final StringBuffer versionText = new StringBuffer(1024);
-            final byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = istream.read(buffer)) != -1)
-                versionText.append(new String(buffer, 0, bytesRead, "UTF-8"));
-            final String[] lines = versionText.toString().split("\\n");
-            // Strip off the server header.
-            final Pattern firstLine = Pattern.compile("rvSnoop Version Information");
-            int i = 0;
-            for (final int length = lines.length; i < length; ++i)
-                if (firstLine.matcher(lines[i]).matches())
-                    break;
-            final String[] tmp = new String[lines.length - i];
-            System.arraycopy(lines, i, tmp, 0, tmp.length);
-            return tmp;
-        } finally {
-            IOUtils.closeQuietly(istream);
-            IOUtils.closeQuietly(ostream);
-            IOUtils.closeQuietly(socket);
-        }
-    }
-
-    private static void showNewVersionAvailableDialog(String[] lines) {
-        lines[0] = MESSAGE_NEW_VERSION;
-        UIUtils.showInformation(lines, Banners.UPDATE_AVAILABLE);
-    }
-
-    private static void showVersionIsUpToDateDialog() {
-        UIUtils.showInformation(MESSAGE_UP_TO_DATE, Banners.UPDATE_ALREADY);
     }
 
 }
