@@ -2,7 +2,7 @@
 //:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
 //:Legal:   Copyright © 2005-@year@ Ian Phillips.
 //:License: Licensed under the Apache License, Version 2.0.
-//:CVSID:   $Id$
+//:FileID:  $Id$
 package rvsnoop;
 
 import java.io.Serializable;

@@ -3,7 +3,7 @@
 //:Legal:   Copyright © 2006-@year@ Apache Software Foundation.
 //:Legal:   Copyright © 2006-@year@ Ian Phillips.
 //:License: Licensed under the Apache License, Version 2.0.
-//:CVSID:   $Id$
+//:FileID:  $Id$
 package rvsnoop;
 
 import java.lang.reflect.Constructor;
