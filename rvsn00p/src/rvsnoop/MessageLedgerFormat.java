@@ -15,7 +15,7 @@ import java.util.List;
 
 import javax.swing.table.TableColumn;
 
-import ca.odell.glazedlists.gui.TableFormat;
+import ca.odell.glazedlists.gui.AdvancedTableFormat;
 
 import com.tibco.tibrv.TibrvMsg;
 
@@ -28,8 +28,7 @@ import com.tibco.tibrv.TibrvMsg;
  */
 // Class provides a static instance instead of a factory method.
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/17/06 6:30 PM
-public final class MessageLedgerFormat implements TableFormat {
-    // TODO: Implement AdvancedTableFormat. Need to fix errors in renderer for this to work.
+public final class MessageLedgerFormat implements AdvancedTableFormat {
 
     private static final class MessageComparator implements Comparator {
         MessageComparator() {
@@ -106,10 +105,8 @@ public final class MessageLedgerFormat implements TableFormat {
 
     public static final ValueColumn TIMESTAMP = new ValueColumn("Timestamp", Date.class, new ComparableComparator()) {
         private static final long serialVersionUID = -3858078006527711756L;
-        private final Date date = new Date();
         public Object getValue(Record record) {
-            date.setTime(record.getTimestamp());
-            return StringUtils.format(date);
+            return new Date(record.getTimestamp());
         }
     };
 
@@ -166,11 +163,11 @@ public final class MessageLedgerFormat implements TableFormat {
     }
 
     public Class getColumnClass(int column) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return ((ValueColumn) columns.get(column)).clazz;
     }
 
     public Comparator getColumnComparator(int column) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return ((ValueColumn) columns.get(column)).comparator;
     }
 
     public Object getColumnValue(Object record, int index) {

@@ -36,8 +36,6 @@ public final class PreferencesManager extends XMLConfigFile {
     private static final String COLUMNS = "columns";
     private static final String CONFIG_DIRECTORY = ".rvsnoop";
     private static final String CONFIG_FILE = "preferences.xml";
-    private static final String DATE_FORMAT = "dateFormat";
-    private static final String DATE_FORMAT_PATTERN = "HH:mm:ss.S";
     private static final String FONT = "font";
     private static final String FONT_NAME = "name";
     private static final String FONT_SIZE = "size";
@@ -63,11 +61,6 @@ public final class PreferencesManager extends XMLConfigFile {
         final String home = System.getProperty("user.home");
         final String fs = System.getProperty("file.separator");
         return new File(home + fs + CONFIG_DIRECTORY + fs + CONFIG_FILE);
-    }
-
-    private static void loadDateFormat(Element parent) {
-        final String dateFormat = getString(parent, DATE_FORMAT);
-        StringUtils.setDateFormat(dateFormat != null ? dateFormat : DATE_FORMAT_PATTERN);
     }
 
     private static void loadSplitPosition(Element parent) {
@@ -132,10 +125,6 @@ public final class PreferencesManager extends XMLConfigFile {
         }
     }
 
-    private static void storeDateFormat(Element parent) {
-        setString(parent, DATE_FORMAT, StringUtils.getDateFormat());
-    }
-
     private static void storeSplitPosition(Element parent) {
         final Element mlSplit = appendElement(parent, SPLIT_POSITION);
         setString(mlSplit, SPLIT_NAME, SPLIT_LEDGER);
@@ -187,7 +176,6 @@ public final class PreferencesManager extends XMLConfigFile {
         final Element root = new Element(ROOT);
         storeTableColumns(root);
         storeTableFont(root);
-        storeDateFormat(root);
         storeSplitPosition(root);
         storeWindowPosition(root);
         return new Document(root);
@@ -196,7 +184,6 @@ public final class PreferencesManager extends XMLConfigFile {
     protected void load(Element root) {
         loadTableColumns(root);
         loadTableFont(root);
-        loadDateFormat(root);
         loadSplitPosition(root);
         loadWindowPosition(root);
     }

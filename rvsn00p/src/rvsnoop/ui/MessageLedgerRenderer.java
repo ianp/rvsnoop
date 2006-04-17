@@ -7,17 +7,20 @@ package rvsnoop.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
+import rvsnoop.Logger;
 import rvsnoop.MessageLedger;
 import rvsnoop.RecordType;
-import rvsnoop.StringUtils;
 
 /**
  * A renderer for the message ledger.
@@ -28,19 +31,62 @@ import rvsnoop.StringUtils;
  */
 final class MessageLedgerRenderer implements TableCellRenderer {
 
+    /**
+     * Cell renderer that selects a date representation based on the current column width.
+     *
+     * @author Ian Phillips (<a href="mailto:ianp {at} ianp {dot} org">ianp {at} ianp {dot} org</a>)
+     * @version $Revision$, $Date$
+     */
     private static class DateCellRenderer extends DefaultTableCellRenderer {
+        private static final Logger logger = Logger.getLogger(DateCellRenderer.class);
         private static final long serialVersionUID = -6397207684112537883L;
+        private static final DateFormat[] FORMATS = {
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
+            new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS"),
+            new SimpleDateFormat("MM/dd HH:mm:ss.SSS"),
+            new SimpleDateFormat("HH:mm:ss.SSS"),
+            new SimpleDateFormat("HH:mm:ss.SS"),
+            new SimpleDateFormat("HH:mm:ss.S"),
+            new SimpleDateFormat("HH:mm:ss"),
+            new SimpleDateFormat("HH:mm") };
+        private int currentWidth;
+        private Font currentFont;
+        private DateFormat currentFormat;
         DateCellRenderer() {
             super();
         }
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int col) {
-            return super.getTableCellRendererComponent(table, StringUtils.format((Date) value), isSelected, hasFocus, row, col);
+            final DateFormat format = getFormat(table.getColumnModel().getColumn(col).getWidth(), table);
+            final String displayed = value != null ? format.format((Date) value) : "";
+            return super.getTableCellRendererComponent(table, displayed, isSelected, hasFocus, row, col);
         }
-    }
-
-    private static void installRenderer(JTable table, Color oddRowsColor, Color evenRowsColor, Class clazz) {
-        table.setDefaultRenderer(clazz, new MessageLedgerRenderer(oddRowsColor, evenRowsColor, table.getDefaultRenderer(clazz)));
+        private DateFormat getFormat(int width, JTable table) {
+            Font font = table.getFont();
+            if (currentWidth != width) currentFormat = null;
+            if (currentFont != font) currentFormat = null;
+            if (currentFormat == null) {
+                currentWidth = width;
+                currentFont = font;
+                final Date date = new Date();
+                final FontMetrics metrics = table.getFontMetrics(font);
+                for (int i = 0, imax = FORMATS.length; i < imax; ++i) {
+                    final int dateWidth = metrics.stringWidth(FORMATS[i].format(date));
+                    if (dateWidth < width) {
+                        currentFormat = FORMATS[i];
+                        if (Logger.isDebugEnabled())
+                            logger.debug("Setting date format to " + FORMATS[i].format(date));
+                        break;
+                    }
+                }
+                if (currentFormat == null) {
+                    currentFormat = FORMATS[FORMATS.length - 1];
+                    if (Logger.isDebugEnabled())
+                        logger.debug("Setting date format to " + FORMATS[FORMATS.length - 1].format(date));
+                }
+            }
+            return currentFormat;
+        }
     }
 
     /**
@@ -51,15 +97,16 @@ final class MessageLedgerRenderer implements TableCellRenderer {
      * @param evenRowsColor
      */
     public static void installStripedRenderers(JTable table, Color oddRowsColor, Color evenRowsColor) {
-        installRenderer(table, oddRowsColor, evenRowsColor, Object.class);
-        installRenderer(table, oddRowsColor, evenRowsColor, Number.class);
-        installRenderer(table, oddRowsColor, evenRowsColor, Double.class);
-        installRenderer(table, oddRowsColor, evenRowsColor, Float.class);
-        installRenderer(table, oddRowsColor, evenRowsColor, Icon.class);
-        installRenderer(table, oddRowsColor, evenRowsColor, ImageIcon.class);
-        installRenderer(table, oddRowsColor, evenRowsColor, Boolean.class);
-        // Use a special renderer to pick up our preferred date format.
-        table.setDefaultRenderer(Date.class, new MessageLedgerRenderer(oddRowsColor, evenRowsColor, new DateCellRenderer()));
+        final MessageLedgerRenderer dateRenderer = new MessageLedgerRenderer(oddRowsColor, evenRowsColor, new DateCellRenderer());
+        final MessageLedgerRenderer renderer = new MessageLedgerRenderer(oddRowsColor, evenRowsColor, null);
+        TableColumnModel columns = table.getColumnModel();
+        for (int i = 0, imax = columns.getColumnCount(); i < imax; ++i) {
+            Class columnClass = table.getColumnClass(i);
+            if (Date.class.isAssignableFrom(columnClass))
+                columns.getColumn(i).setCellRenderer(dateRenderer);
+            else
+                columns.getColumn(i).setCellRenderer(renderer);
+        }
     }
 
     private final TableCellRenderer baseRenderer;
@@ -74,14 +121,19 @@ final class MessageLedgerRenderer implements TableCellRenderer {
      */
     public MessageLedgerRenderer(Color evenRowsColor, Color oddRowsColor, TableCellRenderer baseRenderer) {
         super();
-        this.baseRenderer = baseRenderer != null ? baseRenderer : new DefaultTableCellRenderer();
+        this.baseRenderer = baseRenderer;
         this.evenRowsColor = evenRowsColor;
         this.oddRowsColor = oddRowsColor;
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int col) {
-        final Component component = baseRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+        TableCellRenderer renderer = baseRenderer;
+        if (renderer == null) {
+            final Class rendererClass = value != null ? value.getClass() : Object.class;
+            renderer = table.getDefaultRenderer(rendererClass);
+        }
+        final Component component = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
         component.setForeground(RecordType.getFirstMatchingType(MessageLedger.INSTANCE.getRecord(row)).getColor());
         if (!isSelected) component.setBackground(row % 2 == 0 ? evenRowsColor : oddRowsColor);
         return component;

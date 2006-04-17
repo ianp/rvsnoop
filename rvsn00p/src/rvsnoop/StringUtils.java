@@ -26,9 +26,7 @@ import java.util.regex.Pattern;
  */
 public final class StringUtils {
 
-    private static String dateFormat = "HH:mm:ss.SSS";
-
-    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(dateFormat);
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("HH:mm:ss.SSS");
 
     //private static final Logger logger = Logger.getLogger(StringUtils.class);
 
@@ -67,16 +65,6 @@ public final class StringUtils {
     }
 
     /**
-     * Gets the pattern string for the current date format.
-     *
-     * @return The pattern string.
-     * @see SimpleDateFormat
-     */
-    public static String getDateFormat() {
-        return dateFormat;
-    }
-
-    /**
      * Replace all runs of whitespace in a given character sequence with a
      * single space.
      * <p>
@@ -100,18 +88,6 @@ public final class StringUtils {
     public static String removeWhitespace(CharSequence string) {
         if (string == null) return null;
         return WHITESPACE.matcher(string).replaceAll(""); //$NON-NLS-1$
-    }
-
-    /**
-     * Set the date format.
-     *
-     * @param pattern The pattern to set, must not be <code>null</code>.
-     * @see SimpleDateFormat
-     */
-    public static void setDateFormat(String pattern) {
-        if (pattern == null) throw new NullPointerException();
-        DATE_FORMATTER.applyPattern(pattern);
-        dateFormat = pattern;
     }
 
     /**

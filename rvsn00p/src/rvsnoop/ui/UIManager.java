@@ -31,7 +31,6 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -58,7 +57,6 @@ import rvsnoop.RecentProjects;
 import rvsnoop.Record;
 import rvsnoop.RecordType;
 import rvsnoop.RvConnection;
-import rvsnoop.StringUtils;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.TreeModelAdapter;
 import rvsnoop.Version;
@@ -230,29 +228,10 @@ public final class UIManager {
         popupMenu.add(item);
     }
 
-    private JMenuItem createConfigureDateFormat() {
-        final JMenuItem result = new JMenuItem("Configure Date Format");
-        result.setMnemonic('d');
-        result.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                final String title = "Date Format";
-                final String question = "Enter a date format to use";
-                final String format = JOptionPane.showInputDialog(getFrame(), question, title, JOptionPane.QUESTION_MESSAGE);
-                try {
-                    if (format != null && format.length() > 0) StringUtils.setDateFormat(format);
-                } catch (Exception e1) {
-                    logger.error("‘" + format + "’ is not a valid date pattern.", e1);
-                }
-            }
-        });
-        return result;
-    }
-
     private JMenu createConfigureMenu() {
         final JMenu configure = new JMenu("Configure");
         configure.setMnemonic('c');
         configure.add(createConfigureReset());
-        configure.add(createConfigureDateFormat());
         configure.add(Actions.CHANGE_TABLE_FONT);
         return configure;
     }
