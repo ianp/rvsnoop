@@ -134,8 +134,10 @@ final class MessageLedgerRenderer implements TableCellRenderer {
             renderer = table.getDefaultRenderer(rendererClass);
         }
         final Component component = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-        component.setForeground(RecordType.getFirstMatchingType(MessageLedger.INSTANCE.getRecord(row)).getColor());
-        if (!isSelected) component.setBackground(row % 2 == 0 ? evenRowsColor : oddRowsColor);
+        if (!isSelected) {
+            component.setForeground(RecordType.getFirstMatchingType(MessageLedger.INSTANCE.getRecord(row)).getColor());
+            component.setBackground(row % 2 == 0 ? evenRowsColor : oddRowsColor);
+        }
         return component;
     }
 
