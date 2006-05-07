@@ -157,11 +157,11 @@ public class RecordType implements Matcher {
         }));
     }
     
-    private final Color color;
+    private Color color;
     
     private boolean isSelected = true;
     
-    private final Matcher matcher;
+    private Matcher matcher;
     
     private final String name;
 
@@ -202,6 +202,14 @@ public class RecordType implements Matcher {
         return matcher.matches(item);
     }
 
+    public void setColor(Color color) {
+        this.color = color;
+    }
+    
+    public void setMatcher(Matcher matcher) {
+        this.matcher = matcher;
+    }
+    
     public void setSelected(boolean isSelected) {
         this.isSelected = isSelected;
     }

@@ -10,16 +10,21 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.Window;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -66,6 +71,33 @@ public final class UIUtils {
         final InputMap inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), cancel.getValue(Action.ACTION_COMMAND_KEY));
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ok.getValue(Action.ACTION_COMMAND_KEY));
+    }
+    
+    /**
+     * Create an icon that is simply a solid block of color.
+     * 
+     * @param w The icon width.
+     * @param h The icon height.
+     * @param c The icon color.
+     * @param border Should the icon have a 1 pixel border, pass in <code>null</code> for no border.
+     * @return
+     */
+    public static Icon createSolidColorIcon(int w, int h, Color c, Color border) {
+        try {
+            final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+            final BufferedImage image = config.createCompatibleImage(w, h, Transparency.TRANSLUCENT);
+            final Graphics2D g2 = image.createGraphics();
+            g2.setColor(c);
+            g2.fillRect(0, 0, w - 1, h - 1);
+            if (border != null) {
+                g2.setColor(border);
+                g2.drawRect(0, 0, w - 1, h - 1);
+            }
+            g2.dispose();
+            return new ImageIcon(image);
+        } catch (Exception e) {
+            return null;
+        }
     }
     
     public static JButton createSmallButton(Icon icon, String tooltip, ActionListener listener) {

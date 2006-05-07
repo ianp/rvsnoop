@@ -165,7 +165,7 @@ public final class Project extends XMLConfigFile {
                 final Element matcherElt = typeElt.getFirstChildElement(TYPE_MATCHER);
                 final String matcherName = getString(matcherElt, TYPE_MATCHER_NAME);
                 final String matcherValue = getString(matcherElt, TYPE_MATCHER_VALUE);
-                final Matcher matcher = RecordMatcher.getMatcher(matcherName, matcherValue);
+                final Matcher matcher = RecordMatcher.createMatcher(matcherName, matcherValue);
                 final RecordType type = RecordType.createType(name, colour, matcher);
                 type.setSelected(getBoolean(typeElt, TYPE_SELECTED, true));
             } catch (Exception ignored) {
@@ -237,7 +237,7 @@ public final class Project extends XMLConfigFile {
             setBoolean(typeElt, TYPE_SELECTED, type.isSelected());
             final RecordMatcher.NameValueMatcher matcher = (NameValueMatcher) type.getMatcher();
             final Element matcherElt = appendElement(typeElt, TYPE_MATCHER);
-            setString(matcherElt, TYPE_MATCHER_NAME, matcher.getName());
+            setString(matcherElt, TYPE_MATCHER_NAME, matcher.getId());
             setString(matcherElt, TYPE_MATCHER_VALUE, matcher.getValue());
             setColour(typeElt, COLOUR, type.getColor());
         }
