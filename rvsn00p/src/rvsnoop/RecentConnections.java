@@ -198,7 +198,6 @@ public final class RecentConnections extends XMLConfigFile {
         final Element root = new Element(ROOT);
         for (final Iterator i = connections.iterator(); i.hasNext(); ) {
             final ConnectionDescriptor cd = (ConnectionDescriptor) i.next();
-            assert cd != null;
             final Element element = appendElement(root, RV_CONNECTION);
             setString(element, RV_DESCRIPTION, cd.description);
             setString(element, RV_SERVICE, cd.service);

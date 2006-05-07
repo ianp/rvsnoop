@@ -482,7 +482,7 @@ public final class RvConnection {
     }
 
     public synchronized void addSubjects(List subjects) {
-        assert subjects != null;
+        if (subjects == null) throw new NullPointerException();
         for (final Iterator i = subjects.iterator(); i.hasNext(); ) {
             final String subject = ((String) i.next()).trim();
             if (this.subjects.containsValue(subject)) continue;
@@ -605,7 +605,7 @@ public final class RvConnection {
     }
 
     private synchronized void pause() {
-        assert state == State.STARTED : "Cannot pause if not started.";
+        if (state != State.STARTED) throw new IllegalStateException("Cannot pause if not started.");
         logger.info("Pausing connection: " + description);
         state = State.PAUSED;
         logger.info("Paused connection: " + description);
@@ -652,7 +652,7 @@ public final class RvConnection {
     }
 
     public synchronized void start() {
-        assert state != State.STARTED : "Cannot start if already started.";
+        if (state == State.STARTED) throw new IllegalStateException("Cannot start if already started.");
         logger.info("Starting connection: " + description);
         if (state == State.PAUSED) {
             state = State.STARTED;
@@ -676,7 +676,7 @@ public final class RvConnection {
     }
 
     private synchronized void stop() {
-        assert state != State.STOPPED : "Cannot stop if already stopped.";
+        if (state == State.STOPPED) throw new IllegalStateException("Cannot stop if already stopped.");
         logger.info("Stopping connection: " + description);
         for (final Iterator i = subjects.values().iterator(); i.hasNext(); )
             ((TibrvEvent) i.next()).destroy();
