@@ -97,6 +97,9 @@
   <!-- Targets to build and package a release. -->
 
   <target name="prepare" depends="-init" description="Prepare the source code for compilation.">
+    <mkdir dir="${dir.build.bin}"/>
+    <mkdir dir="${dir.build.doc}"/>
+    <mkdir dir="${dir.build.lib}"/>
     <mkdir dir="${dir.build.src}"/>
     <echo>Preparing the source code (replacing place-holders).</echo>
     <copy todir="${dir.build.src}" encoding="UTF-8">
@@ -106,9 +109,6 @@
   </target>
 
   <target name="compile" depends="prepare" description="Compile all of the Java class files.">
-    <mkdir dir="${dir.build.bin}"/>
-    <mkdir dir="${dir.build.doc}"/>
-    <mkdir dir="${dir.build.lib}"/>
     <javac srcdir="${dir.build.src}" destdir="${dir.build.lib}" includes="**/*.java"
            debug="${javac.debug}" optimize="${javac.optimize}" encoding="UTF-8"
            deprecation="${javac.deprecation}" source="1.4" target="1.4">
