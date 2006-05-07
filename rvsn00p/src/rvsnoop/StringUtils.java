@@ -159,7 +159,7 @@ public final class StringUtils {
      * @return The split lines.
      */
     public static String[] split(String string) {
-        if (string == null || string.length() == 0) return NO_LINES;
+        if (string == null || string.length() == 0) return NO_LINES; //NOPMD NO_LINES is zero length.
         final StringTokenizer stok = new StringTokenizer(string, "\n");
         final String[] lines = new String[stok.countTokens()];
         int i = 0;

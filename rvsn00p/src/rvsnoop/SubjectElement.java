@@ -110,7 +110,8 @@ public final class SubjectElement extends DefaultMutableTreeNode {
      */
     public TreeNode[] getPath() {
         if (path == null) path = super.getPath();
-        return path;
+        // Don't expose the internal array!
+        return (TreeNode[]) path.clone();
     }
 
     /**
@@ -124,7 +125,8 @@ public final class SubjectElement extends DefaultMutableTreeNode {
      * @see DefaultMutableTreeNode#getUserObjectPath()
      */
     public Object[] getUserObjectPath() {
-        return userObjectPath;
+        // Don't expose the internal array.
+        return (Object[]) userObjectPath.clone();
     }
 
     public int hashCode() {

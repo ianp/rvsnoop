@@ -420,7 +420,8 @@ public final class FontChooser extends JComponent {
             final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
             fontFamilyNames = env.getAvailableFontFamilyNames();
         }
-        return fontFamilyNames;
+        // Don't expose the internal array!
+        return (String[]) fontFamilyNames.clone();
     }
 
     private JTextField getFontNameTextField() {

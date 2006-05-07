@@ -134,8 +134,9 @@ abstract class XMLConfigFile {
         }
     }
 
-    // @PMD:REVIEWED:SignatureDeclareThrowsException: by ianp on 1/5/06 8:36 PM
-    protected abstract void load(Element root) throws Exception;
+    // Subclasses may perform any work an a load, therefore we need to
+    // handle any kind of exception here.
+    protected abstract void load(Element root) throws Exception; //NOPMD
 
     /**
      * Called after a delete in case subclasses need to perform additional work.

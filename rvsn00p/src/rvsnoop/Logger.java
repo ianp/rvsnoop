@@ -88,8 +88,7 @@ public final class Logger {
             writer.write(buffer.append("\n").toString());
             writer.flush();
         } catch (IOException e) {
-            // @PMD:REVIEWED:SystemPrintln: by ianp on 1/5/06 8:58 PM
-            System.err.println("Could not log to file because: " + e.getMessage());
+            System.err.println("Could not log to file because: " + e.getMessage()); //NOPMD
         }
         if (throwable != null) throwable.printStackTrace(new PrintWriter(writer));
         buffer.setLength(0);

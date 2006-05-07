@@ -62,9 +62,9 @@ final class MessageLedgerRenderer implements TableCellRenderer {
             return super.getTableCellRendererComponent(table, displayed, isSelected, hasFocus, row, col);
         }
         private DateFormat getFormat(int width, JTable table) {
-            Font font = table.getFont();
+            final Font font = table.getFont();
             if (currentWidth != width) currentFormat = null;
-            if (currentFont != font) currentFormat = null;
+            if (!currentFont.equals(font)) currentFormat = null;
             if (currentFormat == null) {
                 currentWidth = width;
                 currentFont = font;
@@ -99,9 +99,9 @@ final class MessageLedgerRenderer implements TableCellRenderer {
     public static void installStripedRenderers(JTable table, Color oddRowsColor, Color evenRowsColor) {
         final MessageLedgerRenderer dateRenderer = new MessageLedgerRenderer(oddRowsColor, evenRowsColor, new DateCellRenderer());
         final MessageLedgerRenderer renderer = new MessageLedgerRenderer(oddRowsColor, evenRowsColor, null);
-        TableColumnModel columns = table.getColumnModel();
+        final TableColumnModel columns = table.getColumnModel();
         for (int i = 0, imax = columns.getColumnCount(); i < imax; ++i) {
-            Class columnClass = table.getColumnClass(i);
+            final Class columnClass = table.getColumnClass(i);
             if (Date.class.isAssignableFrom(columnClass))
                 columns.getColumn(i).setCellRenderer(dateRenderer);
             else
