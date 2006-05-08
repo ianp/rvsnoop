@@ -64,7 +64,7 @@ final class MessageLedgerRenderer implements TableCellRenderer {
         private DateFormat getFormat(int width, JTable table) {
             final Font font = table.getFont();
             if (currentWidth != width) currentFormat = null;
-            if (!currentFont.equals(font)) currentFormat = null;
+            if (currentFont == null || !currentFont.equals(font)) currentFormat = null;
             if (currentFormat == null) {
                 currentWidth = width;
                 currentFont = font;

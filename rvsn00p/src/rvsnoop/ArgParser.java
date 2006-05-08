@@ -118,7 +118,7 @@ final class ArgParser {
         Argument prev = null;
         for (final Iterator i = args.values().iterator(); i.hasNext(); ) {
             final Argument next = (Argument) i.next();
-            if (!prev.equals(next)) {
+            if (prev == null || !prev.equals(next)) {
                 buffer.setLength(0);
                 buffer.append(INDENT);
                 if (next.shortForm != 0) {
