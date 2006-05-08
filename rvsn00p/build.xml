@@ -8,7 +8,7 @@
 
   <property name="version.major" value="1"/>
   <property name="version.minor" value="5"/>
-  <property name="version.patch" value="1"/>
+  <property name="version.patch" value="2"/>
   <property name="version" value="${version.major}.${version.minor}.${version.patch}"/>
 
   <property name="dir.orig.bin"  value="bin"/>

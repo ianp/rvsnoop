@@ -30,6 +30,35 @@
       </div>
       <div class="content">
         <p>Request <acronym>ID</acronym> numbers refer to bug requests or feature requests on the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge</a> page.</p>
+        <h2>Changes up to version 1.5.2 (Released 2006-05-08)</h2>
+        <ul>
+          <li>
+            Release 1.5.1 introduced a possible null pointer exception in
+            the message ledger rendering code, this is now fixed.
+          </li>
+        </ul>
+        <h2>Changes up to version 1.5.1 (Released 2006-05-07)</h2>
+        <ul>
+          <li>
+            Fixed bug in message format that prevented nested messages from
+            being labelled correctly in the details panel.
+          </li>
+          <li>
+            No longer set forground colour if record is selected in ledger,
+            previously the selected message could be hard to read if the
+            record type colour was similar to the highlight colour.
+          </li>
+          <li>
+            Enhanced message ledger render so that it now uses an
+            appropriate date &amp; time format depending on the width of the
+            timestamp column. Accordingly, the "configure date" menu
+            option has been removed.
+          </li>
+          <li>
+            Added credits for the various open source libraries which are
+            used (with links).
+          </li>
+        </ul>
         <h2>Changes up to version 1.5.0 (Released 2006-04-14)</h2>
         <ul>
           <li>Added a ‘Connection List’ showing all of the <acronym>RVD</acronym> connections and their status. The tooltip for each list item shows the subscribed subjects (if any).</li>
