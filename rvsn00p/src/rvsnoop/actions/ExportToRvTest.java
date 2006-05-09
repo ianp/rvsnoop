@@ -55,7 +55,7 @@ final class ExportToRvTest extends LedgerSelectionAction {
 
     private static String TOOLTIP = "Export the current ledger selction to an RvTest format message file";
 
-    private final Marshaller.Implementation marshaller = Marshaller.getImplementation("rvsnoop.Marshaller.RvTestImpl");
+    private final Marshaller.Implementation marshaller = Marshaller.getImplementation(Marshaller.IMPL_RVTEST);
 
     public ExportToRvTest() {
         super(ID, NAME, null);

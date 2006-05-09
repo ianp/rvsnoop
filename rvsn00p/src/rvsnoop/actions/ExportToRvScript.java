@@ -55,7 +55,7 @@ final class ExportToRvScript extends LedgerSelectionAction {
 
     private static String TOOLTIP = "Export the current ledger selction to an RvScript format messages file";
 
-    private final Marshaller.Implementation marshaller = Marshaller.getImplementation("rvsnoop.Marshaller.RvScriptImpl");
+    private final Marshaller.Implementation marshaller = Marshaller.getImplementation(Marshaller.IMPL_RVSCRIPT);
 
     public ExportToRvScript() {
         super(ID, NAME, null);

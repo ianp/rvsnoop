@@ -140,15 +140,17 @@ public final class Marshaller {
 
     }
 
+    public static final String IMPL_MTREE = "rvsnoop.Marshaller$MTreeImpl";
+    public static final String IMPL_RVMSG = "rvsnoop.Marshaller$RvMsgImpl";
+    public static final String IMPL_RVSCRIPT = "rvsnoop.Marshaller$RvScriptImpl";
+    public static final String IMPL_RVTEST = "rvsnoop.Marshaller$RvTestImpl";
+    
     private static final Implementation implementation;
 
     private static final Logger logger = Logger.getLogger(Marshaller.class);
 
     private static final String[] PREFERRED = {
-        "rvsnoop.Marshaller$RvTestImpl",
-        "rvsnoop.Marshaller$RvScriptImpl",
-        "rvsnoop.Marshaller$MTreeImpl",
-        "rvsnoop.Marshaller$RvMsgImpl"
+        IMPL_RVTEST, IMPL_RVSCRIPT, IMPL_MTREE, IMPL_RVMSG
     };
 
     public static Implementation getImplementation(String className) {
