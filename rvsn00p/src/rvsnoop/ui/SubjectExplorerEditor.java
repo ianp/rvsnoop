@@ -85,8 +85,8 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             super();
         }
         public void mousePressed(MouseEvent e) {
-            if (e.isPopupTrigger() && element != null)
-                popup(e.getX(), e.getY());
+            if (popupMenu.isPopupTrigger(e) && element != null)
+                popupMenu.show(tree, e.getX(), e.getY());
         }
     }
 
@@ -170,7 +170,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
 
     private final EventListenerList listenerList = new EventListenerList();
 
-    private JPopupMenu popupMenu;
+    private final JPopupMenu popupMenu = new JPopupMenu();
 
     private final JTree tree;
 
@@ -180,6 +180,14 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         tree.addTreeSelectionListener(this);
         tree.addMouseListener(new PopupMenuListener());
         checkbox.addActionListener(new SubjectSelectionListener());
+        popupMenu.add(new Select());
+        popupMenu.add(new Deselect());
+        popupMenu.addSeparator();
+        popupMenu.add(new SelectAllRecordsAt());
+        popupMenu.add(new SelectAllRecordsUnder());
+        popupMenu.addSeparator();
+        popupMenu.add(new Expand());
+        popupMenu.add(new Collapse());
     }
 
     public void addCellEditorListener(CellEditorListener l) {
@@ -205,21 +213,6 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
 
     public boolean isCellEditable(EventObject event) {
         return event instanceof MouseEvent && ((MouseEvent) event).getClickCount() == 1;
-    }
-
-    private void popup(int x, int y) {
-        if (popupMenu == null) {
-            popupMenu = new JPopupMenu();
-            popupMenu.add(new Select());
-            popupMenu.add(new Deselect());
-            popupMenu.addSeparator();
-            popupMenu.add(new SelectAllRecordsAt());
-            popupMenu.add(new SelectAllRecordsUnder());
-            popupMenu.addSeparator();
-            popupMenu.add(new Expand());
-            popupMenu.add(new Collapse());
-        }
-        popupMenu.show(tree, x, y);
     }
 
     public void removeCellEditorListener(CellEditorListener l) {

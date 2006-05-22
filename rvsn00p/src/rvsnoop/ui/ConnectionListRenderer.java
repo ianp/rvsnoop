@@ -43,7 +43,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
             super();
         }
         public void mousePressed(MouseEvent e) {
-            if (!e.isPopupTrigger()) return;
+            if (!popupMenu.isPopupTrigger(e)) return;
             final int index = list.locationToIndex(e.getPoint());
             if (index == -1) return;
             final RvConnection connection = (RvConnection) list.getModel().getElementAt(index);
@@ -66,7 +66,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
     
     private final JLabel network = new JLabel();
 
-    private JPopupMenu popupMenu;
+    private final JPopupMenu popupMenu = new JPopupMenu();
 
     private final JLabel service = new JLabel();
 
@@ -175,7 +175,6 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
     }
     
     private void popup(RvConnection connection, int x, int y) {
-        if (popupMenu == null) popupMenu = new JPopupMenu();
         popupMenu.removeAll();
         popupMenu.add(connection.getStartAction());
         popupMenu.add(connection.getPauseAction());
