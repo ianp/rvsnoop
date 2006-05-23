@@ -88,6 +88,10 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             if (popupMenu.isPopupTrigger(e) && element != null)
                 popupMenu.show(tree, e.getX(), e.getY());
         }
+        public void mouseReleased(MouseEvent e) {
+            // Use the same behaviour for pressed and released.
+            mousePressed(e);
+        }
     }
 
     private class Select extends AbstractAction {

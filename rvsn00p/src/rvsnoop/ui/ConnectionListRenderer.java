@@ -50,6 +50,10 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
             if (connection == null) return;
             popup(connection, e.getX(), e.getY());
         }
+        public void mouseReleased(MouseEvent e) {
+            // Use the same behaviour for pressed and released.
+            mousePressed(e);
+        }
     }
 
     private static final long serialVersionUID = -8798068540266967995L;
