@@ -23,6 +23,11 @@ public final class Banners {
     /**
      * Standard message banner for details panel.
      */
+    public static final Icon EDIT_TYPES = Icons.createIcon("/resources/banners/edit_types.png", ICON_SIZE);
+
+    /**
+     * Standard message banner for details panel.
+     */
     public static final Icon MESSAGE = Icons.createIcon("/resources/banners/message.png", ICON_SIZE);
     /**
      * Advisory message banner for details panel.

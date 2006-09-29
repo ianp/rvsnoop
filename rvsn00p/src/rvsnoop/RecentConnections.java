@@ -32,7 +32,7 @@ import nu.xom.Elements;
  * @version $Revision$, $Date$
  */
 public final class RecentConnections extends XMLConfigFile {
-    
+
     private class AddRecentConnection extends AbstractAction {
         private static final long serialVersionUID = -8554698925345247337L;
         private final int index;
@@ -51,12 +51,12 @@ public final class RecentConnections extends XMLConfigFile {
             RecentConnections.INSTANCE.add(connection);
             connection.start();
         }
-        
+
     }
 
     // A small value type to use instead of real connection instances.
     // We cannot use real connections because if we did then loading the
-    // recent connections would cause the Connection List to be populated. 
+    // recent connections would cause the Connection List to be populated.
     public static class ConnectionDescriptor {
         final String description, service, network, daemon;
         int hashCode;
@@ -163,7 +163,7 @@ public final class RecentConnections extends XMLConfigFile {
 
     // This needs to be LinkedList then we can use the removeLast method.
     private final LinkedList connections = new LinkedList();
-    
+
     private RvConnection lastConnection;
 
     private int maxSize = DEFAULT_MAX_SIZE;
@@ -177,7 +177,7 @@ public final class RecentConnections extends XMLConfigFile {
      * Adds a connection to the list.
      * <p>
      * If the connection is already in the list then it is promoted instead.
-     * 
+     *
      * @param connection The listener to add.
      */
     public void add(RvConnection connection) {
@@ -189,7 +189,7 @@ public final class RecentConnections extends XMLConfigFile {
         while (connections.size() > maxSize)
             connections.removeLast();
     }
-    
+
     public boolean contains(RvConnection connection) {
         return connections.contains(connection);
     }
@@ -211,7 +211,7 @@ public final class RecentConnections extends XMLConfigFile {
 
     /**
      * Gets the last connection used during this session.
-     * 
+     *
      * @return The last connection or <code>null</code> if there has been no connection this session.
      */
     public RvConnection getLastConnection() {
@@ -237,7 +237,7 @@ public final class RecentConnections extends XMLConfigFile {
 
     /**
      * Set a size limit for the list.
-     * 
+     *
      * @param maxSize
      */
     private void setMaxSize(int maxSize) {
@@ -248,7 +248,7 @@ public final class RecentConnections extends XMLConfigFile {
 
     /**
      * Gets the current number of entries in the recent listeners list.
-     * 
+     *
      * @return The size of the recent connections list.
      */
     public int size() {

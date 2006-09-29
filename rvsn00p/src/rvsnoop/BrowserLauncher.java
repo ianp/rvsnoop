@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
  * more out of curiosity than anything and is not required. This software
  * includes no warranty. The author is not repsonsible for any loss of data or
  * functionality or any adverse or unexpected effects of using this software.
- * 
+ *
  * @author <a href="mailto:ejalbert@cs.stanford.edu">Eric Albert</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Release$ $Date$
@@ -111,7 +111,7 @@ public class BrowserLauncher {
             }
         } else if (osName.startsWith("Windows")) {
 		    jvm = WINDOWS;
-        } else { 
+        } else {
 			jvm = OTHER;
         }
 	}

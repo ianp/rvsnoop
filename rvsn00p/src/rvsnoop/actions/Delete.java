@@ -24,15 +24,15 @@ import rvsnoop.ui.Icons;
  * @since 1.4
  */
 final class Delete extends LedgerSelectionAction {
-    
+
     private static final String ID = "delete";
-    
+
     private static String NAME = "Delete";
 
     private static final long serialVersionUID = -4082252661195745678L;
-    
+
     private static String TOOLTIP = "Delete the currently selected record(s) from the ledger";
-    
+
     public Delete() {
         super(ID, NAME, Icons.DELETE);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

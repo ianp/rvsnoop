@@ -40,6 +40,7 @@ public final class Icons {
     public static final Icon COPY = createIcon("/resources/icons/copy.png", ICON_SIZE);
     public static final Icon CUT = createIcon("/resources/icons/cut.png", ICON_SIZE);
     public static final Icon DELETE = createIcon("/resources/icons/delete.png", ICON_SIZE);
+    public static final Icon DRAG_HANDLE = createIcon("/resources/icons/drag_handle.png", ICON_SIZE);
     public static final Icon EXPORT = createIcon("/resources/icons/export.png", ICON_SIZE);
     public static final Icon FILTER = createIcon("/resources/icons/filter.png", ICON_SIZE);
     public static final Icon FILTER_COLUMNS = createIcon("/resources/icons/filter_columns.png", ICON_SIZE);

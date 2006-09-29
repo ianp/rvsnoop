@@ -20,7 +20,7 @@ import javax.swing.table.TableColumnModel;
 
 import rvsnoop.Logger;
 import rvsnoop.MessageLedger;
-import rvsnoop.RecordType;
+import rvsnoop.RecordTypes;
 
 /**
  * A renderer for the message ledger.
@@ -115,6 +115,8 @@ final class MessageLedgerRenderer implements TableCellRenderer {
 
     private final Color oddRowsColor;
 
+    private final RecordTypes types = RecordTypes.getInstance();
+
     /**
      * @param evenRowsColor
      * @param oddRowsColor
@@ -135,7 +137,7 @@ final class MessageLedgerRenderer implements TableCellRenderer {
         }
         final Component component = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
         if (!isSelected) {
-            component.setForeground(RecordType.getFirstMatchingType(MessageLedger.INSTANCE.getRecord(row)).getColor());
+            component.setForeground(types.getFirstMatchingType(MessageLedger.INSTANCE.getRecord(row)).getColour());
             component.setBackground(row % 2 == 0 ? evenRowsColor : oddRowsColor);
         }
         return component;

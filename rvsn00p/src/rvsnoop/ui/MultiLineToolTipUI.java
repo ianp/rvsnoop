@@ -25,13 +25,13 @@ public final class MultiLineToolTipUI extends ToolTipUI {
     private static final int INSET = 2;
 
     private static final MultiLineToolTipUI INSTANCE = new MultiLineToolTipUI();
-    
+
     public static void configure() {
         final String toolTipUI = MultiLineToolTipUI.class.getName();
         UIManager.put("ToolTipUI", toolTipUI);
         UIManager.put(toolTipUI, MultiLineToolTipUI.class);
     }
-    
+
     public static ComponentUI createUI(JComponent c) {
         return INSTANCE;
     }
@@ -67,7 +67,7 @@ public final class MultiLineToolTipUI extends ToolTipUI {
         LookAndFeel.installColorsAndFont(c, "ToolTip.background", "ToolTip.foreground", "ToolTip.font");
         LookAndFeel.installBorder(c, "ToolTip.border");
     }
-    
+
     public void paint(Graphics g, JComponent c) {
         final int w = c.getWidth(), h = c.getHeight();
         g.setColor(c.getBackground());

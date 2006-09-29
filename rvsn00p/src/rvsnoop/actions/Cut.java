@@ -30,21 +30,21 @@ import com.tibco.tibrv.TibrvException;
  * @since 1.4
  */
 final class Cut extends LedgerSelectionAction {
-    
+
     private static String ERROR_IO = "There was an I/O error whilst writing data to the clipboard.";
 
     private static String ERROR_RV = "There was a Rendezvous error whilst serializing the messages.";
-    
+
     private static final String ID = "cut";
-    
+
     private static final Logger logger = Logger.getLogger(Cut.class);
-    
+
     private static String NAME = "Cut";
 
     private static final long serialVersionUID = 795156697514723501L;
 
     private static String TOOLTIP = "Delete the selected records but place copies on the clipboard";
-    
+
     public Cut() {
         super(ID, NAME, Icons.CUT);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

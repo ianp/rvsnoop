@@ -55,7 +55,7 @@ import rvsnoop.PreferencesManager;
 import rvsnoop.RecentConnections;
 import rvsnoop.RecentProjects;
 import rvsnoop.Record;
-import rvsnoop.RecordType;
+import rvsnoop.RecordTypes;
 import rvsnoop.RvConnection;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.TreeModelAdapter;
@@ -202,7 +202,7 @@ public final class UIManager {
         frame.addWindowListener(new WindowCloseListener());
     }
 
-    private static void createColumnMenuItem(JPopupMenu popupMenu, final MessageLedgerFormat.ValueColumn column, final EventTableModel model, boolean selected) {
+    private void createColumnMenuItem(JPopupMenu popupMenu, final MessageLedgerFormat.ValueColumn column, final EventTableModel model, boolean selected) {
         final JCheckBoxMenuItem item = new JCheckBoxMenuItem(column.getName());
         popupMenu.addPopupMenuListener(new PopupMenuListener() {
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -236,7 +236,7 @@ public final class UIManager {
         return configure;
     }
 
-    private static JMenuItem createConfigureReset() {
+    private JMenuItem createConfigureReset() {
         final JMenuItem result = new JMenuItem("Reset");
         result.setMnemonic('r');
         result.addActionListener(new ActionListener() {
@@ -247,7 +247,7 @@ public final class UIManager {
         return result;
     }
 
-    private static JList createConnectionList() {
+    private JList createConnectionList() {
         final JList list = new JList(RvConnection.getListModel());
         list.setBorder(BorderFactory.createEmptyBorder());
         list.setCellRenderer(new ConnectionListRenderer(list, false));
@@ -256,13 +256,13 @@ public final class UIManager {
         return list;
     }
 
-    private static JScrollPane createConnectionListScroller(JList listenerList) {
+    private JScrollPane createConnectionListScroller(JList listenerList) {
         final JScrollPane scrollPane = new JScrollPane(listenerList);
         scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY));
         return scrollPane;
     }
 
-    private static JSplitPane createConnectionListSplitter(JScrollPane connectionList, JSplitPane subjectExplorerSplitter) {
+    private JSplitPane createConnectionListSplitter(JScrollPane connectionList, JSplitPane subjectExplorerSplitter) {
         final JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, connectionList, subjectExplorerSplitter);
         splitter.setOneTouchExpandable(false);
         splitter.setDividerLocation(0.20);
@@ -271,7 +271,7 @@ public final class UIManager {
     }
 
 
-    private static JMenu createEditMenu() {
+    private JMenu createEditMenu() {
         final JMenu edit = new JMenu("Edit");
         edit.setMnemonic('e');
         edit.add(Actions.CUT);
@@ -319,7 +319,7 @@ public final class UIManager {
         return file;
     }
 
-    private static JMenu createHelpMenu() {
+    private JMenu createHelpMenu() {
         final JMenu help = new JMenu("Help");
         help.setMnemonic('h');
         help.add(Actions.HELP);
@@ -377,7 +377,7 @@ public final class UIManager {
         return scrollPane;
     }
 
-    private static JSplitPane createMessageLedgerSplitter(JScrollPane ledger, RvDetailsPanel details) {
+    private JSplitPane createMessageLedgerSplitter(JScrollPane ledger, RvDetailsPanel details) {
         final JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT, ledger, details);
         splitter.setOneTouchExpandable(true);
         splitter.setDividerLocation(0.5);
@@ -399,13 +399,13 @@ public final class UIManager {
         return tree;
     }
 
-    private static JScrollPane createSubjectExplorerScroller(JTree subjectExplorer) {
+    private JScrollPane createSubjectExplorerScroller(JTree subjectExplorer) {
         final JScrollPane scroller = new JScrollPane(subjectExplorer);
         scroller.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 1, Color.GRAY));
         return scroller;
     }
 
-    private static JSplitPane createSubjectExplorerSplitter(JScrollPane subjectExplorer, JSplitPane messageLedger) {
+    private JSplitPane createSubjectExplorerSplitter(JScrollPane subjectExplorer, JSplitPane messageLedger) {
         final JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, subjectExplorer, messageLedger);
         splitter.setOneTouchExpandable(false);
         splitter.setDividerLocation(0.25);
@@ -413,7 +413,7 @@ public final class UIManager {
         return splitter;
     }
 
-    private static JToolBar createToolBar() {
+    private JToolBar createToolBar() {
         final JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
         toolBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
@@ -429,7 +429,7 @@ public final class UIManager {
         return toolBar;
     }
 
-    private static void createToolBarButton(JToolBar toolBar, Action action) {
+    private void createToolBarButton(JToolBar toolBar, Action action) {
         final JButton button = toolBar.add(action);
         // The painted borders on Java toolbar buttons look really bad...
         button.setBorderPainted(false);
@@ -458,7 +458,7 @@ public final class UIManager {
         view.add(viewColumns);
         final JMenu viewTypes = new JMenu("Types");
         viewTypes.setIcon(Icons.FILTER);
-        viewTypes.getPopupMenu().addPopupMenuListener(new RecordType.MenuManager());
+        viewTypes.getPopupMenu().addPopupMenuListener(RecordTypes.getInstance().new MenuManager());
         view.add(viewTypes);
         return view;
     }
@@ -527,7 +527,7 @@ public final class UIManager {
 
     public void setMessageLedgerFont(Font font) {
         messageLedger.setFont(font);
-        // Without this the default row height is about 1-million-billion pixels...
+        // Without this the default rowNumber height is about 1-million-billion pixels...
         final int rowHeight = messageLedger.getFontMetrics(font).getHeight() + 2;
         messageLedger.setRowHeight(rowHeight);
     }
@@ -548,10 +548,6 @@ public final class UIManager {
 
     public void setSubjectExplorerDividerLocation(final int location) {
         subjectExplorerSplitter.setDividerLocation(location);
-    }
-
-    public void setTitle(final String title) {
-        frame.setTitle(title);
     }
 
     public void setVisible(boolean visible) {

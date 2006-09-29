@@ -19,9 +19,8 @@ import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
-import rvsnoop.RecordMatcher.NameValueMatcher;
+import rvsnoop.RecordMatcher;
 import rvsnoop.ui.UIManager;
-import ca.odell.glazedlists.matchers.Matcher;
 
 /**
  * Handles all of the project specific settings.
@@ -150,24 +149,29 @@ public final class Project extends XMLConfigFile {
     }
 
     private static void loadTypes(Element parent) {
-        final Elements types = parent.getChildElements(TYPE);
-        if (types.size() > 0)
-            // If there are types defined in the project then use them.
-            RecordType.clear();
+        final Elements typeElts = parent.getChildElements(TYPE);
+        RecordTypes types = RecordTypes.getInstance();
+        // If there are types defined in the project then use them.
+        // Otherwise add in the default set of types.
+        if (typeElts.size() > 0)
+            types.clear();
         else
-            // Otherwise add in the default set of types.
-            RecordType.reset();
-        for (int i = types.size(); i != 0;) {
+            types.reset();
+        for (int i = typeElts.size(); i != 0;) {
             try {
-                final Element typeElt = types.get(--i);
+                final Element typeElt = typeElts.get(--i);
                 final String name = getString(typeElt, TYPE_NAME);
                 final Color colour = getColour(typeElt, COLOUR, Color.BLACK);
-                final Element matcherElt = typeElt.getFirstChildElement(TYPE_MATCHER);
-                final String matcherName = getString(matcherElt, TYPE_MATCHER_NAME);
-                final String matcherValue = getString(matcherElt, TYPE_MATCHER_VALUE);
-                final Matcher matcher = RecordMatcher.createMatcher(matcherName, matcherValue);
-                final RecordType type = RecordType.createType(name, colour, matcher);
-                type.setSelected(getBoolean(typeElt, TYPE_SELECTED, true));
+                if (name.equals(RecordTypes.DEFAULT.getName())) {
+                    RecordTypes.DEFAULT.setColour(colour);
+                } else {
+                    final Element matcherElt = typeElt.getFirstChildElement(TYPE_MATCHER);
+                    final String matcherId = getString(matcherElt, TYPE_MATCHER_NAME);
+                    final String matcherValue = getString(matcherElt, TYPE_MATCHER_VALUE);
+                    final RecordMatcher matcher = RecordMatcher.createMatcher(matcherId, matcherValue);
+                    final RecordType type = types.createType(name, colour, matcher);
+                    type.setSelected(getBoolean(typeElt, TYPE_SELECTED, true));
+                }
             } catch (Exception ignored) {
                 // Intentionally ignored.
             }
@@ -228,18 +232,19 @@ public final class Project extends XMLConfigFile {
     }
 
     private static void storeTypes(Element parent) {
-        final Iterator i = RecordType.getAllMessageTypes().iterator();
-        while (i.hasNext()) {
-            final RecordType type = (RecordType) i.next();
-            if (RecordType.DEFAULT_TYPE.equals(type)) continue;
+        RecordType[] types = RecordTypes.getInstance().getAllTypes();
+        for (int i = 0, imax = types.length; i < imax; ++i) {
+            RecordType type = types[i];
             final Element typeElt = appendElement(parent, TYPE);
             setString(typeElt, TYPE_NAME, type.getName());
-            setBoolean(typeElt, TYPE_SELECTED, type.isSelected());
-            final RecordMatcher.NameValueMatcher matcher = (NameValueMatcher) type.getMatcher();
-            final Element matcherElt = appendElement(typeElt, TYPE_MATCHER);
-            setString(matcherElt, TYPE_MATCHER_NAME, matcher.getId());
-            setString(matcherElt, TYPE_MATCHER_VALUE, matcher.getValue());
-            setColour(typeElt, COLOUR, type.getColor());
+            if (!RecordTypes.DEFAULT.equals(type)) {
+                setBoolean(typeElt, TYPE_SELECTED, type.isSelected());
+                final RecordMatcher matcher = type.getMatcher();
+                final Element matcherElt = appendElement(typeElt, TYPE_MATCHER);
+                setString(matcherElt, TYPE_MATCHER_NAME, matcher.getId());
+                setString(matcherElt, TYPE_MATCHER_VALUE, matcher.getValue());
+            }
+            setColour(typeElt, COLOUR, type.getColour());
         }
     }
 

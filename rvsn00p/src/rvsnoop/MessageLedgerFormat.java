@@ -119,8 +119,9 @@ public final class MessageLedgerFormat implements AdvancedTableFormat {
 
     public static final ValueColumn TYPE = new ValueColumn("Type", String.class) {
         private static final long serialVersionUID = 6353909616946303068L;
+        final RecordTypes types = RecordTypes.getInstance();
         public Object getValue(Record record) {
-            return RecordType.getFirstMatchingType(record).getName();
+            return types.getFirstMatchingType(record).getName();
         }
     };
 

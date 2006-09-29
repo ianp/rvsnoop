@@ -19,34 +19,34 @@ public final class State {
      * A key to use when this enumeration is used as a property on a JavaBean.
      */
     public static final String PROP_STATE = "state";
-    
+
     public static final State PAUSED  = new State(1, "PAUSED" ,  "Paused");
-    
+
     public static final State STARTED = new State(2, "STARTED", "Started");
-    
+
     public static final State STOPPED = new State(0, "STOPPED", "Stopped");
 
     private static final State[] VALUES = { STOPPED, PAUSED, STARTED };
-    
+
     public static State[] getStates() {
         final State[] states = new State[VALUES.length];
         System.arraycopy(VALUES, 0, states, 0, VALUES.length);
         return states;
     }
-    
+
     public static State valueOf(String state) {
         for (int i = 0; i < VALUES.length; ++i)
             if (VALUES[i].name.equals(state))
                 return VALUES[i];
         return null;
     }
-    
+
     private final String displayName;
-    
+
     private final String name;
-    
+
     private final int ordinal;
-    
+
     private State(int ordinal, String name, String displayName) {
         super();
         this.ordinal = ordinal;

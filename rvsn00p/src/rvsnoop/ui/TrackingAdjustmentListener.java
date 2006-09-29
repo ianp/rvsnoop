@@ -20,7 +20,7 @@ import java.awt.event.AdjustmentListener;
  * state information about the Adjustable it listens to.
  * <p>
  * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
- * 
+ *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -32,7 +32,7 @@ public final class TrackingAdjustmentListener implements AdjustmentListener {
     public TrackingAdjustmentListener() {
         super();
     }
-    
+
     public void adjustmentValueChanged(AdjustmentEvent e) {
         final Adjustable a = e.getAdjustable();
         final int maximum = a.getMaximum();

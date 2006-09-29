@@ -71,7 +71,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
     public void addRecord(Record record) {
         final SubjectElement element = record.getSubject();
         element.incNumRecordsHere();
-        if (RecordType.ERROR_TYPE.matches(record))
+        if (RecordTypes.ERROR.matches(record))
             element.setErrorHere();
         final TreeNode[] nodes = element.getPath();
         for (int i = 0, imax = nodes.length; i < imax; ++i)

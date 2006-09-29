@@ -27,9 +27,9 @@ final class ChangeTableFont extends AbstractAction {
     private static final String ID = "changeTableFont";
 
     private static String NAME = "Change Font";
-    
+
     private static final long serialVersionUID = 7334880831350593586L;
-    
+
     private static String TOOLTIP = "Change the font used to display text in the message ledger";
 
     public ChangeTableFont() {

@@ -33,7 +33,7 @@ final class AddConnection extends AbstractAction {
     private static String NAME = "Add Connection...";
 
     private static final long serialVersionUID = 7508828375114300486L;
-    
+
     private static String TOOLTIP = "Create a new Rendezvous connection";
 
     public AddConnection() {

@@ -31,20 +31,20 @@ import com.tibco.tibrv.TibrvException;
  * @since 1.5
  */
 final class Republish extends LedgerSelectionAction {
-    
+
     private static String CONFIRM = "Really republish {0,choice,1#this|1<these} {0} {0,choice,1#message|1<messages}?";
-    
+
     private static final String ID = "republish";
 
     private static String NAME = "Republish";
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
-    
+
     private static String TOOLTIP = "Republish the selected records";
-    
+
     public Republish() {
         super(ID, NAME, Icons.REPUBLISH);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

@@ -29,9 +29,9 @@ final class Help extends AbstractAction {
     private static String ERROR_BROWSER = "The default browser could not be opened.";
 
     private static final String ID = "help";
-    
+
     private static final Logger logger = Logger.getLogger(Help.class);
-    
+
     private static String NAME = "Help Contents";
 
     private static final long serialVersionUID = 7014627089362478531L;

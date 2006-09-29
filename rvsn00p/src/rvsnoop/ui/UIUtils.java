@@ -42,18 +42,18 @@ import com.tibco.tibrv.TibrvException;
  * @version $Revision$, $Date$
  */
 public final class UIUtils {
-    
+
     private static String CONFIRM_TITLE = "Confirm";
-    
+
     private static String ERROR_TITLE = "Error";
 
     private static String INFORMATION_TITLE = "Information";
 
     public static boolean askForConfirmation(Object message, Icon icon) {
-        return JOptionPane.YES_NO_OPTION
+        return JOptionPane.YES_OPTION
             == JOptionPane.showConfirmDialog(UIManager.INSTANCE.getFrame(), message, CONFIRM_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
     }
-    
+
     public static void centerWindowOnScreen(final Window window) {
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         final Dimension size = window.getSize();
@@ -63,24 +63,28 @@ public final class UIUtils {
         window.setLocation((screen.width - size.width) / 2,
                            (screen.height - size.height) / 2);
     }
-    
+
     public static void configureOKAndCancelButtons(JPanel panel, Action ok, Action cancel) {
         final ActionMap actionMap = panel.getActionMap();
-        actionMap.put(cancel.getValue(Action.ACTION_COMMAND_KEY), cancel);
-        actionMap.put(ok.getValue(Action.ACTION_COMMAND_KEY), ok);
         final InputMap inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), cancel.getValue(Action.ACTION_COMMAND_KEY));
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ok.getValue(Action.ACTION_COMMAND_KEY));
+        if (cancel != null) {
+            actionMap.put(cancel.getValue(Action.ACTION_COMMAND_KEY), cancel);
+            inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), cancel.getValue(Action.ACTION_COMMAND_KEY));
+        }
+        if (ok != null) {
+            actionMap.put(ok.getValue(Action.ACTION_COMMAND_KEY), ok);
+            inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ok.getValue(Action.ACTION_COMMAND_KEY));
+        }
     }
-    
+
     /**
      * Create an icon that is simply a solid block of color.
-     * 
+     *
      * @param w The icon width.
      * @param h The icon height.
      * @param c The icon color.
      * @param border Should the icon have a 1 pixel border, pass in <code>null</code> for no border.
-     * @return
+     * @return The new icon, or <code>null</code> if it could not be created.
      */
     public static Icon createSolidColorIcon(int w, int h, Color c, Color border) {
         try {
@@ -99,7 +103,7 @@ public final class UIUtils {
             return null;
         }
     }
-    
+
     public static JButton createSmallButton(Icon icon, String tooltip, ActionListener listener) {
         final JButton btn = new JButton(icon);
         btn.setBorder(BorderFactory.createEmptyBorder());
@@ -115,7 +119,7 @@ public final class UIUtils {
         btn.setVerticalAlignment(SwingConstants.CENTER);
         return btn;
     }
-    
+
     public static GradientPaint paintGradient(Graphics2D g, int w, int h, Color start, Color end, GradientPaint paint) {
         if (paint == null)
             paint = new GradientPaint(0, 0, start, 0, h, end);
@@ -123,7 +127,7 @@ public final class UIUtils {
         g.fillRect(0, 0, w, h);
         return paint;
     }
-    
+
     public static void showError(String message, Throwable exception) {
         final String title = exception instanceof TibrvException ? "Rendezvous Error" : ERROR_TITLE;
         final String[] m = new String[3];
@@ -133,15 +137,15 @@ public final class UIUtils {
         m[2] = exception instanceof TibrvException ? "Rendezvous Error Code: " + ((TibrvException) exception).error : "";
         JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), m, title, JOptionPane.ERROR_MESSAGE);
     }
-    
+
     public static void showInformation(Object message) {
         JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
-    
+
     public static void showInformation(Object message, Icon icon) {
         JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE, icon);
     }
-    
+
     /**
      * Do not instantiate.
      */

@@ -31,7 +31,7 @@ import javax.swing.border.Border;
  * area ahould be used to tell the user that a background thread is processing
  * something. A status bar may have additional fields which can have their
  * labels set individually.
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.4
@@ -80,7 +80,7 @@ public final class StatusBar extends JPanel {
     private static final Icon ICON_WARNING = Icons.createIcon("/resources/icons/warning.png", 12);
 
     private static final String NO_MESSAGE = " "; //$NON-NLS-1$
-    
+
     private static final long serialVersionUID = 7014627089362478531L;
 
     private final JLabel activity = new JLabel(NO_MESSAGE, SwingConstants.TRAILING);
@@ -139,7 +139,7 @@ public final class StatusBar extends JPanel {
 
     /**
      * Get the message currently displayed in the status bar.
-     * 
+     *
      * @return The currently displayed text.
      */
     public String getMessage() {
@@ -149,7 +149,7 @@ public final class StatusBar extends JPanel {
     /**
      * Make sure that the font is correctly sized and then call the super
      * implementation.
-     * 
+     *
      * @see javax.swing.JComponent#paintComponent(Graphics)
      */
     protected void paintComponent(Graphics g) {
@@ -160,7 +160,7 @@ public final class StatusBar extends JPanel {
     }
 
     /**
-     * 
+     *
      */
     private void relayout() {
         removeAll();
@@ -174,7 +174,7 @@ public final class StatusBar extends JPanel {
 
     /**
      * Remove an item from the status bar.
-     * 
+     *
      * @param item The item to remove.
      * @return <code>true</code> if the field was removed, <code>false</code>
      *         if it could not be found in this status bar.
@@ -219,7 +219,7 @@ public final class StatusBar extends JPanel {
             message.setToolTipText(null);
         }
     }
-    
+
     public void setWarning(String text) {
         setMessage(text);
         message.setIcon(ICON_WARNING);

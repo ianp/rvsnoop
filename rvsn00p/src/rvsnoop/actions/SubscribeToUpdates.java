@@ -28,9 +28,9 @@ final class SubscribeToUpdates extends AbstractAction {
     private static String ERROR_BROWSER = "The default browser could not be opened.";
 
     private static final String ID = "subscribeToUpdates";
-    
+
     private static final Logger logger = Logger.getLogger(SubscribeToUpdates.class);
-    
+
     private static String NAME = "Subscribe to Updates";
 
     private static final long serialVersionUID = -2927101571954736097L;

@@ -23,7 +23,7 @@ import com.tibco.tibrv.TibrvException;
  * <p>
  * This works by telling the local queue to reject all new messages, it also
  * sets all of the connections to paused.
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.5
@@ -35,13 +35,13 @@ final class PauseAllConnections extends AbstractAction {
     private static final Logger logger = Logger.getLogger(PauseAllConnections.class);
 
     private static String NAME_PAUSE = "Pause All";
-    
+
     private static String NAME_RESUME = "Resume All";
 
     private static final long serialVersionUID = -986608950126010165L;
-    
+
     private static String TOOLTIP_PAUSE = "Pause all Rendezvous connections";
-    
+
     private static String TOOLTIP_RESUME = "Resume all paused Rendezvous connections";
 
     private boolean isPaused = false;

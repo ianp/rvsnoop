@@ -29,21 +29,21 @@ import com.tibco.tibrv.TibrvException;
  * @since 1.4
  */
 final class Copy extends LedgerSelectionAction {
-    
+
     private static String ERROR_IO = "There was an I/O error whilst writing data to the clipboard.";
-    
+
     private static String ERROR_RV = "There was a Rendezvous error whilst serializing the messages.";
-    
+
     private static final String ID = "copy";
-    
+
     private static final Logger logger = Logger.getLogger(Copy.class);
 
     private static String NAME = "Copy";
-    
+
     private static final long serialVersionUID = 7395491526593830048L;
 
     private static String TOOLTIP = "Copy the selected records to the clipboard";
-    
+
     public Copy() {
         super(ID, NAME, Icons.COPY);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

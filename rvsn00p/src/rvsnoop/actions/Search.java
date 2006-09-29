@@ -137,7 +137,7 @@ final class Search extends AbstractAction {
             if (xml[i] != firstByte) continue;
             if (text.length == 1) return true; // Guard for single byte text.
             if (++i == xml.length) return false; // Guard for end of XML.
-            SCAN_TEXT: // OK, now look for the rest of the text...
+            // OK, now look for the rest of the text...
             for (int j = 1, jmax = text.length; j < jmax; ) {
                 if (xml[i] != text[j]) continue SCAN_XML;
                 if (++i == xml.length) return false; // Guard for end of XML.

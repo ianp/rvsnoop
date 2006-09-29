@@ -144,7 +144,7 @@ public final class Marshaller {
     public static final String IMPL_RVMSG = "rvsnoop.Marshaller$RvMsgImpl";
     public static final String IMPL_RVSCRIPT = "rvsnoop.Marshaller$RvScriptImpl";
     public static final String IMPL_RVTEST = "rvsnoop.Marshaller$RvTestImpl";
-    
+
     private static final Implementation implementation;
 
     private static final Logger logger = Logger.getLogger(Marshaller.class);

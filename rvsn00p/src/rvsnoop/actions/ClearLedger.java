@@ -25,15 +25,15 @@ import rvsnoop.ui.UIManager;
  * @since 1.5
  */
 final class ClearLedger extends LedgerSelectionAction {
-    
+
     private static final String ID = "clearLedger";
 
     private static String NAME = "Clear Ledger";
-    
+
     private static final long serialVersionUID = -3869401903230005506L;
 
     private static String TOOLTIP = "Delete all records from the ledger";
-    
+
     public ClearLedger() {
         super(ID, NAME, Icons.CLEAR_LEDGER);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);

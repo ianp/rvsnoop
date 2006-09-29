@@ -22,7 +22,7 @@ import rvsnoop.ui.UIManager;
  * <p>
  * This class only handles global application state, there are also projects
  * which handle storing connection details and so on.
- * 
+ *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -158,7 +158,7 @@ public final class PreferencesManager extends XMLConfigFile {
         setInteger(fontElement, FONT_SIZE, font.getSize());
         setInteger(fontElement, FONT_STYLE, font.getStyle());
     }
-    
+
     private static void storeWindowPosition(Element parent) {
         final Rectangle r = UIManager.INSTANCE.getFrame().getBounds();
         final Element window = appendElement(parent, WINDOW_POSITION);

@@ -54,7 +54,7 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 
 /**
  * A font chooser, because one is inexplicably missing from Swing!
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.4
@@ -236,13 +236,13 @@ public final class FontChooser extends JComponent {
     private static final String[] FONT_STYLE_NAMES = { "Plain",  "Bold",  "Italic",  "Bold Italic"};
 
     private static final Border MATTE_BORDER = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.GRAY);
-    
+
     private static final Border PADDED_BORDER = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
     private static final Border TEXT_BORDER = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY);
 
     private static final Logger logger = Logger.getLogger(FontChooser.class);
-    
+
     /**
      * Return value from {@link #showDialog(Component)}.
      */
@@ -339,7 +339,7 @@ public final class FontChooser extends JComponent {
         fontNamePanel.add(p, BorderLayout.CENTER);
         return fontNamePanel;
     }
-    
+
     private JPanel createFontSizePanel() {
         final JPanel fontSizePanel = new JPanel(new BorderLayout());
         fontSizePanel.setBorder(BorderFactory.createEmptyBorder());
@@ -547,7 +547,7 @@ public final class FontChooser extends JComponent {
 
     /**
      * Show font selection dialog.
-     * 
+     *
      * @param parent Dialog's Parent component.
      * @return OK_OPTION or CANCEL_OPTION
      */

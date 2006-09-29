@@ -42,7 +42,7 @@ public final class FilterDialog extends JDialog {
             dispose();
         }
     }
-    
+
     private class OKAction extends AbstractAction {
         private static final long serialVersionUID = 2218686250288868092L;
         OKAction() {
@@ -62,22 +62,22 @@ public final class FilterDialog extends JDialog {
      * This helps to protect us from buggy {@link #pack()} implementations.
      */
     private static final int MAX_HEIGHT = 160;
-    
+
     /**
      * The maximum width of the dialog.
      * <p>
      * This helps to protect us from buggy {@link #pack()} implementations.
      */
     private static final int MAX_WIDTH = 160;
-    
+
     private final JCheckBox  sendSubjectEnabled  = new JCheckBox();
     private final JCheckBox  trackingIdEnabled   = new JCheckBox();
 
     private boolean isCancelled;
-    
+
     private final JTextField  sendSubject  = new JTextField(20);
     private final JTextField  trackingId   = new JTextField(20);
-    
+
     public FilterDialog(String sendSubject, String trackingId, boolean sendSubjectEnabled, boolean trackingIdEnabled) {
         super(UIManager.INSTANCE.getFrame(), "Filter", true);
         buildContentArea();
@@ -113,7 +113,7 @@ public final class FilterDialog extends JDialog {
         panel.setBorder(Borders.DLU2_BORDER);
         getContentPane().add(panel, BorderLayout.CENTER);
     }
-    
+
     public String getSendSubject() {
         return sendSubject.getText();
     }
@@ -121,15 +121,15 @@ public final class FilterDialog extends JDialog {
     public String getTrackingId() {
         return trackingId.getText();
     }
-    
+
     public boolean isCancelled() {
         return isCancelled;
     }
-    
+
     public boolean isSendSubjectSelected() {
         return sendSubjectEnabled.isSelected();
     }
-    
+
     public boolean isTrackingIdSelected() {
         return trackingIdEnabled.isSelected();
     }

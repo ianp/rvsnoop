@@ -235,7 +235,7 @@ public final class RvConnection {
 
     public static final String DEFAULT_SERVICE = "7500";
 
-    private static final String DESCRIPTION = " (<a href=\"http://rvsn00p.sf.net\">" + Version.getAsStringWithName() + "</a>)";
+    private static final String DESCRIPTION = " (<a href=\"http://rvsnoop.org/\">" + Version.getAsStringWithName() + "</a>)";
 
     private static String ERROR_RV = "An internal Rendezvous error has been encountered, the error code is {0} and the reson given is: {1}.";
 
@@ -279,12 +279,9 @@ public final class RvConnection {
      * @see #getConnection(String, String, String)
      */
     public static synchronized RvConnection createConnection(String service, String network, String daemon) {
-        final RvConnection connection = new RvConnection(service, network, daemon);
-        for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
-            final Object next = i.next();
-            if (connection.equals(next))
-                return (RvConnection) next;
-        }
+        RvConnection connection = getConnection(service, network, daemon);
+        if (connection != null) return connection;
+        connection = new RvConnection(service, network, daemon);
         allConnections.add(connection);
         if (listModel != null) listModel.fireConnectionAdded(connection);
         return connection;
@@ -468,7 +465,7 @@ public final class RvConnection {
         this.service = service != null ? service : DEFAULT_SERVICE;
         this.network = network != null ? network : DEFAULT_NETWORK;
         this.daemon  = daemon  != null ? daemon  : DEFAULT_DAEMON;
-        Integer.parseInt(service);
+        Integer.parseInt(this.service);
     }
 
     public synchronized void addSubject(String subject) {

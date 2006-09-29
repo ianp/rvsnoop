@@ -22,7 +22,7 @@ public class TreeModelAdapter implements TreeModelListener {
     protected TreeModelAdapter() {
         super();
     }
-    
+
     public void treeNodesChanged(TreeModelEvent e) {
         // no-op
     }

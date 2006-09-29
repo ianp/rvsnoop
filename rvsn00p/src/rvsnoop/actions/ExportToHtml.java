@@ -25,7 +25,7 @@ import rvsnoop.IOUtils;
 import rvsnoop.Logger;
 import rvsnoop.Marshaller;
 import rvsnoop.Record;
-import rvsnoop.RecordType;
+import rvsnoop.RecordTypes;
 import rvsnoop.StringUtils;
 import rvsnoop.Version;
 import rvsnoop.ui.UIManager;
@@ -135,7 +135,7 @@ final class ExportToHtml extends LedgerSelectionAction {
         out.startTag("tr");
         writeTagged(out, "td", StringUtils.format(new Date(record.getTimestamp())));
         writeTagged(out, "td", Long.toString(record.getSequenceNumber()));
-        writeTagged(out, "td", RecordType.getFirstMatchingType(record).getName());
+        writeTagged(out, "td", RecordTypes.getInstance().getFirstMatchingType(record).getName());
         writeTagged(out, "td", record.getSendSubject());
         writeTagged(out, "td", record.getTrackingId());
         out.startTag("td");
@@ -146,7 +146,7 @@ final class ExportToHtml extends LedgerSelectionAction {
 
     private static void writeTagged(XMLOutputter out, String tag, String pcdata) throws IllegalStateException, IllegalArgumentException, IOException {
         out.startTag(tag);
-        out.pcdata(pcdata);
+        out.pcdata(pcdata != null ? pcdata : "");
         out.endTag();
     }
 

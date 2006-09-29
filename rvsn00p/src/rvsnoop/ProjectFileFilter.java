@@ -22,7 +22,7 @@ import javax.swing.filechooser.FileFilter;
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/17/06 2:00 PM
 public class ProjectFileFilter extends FileFilter {
     public static final ProjectFileFilter INSTANCE = new ProjectFileFilter();
-    
+
     private ProjectFileFilter() {
         super();
     }

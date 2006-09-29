@@ -26,11 +26,11 @@ import com.tibco.tibrv.TibrvMsg;
  * @since 1.3
  */
 public final class RvMessageTreeNode extends LazyTreeNode {
-    
+
     private static final Logger logger = Logger.getLogger(RvMessageTreeNode.class);
-    
+
     private final TibrvMsg message;
-    
+
     /**
      * @param message The message represented by this node.
      */
@@ -62,7 +62,7 @@ public final class RvMessageTreeNode extends LazyTreeNode {
     public Icon getIcon() {
         return Icons.RV_MESSAGE;
     }
-    
+
     public String getText() {
         return "Rendezvous Message";
     }

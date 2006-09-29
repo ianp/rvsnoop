@@ -80,6 +80,8 @@ public final class Actions {
 
     public static final Action DISPLAY_LICENSE = add(new DisplayLicense());
 
+    public static final Action EDIT_RECORD_TYPES = add(new EditRecordTypes());
+
     public static final Action EXPORT_TO_HTML = add(new ExportToHtml());
 
     public static final Action EXPORT_TO_RVSCRIPT = add(new ExportToRvScript());

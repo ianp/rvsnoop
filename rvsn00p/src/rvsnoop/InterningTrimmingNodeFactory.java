@@ -20,14 +20,14 @@ import nu.xom.Attribute.Type;
  * This will generally have the effect of slowing down parsing but reducing the
  * space requirements and improving performance once parsed (because
  * <code>equals</code> calls will always match on the initial identity test).
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.3
  */
 final class InterningTrimmingNodeFactory extends NodeFactory {
     private static final Nodes EMPTY = new Nodes();
-    
+
     private final boolean trim;
 
     /**
@@ -36,10 +36,10 @@ final class InterningTrimmingNodeFactory extends NodeFactory {
     public InterningTrimmingNodeFactory() {
         this(true);
     }
-    
+
     /**
      * Create a new factory.
-     * 
+     *
      * @param trim Should text nodes be trimmed or not.
      */
     private InterningTrimmingNodeFactory(boolean trim) {
@@ -78,7 +78,7 @@ final class InterningTrimmingNodeFactory extends NodeFactory {
     // We don't need text nodes at all.
     public Nodes makeText(String data) {
         if (trim) data = data.trim();
-        return data.length() > 0 ? super.makeText(data) : EMPTY; 
+        return data.length() > 0 ? super.makeText(data) : EMPTY;
     }
 
     /* (non-Javadoc)

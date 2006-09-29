@@ -47,7 +47,7 @@ public final class RvConnectionDialog extends JDialog {
             dispose();
         }
     }
-    
+
     private class OKAction extends AbstractAction {
         private static final long serialVersionUID = -6455892125502790205L;
         OKAction() {
@@ -74,24 +74,24 @@ public final class RvConnectionDialog extends JDialog {
     private static final int MAX_WIDTH = 160;
 
     private static final long serialVersionUID = 8834430809279507334L;
-    
+
     private final JTextField daemon  = new JTextField(10);
 
     private final JTextField description = new JTextField(10);
-    
+
     private boolean isCancelled = false;
-    
+
     private final JTextField network = new JTextField(10);
-    
+
     private final RvConnection connection;
 
     private final JTextField service = new JTextField(10);
-    
+
     private final JTextArea  subject = new JTextArea(3, 10);
 
     /**
      * Create a new dialog.
-     * 
+     *
      * @param initial The initial parameter values to display, may be <code>null</code>.
      */
     public RvConnectionDialog(RvConnection initial) {
@@ -106,7 +106,7 @@ public final class RvConnectionDialog extends JDialog {
         setSize(size);
         UIUtils.centerWindowOnScreen(this);
     }
-    
+
     private void buildButtonArea() {
         final Action ok = new OKAction();
         final Action cancel = new CancelAction();
@@ -138,7 +138,7 @@ public final class RvConnectionDialog extends JDialog {
         daemon.setText(connection != null ? connection.getDaemon() : RvConnection.DEFAULT_DAEMON);
         subject.setToolTipText("Put multiple subjects on separate lines");
         subject.setBorder(daemon.getBorder());
-        if (connection != null && connection.getNumSubjects() > 0) { 
+        if (connection != null && connection.getNumSubjects() > 0) {
             final StringBuffer buffer = new StringBuffer();
             for (final Iterator i = connection.getSubjects().iterator(); i.hasNext(); )
                 buffer.append(i.next()).append("\n");

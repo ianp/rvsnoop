@@ -81,7 +81,7 @@ public final class MessageLedger {
         super();
         final EventList matchers = GlazedLists.eventList(Arrays.asList(new MatcherEditor[] {
             SubjectHierarchy.INSTANCE.getMatcherEditor(),
-            RecordType.getMatcherEditor(), filterMatcherEditor
+            RecordTypes.getInstance().getMatcherEditor(), filterMatcherEditor
         }));
         final CompositeMatcherEditor matcherEditor = new CompositeMatcherEditor(matchers);
         matcherEditor.setMode(CompositeMatcherEditor.AND);
@@ -99,7 +99,7 @@ public final class MessageLedger {
     }
 
     public void clear() {
-        final Lock lock = eventList.getReadWriteLock().writeLock();
+        final Lock lock = getLock().writeLock();
         try {
             lock.lock();
             eventList.clear();

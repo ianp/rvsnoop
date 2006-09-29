@@ -31,7 +31,7 @@ import rvsnoop.State;
  * <p>
  * This will render the name of the connection and, in a smaller and lighter
  * type face, any non standard service, network, and/or damon parameters.
- * 
+ *
  * @author Ian Phillips (<a href="mailto:ianp {at} ianp {dot} org">ianp {at}
  *         ianp {dot} org</a>)
  * @version $Revision$, $Date$
@@ -67,7 +67,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
     private final boolean isHidingNonDefaults;
 
     private final JList list;
-    
+
     private final JLabel network = new JLabel();
 
     private final JPopupMenu popupMenu = new JPopupMenu();
@@ -158,7 +158,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList,
      *      java.lang.Object, int, boolean, boolean)
      */
@@ -177,7 +177,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         configureTooltip(connection);
         return this;
     }
-    
+
     private void popup(RvConnection connection, int x, int y) {
         popupMenu.removeAll();
         popupMenu.add(connection.getStartAction());
@@ -185,7 +185,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         popupMenu.add(connection.getStopAction());
         popupMenu.show(list, x, y);
     }
-    
+
     /**
      * Overridden for performance reasons.
      * <p>

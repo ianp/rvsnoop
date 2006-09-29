@@ -21,6 +21,12 @@ public final class Version {
     // work in an IDE having the Ant filter tags in their raw form
     // just won't cut it, so this is a (lame) work-around.
 
+    private static final boolean ALPHA =
+        Boolean.valueOf("@version.alpha@").booleanValue();
+
+    private static final boolean BETA =
+        Boolean.valueOf("@version.beta@").booleanValue();
+
     private static final String DATE = "@build.date@";
 
     private static final int MAJOR = Integer.parseInt("@version.major@");
@@ -28,6 +34,8 @@ public final class Version {
     private static final int MINOR = Integer.parseInt("@version.minor@");
 
     private static final int PATCH = Integer.parseInt("@version.patch@");
+
+    private static final int BUILD_NUMBER = Integer.parseInt("@build.number@");
 
     public static String getDateString() {
         return DATE;
@@ -45,19 +53,34 @@ public final class Version {
         return PATCH;
     }
 
+    public static int getBuildNumber() {
+        return BUILD_NUMBER;
+    }
+
+    private static String getBuildType() {
+        return (ALPHA ? " α" : "") + (BETA ? " β" : "");
+    }
+
     public static String getAsString() {
-        return "@version@";
+        return "@version@" + getBuildType();
     }
 
     public static String getAsStringWithName() {
-        return "rvSnoop @version@";
+        return "rvSnoop @version@" + getBuildType();
     }
 
-    /**
-     * Do not instantiate.
-     */
+    public static String getAsStringWithNameAndBuildNumber() {
+        return "rvSnoop @version@ (Build @build.number@" + getBuildType() + ")";
+    }
+
+    public static boolean isFinal() {
+        return !ALPHA && !BETA;
+    }
+
+    /** Private constructor. Do not instantiate. */
     private Version() {
         throw new UnsupportedOperationException();
     }
 
 }
+

@@ -91,7 +91,7 @@ public final class Record implements Serializable {
      * Magic number that represents a single record entry in a byte stream.
      * <p>
      * The format of a single record entry is
-     * <pre>MAGIC_NUMBER CONNECTION? CONNECTION_INFO TIMESTAMP LENGTH MESSAGE</pre>
+     * <pre>MAGIC_NUMBER CONNECTION? CONNECTION_INFO TIMESTAMP LENGTH HEADER_MESSAGE</pre>
      * where connection is a boolean, if it is true then connection info is
      * stored as four null terminated strings representing description, service,
      * network, and daemon, respectively. If connection is false then connection
