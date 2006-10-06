@@ -4,20 +4,15 @@
 //:FileID:  $Id$
 package rvsnoop.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -39,6 +34,8 @@ public final class ColourButtonTableCellRenderer extends JLabel implements
 //        ColourButton() {
 //            setOpaque(true);
 //        }
+//        TODO: override paintComponent then we don't need to generate the
+//              solid colour icon anymore, then remove the map.
 //
 //        /** Overridden for performance reasons. */
 //        public void repaint(long tm, int x, int y, int width, int height) {
@@ -78,7 +75,7 @@ public final class ColourButtonTableCellRenderer extends JLabel implements
 
 //    private final JButton button = new ColourButton();
 
-    private final Map icons = new HashMap(); // <Color, Icon>
+//    private final Map icons = new HashMap(); // <Color, Icon>
 
     /**
      * Creates a colour button table cell renderer.
