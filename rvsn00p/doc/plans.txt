@@ -1,0 +1,494 @@
+# RvSnoop Features Roadmap
+
+This file contains an overview of the planned features in future
+versions of RvSnoop. Any alterations should be formatted using
+[Markdown][MD] syntax.
+
+This file is version `$Id$`
+
+[MD]: http://daringfireball.net/projects/markdown
+
+## Release 1.6	
+
+The target release date for 1.6 is late November, 2006. This means
+that it should be into beta by the beginnning of that month.
+
+### Build System Clean Up
+
+Add in all of the planned dependencies, this should be no problem
+because proguard will strip the classes at dist time until they are
+used. This will let us selectively use classes as they are needed
+(e.g. the tuple binding stuff from BDB).
+
+Since proguard is no longer being used that isn't true any more. But
+the build system needs altering to produce a single distributable
+rather than separate source and binary versions.
+
+### Add ‘Delete Connection’ Action
+
+My current thinking on this to reqork the connection class to use a
+separate list based class, not really a factory as it will not be
+used for object creation, but a a class that handles activating and
+deactivating connections.
+
+* Add a connection list class (Connections)
+
+  Which should be a singleton and, initially, be a regular event
+  list. Maybe later it will need to become a grouped event list to
+  should, e.g. EMS connections as well.
+
+* Make the constructors for RvConnection public
+
+  Validation of arguments shouldn't take place until added to the
+  connection list. When a connection is added to the connection list
+  it should check that a similarly configured connection does not
+  already exist.
+
+* Connections are inactive when not in the list
+
+  Connections MUST be in the list before start/stop/pause can be
+  called. Removing a connection from the list stops it.
+
+### Make Projects be Directory Based
+
+With an rvsnoop-project.xml file, use the folder name for the
+project name, add an rvsnoop-project.xml file for project metadata;
+this should include record types and connections, in future it
+should also store probes and any other project artifacts. There
+should also be a subjects.xml file with the subject hierarchy in it.
+Later we may want to add an undo-history.xml file with the undo
+history in it.
+
+An alternative approach would be to use multiple small files with
+different types of data in each?
+
+In either case, we need to have a migrator for the RSP file format.
+This should create a new directory with the same name (sans the .rsp
+extension), then migrate the contents of the rsp file to the various
+project files.
+
+Subfolders in the project could include...	
+
+* messages
+
+  For all of the message bodies and meta data, message bodies have a
+  '.msg' extension, metadata files have .meta extension. Note: if
+  timestamps are going to be stored as longs we will need to add
+  timezone information to the project file.
+
+* index
+
+  For the lucense index files
+
+### Add ConnectionList and MessageLedger Selection Events
+
+Use these to enable/disable actions. This shoulod use
+KeyboardFocusManager, and look at the way Eclipse handles focus
+management for ideas.
+
+### Sniff Opaques for Serialized Java Data
+
+This should show some information about the serialized object and
+allow methods to be invoked where they take no arguments, or only
+primitive values. Probably just include viewing in this version.
+
+### Remove MsgType from Record, Apply it Dynamically in Views
+
+Also, allow user defined types. This needs to have a UI, based on a
+list of "RecordTypePanel" or similar, with add/remove/up/down
+buttons for the list. It will also need a dedicated dialog to
+display this, and an action to put in the menu bar. Allow types to
+be used in filters (and then remove the "type" submenu from the
+view).
+
+Rename MsgType to RecordType. Record types should be global or
+project specific, global record types are stored in the general
+preferences, project specific record types are stored in the
+project.xml file. NO: this conflicts with the next idea... Allow
+type names to be changes but check that the name is unique before
+changing it.
+
+Create a RecordTypePanel component to display information about a
+RecordType. Create a RecordTypesDialog to display a list of
+RecordTypePanels. NOTE: It turns out that this is a royal pain in
+the ass to do, and 90% of the functionality can be had by using a
+JTable instead so I'm going to do that for now. This needs
+revisiting later to improve the user interface.
+
+Use the Drag n' Ghost effect with a custom panel/layout manager
+(based on Box/BoxLayout). The custom layout should just be a
+copy-paste from the JDK sources but make the internal fields
+accesible. NOTE: Keep the drag n' ghost effect but ditch the layout
+manager idea.
+
+### Check for Changes to the Config Files Before Saving
+
+Use CRC32 or similar, hash on opening and save hash. If the hash is
+different when we go to write the file pop a dialog asking for
+confirmation.
+
+### Add String Flavour Support to RecordSelectable
+
+Use the marshaller to serialize records to strings. While we are at
+it, allow unmarshalling directly from byte[] as well as
+Transferrable; and enhance RecordSelection to support single
+messages directly as well as in arrays of 1 message (i.e. without
+the BIND_RECORD_SET_MAGIC header).
+
+Some thought needs to be given as to how we will handle the default
+copy behaviour, my current thinking is that the default should be to
+copy byte streams (like it does now), but maybe add a menu option to
+"copy as ..." for the different marshaller types.
+
+A though occurs here that I should include a default XML
+serialization format for messages, the ideal would be to agree a
+format with Stefan then it can be shared between RvSnoop and
+RvScript, probably the best approach would be to just use the
+RvScript format but stuff it into a namespace, hopefully Stefan will
+agree to use this approach in a new version of RvScript.
+
+This may be a good time to get rid of the BDBJE dependency since we
+are no longer planning to use it. At the moment it isn't doing
+anything that DataInput/DataOutput couldn't do.
+
+### Add Selectable Support to the Details Panel
+
+To allow cut/paste of field values.
+
+### Add A Column for Wire Size to the Message Ledger
+
+This would mean adding a field for wire size to the record class,
+there will be an impact on read performance, but it is something
+that we will have to pay eventually anyway as the message bytes will
+need to be marshalled into a persistent store.
+
+Need to think about the API for the message store here, I'm assuming
+that records will not hold references to the file objects but will
+get them from a StoreManager or similar by SequenceNumber. Probably
+the best way to add a record to the store is via a method like this:
+
+    Record record = ...
+    MessageStore store = MessageStore.getInstance();
+    byte[] bytes = record.getAsBytes(); // new method!
+    store.add(record.getSequenceNumber(), bytes);
+
+### Polish!	
+
+This means ensuring that there are no unrequired PMD warnings on the
+source.
+
+* This means fixing ALL of the FIXME level comments in the code.
+
+* This means ensuring that the docs and release notes are up to
+  date.
+
+* This means considering adding Lint4J to the build and fixing
+  anything that it suggests, although it may be better to add this
+  as part of 1.7 instead.
+
+### Bug Fix!
+
+There is a bug in the FontChooser that causes the size to reset
+whenever the family or style is changed.
+
+There should be no open bugs in the bug tracker on SF.
+
+## Release 1.7
+
+There isn't really a target release date for 1.7 yet, but assume
+sometime in Q1 2007.
+
+### Move Preferences to a Dedicated Dialog
+
+Get rid of the configure menu. Think about how preferences will be
+organized, bearing in mind the long term plan to move to something
+like an OSGi runtime. The trick here is to move to something that
+would then be easy to port to the OSGi system.
+
+Ideally this would use the java.util.prefs classes but the default
+implementations suck big time. Look into how much work it would be
+to implement our own preferences class.
+
+If there is a 'facade' of JavaBeans over the underlying preferences
+classes then it becomes easy to use binding & validation to present
+a user interface.
+
+Include an option to show date & time vs. only time in the ledger.
+
+* Create a panel to allow configuration of fonts & colours.
+
+* Create a panel to allow configuration of date & time views.
+
+### Add an Export Dialog
+
+Have the different export formats available via a combo box.
+
+### Move to a Single FilterLedger Action with a Dedicated Dialog
+
+Have edit filter and filter by selection actions. Filter by
+selection should try to produce a filter matching all selected
+records.
+
+The first time filter is applied it should work like filter by
+selection, aftwerwards it should edit the current filter.
+
+### Prepare All Strings for I18N
+
+A neat idea would be to write a script that automatically creates
+transaltions via google. Of course these should be checked by hand
+if possible before shipping.
+
+Note that at this stage we're just talking about strings, not icons
+or other resources (i.e. documentation).
+
+* Speak to Orjan L about getting a Swedish translation.
+
+* Speak to Jone A about getting a Norwegian translation.
+
+## Release 2.0
+
+There isn't really a target release date for 2.0 yet, but assume
+sometime towards the end of 2007, exactly when depends on how
+ambitious we get with new features.
+
+### Move to Either the Java SPI or OSGi Runtime Mechanism
+
+See the [Sun web site][JSPI] for details. Also note that the Service
+class is `sun.misc.Service`. Or, a possibly better but more
+intrusive change would be switch to an [OSGi runtime][OSGI],
+possibly [Equinox][EE] from Eclipse or the [Knopflerfish][KF] OSGi
+runtime. Using OSGi in this way would make these mechanisms
+extension points for a 'core' bundle.
+
+[JSPI]: http://java.sun.com/j2se/1.4.2/docs/guide/jar/jar.html#Service%20Provider
+[OSGI]: http://www.osgi.org/
+[EE]: http://www.eclipse.org/equinox
+[KF]: http://www.knopflerfish.org/
+
+* The export/marshalling mechanism.
+
+* The action manager.
+
+  This may or may not be a good idea, it could be a neat way to
+  allow custom actions to be added however. This would ideally need
+  a means of adding custom actions to the menu bar and tool bar,
+  which would either need these to be built up dynamically or at
+  least have well known "addition" points in them.
+
+
+* A mechanism for displaying custom data types in a smart manner.
+
+* To be used in the ledger and detail views.
+
+* Filters to be used when searching and matching record types.
+
+* Possibly ledger persistence providers.
+
+  This should probably be added after 2.0, either as a point release
+  or in the next major revision.
+
+### Break out utilities and make them a dependency
+
+
+The utilities should be available from ianp.org and stored in
+subversion there. All of the utilities should be standalone. Allow
+the status bar to depend on Logger though.
+
+A (probably better) alternative is to include commons-lang as a
+dependency. This could be done much earlier (maybe include both
+commons-logging and commons-lang when BDBJE is removed).
+
+### Add LedgerSnoop Tool Based on TIB Ledger Viewer Type Idea
+
+### Add Support for Flying Saucer and use that to Display Help, &c.
+
+Not too sure how useful this will be in practice, it may make more
+sense to clean up the browserlauncher code and stick with that. An
+alternative would be go move to a JavaHelp based system.
+
+### Add in Support for Persistent Message Stores.
+
+I'm unclear as to when this should happen, in 1.7 or 2.0? Probably
+2.0 as it'll be a big change. What follows is some thinking based on
+the use of BDBJE as a messaage store and other ideas, I'm not sure
+all of them are good ones!
+
+An alternative to [BDBJE] would be to just use a simple on disk
+serialization format. Or maybe a hybrid of the two. Use BDBJE for
+the meta-data (any free text indexes!) and serialize the actual
+messages to disk, this could be handled via the serialization format
+or just by writing the raw toByteArray() output to a file. I'd
+prefer to use the serialization format but provide a utility to
+strip it if required (Snoop Serialized Object or xxxxxx.sso for the
+file name).
+
+Record may need to have 2 IDs, one for the original sequenceNumber
+(as used to persist the record) and another for the rowNumber, which
+would allow for records being deleted.
+
+Look into using deferred write databases, maybe as a configuration
+option. Do a sync on a scheduled basis, or every X messages maybe.
+
+* Look at the RecordSelection code to reuse in tuplebindings.
+
+* For stream format use:
+
+      RVMBSF01 - magic string - RV message byte stream format
+      int - number of messages
+      ...
+
+  For each message use
+
+      RVMBSF02 - magic string
+      connection - connection - store as name or serialized data?
+      long - timestamp
+      bytebuffer - message.toByteArray()
+      ...
+
+* Or maybe just use a disk based storage mechanism and Lucene?
+
+  This would probably need some sort of minimal indexing scheme to
+  map records to row numbers, and vice versa. Fields in the record
+  would become document fields in the lucene index. If it makes
+  lucene faster, it may still make sense to use a BDB backed index.
+
+### Write a *much* Better XHTML Exporter
+
+Get rid of the marshaller code, but still allow a custom marshalling
+hook to be used for exporting though.
+
+Provide a smart JavaScript & CSS library with the reports to allow
+collapsible trees to be used in the table, and table sorting. Embed
+the JS & CSS though, don't use separate files.
+
+### Add in Support for JList as well as JTree based subject views
+
+Like the package explorer in IntelliJ. This could maybe be done with
+a 'SubjectViewProvider' SPI.
+
+### Add a Real Submit Bug Action and Dialog
+
+
+Maybe. This would require logging in to SF and submitting the
+correct form values. It should be possible using Commons HTTP
+Client. Or moving to a different provider of 'project services'.
+
+### Add a Preview Accessory to the File Chooser
+
+This should show the project name and a list of connections.
+
+### Add Charting
+
+This should allow arbitrary fields from arbitrary subject patterns
+to be added to a chart. This will need a simple way of referring to
+fields from messages, it should be possible to set up a chart by
+clicking on a sample message and selecting some fields. Maybe "Add
+Probe..." to add a data capture probe, this could then be plotted on
+a chart. Probes could be added via an SPI interface.
+
+The code to select fields in a message should be generic, and should
+ideally be compiled rather than parsed at each invocation, this way
+it could be used to grab fields from a "causal chain" as well. Maybe
+make it XPath based using either Saxon-B or Jaxen?
+
+### Make Minimum Java Version 1.5
+
+Should be OK since TIBCO will have been 1.5 based for at least a
+year by the time 2.0 is released.
+
+Probably rearrange the package names to be org.rvsnoop instead of
+rvsnoop while we are at it.
+
+This will allow us to easily use the JavaBeans binding (JSR-295) and
+Fabric app framework, although we would want to modify them
+slightly. Although, if we move to OSGi we won't need the Fabric
+framework; and I'm starting to think that JGoodies Forms & Binding
+are better than GroupLayout & JSR-295, so we may want to stick with
+those.
+
+The SwingX stuff is cool though.
+
+### Upgrade Ant to 1.7 and Clean up Build Script (again!)
+
+Ant 1.7 should make e.g. SVN support better. Also, I'm guessing that
+the move to OSGi will make the build process quite a bit more
+convoluted!
+
+## Unspecified Future Version (Refactoring)
+
+These features should probably be blogged about to solicit feedback,
+then they can be slotted in to releases as demanded. Note that some
+of these ideas are pretty pie-in-the-sky but it's good to try to
+keep track of them somewhere!
+
+### Improve RecordMatcher
+
+Generalize it to NamedMatcher. Add a method for isValueValid which could be used in GUI validators. Or throw an exception for invalid values.
+
+### Move to Using MultiSplitPane for the Main Window Layout
+
+Create a project based on MultiSplitPane but ported to Java 1.4.2
+(maybe). Enhance this so that it has collapsible panes and named
+panes. Look at iTunes for UI design. Move RvSnoop to use this
+project instead of nested JSplitPanes
+
+### Add a Whole Bunch of JUnit Tests
+
+This should get easier as the ledger is separated out more cleanly.
+Probably as part of 1.7 we should start moving things towards the
+required layout for OSGi, then we can start adding tests based on
+that.
+
+### Add a View to Display XML Documents as Text
+
+Use styled text to provide highlighting for elements, etc. nShould
+there be preferences to display XML inline in the details view?
+Should it be a context action to view in a new window? Or a
+double-click action on XML document fields?
+
+### Write a Custom Look & Feel
+
+Base this on PlasticXP, use the gradient caching stuff from
+Mustang's Synth L&F. This is really a *lot* of work, but maybe some
+features could be written independently and used as stand alone UI
+delegates?
+
+### Draw Custom Icons
+
+This, of course, assumes that I have some artistic skill, which is
+probaly bullshit!
+
+### Add a "Tip of the day" Dialog
+
+Or maybe a "Productivity Tips" progress dialog like IntelliJ IDEA uses.
+
+### Integrate a Rules Engine
+
+A first step towards features like this may be to generalize and
+expand the matcher support. Split things like record types into
+matchers and actions.
+
+### Separate out the User Guide and the Web Site
+
+These really should be different, even if there is some overlap
+(e.g. FAQ). Specifically, look at some of the advice on the Google
+Analytics site to improve naviagtion and content on the site. the
+web site should have more overview information, some use-cases for
+rvSnoop, and less actual product docs. the product docs should be
+more in-depth, especially moving towards 2.0.
+
+Looking at the browsers visiting the site it really needs to look
+good in IE 6.0! At the same time, the local docs could be XHTML
+displayed via Flying Saucer.
+
+Everybody seems to use fucking massive monitors! So it's not at all
+a problem going to an 800x600 or 1024x768 based layout.
+
+### Add More Visualizations for Data
+
+For example, add [sparklines][SL] to the subject explorer tree to
+represent message rates and bytes. Probably a good idea to buy the
+[new Tufte book][BE] for ideas.
+
+[SL]: http://www.representqueens.com/spark/
+[BE]: http://www.edwardtufte.com/tufte/books_be
