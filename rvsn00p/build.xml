@@ -2,78 +2,94 @@
 <!-- Build file tested with Ant version 1.6.5. -->
 <!-- $Id$ -->
 <project name="rvsnoop" default="-usage" basedir=".">
-  <description>Build file for rvSnoop. A TIBCO Rendezvous message viewing utility.</description>
-
-  <property file="local.properties"/>
-
-  <property name="version.major" value="1"/>
-  <property name="version.minor" value="5"/>
-  <property name="version.patch" value="3"/>
-  <property name="version" value="${version.major}.${version.minor}.${version.patch}"/>
-
-  <property name="dir.orig.bin"  value="bin"/>
-  <property name="dir.orig.doc"  value="doc"/>
-  <property name="dir.orig.src"  value="src"/>
-
-  <property name="dir.build"     value="build"/>
-  <property name="dir.build.bin" value="${dir.build}/bin"/>
-  <property name="dir.build.doc" value="${dir.build}/doc"/>
-  <property name="dir.build.lib" value="${dir.build}/lib"/>
-  <property name="dir.build.src" value="${dir.build}/src"/>
-  <property name="dir.build.www" value="${dir.build}/www"/>
-
-  <property name="dir.dist"      value="dist/rvsnoop-${version}"/>
-  <property name="dir.dist.bin"  value="${dir.dist}/bin"/>
-  <property name="dir.dist.doc"  value="${dir.dist}/doc"/>
-  <property name="dir.dist.lib"  value="${dir.dist}/lib"/>
-  <property name="dir.dist.src"  value="${dir.dist}/src"/>
-
-  <property name="file.version"  value="version.xml"/>
-  <property name="file.suffix"   value=".html"/>
-
-  <property name="report.pmd" value="pmd"/>
-
-  <!-- Import environment variables as properties, prefixed with "env". -->
-  <property environment="env"/>
-
-  <path id="path.class">
-    <!-- Define our class path first. -->
-    <pathelement location="${tibco.rv}/lib/tibrvj.jar"/>
-    <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
-    <pathelement location="${tibco.rvscript}"/>
-    <pathelement location="${tibco.rvtest}"/>
-    <pathelement location="${berkdb}"/>
-    <pathelement location="${forms}"/>
-    <pathelement location="${glazed}"/>
-    <pathelement location="${looks}"/>
-    <pathelement location="${xmlenc}"/>
-    <pathelement location="${xom}"/>
-    <!-- Append the system class path. -->
-    <pathelement path="${env.java.class.path}"/>
-  </path>
+  <description>A TIBCO Rendezvous message viewing utility.</description>
 
   <!-- Helper targets. -->
 
   <target name="-usage" description="Display a short help message.">
     <echo>Use "ant -projecthelp" to get a list of build targets.</echo>
-    <echo>Copy build.properties to local.properties and configure your build environment.</echo>
-    <echo>This will prevent your changes from being overwritten when you sync. your working folder.</echo>
+    <echo>Copy build.properties to local.properties and configure your build</echo>
+    <echo>environment. This will prevent your changes from being overwritten</echo>
+    <echo>when you synchronize your working folder.</echo>
   </target>
 
-  <target name="-init" description="Set the timestamp and revision number for the build.">
+  <target name="-tstamp" description="Set the timestamps and read the properties file.">
     <tstamp/>
     <tstamp><format property="build.date" pattern="yyyy-MM-dd HH:mm:ss"/></tstamp>
     <tstamp><format property="build.year" pattern="yyyy"/></tstamp>
-    <exec executable="svnversion" spawn="false" dir="." output="build.number" failifexecutionfails="false">
+    <property file="local.properties"/>
+  </target>
+    
+  <target name="-svnversion" description="Get the build version." unless="svnversion.offline" depends="-tstamp">
+    <exec executable="${svnversion}" spawn="false" dir="." output="build.number" failifexecutionfails="false">
+      <arg line="."/>
+    </exec>
+    <replaceregexp file="build.number" match="([0-9]+).*" replace="build.svnversion=\1" />
+    <property file="build.number" />
+    <delete file="build.number" />
+  </target>
+    
+    
+  <target name="-init" description="Configure the properties and filtersets." depends="-svnversion">
+    <property name="version.major" value="1"/>
+    <property name="version.minor" value="6"/>
+    <property name="version.patch" value="0"/>
+    <property name="version.alpha"  value="true"/>
+    <property name="version.beta"  value="false"/>
+    <property name="version" value="${version.major}.${version.minor}.${version.patch}"/>
+    <property name="dir.orig.bin"  value="bin"/>
+    <property name="dir.orig.doc"  value="doc"/>
+    <property name="dir.orig.src"  value="src"/>
+    <property name="dir.build"     value="build"/>
+    <property name="dir.build.bin" value="${dir.build}/bin"/>
+    <property name="dir.build.doc" value="${dir.build}/doc"/>
+    <property name="dir.build.lib" value="${dir.build}/lib"/>
+    <property name="dir.build.src" value="${dir.build}/src"/>
+    <property name="dir.build.www" value="${dir.build}/www"/>
+    <property name="dir.dist"      value="dist/rvsnoop-${version}"/>
+    <property name="dir.dist.bin"  value="${dir.dist}/bin"/>
+    <property name="dir.dist.doc"  value="${dir.dist}/doc"/>
+    <property name="dir.dist.lib"  value="${dir.dist}/lib"/>
+    <property name="dir.dist.src"  value="${dir.dist}/src"/>
+    <property name="file.version"  value="version.xml"/>
+    <property name="file.suffix"   value=".html"/>
+    <property name="report.pmd"    value="pmd"/>
+    <!-- Import environment variables as properties, prefixed with "env". -->
+    <property environment="env"/>
+    <path id="path.class">
+      <!-- Define our class path first. -->
+      <pathelement location="${tibco.rv}/lib/tibrvj.jar"/>
+      <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
+      <pathelement location="${tibco.rvscript}"/>
+      <pathelement location="${tibco.rvtest}"/>
+      <pathelement location="${lib.berkdb}"/>
+      <pathelement location="${lib.binding}"/>
+      <pathelement location="${lib.forms}"/>
+      <pathelement location="${lib.glazed}"/>
+      <pathelement location="${lib.looks}"/>
+      <pathelement location="${lib.xmlenc}"/>
+      <pathelement location="${lib.xom}"/>
+      <!-- Append the system class path. -->
+      <pathelement path="${env.java.class.path}"/>
+    </path>
+    <condition property="build.number" value="${build.svnversion}" else="0">
+      <isset property="build.svnversion"/>
+    </condition>
+    <!--
+    <exec executable="${svnversion}" spawn="false" dir="." output="build.number" failifexecutionfails="false">
       <arg line="."/>
     </exec>
     <replaceregexp file="build.number" match="([0-9]+).*" replace="build.number=\1" />
     <property file="build.number" />
     <delete file="build.number" />
+    -->
+    <echo>Build number set to ${build.number}.</echo>
     <filterset id="filters">
       <filter token="version.major" value="${version.major}"/>
       <filter token="version.minor" value="${version.minor}"/>
       <filter token="version.patch" value="${version.patch}"/>
+      <filter token="version.alpha" value="${version.alpha}"/>
+      <filter token="version.beta"  value="${version.beta}"/>
       <filter token="version"       value="${version}"/>
       <filter token="java.vendor"   value="${java.vendor}"/>
       <filter token="java.version"  value="${java.version}"/>
@@ -87,16 +103,7 @@
     </filterset>
   </target>
 
-  <target name="cvs.update" description="Fetch the latest copy of the source code from CVS.">
-      <cvspass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/rvsn00p"/>
-      <cvs command="update -P" package="rvsn00p" compression="true"
-           cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/rvsn00p">
-      </cvs>
-  </target>
-
-  <!-- Targets to build and package a release. -->
-
-  <target name="prepare" depends="-init" description="Prepare the source code for compilation.">
+  <target name="compile" depends="-init" description="Compile all of the Java class files.">
     <mkdir dir="${dir.build.bin}"/>
     <mkdir dir="${dir.build.doc}"/>
     <mkdir dir="${dir.build.lib}"/>
@@ -106,9 +113,6 @@
       <filterset refid="filters"/>
       <fileset dir="${dir.orig.src}" includes="**/*.java"/>
     </copy>
-  </target>
-
-  <target name="compile" depends="prepare" description="Compile all of the Java class files.">
     <javac srcdir="${dir.build.src}" destdir="${dir.build.lib}" includes="**/*.java"
            debug="${javac.debug}" optimize="${javac.optimize}" encoding="UTF-8"
            deprecation="${javac.deprecation}" source="1.4" target="1.4">
@@ -123,6 +127,7 @@
       <filterset refid="filters"/>
       <fileset dir="${dir.orig.bin}" includes="*.cmd, *.sh"/>
     </copy>
+    <chmod dir="${dir.build.bin}" includes="*.sh" perm="750"/>
     <copy todir="${dir.build.bin}">
       <fileset dir="${dir.orig.bin}" includes="*.ico"/>
     </copy>
@@ -146,7 +151,7 @@
     </copy>
   </target>
 
-  <target name="javadoc" depends="prepare"
+  <target name="javadoc" depends="compile"
           description="Compile all of the Java API documentation.">
           <!-- Needs to compile first to filter the source. -->
     <mkdir dir="${dir.build.doc}"/>
@@ -169,7 +174,6 @@
     <copy todir="${dir.dist.bin}">
       <fileset dir="${dir.build.bin}" includes="*"/>
     </copy>
-    <chmod dir="${dir.dist.bin}" includes="*.sh" perm="750"/>
     <echo>Packaging the documentation.</echo>
     <mkdir dir="${dir.dist.doc}"/>
     <mkdir dir="${dir.dist.doc}/images"/>
@@ -184,7 +188,7 @@
     </copy>
     <echo>Packaging the libraries.</echo>
     <mkdir dir="${dir.dist.lib}"/>
-    <jar jarfile="${dir.build.lib}/rvsnoop.jar" compress="true"
+    <jar jarfile="${dir.dist.lib}/rvsnoop.jar" compress="true"
       manifestencoding="UTF-8" index="true" basedir="${dir.build.lib}"
       includes="**/*.class, **/*.png, **/*.gif, **/*.properties">
       <manifest>
@@ -195,47 +199,15 @@
         <attribute name="Main-Class" value="rvsnoop.StartRvSnooper"/>
       </manifest>
     </jar>
-    <taskdef resource="proguard/ant/task.properties" classpath="${proguard}"/>
-    <!-- Ignore warnings is there to skip classes referenced by XOM's -->
-    <!-- test suite but not actually used by the application.-->
-    <proguard obfuscate="false" warn="false" ignorewarnings="true" printusage="${dir.build}/proguardusage.txt">
-      <injar>
-        <pathelement location="${dir.build.lib}/rvsnoop.jar"/>
-        <pathelement location="${berkdb}"/>
-        <pathelement location="${forms}"/>
-        <pathelement location="${glazed}"/>
-        <pathelement location="${xmlenc}"/>
-        <pathelement location="${xom}"/>
-      </injar>
-      <outjar file="${dir.dist.lib}"/>
-      <libraryjar>
-        <pathelement location="${java.lib}"/>
-        <pathelement location="${tibco.rv}/lib/tibrvj.jar"/>
-        <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
-        <pathelement location="${tibco.rvscript}"/>
-        <pathelement location="${tibco.rvtest}"/>
-      </libraryjar>
-      <keep name="*" implements="java.io.Serializable">
-        <field access="private" type="long" name="serialVersionUID"/>
-      </keep>
-      <keep name="rvsnoop.StartRvSnooper">
-        <method access="public static" type="void" name="main" parameters="java.lang.String[]"/>
-      </keep>
-      <keep name="rvsnoop.AeMsgTreeNode">
-        <constructor access="public" parameters="com.tibco.tibrv.TibrvMsg"/>
-      </keep>
-      <keep name="rvsnoop.*" extends="rvsnoop.Marshaller$Implementation">
-        <method access="public" type="java.lang.String" name="getName" parameters=""/>
-        <method access="public" type="java.lang.String" name="marshal" parameters="java.lang.String,com.tibco.tibrv.TibrvMsg"/>
-        <method access="public" type="com.tibco.tibrv.TibrvMsg" name="unmarshal" parameters="java.lang.String"/>
-      </keep>
-      <keep name="rvsnoop.ui.MultiLineToolTipUI">
-        <method access="public static" type="javax.swing.plaf.ComponentUI" name="createUI" parameters="javax.swing.JComponent"/>
-      </keep>
-      <keep name="org.jaxen.saxpath.base.XPathReader"/>
-    </proguard>
-    <!-- Almost eveything in Swing PLAFs is loaded dynamically, so just copy it all. -->
-    <copy file="${looks}" todir="${dir.dist.lib}"/>
+    <copy todir="${dir.dist.lib}">
+      <fileset file="${lib.berkdb}"/>
+      <fileset file="${lib.binding}"/>
+      <fileset file="${lib.forms}"/>
+      <fileset file="${lib.glazed}"/>
+      <fileset file="${lib.looks}"/>
+      <fileset file="${lib.xmlenc}"/>
+      <fileset file="${lib.xom}"/>
+    </copy>
     <echo>Packaging the binary distributable.</echo>
     <tar destfile="rvsnoop-${version}-bin.tar">
       <tarfileset dir="${dir.dist}/.." mode="440" dirmode="750">
@@ -243,6 +215,8 @@
         <include name="rvsnoop-${version}/${file.version}"/>
         <exclude name="rvsnoop-${version}/bin/*.cmd"/>
         <exclude name="rvsnoop-${version}/bin/*.sh"/>
+        <exclude name="rvsnoop-${version}/src"/>
+        <exclude name="rvsnoop-${version}/doc/rvsnoop-api.jar"/>
       </tarfileset>
       <tarfileset dir="${dir.dist}/.." mode="640">
         <include name="rvsnoop-${version}/bin/*.cmd"/>
@@ -300,7 +274,7 @@
     </ftp>
   </target>
 
-  <!-- Targets to manage the web pages on SourceForge. -->
+  <!-- Targets to manage the web pages. -->
 
   <target name="web.compile" depends="-init"
     description="Prepare the files that make up the web site.">
@@ -348,7 +322,7 @@
 
   <!-- Static analysis & report generation. -->
 
-  <target name="analyze" depends="prepare" description="Analyze the code base and generate reports.">
+  <target name="analyze" depends="compile" description="Analyze the code base and generate reports.">
     <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpath="${pmd}"/>
     <pmd shortFilenames="true">
       <ruleset>rvsnoop.pmd</ruleset>
@@ -359,16 +333,9 @@
 
   <!-- Targets to clean up the workspace. -->
 
-  <target name="clean" description="Remove all of the generated files (build only).">
+  <target name="clean" description="Remove all of the generated files (not distributables)." depends="-init">
     <delete dir="${dir.build}/"/>
-  </target>
-
-  <target name="cleanall" depends="clean"
-    description="Remove all of the generated files (build &amp; distribution).">
-    <delete dir="${dir.dist}"/>
     <delete dir="${dir.dist}/.."/>
-    <delete file="rvsnoop-${version}-src.tgz"/>
-    <delete file="rvsnoop-${version}-bin.tgz"/>
   </target>
 
 </project>
