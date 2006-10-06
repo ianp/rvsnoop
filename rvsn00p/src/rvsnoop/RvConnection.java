@@ -362,7 +362,7 @@ public final class RvConnection {
      * <p>
      * This method hooks into the same add message code as is used in the
      * regular Rendezvous listeners, but is intended for use in loading messages
-     * from files or as a rsult of cut-and-paste actions.
+     * from files or as a result of cut-and-paste actions.
      *
      * @param message The message to add.
      */
