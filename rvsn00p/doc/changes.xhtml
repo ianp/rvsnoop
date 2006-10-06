@@ -30,6 +30,22 @@
       </div>
       <div class="content">
         <p>Request <acronym>ID</acronym> numbers refer to bug requests or feature requests on the <a href="http://sourceforge.net/tracker/?group_id=63447">SourceForge</a> page.</p>
+        <h2>Changes up to version 1.6.0 (Released 2006-??-??)</h2>
+        <ul>
+          <li>
+            Added a dialog to allow the user to configure different
+            record types. The underlying code to support this was
+            present in 1.5, but there was no way to access it short
+            of editing the saved project file by hand.
+          </li>
+          <li>
+            The build system no longer strips out unused classes
+            from the included libraries. This increases the size of
+            the download but in some cases the licenses of included
+            libraries require this, and it simplifies the build
+            process, which is a Good Thing.
+          </li>
+        </ul>
         <h2>Changes up to version 1.5.3 (Released 2006-05-22)</h2>
         <ul>
           <li>
@@ -60,7 +76,7 @@
           <li>
             Enhanced message ledger render so that it now uses an
             appropriate date &amp; time format depending on the width of the
-            timestamp column. Accordingly, the "configure date" menu
+            timestamp column. Accordingly, the ‘configure date’ menu
             option has been removed.
           </li>
           <li>
@@ -114,22 +130,6 @@
           <li>The build now depends on the <a href="http://www.jgoodies.com/downloads/libraries.html">JGoodies Forms</a> library and this has been used to convert some of the dialogs to use the forms layout manager. This should be apparent when resizing any of the dialogs (i.e. it should work now).</li>
           <li>A new actions framework has been put in place and some of the actions have been converted to use it, this results in much cleaner UI code.</li>
           <li>The <a href="http://pmd.sourceforge.net"><acronym>PMD</acronym></a> static code analyser has been run over the code with a fairly small ruleset and a number of changes have been made based on it’s report, there should be no user visible changes as a result of this but there are hundreds of minor changes visible throughout the source code.</li>
-        </ul>
-        <h2>Changes up to version 1.3.0 (Released 2005-12-21)</h2>
-        <ul>
-          <li>The configuration is saved and opened with <em>File → Open File → Save</em>.</li>
-          <li>Listeners are stored in the configuration file.</li>
-          <li>A new tree view has been implemented for the message display, this is displayed along with the text view in a tabbed panel. The old style text-only view can be used via the <code>-textonly</code> switch. The tabbed view can be suppressed, displaying only the new style tree, via the <code>-treeonly</code> switch.</li>
-          <li>Finished adding a ‘recent listeners’ facility to the file menu. These are serialized to an <acronym>XML</acronym> file when the application shuts down.</li>
-          <li>Improved the start scripts.</li>
-          <li>Updated <acronym>ASF</acronym> license to use version 2.0.</li>
-          <li>Updated copyright notices for new license.</li>
-          <li>Fixed bug in <code>RvParameters</code> object whereby the hash code could change over the objects life-cycle, thus preventing it from being added to collections.</li>
-          <li>Updated the configuration manager to use <a href="http://www.xom.nu"><acronym>XOM</acronym></a> (version 1.1) to read and write the <acronym>XML</acronym> based configuration files, this ensures that they are always well formed <acronym>XML</acronym>. A <acronym>DTD</acronym> for the configuration file will be added in a later version.</li>
-          <li>A new build system.</li>
-          <li>Cleaned up lots of code so that the Eclipse code checker no longer generates any warnings.</li>
-          <li>Removed the raccoon code as it does not compile against the current version of Raccoon.</li>
-          <li>Corrected some minor spelling mistakes.</li>
         </ul>
       </div>
       <div class="footer">
