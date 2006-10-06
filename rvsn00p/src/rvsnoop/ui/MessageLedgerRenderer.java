@@ -34,7 +34,7 @@ final class MessageLedgerRenderer implements TableCellRenderer {
     /**
      * Cell renderer that selects a date representation based on the current column width.
      *
-     * @author Ian Phillips (<a href="mailto:ianp {at} ianp {dot} org">ianp {at} ianp {dot} org</a>)
+     * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
      * @version $Revision$, $Date$
      */
     private static class DateCellRenderer extends DefaultTableCellRenderer {

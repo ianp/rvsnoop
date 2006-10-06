@@ -32,8 +32,7 @@ import rvsnoop.State;
  * This will render the name of the connection and, in a smaller and lighter
  * type face, any non standard service, network, and/or damon parameters.
  *
- * @author Ian Phillips (<a href="mailto:ianp {at} ianp {dot} org">ianp {at}
- *         ianp {dot} org</a>)
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
 public final class ConnectionListRenderer extends JPanel implements ListCellRenderer {
