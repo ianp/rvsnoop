@@ -182,6 +182,8 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         popupMenu.add(connection.getStartAction());
         popupMenu.add(connection.getPauseAction());
         popupMenu.add(connection.getStopAction());
+        popupMenu.addSeparator();
+        popupMenu.add(connection.getRemoveAction());
         popupMenu.show(list, x, y);
     }
 

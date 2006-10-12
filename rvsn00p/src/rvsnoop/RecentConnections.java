@@ -161,7 +161,7 @@ public final class RecentConnections extends XMLConfigFile implements ListEventL
         }
         return instance;
     }
-    
+
     // This needs to be LinkedList then we can use the removeLast method.
     private final LinkedList connections = new LinkedList();
 
@@ -196,7 +196,7 @@ public final class RecentConnections extends XMLConfigFile implements ListEventL
     public RvConnection getLastConnection() {
         return (RvConnection) (connections.size() > 0 ? connections.getFirst() : null);
     }
-    
+
     /* (non-Javadoc)
      * @see ca.odell.glazedlists.event.ListEventListener#listChanged(ca.odell.glazedlists.event.ListEvent)
      */
@@ -217,7 +217,7 @@ public final class RecentConnections extends XMLConfigFile implements ListEventL
             list.getReadWriteLock().readLock().unlock();
         }
     }
-    
+
     protected void load(Element root) {
         final Elements elements = root.getChildElements(RV_CONNECTION);
         for (int i = 0, imax = elements.size(); i < imax; ++i) {

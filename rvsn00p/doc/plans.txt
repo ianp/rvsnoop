@@ -24,30 +24,7 @@ rather than separate source and binary versions.
 
 ### Add ‘Delete Connection’ Action
 
-My current thinking on this to reqork the connection class to use a
-separate list based class, not really a factory as it will not be
-used for object creation, but a a class that handles activating and
-deactivating connections.
-
-* Add a connection list class (Connections)
-
-  Which should be a singleton and, initially, be a regular event
-  list. Maybe later it will need to become a grouped event list to
-  should, e.g. EMS connections as well.
-
-* Make the constructors for RvConnection public
-
-  Validation of arguments shouldn't take place until added to the
-  connection list. When a connection is added to the connection list
-  it should check that a similarly configured connection does not
-  already exist.
-
-* Connections are inactive when not in the list
-
-  Connections MUST be in the list before start/stop/pause can be
-  called. Removing a connection from the list stops it.
-
-This is pretty much done now, but needs to be tested. Still to do:
+This is pretty much done now, but needs further tested. Still to do:
 make the connection add/edit dialog binding based, also ensure that
 it doesn't add things twice, or miss things from the recent
 connections list, or anything else like that.

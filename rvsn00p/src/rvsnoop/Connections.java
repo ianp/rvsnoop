@@ -35,13 +35,13 @@ import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
  * This class wraps a sorted event list to which calls are delegated, the
  * wrapper methods handle ensuring no duplicates are added to the list and also
  * all synchronization using the Glazed Lists locking idiom.
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.6
  */
 public final class Connections implements EventList {
-    
+
     private static class DescriptionComparator implements Comparator {
         private final Collator collator = Collator.getInstance();
         public int compare(Object o1, Object o2) {
@@ -82,22 +82,22 @@ public final class Connections implements EventList {
         public void uninstallListener(Object element, EventListener listener) {
             ((RvConnection) element).removePropertyChangeListener(this);
         }
- 
+
     }
-    
+
     private static Connections instance;
-    
+
     private static final Logger logger = Logger.getLogger(Connections.class);
-    
+
     public static synchronized Connections getInstance() {
         if (instance == null) instance = new Connections();
         return instance;
     }
-    
+
     private final ObservableElementList list = new ObservableElementList(
             new SortedList(new BasicEventList(), new DescriptionComparator()),
             new Observer());
-    
+
     private Connections() {
         super();
     }
@@ -107,7 +107,7 @@ public final class Connections implements EventList {
      * this method will not add duplicates to the list. Note that unlike a
      * call to the un-indexed add method this will throw an
      * <code>IllegalStateException</code> if the element is not added.
-     * 
+     *
      * @param index
      * @param element
      * @see java.util.List#add(int, java.lang.Object)
@@ -115,11 +115,11 @@ public final class Connections implements EventList {
     public void add(int index, Object element) {
         if (!add(element)) throw new IllegalStateException("Duplicate element not added.");
     }
-    
+
     /**
      * As allowed by the contract for {@link java.util.Collection#add(Object)}
      * this method will not add duplicates to the list.
-     * 
+     *
      * @param o
      * @return <code>true</code> if the argument was added, <code>false</code> otherwise.
      * @see java.util.List#add(java.lang.Object)
@@ -132,7 +132,7 @@ public final class Connections implements EventList {
             list.getReadWriteLock().writeLock().unlock();
         }
     }
-    
+
     /**
      * @param c
      * @return
@@ -149,7 +149,7 @@ public final class Connections implements EventList {
         }
         return added;
     }
-    
+
     /**
      * @param index
      * @param c
@@ -169,7 +169,7 @@ public final class Connections implements EventList {
     }
 
     /**
-     * 
+     *
      * @see java.util.List#clear()
      */
     public void clear() {
@@ -261,7 +261,7 @@ public final class Connections implements EventList {
             list.getReadWriteLock().readLock().unlock();
         }
     }
-    
+
     /**
      * @return
      * @see ca.odell.glazedlists.EventList#getPublisher()
@@ -436,7 +436,7 @@ public final class Connections implements EventList {
 
     /**
      * This operation is not supported.
-     * 
+     *
      * @param c Ignored.
      * @return The method never returns.
      * @see java.util.List#retainAll(java.util.Collection)
@@ -449,7 +449,7 @@ public final class Connections implements EventList {
     /**
      * This may be used to update elements in place but must not be used to set
      * arbitrary elements.
-     * 
+     *
      * @param index The index to update.
      * @param element The element already at the index.
      * @return
@@ -482,7 +482,7 @@ public final class Connections implements EventList {
 
     /**
      * This operation is not supported.
-     * 
+     *
      * @param fromIndex Ignored.
      * @param toIndex Ignored.
      * @return The method never returns.
@@ -503,7 +503,7 @@ public final class Connections implements EventList {
             return list.toArray(new RvConnection[list.size()]);
         } finally {
             list.getReadWriteLock().readLock().unlock();
-        }        
+        }
     }
 
     /**
@@ -517,7 +517,7 @@ public final class Connections implements EventList {
             return list.toArray(a);
         } finally {
             list.getReadWriteLock().readLock().unlock();
-        }        
+        }
     }
 
 }

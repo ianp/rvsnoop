@@ -118,7 +118,7 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     private class PauseAction extends AbstractAction {
-        private static final long serialVersionUID = 6173501893576290019L;
+        static final long serialVersionUID = 6173501893576290019L;
         PauseAction() {
             super("Pause", Icons.RVD_PAUSED);
         }
@@ -130,8 +130,19 @@ public final class RvConnection implements TibrvMsgCallback {
         }
     }
 
+    private class RemoveAction extends AbstractAction {
+        static final long serialVersionUID = 6348774322798989737L;
+        RemoveAction() {
+            super("Remove");
+        }
+        public void actionPerformed(ActionEvent e) {
+            stop();
+            Connections.getInstance().remove(RvConnection.this);
+        }
+    }
+
     private class StartAction extends AbstractAction {
-        private static final long serialVersionUID = 705371092853316824L;
+        static final long serialVersionUID = 705371092853316824L;
         StartAction() {
             super("Start", Icons.RVD_STARTED);
         }
@@ -144,7 +155,7 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     private class StopAction extends AbstractAction {
-        private static final long serialVersionUID = 7442348970606946704L;
+        static final long serialVersionUID = 7442348970606946704L;
         StopAction() {
             super("Stop", Icons.RVD_STOPPED);
         }
@@ -242,7 +253,7 @@ public final class RvConnection implements TibrvMsgCallback {
      * advisory that is generated for discarded messages.
      * <p>
      * Additionally, all connections are moved to the paused state.
-     * 
+     *
      * @throws TibrvException
      */
     public static synchronized void pauseQueue() throws TibrvException {
@@ -260,8 +271,8 @@ public final class RvConnection implements TibrvMsgCallback {
     /**
      * Resume the Rendezvous message queue.
      * <p>
-     * 
-     * 
+     *
+     *
      * @throws TibrvException
      */
     public static synchronized void resumeQueue() throws TibrvException {
@@ -319,10 +330,10 @@ public final class RvConnection implements TibrvMsgCallback {
      * resources.
      */
     private Connections parentList;
-    
+
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
-    
-    private Action startAction, stopAction, pauseAction;
+
+    private Action startAction, stopAction, pauseAction, removeAction;
 
     /** The current state that the connection is in. */
     private State state = State.STOPPED;
@@ -448,11 +459,23 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     /**
-     * @return Returns the pauseAction.
+     * Get an action that pauses this connection when invoked.
+     *
+     * @return the action.
      */
     public synchronized Action getPauseAction() {
         if (pauseAction == null) pauseAction = new PauseAction();
         return pauseAction;
+    }
+
+    /**
+     * Get an action that removes this connection when invoked.
+     *
+     * @return the action.
+     */
+    public synchronized Action getRemoveAction() {
+        if (removeAction == null) removeAction = new RemoveAction();
+        return removeAction;
     }
 
     /**
@@ -463,7 +486,9 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     /**
-     * @return Returns the startAction.
+     * Get an action that starts this connection when invoked.
+     *
+     * @return the action.
      */
     public synchronized Action getStartAction() {
         if (startAction == null) startAction = new StartAction();
@@ -475,7 +500,9 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     /**
-     * @return Returns the stopAction.
+     * Get an action that stops this connection when invoked.
+     *
+     * @return the action.
      */
     public synchronized Action getStopAction() {
         if (stopAction == null) stopAction = new StopAction();
@@ -575,7 +602,7 @@ public final class RvConnection implements TibrvMsgCallback {
             logger.error("Could not set connection description.", e);
         }
     }
-    
+
     /**
      * This is called by the connections list when this connection is added to
      * it.
@@ -583,7 +610,7 @@ public final class RvConnection implements TibrvMsgCallback {
      * A connection which is not a member of a connection list may not be
      * started. Further, the connection list will ensure that the connection is
      * stopped before it is removed from the list.
-     * 
+     *
      * @param connection The connection list.
      */
     protected void setParentList(Connections connection) {
