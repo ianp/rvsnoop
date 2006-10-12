@@ -41,10 +41,12 @@ public final class Record implements Serializable {
             final String service = connFlag ? input.readString() : null;
             final String network = connFlag ? input.readString() : null;
             final String daemon = connFlag ? input.readString() : null;
-            RvConnection connection = RvConnection.getConnection(service, network, daemon);
+            final Connections connections = Connections.getInstance();
+            RvConnection connection = connections.get(service, network, daemon);
             if (connection == null) {
-                connection = RvConnection.createConnection(service, network, daemon);
+                connection = new RvConnection(service, network, daemon);
                 connection.setDescription(description);
+                connections.add(connection);
             }
             final long timestamp = input.readLong();
             final int length = input.readInt();

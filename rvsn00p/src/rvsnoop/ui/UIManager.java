@@ -48,6 +48,7 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreeNode;
 
+import rvsnoop.Connections;
 import rvsnoop.Logger;
 import rvsnoop.MessageLedger;
 import rvsnoop.MessageLedgerFormat;
@@ -56,13 +57,13 @@ import rvsnoop.RecentConnections;
 import rvsnoop.RecentProjects;
 import rvsnoop.Record;
 import rvsnoop.RecordTypes;
-import rvsnoop.RvConnection;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.TreeModelAdapter;
 import rvsnoop.Version;
 import rvsnoop.MessageLedgerFormat.ValueColumn;
 import rvsnoop.actions.Actions;
 import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.swing.EventListModel;
 import ca.odell.glazedlists.swing.EventTableModel;
 import ca.odell.glazedlists.util.concurrent.Lock;
 
@@ -248,7 +249,7 @@ public final class UIManager {
     }
 
     private JList createConnectionList() {
-        final JList list = new JList(RvConnection.getListModel());
+        final JList list = new JList(new EventListModel(Connections.getInstance()));
         list.setBorder(BorderFactory.createEmptyBorder());
         list.setCellRenderer(new ConnectionListRenderer(list, false));
         // This line allows the cell renderer to provide a custom tooltip for each node.
@@ -311,7 +312,7 @@ public final class UIManager {
         file.add(Actions.ADD_CONNECTION);
         final JMenu connRecent = new JMenu("Recent Connections");
         connRecent.setIcon(Icons.ADD_CONNECTION);
-        final PopupMenuListener recentConnections = RecentConnections.INSTANCE.new MenuManager();
+        final PopupMenuListener recentConnections = RecentConnections.getInstance().new MenuManager();
         connRecent.getPopupMenu().addPopupMenuListener(recentConnections);
         file.add(connRecent);
         file.addSeparator();

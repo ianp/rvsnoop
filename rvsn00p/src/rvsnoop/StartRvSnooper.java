@@ -61,7 +61,7 @@ public final class StartRvSnooper {
         public void run() {
             try {
                 PreferencesManager.INSTANCE.store();
-                RecentConnections.INSTANCE.store();
+                RecentConnections.getInstance().store();
                 RecentProjects.INSTANCE.store();
                 logger.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + ".");
             } catch (IOException ignored) {

@@ -62,8 +62,7 @@ public final class Project extends XMLConfigFile {
      * @param currentProject The currentProject to set.
      */
     public static void setCurrentProject(Project currentProject) {
-        for (final Iterator i = RvConnection.allConnections().iterator(); i.hasNext(); )
-            RvConnection.destroyConnection((RvConnection) i.next());
+        Connections.getInstance().clear();
         SubjectHierarchy.INSTANCE.removeAll();
         Project.currentProject = currentProject;
         if (currentProject != null) {
@@ -116,7 +115,7 @@ public final class Project extends XMLConfigFile {
             final String service = getString(element, RV_SERVICE);
             final String network = getString(element, RV_NETWORK);
             final String daemon = getString(element, RV_DAEMON);
-            final RvConnection connection = RvConnection.createConnection(service, network, daemon);
+            final RvConnection connection = new RvConnection(service, network, daemon);
             connection.setDescription(description);
             final Elements subjects = element.getChildElements(SUBJECT);
             for (int j = subjects.size(); j != 0;)
@@ -196,8 +195,9 @@ public final class Project extends XMLConfigFile {
     }
 
     private static void storeConnections(Element parent) {
-        for (final Iterator i = RvConnection.allConnections().iterator(); i.hasNext(); ) {
-            final RvConnection connection = (RvConnection) i.next();
+        RvConnection[] connections = (RvConnection[]) Connections.getInstance().toArray();
+        for (int i = 0, imax = connections.length; i < imax; ++i) {
+            final RvConnection connection = connections[i];
             final Element element = appendElement(parent, RV_CONNECTION);
             setString(element, RV_DESCRIPTION, connection.getDescription());
             setString(element, RV_SERVICE, connection.getService());

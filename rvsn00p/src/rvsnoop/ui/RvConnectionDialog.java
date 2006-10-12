@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import rvsnoop.RecentConnections;
 import rvsnoop.RvConnection;
 import rvsnoop.StringUtils;
 
@@ -83,8 +82,6 @@ public final class RvConnectionDialog extends JDialog {
 
     private final JTextField network = new JTextField(10);
 
-    private final RvConnection connection;
-
     private final JTextField service = new JTextField(10);
 
     private final JTextArea  subject = new JTextArea(3, 10);
@@ -96,8 +93,7 @@ public final class RvConnectionDialog extends JDialog {
      */
     public RvConnectionDialog(RvConnection initial) {
         super(UIManager.INSTANCE.getFrame(), "Add Connection", true);
-        this.connection = initial;
-        buildContentArea();
+        buildContentArea(initial != null ? initial : new RvConnection());
         buildButtonArea();
         pack();
         final Dimension size = getSize();
@@ -116,7 +112,7 @@ public final class RvConnectionDialog extends JDialog {
         getContentPane().add(buttons, BorderLayout.SOUTH);
     }
 
-    private void buildContentArea() {
+    private void buildContentArea(RvConnection conn) {
         final DefaultFormBuilder builder = new DefaultFormBuilder(
                 new FormLayout("r:default, 3dlu, p:grow", ""));
         builder.appendSeparator("Rendezvous Parameters");
@@ -131,16 +127,16 @@ public final class RvConnectionDialog extends JDialog {
         builder.appendSeparator("Subscribed Subjects");
         builder.append("Subjects", subject).setLabelFor(subject);
         builder.nextLine();
-        description.setText(connection != null ? connection.getDescription() : RvConnection.gensym());
-        service.setText(connection != null ? connection.getService() : RvConnection.DEFAULT_SERVICE);
-        network.setText(connection != null ? connection.getNetwork() : RvConnection.DEFAULT_NETWORK);
+        description.setText(conn.getDescription());
+        service.setText(conn.getService());
+        network.setText(conn.getNetwork());
         network.setToolTipText("networkcardid;networkaddress");
-        daemon.setText(connection != null ? connection.getDaemon() : RvConnection.DEFAULT_DAEMON);
+        daemon.setText(conn.getDaemon());
         subject.setToolTipText("Put multiple subjects on separate lines");
         subject.setBorder(daemon.getBorder());
-        if (connection != null && connection.getNumSubjects() > 0) {
+        if (conn.getNumSubjects() > 0) {
             final StringBuffer buffer = new StringBuffer();
-            for (final Iterator i = connection.getSubjects().iterator(); i.hasNext(); )
+            for (final Iterator i = conn.getSubjects().iterator(); i.hasNext(); )
                 buffer.append(i.next()).append("\n");
             subject.setText(buffer.toString());
         }
@@ -150,11 +146,11 @@ public final class RvConnectionDialog extends JDialog {
     }
 
     public RvConnection getConnection() {
-        final RvConnection newConnection = RvConnection.createConnection(service.getText(), network.getText(), daemon.getText());
-        newConnection.setDescription(description.getText());
-        newConnection.addSubjects(Arrays.asList(StringUtils.split(subject.getText())));
-        RecentConnections.INSTANCE.add(newConnection);
-        return newConnection;
+        // FIXME: Rewrite this to use JGoodies Binding
+        final RvConnection c = new RvConnection(service.getText(), network.getText(), daemon.getText());
+        c.setDescription(description.getText());
+        c.addSubjects(Arrays.asList(StringUtils.split(subject.getText())));
+        return c;
     }
 
     public boolean isCancelled() {

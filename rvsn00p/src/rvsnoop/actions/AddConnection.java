@@ -14,6 +14,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
+import rvsnoop.Connections;
 import rvsnoop.RecentConnections;
 import rvsnoop.RvConnection;
 import rvsnoop.ui.Icons;
@@ -49,13 +50,13 @@ final class AddConnection extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        RvConnection connection = RecentConnections.INSTANCE.getLastConnection();
-        final RvConnectionDialog inputDialog = new RvConnectionDialog(connection);
-        inputDialog.setVisible(true);
-        if (inputDialog.isCancelled())
-            return;
-        connection = inputDialog.getConnection();
-        if (connection != null) connection.start();
+        RvConnection conn = RecentConnections.getInstance().getLastConnection();
+        final RvConnectionDialog dialog = new RvConnectionDialog(conn);
+        dialog.setVisible(true);
+        if (dialog.isCancelled()) return;
+        conn = dialog.getConnection();
+        Connections.getInstance().add(conn);
+        conn.start();
     }
 
 }

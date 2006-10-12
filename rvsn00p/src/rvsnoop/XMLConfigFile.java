@@ -30,6 +30,8 @@ import nu.xom.Text;
  * @version $Revision$, $Date$
  */
 abstract class XMLConfigFile {
+    // TODO: Make final and use has-a rather than is-a for composition.
+    //       Alter the API to match the OSGi Preferences node.
 
     private static final Logger logger = Logger.getLogger(XMLConfigFile.class);
 

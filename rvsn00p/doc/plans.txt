@@ -1,12 +1,10 @@
 # RvSnoop Features Roadmap
 
+    $Id$
+
 This file contains an overview of the planned features in future
 versions of RvSnoop. Any alterations should be formatted using
 [Markdown][MD] syntax.
-
-This file is version `$Id$`
-
-[MD]: http://daringfireball.net/projects/markdown
 
 ## Release 1.6	
 
@@ -48,6 +46,11 @@ deactivating connections.
 
   Connections MUST be in the list before start/stop/pause can be
   called. Removing a connection from the list stops it.
+
+This is pretty much done now, but needs to be tested. Still to do:
+make the connection add/edit dialog binding based, also ensure that
+it doesn't add things twice, or miss things from the recent
+connections list, or anything else like that.
 
 ### Make Projects be Directory Based
 
@@ -259,11 +262,6 @@ intrusive change would be switch to an [OSGi runtime][OSGI],
 possibly [Equinox][EE] from Eclipse or the [Knopflerfish][KF] OSGi
 runtime. Using OSGi in this way would make these mechanisms
 extension points for a 'core' bundle.
-
-[JSPI]: http://java.sun.com/j2se/1.4.2/docs/guide/jar/jar.html#Service%20Provider
-[OSGI]: http://www.osgi.org/
-[EE]: http://www.eclipse.org/equinox
-[KF]: http://www.knopflerfish.org/
 
 * The export/marshalling mechanism.
 
@@ -490,5 +488,10 @@ For example, add [sparklines][SL] to the subject explorer tree to
 represent message rates and bytes. Probably a good idea to buy the
 [new Tufte book][BE] for ideas.
 
-[SL]: http://www.representqueens.com/spark/
-[BE]: http://www.edwardtufte.com/tufte/books_be
+[BE]:   http://www.edwardtufte.com/tufte/books_be
+[EE]:   http://www.eclipse.org/equinox
+[JSPI]: http://java.sun.com/j2se/1.4.2/docs/guide/jar/jar.html#Service%20Provider
+[KF]:   http://www.knopflerfish.org/
+[MD]:   http://daringfireball.net/projects/markdown
+[OSGI]: http://www.osgi.org/
+[SL]:   http://www.representqueens.com/spark/

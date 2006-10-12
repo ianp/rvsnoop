@@ -6,9 +6,10 @@
 package rvsnoop;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EventListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +18,7 @@ import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.EventListenerList;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIManager;
@@ -54,7 +51,7 @@ import com.tibco.tibrv.TibrvRvdTransport;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public final class RvConnection {
+public final class RvConnection implements TibrvMsgCallback {
 
     private static class AddRecordTask implements Runnable {
         private final Record record;
@@ -70,58 +67,6 @@ public final class RvConnection {
         }
     }
 
-    /**
-     * A list model that allows the list of connections to be observed in a
-     * graphical component.
-     */
-    private static class ConnectionListModel implements ListModel {
-        private final EventListenerList listenerList = new EventListenerList();
-        ConnectionListModel() {
-            super();
-        }
-        public void addListDataListener(ListDataListener listener) {
-            listenerList.add(ListDataListener.class, listener);
-        }
-
-        void fireConnectionAdded(RvConnection connection) {
-            final EventListener[] listeners = listenerList.getListeners(ListDataListener.class);
-            if (listeners == null || listeners.length == 0) return;
-            final int index = allConnections.indexOf(connection);
-            final ListDataEvent event = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, index, index);
-            for (int i = 0, imax = listeners.length; i < imax; ++i)
-                ((ListDataListener) listeners[i]).intervalAdded(event);
-        }
-
-        void fireConnectionRemoved(int index) {
-            final EventListener[] listeners = listenerList.getListeners(ListDataListener.class);
-            if (listeners == null || listeners.length == 0) return;
-            final ListDataEvent event = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, index, index);
-            for (int i = 0, imax = listeners.length; i < imax; ++i)
-                ((ListDataListener) listeners[i]).intervalRemoved(event);
-        }
-
-        void fireContentsChanged(RvConnection connection) {
-            final EventListener[] listeners = listenerList.getListeners(ListDataListener.class);
-            if (listeners == null || listeners.length == 0) return;
-            final int index = allConnections.indexOf(connection);
-            final ListDataEvent event = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, index, index);
-            for (int i = 0, imax = listeners.length; i < imax; ++i)
-                ((ListDataListener) listeners[i]).contentsChanged(event);
-        }
-
-        public Object getElementAt(int index) {
-            return allConnections.get(index);
-        }
-
-        public int getSize() {
-            return allConnections.size();
-        }
-
-        public void removeListDataListener(ListDataListener listener) {
-            listenerList.remove(ListDataListener.class, listener);
-        }
-    }
-
     private static class ErrorCallback implements TibrvErrorCallback {
         ErrorCallback() {
             super();
@@ -129,24 +74,25 @@ public final class RvConnection {
         private void invalidateListener(TibrvListener listener) {
             final String listenerSubject = listener.getSubject();
             final List toRemove = new ArrayList();
-            for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
-                final RvConnection connection = (RvConnection) i.next();
-                for (final Iterator j = connection.subjects.keySet().iterator(); j.hasNext();) {
+            RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+            for (int i = 0, imax = conns.length; i < imax; ++i) {
+                RvConnection conn = conns[i];
+                for (final Iterator j = conn.subjects.keySet().iterator(); j.hasNext();) {
                     final String subject = (String) j.next();
                     if (subject.equals(listenerSubject))
                         toRemove.add(subject);
                 }
                 for (final Iterator j = toRemove.iterator(); j.hasNext();)
-                    connection.removeSubject((String) j.next());
+                    conn.removeSubject((String) j.next());
                 toRemove.clear();
             }
         }
 
         private void invalidateTransport(TibrvRvaTransport transport) {
-            for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
-                final RvConnection connection = (RvConnection) i.next();
-                if (transport.equals(connection.transport)) {
-                    connection.stop();
+            RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+            for (int i = 0, imax = conns.length; i < imax; ++i) {
+                if (transport.equals(conns[i].transport)) {
+                    conns[i].stop();
                     return;
                 }
             }
@@ -159,21 +105,6 @@ public final class RvConnection {
                 invalidateTransport((TibrvRvaTransport) tibrvObject);
             else if (tibrvObject instanceof TibrvListener)
                 invalidateListener((TibrvListener) tibrvObject);
-        }
-    }
-
-    private static class MsgCallback implements TibrvMsgCallback {
-
-        MsgCallback() {
-            super();
-        }
-
-        public void onMsg(TibrvListener listener, TibrvMsg message) {
-            final Object closure = listener != null ? listener.getClosure() : null;
-            final RvConnection conn = (RvConnection) (closure instanceof RvConnection ? closure : null);
-            if (conn != null && conn.getState() == State.PAUSED)
-                return;
-            SwingUtilities.invokeLater(new AddRecordTask(new Record(conn, message)));
         }
     }
 
@@ -225,8 +156,6 @@ public final class RvConnection {
         }
     }
 
-    private static final List allConnections = new ArrayList();
-
     private static int count;
 
     public static final String DEFAULT_DAEMON = "tcp:7500";
@@ -241,11 +170,7 @@ public final class RvConnection {
 
     private static String ERROR_RV_OPEN = "The RV libraries could not be loaded and started because: {0}. The Rendezvous error code that was reported was: {1}.";
 
-    private static ConnectionListModel listModel;
-
     private static final Logger logger = Logger.getLogger(RvConnection.class);
-
-    private static final TibrvMsgCallback MESSAGE_CALLBACK = new MsgCallback();
 
     /**
      * Property key for the description of this connection.
@@ -260,43 +185,6 @@ public final class RvConnection {
     private static TibrvQueue queue;
 
     private static TibrvListener queueLimitListener;
-
-    public static List allConnections() {
-        return Collections.unmodifiableList(allConnections);
-    }
-
-    /**
-     * Factory method to create connections.
-     * <p>
-     * If a connection with the same parameters already exists then it it
-     * returned, otherwise a new connection is created.
-     *
-     * @param service The Rendezvous service parameter.
-     * @param network The Rendezvous network parameter.
-     * @param daemon The Rendezvous daemon parameter.
-     * @throws NumberFormatException If service is not an integer (<code>null</code> is OK though).
-     * @return The newly created or pre-existing connection.
-     * @see #getConnection(String, String, String)
-     */
-    public static synchronized RvConnection createConnection(String service, String network, String daemon) {
-        RvConnection connection = getConnection(service, network, daemon);
-        if (connection != null) return connection;
-        connection = new RvConnection(service, network, daemon);
-        allConnections.add(connection);
-        if (listModel != null) listModel.fireConnectionAdded(connection);
-        return connection;
-    }
-
-    public static synchronized RvConnection createDefaultConnection() {
-        return createConnection(DEFAULT_SERVICE, DEFAULT_NETWORK, DEFAULT_DAEMON);
-    }
-
-    public static synchronized void destroyConnection(RvConnection connection) {
-        if (connection.state != State.STOPPED) connection.stop();
-        final int index = allConnections.indexOf(connection);
-        allConnections.remove(index);
-        if (listModel != null) listModel.fireConnectionRemoved(index);
-    }
 
     private static synchronized TibrvQueue ensureInitialized() {
         if (queue != null) return queue;
@@ -333,31 +221,6 @@ public final class RvConnection {
     }
 
     /**
-     * Get an existing connection.
-     *
-     * @param service The Rendezvous service parameter.
-     * @param network The Rendezvous network parameter.
-     * @param daemon The Rendezvous daemon parameter.
-     * @throws NumberFormatException If service is not an integer (<code>null</code> is OK though).
-     * @return The existing connection, or <code>null</code> if it does not exist.
-     * @see #createConnection(String, String, String)
-     */
-    public static RvConnection getConnection(String service, String network, String daemon) {
-        final RvConnection connection = new RvConnection(service, network, daemon);
-        for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
-            final Object next = i.next();
-            if (connection.equals(next))
-                return (RvConnection) next;
-        }
-        return null;
-    }
-
-    public static synchronized ListModel getListModel() {
-        if (listModel == null) listModel = new ConnectionListModel();
-        return listModel;
-    }
-
-    /**
      * Add a message.
      * <p>
      * This method hooks into the same add message code as is used in the
@@ -367,20 +230,40 @@ public final class RvConnection {
      * @param message The message to add.
      */
     public static void internalOnMsg(TibrvMsg message) {
-        MESSAGE_CALLBACK.onMsg(null, message);
+        SwingUtilities.invokeLater(new AddRecordTask(new Record(null, message)));
     }
 
+    /**
+     * Pause the Rendezvous message queue.
+     * <p>
+     * All of the Rendezvous connections are backed by a single message queue,
+     * this method will pause the queue. This means that the queue is told to
+     * discard all new messages and a listener is installed which suppresses the
+     * advisory that is generated for discarded messages.
+     * <p>
+     * Additionally, all connections are moved to the paused state.
+     * 
+     * @throws TibrvException
+     */
     public static synchronized void pauseQueue() throws TibrvException {
         if (queue != null) {
             queueLimitListener = new TibrvListener(queue, new NullCallback(), Tibrv.processTransport(), "_RV.WARN.SYSTEM.QUEUE.LIMIT_EXCEEDED", null);
             queue.setLimitPolicy(TibrvQueue.DISCARD_NEW, 1, 1);
         }
-        for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
-            final RvConnection connection = (RvConnection) i.next();
-            if (connection.state == State.STARTED) connection.pause();
+        RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        for (int i = 0, imax = conns.length; i < imax; ++i) {
+            if (conns[i].getState() == State.STARTED)
+                conns[i].pause();
         }
     }
 
+    /**
+     * Resume the Rendezvous message queue.
+     * <p>
+     * 
+     * 
+     * @throws TibrvException
+     */
     public static synchronized void resumeQueue() throws TibrvException {
         ensureInitialized();
         if (queue != null) {
@@ -390,17 +273,19 @@ public final class RvConnection {
                 queueLimitListener = null;
             }
         }
-        for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
-            final RvConnection connection = (RvConnection) i.next();
-            if (connection.state == State.PAUSED) connection.start();
+        RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        for (int i = 0, imax = conns.length; i < imax; ++i) {
+            if (conns[i].getState() == State.PAUSED)
+                conns[i].start();
         }
     }
 
     public static synchronized void shutdown() {
         if (queue == null) return;
-        for (final Iterator i = allConnections.iterator(); i.hasNext(); ) {
-            final RvConnection connection = (RvConnection) i.next();
-            if (connection.state != State.STOPPED) connection.stop();
+        RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        for (int i = 0, imax = conns.length; i < imax; ++i) {
+            if (conns[i].getState() != State.STOPPED)
+                conns[i].stop();
         }
         try {
             Tibrv.close();
@@ -410,36 +295,36 @@ public final class RvConnection {
         queue = null;
     }
 
-    /**
-     * The Rendezvous daemon parameter.
-     */
+    /** The Rendezvous daemon parameter. */
     private final String daemon;
 
-    /**
-     * A description of this connection.
-     */
+    /** A description of this connection. */
     private String description = "";
 
-    /**
-     * The cached hash code value.
-     */
+    /** The cached hash code value. */
     private int hashCode;
 
-    /**
-     * The Rendezvous network parameter.
-     */
+    /** The Rendezvous network parameter. */
     private final String network;
 
-    /**
-     * The Rendezvous service parameter.
-     */
+    /** The Rendezvous service parameter. */
     private final String service;
 
+    /**
+     * The 'parent' list for this connection.
+     * <p>
+     * Connections can not be activated (started, paused, etc.) until they
+     * have been added to a parent list, this is because there must be a UI
+     * based way to access the connection before it is allowed to consume
+     * resources.
+     */
+    private Connections parentList;
+    
+    private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+    
     private Action startAction, stopAction, pauseAction;
 
-    /**
-     * The current state that the connection is in.
-     */
+    /** The current state that the connection is in. */
     private State state = State.STOPPED;
 
     /**
@@ -459,7 +344,7 @@ public final class RvConnection {
      * @param daemon The Rendezvous daemon parameter.
      * @throws NumberFormatException If service is not an integer (<code>null</code> is OK though).
      */
-    private RvConnection(String service, String network, String daemon) {
+    public RvConnection(String service, String network, String daemon) {
         super();
         this.description = gensym();
         this.service = service != null ? service : DEFAULT_SERVICE;
@@ -468,14 +353,34 @@ public final class RvConnection {
         Integer.parseInt(this.service);
     }
 
+    public RvConnection() {
+        this(DEFAULT_SERVICE, DEFAULT_NETWORK, DEFAULT_DAEMON);
+    }
+
+    /**
+     * @param listener
+     * @see java.beans.PropertyChangeSupport#addPropertyChangeListener(java.beans.PropertyChangeListener)
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * @param propertyName
+     * @param listener
+     * @see java.beans.PropertyChangeSupport#addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+     */
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(propertyName, listener);
+    }
+
     public synchronized void addSubject(String subject) {
         if (subject == null) throw new NullPointerException();
         subject = subject.trim();
         if (subject.length() > 0 && !subjects.containsKey(subject))
             subjects.put(subject, createListener(subject));
-        synchronized (RvConnection.class) {
-            if (listModel != null) listModel.fireContentsChanged(this);
-        }
+        // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
+        changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
     }
 
     public synchronized void addSubjects(List subjects) {
@@ -486,9 +391,8 @@ public final class RvConnection {
             if (Logger.isDebugEnabled()) logger.debug("RvConnection.setSubjects putting '" + subject + "'");
             this.subjects.put(subject, createListener(subject));
         }
-        synchronized (RvConnection.class) {
-            if (listModel != null) listModel.fireContentsChanged(this);
-        }
+        // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
+        changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
     }
 
     private synchronized TibrvListener createListener(String subject) {
@@ -496,7 +400,7 @@ public final class RvConnection {
         try {
             final TibrvQueue queue = ensureInitialized();
             if (Logger.isDebugEnabled()) logger.debug("Creating listener for '" + description + "' on subject '" + subject + "'.");
-            return new TibrvListener(queue, MESSAGE_CALLBACK, transport, subject, this);
+            return new TibrvListener(queue, this, transport, subject, this);
         } catch (TibrvException e) {
             logger.error("Could not create Rendezvous connection.", e);
             return null;
@@ -601,14 +505,21 @@ public final class RvConnection {
         return hashCode;
     }
 
-    private synchronized void pause() {
+    public void onMsg(TibrvListener listener, TibrvMsg message) {
+        final Object closure = listener != null ? listener.getClosure() : null;
+        final RvConnection conn = (RvConnection) (closure instanceof RvConnection ? closure : null);
+        if (conn != null && conn.getState() == State.PAUSED)
+            return;
+        SwingUtilities.invokeLater(new AddRecordTask(new Record(conn, message)));
+    }
+
+    public synchronized void pause() {
         if (state != State.STARTED) throw new IllegalStateException("Cannot pause if not started.");
         logger.info("Pausing connection: " + description);
+        final State oldState = state;
         state = State.PAUSED;
         logger.info("Paused connection: " + description);
-        synchronized (RvConnection.class) {
-            if (listModel != null) listModel.fireContentsChanged(this);
-        }
+        changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
     }
 
     public synchronized void publish(Record record) throws TibrvException {
@@ -618,9 +529,28 @@ public final class RvConnection {
 
     public synchronized void removeAllSubbjects() {
         if (state != State.STOPPED)
-            for (final Iterator i = this.subjects.values().iterator(); i.hasNext(); )
+            for (final Iterator i = subjects.values().iterator(); i.hasNext(); )
                 ((TibrvEvent) i.next()).destroy();
-        this.subjects.clear();
+        subjects.clear();
+        // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
+        changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
+    }
+
+    /**
+     * @param listener
+     * @see java.beans.PropertyChangeSupport#removePropertyChangeListener(java.beans.PropertyChangeListener)
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * @param propertyName
+     * @param listener
+     * @see java.beans.PropertyChangeSupport#removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+     */
+    public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(propertyName, listener);
     }
 
     private synchronized void removeSubject(String subject) {
@@ -630,27 +560,43 @@ public final class RvConnection {
             final TibrvListener listener = (TibrvListener) subjects.remove(subject);
             if (listener != null) listener.destroy();
         }
-        synchronized (RvConnection.class) {
-            if (listModel != null) listModel.fireContentsChanged(this);
-        }
+        // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
+        changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
     }
 
     public synchronized void setDescription(String description) {
         try {
             if (transport != null)
                 transport.setDescription(description + DESCRIPTION);
+            final String oldDescription = description;
             this.description = description != null ? description : "";
-            synchronized (RvConnection.class) {
-                if (listModel != null) listModel.fireContentsChanged(this);
-            }
+            changeSupport.firePropertyChange(PROP_DESCRIPTION, oldDescription, this.description);
         } catch (TibrvException e) {
             logger.error("Could not set connection description.", e);
         }
     }
+    
+    /**
+     * This is called by the connections list when this connection is added to
+     * it.
+     * <p>
+     * A connection which is not a member of a connection list may not be
+     * started. Further, the connection list will ensure that the connection is
+     * stopped before it is removed from the list.
+     * 
+     * @param connection The connection list.
+     */
+    protected void setParentList(Connections connection) {
+        if (connection == null && state != State.STOPPED)
+            throw new IllegalStateException("Connection not stopped!");
+        parentList = connection;
+    }
 
     public synchronized void start() {
+        if (parentList == null) throw new IllegalStateException("Not added to a connection list!");
         if (state == State.STARTED) throw new IllegalStateException("Cannot start if already started.");
         logger.info("Starting connection: " + description);
+        final State oldState = state;
         if (state == State.PAUSED) {
             state = State.STARTED;
         } else {
@@ -667,12 +613,10 @@ public final class RvConnection {
                 logger.error("The connection named " + description + " could not be started.", e);
             }
         }
-        synchronized (RvConnection.class) {
-            if (listModel != null) listModel.fireContentsChanged(this);
-        }
+        changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
     }
 
-    private synchronized void stop() {
+    public synchronized void stop() {
         if (state == State.STOPPED) throw new IllegalStateException("Cannot stop if already stopped.");
         logger.info("Stopping connection: " + description);
         for (final Iterator i = subjects.values().iterator(); i.hasNext(); )
@@ -680,11 +624,10 @@ public final class RvConnection {
         subjects.values().clear();
         transport.destroy();
         transport = null;
+        final State oldState = state;
         state = State.STOPPED;
         logger.info("Stopped connection: " + description);
-        synchronized (RvConnection.class) {
-            if (listModel != null) listModel.fireContentsChanged(this);
-        }
+        changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
     }
 
     /* (non-Javadoc)

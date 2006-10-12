@@ -20,6 +20,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.event.ListEvent;
+import ca.odell.glazedlists.event.ListEventListener;
+
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -31,24 +35,19 @@ import nu.xom.Elements;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public final class RecentConnections extends XMLConfigFile {
+public final class RecentConnections extends XMLConfigFile implements ListEventListener {
 
     private class AddRecentConnection extends AbstractAction {
         private static final long serialVersionUID = -8554698925345247337L;
-        private final int index;
-        AddRecentConnection(int index, ConnectionDescriptor cd) {
-            super(index + " Add " + cd.description);
+        private final RvConnection connection;
+        AddRecentConnection(int index, RvConnection connection) {
+            super(index + " Add " + connection.getDescription());
             putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_0 + index));
-            putValue(Action.SHORT_DESCRIPTION, cd.toString());
-            this.index = index;
+            this.connection = connection;
         }
 
         public void actionPerformed(ActionEvent e) {
-            final ConnectionDescriptor cd = (ConnectionDescriptor) connections.get(index);
-            final RvConnection connection = RvConnection.createConnection(cd.service, cd.network, cd.daemon);
-            connection.setDescription(cd.description);
-            connection.addSubjects(cd.subjects);
-            RecentConnections.INSTANCE.add(connection);
+            Connections.getInstance().add(connection);
             connection.start();
         }
 
@@ -137,13 +136,11 @@ public final class RecentConnections extends XMLConfigFile {
             } else {
                 int index = 0;
                 for (final Iterator i = connections.iterator(); i.hasNext(); )
-                    menu.add(new AddRecentConnection(index++, (ConnectionDescriptor) i.next()));
+                    menu.add(new AddRecentConnection(index++, (RvConnection) i.next()));
             }
         }
     }
 
-    private static final String CONFIG_DIRECTORY = ".rvsnoop";
-    private static final String CONFIG_FILE = "recentConnections.xml";
     private static final int DEFAULT_MAX_SIZE = 10;
     private static final String ROOT = "recentConnections";
     private static final String RV_CONNECTION = "connection";
@@ -153,57 +150,39 @@ public final class RecentConnections extends XMLConfigFile {
     private static final String RV_SERVICE = "service";
     private static final String SUBJECT = "subject";
 
-    public static RecentConnections INSTANCE = new RecentConnections();
+    public static RecentConnections instance;
 
-    private static File getRecentConnectionsFile() {
-        final String home = System.getProperty("user.home");
-        final String fs = System.getProperty("file.separator");
-        return new File(home + fs + CONFIG_DIRECTORY + fs + CONFIG_FILE);
+    public static synchronized RecentConnections getInstance() {
+        if (instance == null) {
+            final String home = System.getProperty("user.home");
+            final String fs = System.getProperty("file.separator");
+            final File file = new File(home + fs + ".rvsnoop" + fs + "recentConnections.xml");
+            instance = new RecentConnections(file);
+        }
+        return instance;
     }
-
+    
     // This needs to be LinkedList then we can use the removeLast method.
     private final LinkedList connections = new LinkedList();
 
-    private RvConnection lastConnection;
-
     private int maxSize = DEFAULT_MAX_SIZE;
 
-    private RecentConnections() {
-        super(getRecentConnectionsFile());
+    private RecentConnections(File file) {
+        super(file);
         load();
-    }
-
-    /**
-     * Adds a connection to the list.
-     * <p>
-     * If the connection is already in the list then it is promoted instead.
-     *
-     * @param connection The listener to add.
-     */
-    public void add(RvConnection connection) {
-        if (connection == null) throw new NullPointerException();
-        final ConnectionDescriptor cd = new ConnectionDescriptor(connection);
-        connections.remove(cd);
-        connections.addFirst(cd);
-        lastConnection = connection;
-        while (connections.size() > maxSize)
-            connections.removeLast();
-    }
-
-    public boolean contains(RvConnection connection) {
-        return connections.contains(connection);
+        Connections.getInstance().addListEventListener(this);
     }
 
     protected Document getDocument() {
         final Element root = new Element(ROOT);
         for (final Iterator i = connections.iterator(); i.hasNext(); ) {
-            final ConnectionDescriptor cd = (ConnectionDescriptor) i.next();
+            final RvConnection connection = (RvConnection) i.next();
             final Element element = appendElement(root, RV_CONNECTION);
-            setString(element, RV_DESCRIPTION, cd.description);
-            setString(element, RV_SERVICE, cd.service);
-            setString(element, RV_NETWORK, cd.network);
-            setString(element, RV_DAEMON, cd.daemon);
-            for (final Iterator j = cd.subjects.iterator(); j.hasNext(); )
+            setString(element, RV_DESCRIPTION, connection.getDescription());
+            setString(element, RV_SERVICE, connection.getService());
+            setString(element, RV_NETWORK, connection.getNetwork());
+            setString(element, RV_DAEMON, connection.getDaemon());
+            for (final Iterator j = connection.getSubjects().iterator(); j.hasNext(); )
                 setString(element, SUBJECT, (String) j.next());
         }
         return new Document(root);
@@ -215,9 +194,30 @@ public final class RecentConnections extends XMLConfigFile {
      * @return The last connection or <code>null</code> if there has been no connection this session.
      */
     public RvConnection getLastConnection() {
-        return lastConnection;
+        return (RvConnection) (connections.size() > 0 ? connections.getFirst() : null);
     }
-
+    
+    /* (non-Javadoc)
+     * @see ca.odell.glazedlists.event.ListEventListener#listChanged(ca.odell.glazedlists.event.ListEvent)
+     */
+    public void listChanged(ListEvent changes) {
+        final EventList list = changes.getSourceList();
+        list.getReadWriteLock().readLock().lock();
+        try {
+            while (changes.next()) {
+                if (changes.getType() == ListEvent.INSERT) {
+                    final Object o = list.get(changes.getIndex());
+                    connections.remove(o);
+                    connections.add(o);
+                    if (connections.size() > maxSize)
+                        connections.removeLast();
+                }
+            }
+        } finally {
+            list.getReadWriteLock().readLock().unlock();
+        }
+    }
+    
     protected void load(Element root) {
         final Elements elements = root.getChildElements(RV_CONNECTION);
         for (int i = 0, imax = elements.size(); i < imax; ++i) {
