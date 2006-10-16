@@ -6,7 +6,6 @@
 //:FileID:  $Id$
 package rvsnoop;
 
-import java.awt.Color;
 import java.io.File;
 import java.util.Enumeration;
 
@@ -18,7 +17,6 @@ import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
-import rvsnoop.RecordMatcher;
 import rvsnoop.ui.UIManager;
 
 /**
@@ -30,7 +28,6 @@ import rvsnoop.ui.UIManager;
  */
 public final class Project extends XMLConfigFile {
 
-    private static final String COLOUR = "colour";
     private static Project currentProject;
     private static final String ROOT = "rvsnoopProject";
     private static final String SUBJECT = "subject";
@@ -38,12 +35,6 @@ public final class Project extends XMLConfigFile {
     private static final String SUBJECT_NAME = "name";
     private static final String SUBJECT_SELECTED = "selected";
     private static final String SUBJECTS = "subjects";
-    private static final String TYPE = "recordType";
-    private static final String TYPE_NAME = "name";
-    private static final String TYPE_MATCHER = "matcher";
-    private static final String TYPE_MATCHER_NAME = "name";
-    private static final String TYPE_MATCHER_VALUE = "value";
-    private static final String TYPE_SELECTED = "selected";
 
     /**
      * @return Returns the currentProject.
@@ -135,31 +126,20 @@ public final class Project extends XMLConfigFile {
     }
 
     private static void loadTypes(Element parent) {
-        final Elements typeElts = parent.getChildElements(TYPE);
-        RecordTypes types = RecordTypes.getInstance();
+        final Elements elements = parent.getChildElements(RecordType.XML_ELEMENT, RecordType.XML_NS);
+        final RecordTypes types = RecordTypes.getInstance();
         // If there are types defined in the project then use them.
         // Otherwise add in the default set of types.
-        if (typeElts.size() > 0)
-            types.clear();
-        else
+        if (elements.size() == 0) {
             types.reset();
-        for (int i = typeElts.size(); i != 0;) {
-            try {
-                final Element typeElt = typeElts.get(--i);
-                final String name = getString(typeElt, TYPE_NAME);
-                final Color colour = getColour(typeElt, COLOUR, Color.BLACK);
-                if (name.equals(RecordTypes.DEFAULT.getName())) {
-                    RecordTypes.DEFAULT.setColour(colour);
-                } else {
-                    final Element matcherElt = typeElt.getFirstChildElement(TYPE_MATCHER);
-                    final String matcherId = getString(matcherElt, TYPE_MATCHER_NAME);
-                    final String matcherValue = getString(matcherElt, TYPE_MATCHER_VALUE);
-                    final RecordMatcher matcher = RecordMatcher.createMatcher(matcherId, matcherValue);
-                    final RecordType type = types.createType(name, colour, matcher);
-                    type.setSelected(getBoolean(typeElt, TYPE_SELECTED, true));
-                }
-            } catch (Exception ignored) {
-                // Intentionally ignored.
+        } else {
+            types.clear();
+            for (int i = 0, imax = elements.size(); i < imax; ++i) {
+                try {
+                    RecordType.fromXml(elements.get(i));
+                } catch (Exception e) {
+                    // Intentionally ignored.
+                }                
             }
         }
     }
@@ -212,19 +192,8 @@ public final class Project extends XMLConfigFile {
 
     private static void storeTypes(Element parent) {
         RecordType[] types = RecordTypes.getInstance().getAllTypes();
-        for (int i = 0, imax = types.length; i < imax; ++i) {
-            RecordType type = types[i];
-            final Element typeElt = appendElement(parent, TYPE);
-            setString(typeElt, TYPE_NAME, type.getName());
-            if (!RecordTypes.DEFAULT.equals(type)) {
-                setBoolean(typeElt, TYPE_SELECTED, type.isSelected());
-                final RecordMatcher matcher = type.getMatcher();
-                final Element matcherElt = appendElement(typeElt, TYPE_MATCHER);
-                setString(matcherElt, TYPE_MATCHER_NAME, matcher.getId());
-                setString(matcherElt, TYPE_MATCHER_VALUE, matcher.getValue());
-            }
-            setColour(typeElt, COLOUR, type.getColour());
-        }
+        for (int i = 0, imax = types.length; i < imax; ++i)
+            parent.appendChild(types[i].toXml());
     }
 
 }

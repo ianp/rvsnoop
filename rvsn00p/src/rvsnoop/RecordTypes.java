@@ -114,18 +114,13 @@ public final class RecordTypes {
         }
     }
 
-    private static final RecordTypes instance = new RecordTypes();
+    private static RecordTypes instance;
 
     public static final RecordType DEFAULT = new RecordType("", Color.BLACK, RecordMatcher.DEFAULT_MATCHER);
     public static final RecordType ERROR = new RecordType("Error", Color.RED, new RecordMatcher.SendSubjectContains("ERROR"));
-    private static final RecordType SYSTEM = new RecordType("System", Color.GRAY, new RecordMatcher.SendSubjectStartsWith("_"));
-    private static final RecordType WARNING = new RecordType("Warning", Color.ORANGE, new RecordMatcher.SendSubjectContains("WARN"));
 
-    static {
-        instance.reset();
-    }
-
-    public static RecordTypes getInstance() {
+    public static synchronized RecordTypes getInstance() {
+        if (instance == null) instance = new RecordTypes();
         return instance;
     }
 
@@ -134,8 +129,7 @@ public final class RecordTypes {
     final EventList types = new BasicEventList();
 
     private RecordTypes() {
-        super();
-        types.add(DEFAULT);
+        reset();
     }
 
     public void clear() {
@@ -283,8 +277,8 @@ public final class RecordTypes {
         try {
             types.clear();
             types.add(ERROR);
-            types.add(WARNING);
-            types.add(SYSTEM);
+            types.add(new RecordType("Warning", Color.ORANGE, new RecordMatcher.SendSubjectContains("WARN")));
+            types.add(new RecordType("System", Color.GRAY, new RecordMatcher.SendSubjectStartsWith("_")));
             types.add(DEFAULT);
         } finally {
             types.getReadWriteLock().writeLock().unlock();

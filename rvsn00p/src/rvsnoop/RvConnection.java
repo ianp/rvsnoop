@@ -698,10 +698,10 @@ public final class RvConnection implements TibrvMsgCallback {
      */
     public String toString() {
         return new ToStringBuilder(this)
-            .append("description", description)
-            .append("service", service)
-            .append("network", network)
-            .append("daemon", daemon).toString();
+            .append(PROP_DESCRIPTION, description)
+            .append(PROP_SERVICE, service)
+            .append(PROP_NETWORK, network)
+            .append(PROP_DAEMON, daemon).toString();
     }
 
     /**

@@ -13,6 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import nu.xom.Attribute;
+import nu.xom.Element;
+
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import ca.odell.glazedlists.matchers.Matcher;
 
 /**
@@ -23,6 +29,9 @@ import ca.odell.glazedlists.matchers.Matcher;
  * @since 1.5
  */
 public abstract class RecordMatcher implements Matcher {
+
+    private static final Map matchersById = new HashMap();
+    private static final Map matchersByName = new HashMap();
 
     public static final class EverythingMatcher extends RecordMatcher {
         public static final String ID = "Everything";
@@ -57,21 +66,29 @@ public abstract class RecordMatcher implements Matcher {
         }
     }
 
+    /**
+     * Constructs a new matcher from information contained in an XML fragment.
+     * 
+     * @param element The element that represents the matcher.
+     * @return The connection.
+     */
+    public static RecordMatcher fromXml(Element element) {
+        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + ".");
+        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + ".");
+        final String type = element.getAttributeValue(PROP_TYPE);
+        final String value = element.getAttributeValue(PROP_VALUE);
+        return createMatcher(type, value);
+    }
+
     public static final RecordMatcher DEFAULT_MATCHER = new EverythingMatcher();
 
+    public static final String PROP_TYPE = "type";
+    public static final String PROP_VALUE = "value";
+    
+    public static final String XML_ELEMENT = "matcher";
+    public static final String XML_NS = "http://rvsnoop.org/ns/matcher/1";
+
     private static final Logger logger = Logger.getLogger(RecordMatcher.class);
-
-    private static final Map matchersById = new HashMap();
-    private static final Map matchersByName = new HashMap();
-
-    static {
-        matchersById.put(EverythingMatcher.ID, EverythingMatcher.class);
-        matchersById.put(SendSubjectContains.ID, SendSubjectContains.class);
-        matchersById.put(SendSubjectStartsWith.ID, SendSubjectStartsWith.class);
-        matchersByName.put(EverythingMatcher.ID, EverythingMatcher.class);
-        matchersByName.put(SendSubjectContains.NAME, SendSubjectContains.class);
-        matchersByName.put(SendSubjectStartsWith.NAME, SendSubjectStartsWith.class);
-    }
 
     /**
      * Create a new matcher.
@@ -79,20 +96,20 @@ public abstract class RecordMatcher implements Matcher {
      * We need to be able to look things up by name as well to ease building
      * editing UIs.
      *
-     * @param idOrName The name or ID of the matcher type to create.
+     * @param typeOrName The name or type of the matcher type to create.
      * @param value The value to be passed to the new matcher instance.
      * @return The new matcher instance.
      */
-    public static RecordMatcher createMatcher(String idOrName, String value) {
-        Class clazz = (Class) matchersById.get(idOrName);
-        if (clazz == null) clazz = (Class) matchersByName.get(idOrName);
-        if (clazz == null) throw new IllegalArgumentException("No matcher named " + idOrName + ".");
+    public static RecordMatcher createMatcher(String typeOrName, String value) {
+        Class clazz = (Class) matchersById.get(typeOrName);
+        if (clazz == null) clazz = (Class) matchersByName.get(typeOrName);
+        if (clazz == null) throw new IllegalArgumentException("No matcher named " + typeOrName + ".");
         try {
             final Constructor ctor = clazz.getConstructor(new Class[] { String.class });
             return (RecordMatcher) ctor.newInstance(new Object[] { value });
         } catch (Exception e) {
             if (Logger.isErrorEnabled())
-                logger.error("Could not create a matcher from name='" + idOrName + "' and value='" + value + "'.", e);
+                logger.error("Could not create a matcher from name=‘" + typeOrName + "’ and value=‘" + value + "’.", e);
             return null;
         }
     }
@@ -111,7 +128,7 @@ public abstract class RecordMatcher implements Matcher {
         return names;
     }
 
-    private final String id;
+    private final String type;
 
     private final String name;
 
@@ -120,18 +137,13 @@ public abstract class RecordMatcher implements Matcher {
     /**
      * Create a new <code>RecordMatcher</code>.
      */
-    protected RecordMatcher(String id, String name, String value) {
-        this.id = id;
+    protected RecordMatcher(String type, String name, String value) {
+        this.type = type;
         this.name = name;
         this.value = value;
+        matchersById.put(type, getClass());
+        matchersByName.put(name, getClass());
     }
-
-	/**
-	 * @return The ID.
-	 */
-	public String getId() {
-		return id;
-	}
 
 	/**
 	 * @return The name.
@@ -139,6 +151,13 @@ public abstract class RecordMatcher implements Matcher {
 	public String getName() {
 		return name;
 	}
+
+    /**
+     * @return The type of the matcher.
+     */
+    public String getType() {
+        return type;
+    }
 
 	/**
 	 * @return The value.
@@ -155,6 +174,21 @@ public abstract class RecordMatcher implements Matcher {
 	}
 
     public String toString() {
-        return "[RecordMatcher: id=" + id + ", name=" + name + ", value=" + value + "]";
+        return new ToStringBuilder(this)
+            .append(PROP_TYPE, type)
+            .append(PROP_VALUE, value).toString();
     }
+
+    /**
+     * Create an XML fragment that represents this matcher.
+     *
+     * @return the XML fragment that represents this matcher.
+     */
+    public Element toXml() {
+        final Element element = new Element(XML_ELEMENT, XML_NS);
+        element.addAttribute(new Attribute(PROP_TYPE, type));
+        element.addAttribute(new Attribute(PROP_VALUE, value));
+        return element;
+    }
+
 }
