@@ -66,6 +66,9 @@
       <pathelement location="${lib.binding}"/>
       <pathelement location="${lib.forms}"/>
       <pathelement location="${lib.glazed}"/>
+      <pathelement location="${lib.io}"/>
+      <pathelement location="${lib.lang}"/>
+      <pathelement location="${lib.logging}"/>
       <pathelement location="${lib.looks}"/>
       <pathelement location="${lib.xmlenc}"/>
       <pathelement location="${lib.xom}"/>
@@ -204,6 +207,9 @@
       <fileset file="${lib.binding}"/>
       <fileset file="${lib.forms}"/>
       <fileset file="${lib.glazed}"/>
+      <fileset file="${lib.io}"/>
+      <fileset file="${lib.lang}"/>
+      <fileset file="${lib.logging}"/>
       <fileset file="${lib.looks}"/>
       <fileset file="${lib.xmlenc}"/>
       <fileset file="${lib.xom}"/>

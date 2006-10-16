@@ -55,8 +55,8 @@ final class AddConnection extends AbstractAction {
         dialog.setVisible(true);
         if (dialog.isCancelled()) return;
         conn = dialog.getConnection();
-        Connections.getInstance().add(conn);
-        conn.start();
+        if (Connections.getInstance().add(conn))
+            conn.start();
     }
 
 }

@@ -19,9 +19,9 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.io.IOUtils;
 import org.znerd.xmlenc.XMLOutputter;
 
-import rvsnoop.IOUtils;
 import rvsnoop.Logger;
 import rvsnoop.Marshaller;
 import rvsnoop.Record;

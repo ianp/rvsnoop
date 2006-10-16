@@ -9,7 +9,6 @@ package rvsnoop;
 import java.awt.Color;
 import java.io.File;
 import java.util.Enumeration;
-import java.util.Iterator;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -34,11 +33,6 @@ public final class Project extends XMLConfigFile {
     private static final String COLOUR = "colour";
     private static Project currentProject;
     private static final String ROOT = "rvsnoopProject";
-    private static final String RV_CONNECTION = "connection";
-    private static final String RV_DAEMON = "daemon";
-    private static final String RV_DESCRIPTION = "description";
-    private static final String RV_NETWORK = "network";
-    private static final String RV_SERVICE = "service";
     private static final String SUBJECT = "subject";
     private static final String SUBJECT_EXPANDED = "expanded";
     private static final String SUBJECT_NAME = "name";
@@ -104,30 +98,17 @@ public final class Project extends XMLConfigFile {
     protected void load(Element root) {
         loadSubjectTree(root);
         loadTypes(root);
-        final RvConnection[] conns = loadConnections(root);
-        final Connections connlist = Connections.getInstance();
-        for (int i = 0, imax = conns.length; i < imax; ++i) {
-            connlist.add(conns[i]);
-            conns[i].start();
-        }
+        loadConnections(root);
     }
 
-    public static RvConnection[] loadConnections(Element parent) {
-        final Elements elements = parent.getChildElements(RV_CONNECTION);
-        final RvConnection[] conns = new RvConnection[elements.size()];
+    public static void loadConnections(Element parent) {
+        final Connections connections = Connections.getInstance();
+        final Elements elements = parent.getChildElements(RvConnection.XML_ELEMENT, RvConnection.XML_NS);
         for (int i = 0, imax = elements.size(); i < imax; ++i) {
-            final Element element = elements.get(i);
-            final String description = getString(element, RV_DESCRIPTION);
-            final String service = getString(element, RV_SERVICE);
-            final String network = getString(element, RV_NETWORK);
-            final String daemon = getString(element, RV_DAEMON);
-            conns[i] = new RvConnection(service, network, daemon);
-            conns[i].setDescription(description);
-            final Elements subjects = element.getChildElements(SUBJECT);
-            for (int j =0, jmax = subjects.size(); j < jmax; ++j)
-                conns[i].addSubject(subjects.get(j).getValue());
+            final RvConnection conn = RvConnection.fromXml(elements.get(i));
+            connections.add(conn);
+            conn.start();
         }
-        return conns;
     }
 
     private static void loadSubjectTree(Element parent) {
@@ -202,16 +183,8 @@ public final class Project extends XMLConfigFile {
 
     public static void storeConnections(Element parent) {
         RvConnection[] connections = (RvConnection[]) Connections.getInstance().toArray();
-        for (int i = 0, imax = connections.length; i < imax; ++i) {
-            final RvConnection connection = connections[i];
-            final Element element = appendElement(parent, RV_CONNECTION);
-            setString(element, RV_DESCRIPTION, connection.getDescription());
-            setString(element, RV_SERVICE, connection.getService());
-            setString(element, RV_NETWORK, connection.getNetwork());
-            setString(element, RV_DAEMON, connection.getDaemon());
-            for (final Iterator j = connection.getSubjects().iterator(); j.hasNext(); )
-                setString(element, SUBJECT, (String) j.next());
-        }
+        for (int i = 0, imax = connections.length; i < imax; ++i)
+            parent.appendChild(connections[i].toXml());
     }
 
     private static void storeSubjectTree(Element parent) {

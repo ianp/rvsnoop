@@ -7,7 +7,14 @@ package rvsnoop;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -18,21 +25,30 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.apache.commons.io.IOUtils;
+
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
+import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
+import nu.xom.Elements;
+import nu.xom.Serializer;
 
 /**
  * Provides access to a list of recently used connections.
+ * <p>
+ * This class listens for additions to the connections list and keeps track
+ * of them. It is also resposible for saving this information to a file when
+ * the application shuts down and for reloading in at startup.
  *
  * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public final class RecentConnections extends XMLConfigFile implements ListEventListener {
+public final class RecentConnections implements ListEventListener {
 
     private class AddRecentConnection extends AbstractAction {
         private static final long serialVersionUID = -8554698925345247337L;
@@ -81,9 +97,13 @@ public final class RecentConnections extends XMLConfigFile implements ListEventL
     }
 
     private static final int DEFAULT_MAX_SIZE = 10;
-    private static final String ROOT = "recentConnections";
+
+    private static final String XML_ELEMENT = "connections";
+    private static final String XML_NS = "http://rvsnoop.org/ns/recentConnections/1";
 
     public static RecentConnections instance;
+
+    private static final Logger logger = Logger.getLogger(RecentConnections.class);
 
     public static synchronized RecentConnections getInstance() {
         if (instance == null) {
@@ -97,19 +117,15 @@ public final class RecentConnections extends XMLConfigFile implements ListEventL
 
     // This needs to be LinkedList then we can use the removeLast method.
     private final LinkedList connections = new LinkedList();
+    
+    private final File file;
 
     private int maxSize = DEFAULT_MAX_SIZE;
 
     private RecentConnections(File file) {
-        super(file);
+        this.file = file;
         load();
         Connections.getInstance().addListEventListener(this);
-    }
-
-    protected Document getDocument() {
-        final Element root = new Element(ROOT);
-        Project.storeConnections(root);
-        return new Document(root);
     }
 
     /**
@@ -142,11 +158,32 @@ public final class RecentConnections extends XMLConfigFile implements ListEventL
         }
     }
 
-    protected void load(Element root) {
-        final RvConnection[] conns = Project.loadConnections(root);
-        for (int i = 0, imax = conns.length; i < imax; ++i)
-            connections.add(conns[i]);
-        setMaxSize(maxSize);
+    public void load() {
+        if (!file.exists()) return;
+        if (!file.canRead()) {
+            if (Logger.isWarnEnabled()) logger.warn("Cannot read file: " + file.getName());
+            return;
+        }
+        if (file.length() == 0) {
+            if (Logger.isWarnEnabled()) logger.warn("File is empty: " + file.getName());
+            return;
+        }
+        InputStream stream = null;
+        try {
+            stream = new BufferedInputStream(new FileInputStream(file));
+            final Document doc = new Builder().build(stream);
+            final Elements elements = doc.getRootElement().getChildElements(RvConnection.XML_ELEMENT, RvConnection.XML_NS);
+            for (int i = 0, imax = elements.size(); i < imax; ++i) {
+                final RvConnection conn = RvConnection.fromXml(elements.get(i));
+                connections.add(conn);
+            }
+        } catch (Exception e) {
+            if (Logger.isErrorEnabled())
+                logger.error("Unable to load file: " + file.getName(), e);
+        } finally {
+            IOUtils.closeQuietly(stream);
+            setMaxSize(maxSize);
+        }
     }
 
     /**
@@ -161,12 +198,29 @@ public final class RecentConnections extends XMLConfigFile implements ListEventL
     }
 
     /**
-     * Gets the current number of entries in the recent listeners list.
+     * Save the recent connections list.
      *
-     * @return The size of the recent connections list.
+     * @throws IOException
      */
-    public int size() {
-        return connections.size();
+    public void store() throws IOException {
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+        OutputStream stream = null;
+        try {
+            final Element root = new Element(XML_ELEMENT, XML_NS);
+            for (Iterator i = Connections.getInstance().iterator(); i.hasNext(); )
+                root.appendChild(((RvConnection) i.next()).toXml());
+            stream = new BufferedOutputStream(new FileOutputStream(file));
+            final Serializer ser = new Serializer(stream);
+            ser.setIndent(2);
+            ser.setLineSeparator(IOUtils.LINE_SEPARATOR);
+            ser.write(new Document(root));
+            ser.flush();
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
     }
 
 }

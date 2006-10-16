@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
 
+import org.apache.commons.io.IOUtils;
+
 import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;

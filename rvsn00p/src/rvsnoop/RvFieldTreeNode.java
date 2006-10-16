@@ -27,6 +27,8 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.tree.TreeNode;
 
+import org.apache.commons.io.IOUtils;
+
 import nu.xom.Builder;
 import nu.xom.Document;
 import rvsnoop.ui.Icons;

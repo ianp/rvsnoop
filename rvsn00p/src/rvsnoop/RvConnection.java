@@ -20,6 +20,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import nu.xom.Attribute;
+import nu.xom.Element;
+import nu.xom.Elements;
+
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIManager;
 
@@ -186,15 +194,34 @@ public final class RvConnection implements TibrvMsgCallback {
     private static final Logger logger = Logger.getLogger(RvConnection.class);
 
     /**
+     * Property key for the RV daemon setting of this connection.
+     */
+    public static final String PROP_DAEMON = "daemon";
+
+    /**
      * Property key for the description of this connection.
      */
     public static final String PROP_DESCRIPTION = "description";
+
+    /**
+     * Property key for the RV network setting of this connection.
+     */
+    public static final String PROP_NETWORK = "network";
+
+    /**
+     * Property key for the RV service setting of this connection.
+     */
+    public static final String PROP_SERVICE = "service";
 
     /**
      * Property key for the subjects that this connection subscribes to.
      */
     public static final String PROP_SUBJECTS = "subjects";
 
+    public static final String XML_ELEMENT = "connection";
+    public static final String XML_NS = "http://rvsnoop.org/ns/connection/rv/1";
+    private static final String XML_SUBJECT = "subject";
+    
     private static TibrvQueue queue;
 
     private static TibrvListener queueLimitListener;
@@ -221,6 +248,26 @@ public final class RvConnection implements TibrvMsgCallback {
                 // Do nothing for now.
             }
         }
+    }
+    
+    /**
+     * Constructs a new RvConnection from information contained in an XML fragment.
+     * 
+     * @param element The element that represents the connection.
+     * @return The connection.
+     */
+    public static RvConnection fromXml(Element element) {
+        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + ".");
+        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + ".");
+        final String service = element.getAttributeValue(PROP_SERVICE);
+        final String network = element.getAttributeValue(PROP_NETWORK);
+        final String daemon = element.getAttributeValue(PROP_DAEMON);
+        final RvConnection conn = new RvConnection(service, network, daemon);
+        conn.setDescription(element.getAttributeValue(PROP_DESCRIPTION));
+        final Elements subjects = element.getChildElements(XML_SUBJECT, XML_NS);
+        for (int i = 0, imax = subjects.size(); i < imax; ++i)
+            conn.addSubject(subjects.get(i).getValue());
+        return conn;
     }
 
     /**
@@ -385,11 +432,11 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     public synchronized void addSubject(String subject) {
-        if (subject == null) throw new NullPointerException("Cannot set null subject.");
+        Validate.notNull(subject, "Subject cannot be null.");
         subject = subject.trim();
-        if (subject.length() == 0) throw new IllegalArgumentException("Cannot set empty subject name.");
-        if (!subjects.containsKey(subject))
-            subjects.put(subject, createListener(subject));
+        Validate.isTrue(subject.length() > 0, "Subject cannot be empty.");
+        if (subjects.containsKey(subject)) return;
+        subjects.put(subject, createListener(subject));
         // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
         changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
     }
@@ -398,7 +445,7 @@ public final class RvConnection implements TibrvMsgCallback {
         if (state == State.STOPPED) return null;
         try {
             ensureInitialized();
-            if (Logger.isDebugEnabled()) logger.debug("Creating listener for '" + description + "' on subject '" + subject + "'.");
+            if (Logger.isDebugEnabled()) logger.debug("Creating listener for ‘" + description + "’ on subject ‘" + subject + "’.");
             return new TibrvListener(queue, this, transport, subject, this);
         } catch (TibrvException e) {
             logger.error("Could not create Rendezvous connection.", e);
@@ -513,9 +560,9 @@ public final class RvConnection implements TibrvMsgCallback {
      */
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = new StringBuffer()
+            hashCode = new HashCodeBuilder()
                 .append(network).append(service).append(daemon)
-                .hashCode();
+                .toHashCode();
         }
         return hashCode;
     }
@@ -529,7 +576,8 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     public synchronized void pause() {
-        if (state != State.STARTED) throw new IllegalStateException("Cannot pause if not started.");
+        if (state != State.STARTED)
+            throw new IllegalStateException("Connection must be started before it can be paused.");
         logger.info("Pausing connection: " + description);
         final State oldState = state;
         state = State.PAUSED;
@@ -649,12 +697,34 @@ public final class RvConnection implements TibrvMsgCallback {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        final StringBuffer buffer = new StringBuffer();
-        buffer.append("[RvConnection: description=").append(description);
-        buffer.append(", service=").append(service);
-        buffer.append(", network=").append(network);
-        buffer.append(", daemon=").append(daemon).append("]");
-        return buffer.toString();
+        return new ToStringBuilder(this)
+            .append("description", description)
+            .append("service", service)
+            .append("network", network)
+            .append("daemon", daemon).toString();
+    }
+
+    /**
+     * Create an XML fragment that represents this connection.
+     *
+     * @return the XML fragment that represents this connection.
+     */
+    public Element toXml() {
+        final Element element = new Element(XML_ELEMENT, XML_NS);
+        if (description.length() > 0)
+            element.addAttribute(new Attribute(PROP_DESCRIPTION, description));
+        if (!DEFAULT_SERVICE.equals(service))
+            element.addAttribute(new Attribute(PROP_SERVICE, service));
+        if (!DEFAULT_NETWORK.equals(network))
+            element.addAttribute(new Attribute(PROP_NETWORK, network));
+        if (!DEFAULT_DAEMON.equals(daemon))
+            element.addAttribute(new Attribute(PROP_DAEMON, daemon));
+        for (Iterator i = subjects.keySet().iterator(); i.hasNext(); ) {
+            final Element subject = new Element(XML_SUBJECT, XML_NS);
+            subject.appendChild((String) i.next());
+            element.appendChild(subject);
+        }
+        return element;
     }
 
 }

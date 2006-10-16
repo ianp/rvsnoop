@@ -42,6 +42,11 @@ history in it.
 An alternative approach would be to use multiple small files with
 different types of data in each?
 
+rvsnoop-project.xml
+connections.xml
+types.xml
+subjects.xml
+
 In either case, we need to have a migrator for the RSP file format.
 This should create a new directory with the same name (sans the .rsp
 extension), then migrate the contents of the rsp file to the various
