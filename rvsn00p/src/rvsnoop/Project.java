@@ -104,24 +104,30 @@ public final class Project extends XMLConfigFile {
     protected void load(Element root) {
         loadSubjectTree(root);
         loadTypes(root);
-        loadConnections(root);
+        final RvConnection[] conns = loadConnections(root);
+        final Connections connlist = Connections.getInstance();
+        for (int i = 0, imax = conns.length; i < imax; ++i) {
+            connlist.add(conns[i]);
+            conns[i].start();
+        }
     }
 
-    private static void loadConnections(Element parent) {
+    public static RvConnection[] loadConnections(Element parent) {
         final Elements elements = parent.getChildElements(RV_CONNECTION);
-        for (int i = elements.size(); i != 0;) {
-            final Element element = elements.get(--i);
+        final RvConnection[] conns = new RvConnection[elements.size()];
+        for (int i = 0, imax = elements.size(); i < imax; ++i) {
+            final Element element = elements.get(i);
             final String description = getString(element, RV_DESCRIPTION);
             final String service = getString(element, RV_SERVICE);
             final String network = getString(element, RV_NETWORK);
             final String daemon = getString(element, RV_DAEMON);
-            final RvConnection connection = new RvConnection(service, network, daemon);
-            connection.setDescription(description);
+            conns[i] = new RvConnection(service, network, daemon);
+            conns[i].setDescription(description);
             final Elements subjects = element.getChildElements(SUBJECT);
-            for (int j = subjects.size(); j != 0;)
-                connection.addSubject(subjects.get(--j).getValue());
-            connection.start();
+            for (int j =0, jmax = subjects.size(); j < jmax; ++j)
+                conns[i].addSubject(subjects.get(j).getValue());
         }
+        return conns;
     }
 
     private static void loadSubjectTree(Element parent) {
@@ -194,7 +200,7 @@ public final class Project extends XMLConfigFile {
             ((SubjectElement) nodes.nextElement()).setSelected(true);
     }
 
-    private static void storeConnections(Element parent) {
+    public static void storeConnections(Element parent) {
         RvConnection[] connections = (RvConnection[]) Connections.getInstance().toArray();
         for (int i = 0, imax = connections.length; i < imax; ++i) {
             final RvConnection connection = connections[i];

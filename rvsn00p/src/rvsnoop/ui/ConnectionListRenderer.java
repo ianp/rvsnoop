@@ -18,13 +18,16 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
 
+import rvsnoop.RecentConnections;
 import rvsnoop.RvConnection;
 import rvsnoop.State;
+import rvsnoop.actions.Actions;
 
 /**
  * A list renderer for connection objects.
@@ -184,6 +187,13 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         popupMenu.add(connection.getStopAction());
         popupMenu.addSeparator();
         popupMenu.add(connection.getRemoveAction());
+        popupMenu.addSeparator();
+        popupMenu.add(Actions.ADD_CONNECTION);
+        final JMenu recent = new JMenu("Recent Connections");
+        recent.setIcon(Icons.ADD_CONNECTION);
+        recent.getPopupMenu().addPopupMenuListener(
+                RecentConnections.getInstance().new MenuManager());
+        popupMenu.add(recent);
         popupMenu.show(list, x, y);
     }
 

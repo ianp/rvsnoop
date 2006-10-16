@@ -136,8 +136,10 @@ public final class RvConnection implements TibrvMsgCallback {
             super("Remove");
         }
         public void actionPerformed(ActionEvent e) {
-            stop();
-            Connections.getInstance().remove(RvConnection.this);
+            synchronized (RvConnection.this) {
+                stop();
+                Connections.getInstance().remove(RvConnection.this);
+            }
         }
     }
 
@@ -197,8 +199,8 @@ public final class RvConnection implements TibrvMsgCallback {
 
     private static TibrvListener queueLimitListener;
 
-    private static synchronized TibrvQueue ensureInitialized() {
-        if (queue != null) return queue;
+    private static synchronized void ensureInitialized() {
+        if (queue != null) return;
         try {
             Tibrv.open();
             Tibrv.setErrorCallback(new ErrorCallback());
@@ -219,7 +221,6 @@ public final class RvConnection implements TibrvMsgCallback {
                 // Do nothing for now.
             }
         }
-        return queue;
     }
 
     /**
@@ -294,10 +295,8 @@ public final class RvConnection implements TibrvMsgCallback {
     public static synchronized void shutdown() {
         if (queue == null) return;
         RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
-        for (int i = 0, imax = conns.length; i < imax; ++i) {
-            if (conns[i].getState() != State.STOPPED)
-                conns[i].stop();
-        }
+        for (int i = 0, imax = conns.length; i < imax; ++i)
+            conns[i].stop();
         try {
             Tibrv.close();
         } catch (TibrvException e) {
@@ -386,22 +385,11 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     public synchronized void addSubject(String subject) {
-        if (subject == null) throw new NullPointerException();
+        if (subject == null) throw new NullPointerException("Cannot set null subject.");
         subject = subject.trim();
-        if (subject.length() > 0 && !subjects.containsKey(subject))
+        if (subject.length() == 0) throw new IllegalArgumentException("Cannot set empty subject name.");
+        if (!subjects.containsKey(subject))
             subjects.put(subject, createListener(subject));
-        // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
-        changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
-    }
-
-    public synchronized void addSubjects(List subjects) {
-        if (subjects == null) throw new NullPointerException();
-        for (final Iterator i = subjects.iterator(); i.hasNext(); ) {
-            final String subject = ((String) i.next()).trim();
-            if (this.subjects.containsValue(subject)) continue;
-            if (Logger.isDebugEnabled()) logger.debug("RvConnection.setSubjects putting '" + subject + "'");
-            this.subjects.put(subject, createListener(subject));
-        }
         // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
         changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
     }
@@ -409,7 +397,7 @@ public final class RvConnection implements TibrvMsgCallback {
     private synchronized TibrvListener createListener(String subject) {
         if (state == State.STOPPED) return null;
         try {
-            final TibrvQueue queue = ensureInitialized();
+            ensureInitialized();
             if (Logger.isDebugEnabled()) logger.debug("Creating listener for '" + description + "' on subject '" + subject + "'.");
             return new TibrvListener(queue, this, transport, subject, this);
         } catch (TibrvException e) {
@@ -514,7 +502,7 @@ public final class RvConnection implements TibrvMsgCallback {
      *
      * @return A sorted (natural order) set of subjects. Elements may be cast to {@link String}.
      */
-    public Set getSubjects(){
+    public Set getSubjects() {
          return Collections.unmodifiableSet(subjects.keySet());
     }
 
@@ -644,7 +632,7 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     public synchronized void stop() {
-        if (state == State.STOPPED) throw new IllegalStateException("Cannot stop if already stopped.");
+        if (state == State.STOPPED) return;
         logger.info("Stopping connection: " + description);
         for (final Iterator i = subjects.values().iterator(); i.hasNext(); )
             ((TibrvEvent) i.next()).destroy();

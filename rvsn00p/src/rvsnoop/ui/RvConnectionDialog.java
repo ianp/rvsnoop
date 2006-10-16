@@ -8,7 +8,6 @@ package rvsnoop.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import javax.swing.AbstractAction;
@@ -146,11 +145,12 @@ public final class RvConnectionDialog extends JDialog {
     }
 
     public RvConnection getConnection() {
-        // FIXME: Rewrite this to use JGoodies Binding
-        final RvConnection c = new RvConnection(service.getText(), network.getText(), daemon.getText());
-        c.setDescription(description.getText());
-        c.addSubjects(Arrays.asList(StringUtils.split(subject.getText())));
-        return c;
+        final RvConnection conn = new RvConnection(service.getText(), network.getText(), daemon.getText());
+        conn.setDescription(description.getText());
+        final String[] s = StringUtils.split(subject.getText());
+        for (int i = 0, imax = s.length; i < imax; ++i)
+            conn.addSubject(s[i]);
+        return conn;
     }
 
     public boolean isCancelled() {
