@@ -11,19 +11,65 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
-import com.sleepycat.bind.tuple.TupleInput;
-import com.sleepycat.bind.tuple.TupleOutput;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
 
 /**
- * A Transferable which implements the capability required to transfer a {@link TibrvMsg}.
+ * A class to handle reading and writing records to and from various sources.
+ * <p>
+ * This class has several static methods to handle reading and writing records
+ * to byte streams in the RvSnoop Record Byte Stream Format. A single record
+ * represented in the format consists of:
+ * <ol>
+ * <li>
+ *   The magic number {@linkplain #BIND_RECORD_MAGIC}; followed by
+ * </li>
+ * <li>
+ *   A boolean denoting the existence of connection information. If the boolean
+ *   is false then the next 4 fields are omitted from the stream.
+ * </li>
+ * <li>
+ *   The connection description, as a Java-modified UTF encoded string.
+ * </li>
+ * <li>
+ *   The connection service parameter, as a Java-modified UTF encoded string.
+ * </li>
+ * <li>
+ *   The connection network parameter, as a Java-modified UTF encoded string.
+ * </li>
+ * <li>
+ *   The connection daemon parameter, as a Java-modified UTF encoded string.
+ * </li>
+ * <li>
+ *   A long, representing the record timestamp in seconds since epoch.
+ * </li>
+ * <li>
+ *   An integer, represent the size of the message in Rendezvous wire-format.
+ * </li>
+ * <li>
+ *   A byte array containing the message in Rendezvous wire format.
+ * </li>
+ * </ol>
+ * A series of messages in the format begins with the magic number
+ * {@linkplain #BIND_RECORD_SET_MAGIC} followed by an integer representing the
+ * number of messages in the stream, followed by that many records in the format
+ * described above.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -31,65 +77,181 @@ import com.tibco.tibrv.TibrvMsg;
  */
 public final class RecordSelection implements ClipboardOwner, Transferable {
 
-    public static final DataFlavor BYTES_FLAVOUR = new DataFlavor(ByteBuffer.class, "Rendezvous Message (as raw bytes)");
+    /**
+     * Magic number that represents a single record entry in a byte stream.
+     * <p>
+     * The format of a single record entry is
+     * <pre>MAGIC_NUMBER CONNECTION? CONNECTION_INFO TIMESTAMP MESSAGE_LENGTH MESSAGE</pre>
+     * where connection is a boolean, if it is true then connection info is
+     * stored as four Java-modified UTF strings representing description, service,
+     * network, and daemon, respectively. If connection is false then connection
+     * info is not stored.
+     * <p>
+     * Note that sequence number is <em>not</em> stored.
+     *
+     * @see DataOutput#writeUTF(String)
+     */
+    public static final byte[] BIND_RECORD_MAGIC;
+
+    /**
+     * Magic number that represents a set of record entries in a byte stream.
+     * <p>
+     * The format of a record set is <pre>MAGIC_NUMBER LENGTH RECORD*</pre>.
+     */
+    public static final byte[] BIND_RECORD_SET_MAGIC;
+
+    public static final DataFlavor BYTES_FLAVOUR = new DataFlavor("application/x-rvsnoop-record-byte-stream", "RvSnoop Records Byte Stream");
+
+    static {
+        try {
+            // Keep these to 4 characters then they can be used as Type codes
+            // on Mac OS X.
+            BIND_RECORD_MAGIC = "RS02".getBytes("UTF-8");
+            BIND_RECORD_SET_MAGIC = "RS01".getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     /**
      * A convenience method to unpack an array of messages from a transferrable.
      *
      * @param selection The transferable to read from.
      * @return The array of messages.
-     * @throws UnsupportedFlavorException If the transferrable does not support {@link #BYTES_FLAVOUR}.
-     * @throws IOException If there was an exception thrown when reading from the transferable.
-     * @throws TibrvException If any of the chunks in the stream could not be converted into messages.
-     * @throws java.nio.BufferUnderflowException If there are not enough bytes in the stream to reconstruct all of the messages described in the header.
-     * @see Record#BIND_RECORD_SET_MAGIC For details about the stream format.
+     * @throws UnsupportedFlavorException If the transferrable does not support
+     *     {@linkplain #BYTES_FLAVOUR} or
+     *     {@linkplain DataFlavor#javaFileListFlavor}.
+     * @throws IOException If there was an exception thrown when reading from
+     *     the transferable.
+     * @see BIND_RECORD_SET_MAGIC For details about the stream format.
      */
-    public static TibrvMsg[] unmarshal(Transferable selection) throws UnsupportedFlavorException, IOException, TibrvException {
-        final ByteBuffer data = (ByteBuffer) selection.getTransferData(BYTES_FLAVOUR);
-        byte[] bytes;
-        if (data.hasArray()) {
-            bytes = data.array();
+    public static Record[] read(Transferable selection) throws UnsupportedFlavorException, IOException, TibrvException {
+        if (selection.isDataFlavorSupported(BYTES_FLAVOUR)) {
+            return read(new DataInputStream((ByteArrayInputStream) selection.getTransferData(BYTES_FLAVOUR)));
+        } else if (selection.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+            final List files = (List) selection.getTransferData(DataFlavor.javaFileListFlavor);
+            final Record[] records = new Record[files.size()];
+            for (int i = 0, imax = records.length; i < imax; ++i) {
+                final File file = (File) files.get(i);
+                final FileInputStream fis = new FileInputStream(file);
+                final BufferedInputStream bis = new BufferedInputStream(fis, (int) file.length());
+                records[i] = readRecord(new DataInputStream(bis), true);
+                IOUtils.closeQuietly(fis);
+            }
+            return records;
         } else {
-            bytes = new byte[data.remaining()];
-            data.get(bytes);
+            throw new UnsupportedFlavorException(selection.getTransferDataFlavors()[0]);
         }
-        final TupleInput input = new TupleInput(bytes);
-        final byte[] magic = new byte[Record.BIND_RECORD_SET_MAGIC.length];
-        input.readFast(magic);
-        if (!Arrays.equals(Record.BIND_RECORD_SET_MAGIC, magic))
-            throw new IllegalArgumentException("Selection does not contain a valid records stream.");
-        final int numMessages = input.readInt();
-        final TibrvMsg[] messages = new TibrvMsg[numMessages];
-        for (int i = 0; i < numMessages; ++i)
-            messages[i] = (TibrvMsg) Record.BINDING.entryToObject(input);
-        return messages;
     }
 
     /**
-     * The messages as a stream of bytes.
+     * Read data from an input.
      *
-     * @see Record#BIND_RECORD_SET_MAGIC For details about the stream format.
+     * @param input
+     * @return
+     * @throws IOException
      */
-    private ByteBuffer data;
+    public static Record[] read(DataInput input) throws IOException {
+        final byte[] magic = new byte[BIND_RECORD_MAGIC.length];
+        input.readFully(magic);
+        Record[] records = null;
+        if (Arrays.equals(BIND_RECORD_SET_MAGIC, magic)) {
+            records = new Record[input.readInt()];
+            for (int i = 0, imax = records.length; i < imax; ++i)
+                records[i] = readRecord(input, true);
+            return records;
+        } else if (Arrays.equals(BIND_RECORD_MAGIC, magic)) {
+            return new Record[] { readRecord(input, false) };
+        } else {
+            throw new IOException("Input does not contain a valid record stream.");
+        }
+    }
+
+    private static Record readRecord(DataInput input, boolean checkMagic) throws IOException {
+        if (checkMagic) {
+            final byte[] magic = new byte[BIND_RECORD_MAGIC.length];
+            input.readFully(magic);
+            if (!Arrays.equals(BIND_RECORD_MAGIC, magic))
+                throw new IOException("Input does not contain a valid record stream.");
+        }
+        final boolean connFlag = input.readBoolean();
+        final String description = connFlag ? input.readUTF() : null;
+        final String service = connFlag ? input.readUTF() : null;
+        final String network = connFlag ? input.readUTF() : null;
+        final String daemon = connFlag ? input.readUTF() : null;
+        final Connections connections = Connections.getInstance();
+        RvConnection connection = connections.get(service, network, daemon);
+        if (connection == null) {
+            connection = new RvConnection(service, network, daemon);
+            connection.setDescription(description);
+            connections.add(connection);
+        }
+        final long timestamp = input.readLong();
+        final int length = input.readInt();
+        final byte[] bytes = new byte[length];
+        input.readFully(bytes);
+        try {
+            return new Record(connection, new TibrvMsg(bytes), timestamp);
+        } catch (TibrvException e) {
+            throw new CausedIOException("Could not convert bytes to record.", e);
+        }
+    }
 
     /**
-     * Creates an instance that transfers a multiple messages.
+     * Write a series of records to a byte stream.
      *
-     * @param messages The list of messages to transfer.
-     * @throws TibrvException If the data could not be extracted from the message.
-     * @throws IOException If the messages could not be serialized to the clipboard.
-     * @throws ClassCastExcption if any of the items in the list are noe records.
+     * @param records The records to write.
+     * @param output The stream to write to.
+     * @throws IOException If the records could not be written.
      */
-    public RecordSelection(List messages) throws TibrvException, IOException {
-        super();
-        final int numMessages = messages.size();
-        final TupleOutput output = new TupleOutput();
-        output.writeFast(Record.BIND_RECORD_SET_MAGIC);
-        output.writeInt(numMessages);
-        for (final Iterator i = messages.iterator(); i.hasNext();)
-            Record.BINDING.objectToEntry(i.next(), output);
-        data = ByteBuffer.wrap(output.getBufferBytes());
-        data.rewind();
+    public static void write(Record[] records, DataOutput output) throws IOException {
+        output.write(BIND_RECORD_SET_MAGIC);
+        output.writeInt(records.length);
+        for (int i = 0, imax = records.length; i < imax; ++i)
+            write(records[i], output);
+    }
+
+    /**
+     * Write a record to a byte stream.
+     *
+     * @param record The record to write.
+     * @param output The stream to write to.
+     * @throws IOException If the records could not be written.
+     */
+    public static void write(Record record, DataOutput output) throws IOException {
+        output.write(BIND_RECORD_MAGIC);
+        final RvConnection connection = record.getConnection();
+        if (connection != null) {
+            output.writeBoolean(true);
+            output.writeUTF(connection.getDescription());
+            output.writeUTF(connection.getService());
+            output.writeUTF(connection.getNetwork());
+            output.writeUTF(connection.getDaemon());
+        } else {
+            output.writeBoolean(false);
+        }
+        output.writeLong(record.getTimestamp());
+        byte[] bytes;
+        try {
+            bytes = record.getMessage().getAsBytes();
+            output.writeInt(bytes.length);
+            output.write(bytes);
+        } catch (TibrvException e) {
+            throw new CausedIOException("Could not convert record to bytes: " + record, e);
+        }
+    }
+
+    private Record[] records;
+
+    /**
+     * Creates an instance that transfers a multiple records.
+     *
+     * @param records The list of records to transfer.
+     * @throws IllegalArgumentException if any of the items in the list are not
+     *     instances of {@linkplain Record}.
+     */
+    public RecordSelection(Record[] records) {
+        this.records = records;
     }
 
     /**
@@ -100,7 +262,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      * @throws IOException If the messages could not be serialized to the clipboard.
      */
     public RecordSelection(Record message) throws TibrvException, IOException {
-        this(Arrays.asList(new Record[] { message }));
+        this.records = new Record[] { message };
     }
 
     /**
@@ -109,27 +271,34 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      * @see Transferable#getTransferData(DataFlavor)
      */
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-        if (!isDataFlavorSupported(flavor))
-            throw new UnsupportedFlavorException(flavor);
-        return data;
+        if (BYTES_FLAVOUR.isMimeTypeEqual(flavor)) {
+            final ByteArrayOutputStream stream = new ByteArrayOutputStream(2048 * records.length);
+            write(records, new DataOutputStream(stream));
+            return new ByteArrayInputStream(stream.toByteArray());
+        }
+        if (DataFlavor.javaFileListFlavor.equals(flavor)) {
+            // FIXME: what to do here ???? How do we get a list of files to use?
+            // Maybe pop up a file chooser?
+        }
+        throw new UnsupportedFlavorException(flavor);
     }
 
     /* (non-Javadoc)
      * @see java.awt.datatransfer.Transferable#getTransferDataFlavors()
      */
     public DataFlavor[] getTransferDataFlavors() {
-        return new DataFlavor[] { BYTES_FLAVOUR };
+        return new DataFlavor[] { BYTES_FLAVOUR /*, DataFlavor.javaFileListFlavor */ };
     }
 
     /* (non-Javadoc)
      * @see java.awt.datatransfer.Transferable#isDataFlavorSupported(java.awt.datatransfer.DataFlavor)
      */
     public boolean isDataFlavorSupported(DataFlavor flavor) {
-        return BYTES_FLAVOUR.equals(flavor);
+        return BYTES_FLAVOUR.equals(flavor) /* || flavor.isFlavorJavaFileListType() */;
     }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
-        data = null;
+        // Do nothing.
     }
 
 }

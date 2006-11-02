@@ -22,13 +22,6 @@ Since proguard is no longer being used that isn't true any more. But
 the build system needs altering to produce a single distributable
 rather than separate source and binary versions.
 
-### Add ‘Delete Connection’ Action
-
-This is pretty much done now, but needs further tested. Still to do:
-make the connection add/edit dialog binding based, also ensure that
-it doesn't add things twice, or miss things from the recent
-connections list, or anything else like that.
-
 ### Make Projects be Directory Based
 
 With an rvsnoop-project.xml file, use the folder name for the
@@ -63,7 +56,7 @@ Subfolders in the project could include...
 
 * index
 
-  For the lucense index files
+  For the lucene index files
 
 ### Add ConnectionList and MessageLedger Selection Events
 
@@ -76,35 +69,6 @@ management for ideas.
 This should show some information about the serialized object and
 allow methods to be invoked where they take no arguments, or only
 primitive values. Probably just include viewing in this version.
-
-### Remove MsgType from Record, Apply it Dynamically in Views
-
-Also, allow user defined types. This needs to have a UI, based on a
-list of "RecordTypePanel" or similar, with add/remove/up/down
-buttons for the list. It will also need a dedicated dialog to
-display this, and an action to put in the menu bar. Allow types to
-be used in filters (and then remove the "type" submenu from the
-view).
-
-Rename MsgType to RecordType. Record types should be global or
-project specific, global record types are stored in the general
-preferences, project specific record types are stored in the
-project.xml file. NO: this conflicts with the next idea... Allow
-type names to be changes but check that the name is unique before
-changing it.
-
-Create a RecordTypePanel component to display information about a
-RecordType. Create a RecordTypesDialog to display a list of
-RecordTypePanels. NOTE: It turns out that this is a royal pain in
-the ass to do, and 90% of the functionality can be had by using a
-JTable instead so I'm going to do that for now. This needs
-revisiting later to improve the user interface.
-
-Use the Drag n' Ghost effect with a custom panel/layout manager
-(based on Box/BoxLayout). The custom layout should just be a
-copy-paste from the JDK sources but make the internal fields
-accesible. NOTE: Keep the drag n' ghost effect but ditch the layout
-manager idea.
 
 ### Check for Changes to the Config Files Before Saving
 
@@ -125,6 +89,12 @@ copy behaviour, my current thinking is that the default should be to
 copy byte streams (like it does now), but maybe add a menu option to
 "copy as ..." for the different marshaller types.
 
+Yes. Add Copy, Copy As..., Export... as options. Look at using the
+RecordSelection code to handle exporting & importing. Look at
+migrating the Marshaller code to be based on RecordSelection
+instead, this would allow more flexible handling of copy/paste and
+export/import.
+
 A though occurs here that I should include a default XML
 serialization format for messages, the ideal would be to agree a
 format with Stefan then it can be shared between RvSnoop and
@@ -132,9 +102,9 @@ RvScript, probably the best approach would be to just use the
 RvScript format but stuff it into a namespace, hopefully Stefan will
 agree to use this approach in a new version of RvScript.
 
-This may be a good time to get rid of the BDBJE dependency since we
-are no longer planning to use it. At the moment it isn't doing
-anything that DataInput/DataOutput couldn't do.
+This is mentioned in feature request [#1579647][FR1579647] in SF.
+
+[FR1579647]: https://sf.net/tracker/?func=detail&atid=504011&aid=1579647&group_id=63447
 
 ### Add Selectable Support to the Details Panel
 
@@ -182,6 +152,19 @@ There should be no open bugs in the bug tracker on SF.
 
 There isn't really a target release date for 1.7 yet, but assume
 sometime in Q1 2007.
+
+### Add in Support for Republishing to a Different Connection
+
+The publish dialog should allow the user to select a different
+transport to publish on. Also, maybe as part of this work, the user
+should be able to edit the message. Probably the best way to add
+editing is to first allow non-structural editing (i.e. changing
+fields) and later to allow structural editing (i.e. adding/removing
+fields).
+
+This is feature request [#1579646][FR1579646] in SF.
+
+[FR1579646]: https://sf.net/tracker/?func=detail&atid=504011&aid=1579646&group_id=63447
 
 ### Move Preferences to a Dedicated Dialog
 
@@ -268,7 +251,6 @@ extension points for a 'core' bundle.
   or in the next major revision.
 
 ### Break out utilities and make them a dependency
-
 
 The utilities should be available from ianp.org and stored in
 subversion there. All of the utilities should be standalone. Allow
@@ -436,7 +418,7 @@ delegates?
 ### Draw Custom Icons
 
 This, of course, assumes that I have some artistic skill, which is
-probaly bullshit!
+probably bullshit!
 
 ### Add a "Tip of the day" Dialog
 

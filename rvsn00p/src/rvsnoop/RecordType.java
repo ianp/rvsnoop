@@ -58,7 +58,7 @@ public class RecordType implements Matcher {
      * <p>
      * Note that this will add an entry to the types list if the type
      * represented by the XML fragment is not already present.
-     * 
+     *
      * @param element The element that represents the type.
      * @return The connection.
      */
@@ -115,7 +115,7 @@ public class RecordType implements Matcher {
     public Color getColour() {
         return colour;
     }
-    
+
     private String getColourHexString() {
         return new StrBuilder(7).append('#')
             .append(StringUtils.leftPad(Integer.toHexString(colour.getRed()), 2, '0'))

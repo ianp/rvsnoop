@@ -62,7 +62,6 @@
       <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
       <pathelement location="${tibco.rvscript}"/>
       <pathelement location="${tibco.rvtest}"/>
-      <pathelement location="${lib.berkdb}"/>
       <pathelement location="${lib.binding}"/>
       <pathelement location="${lib.forms}"/>
       <pathelement location="${lib.glazed}"/>
@@ -203,7 +202,6 @@
       </manifest>
     </jar>
     <copy todir="${dir.dist.lib}">
-      <fileset file="${lib.berkdb}"/>
       <fileset file="${lib.binding}"/>
       <fileset file="${lib.forms}"/>
       <fileset file="${lib.glazed}"/>

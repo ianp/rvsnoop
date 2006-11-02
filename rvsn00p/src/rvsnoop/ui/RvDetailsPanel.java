@@ -25,6 +25,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
+import org.apache.commons.lang.StringUtils;
+
 import rvsnoop.LazyTreeNode;
 import rvsnoop.Logger;
 import rvsnoop.RvMessageTreeNode;
@@ -167,13 +169,14 @@ public final class RvDetailsPanel extends JPanel {
             wireSize.setText("Unable to determine wire size.");
         }
         replySubject.setText(message.getReplySubject());
-        sendSubject.setText(message.getSendSubject());
+        final String ss = StringUtils.defaultString(message.getSendSubject());
+        sendSubject.setText(ss);
         stringEncoding.setText(message.getMsgStringEncoding());
         if (setCertifiedFields(message)) {
             setIconAndTooltip(Banners.MESSAGE_CM, "Certified messaging co-ordination message");
-        } else if (message.getSendSubject().startsWith("_RVFT.")) {
+        } else if (ss.startsWith("_RVFT.")) {
             setIconAndTooltip(Banners.MESSAGE_FT, "Fault tolerance co-ordination message");
-        } else if (message.getSendSubject().startsWith("_RV.")) {
+        } else if (ss.startsWith("_RV.")) {
             setIconAndTooltip(Banners.MESSAGE_ADVISORY, "Rendezvous advisory message");
         } else {
             setIconAndTooltip(Banners.MESSAGE, "");

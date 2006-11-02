@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import javax.swing.Action;
@@ -70,7 +69,7 @@ final class ExportToHtml extends LedgerSelectionAction {
     /* (non-Javadoc)
      * @see rvsnoop.actions.LedgerSelectionAction#actionPerformed(java.util.List)
      */
-    protected void actionPerformed(List selected) {
+    protected void actionPerformed(Record[] records) {
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new HTMLFileFilter());
         if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
@@ -81,8 +80,8 @@ final class ExportToHtml extends LedgerSelectionAction {
             bw = new BufferedWriter(new FileWriter(file));
             final XMLOutputter xmlout = new XMLOutputter(bw, "UTF-8");
             writeHeader(xmlout);
-            for (int i = 0, imax = selected.size(); i < imax; ++i)
-                writeRecord(xmlout, (Record) selected.get(i));
+            for (int i = 0, imax = records.length; i < imax; ++i)
+                writeRecord(xmlout, records[i]);
             xmlout.close();
             logger.info("Written HTML report to " + file.getName());
         } catch (IOException e) {

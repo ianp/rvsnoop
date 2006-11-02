@@ -7,8 +7,6 @@
 package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -17,10 +15,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import rvsnoop.MessageLedger;
+import rvsnoop.Record;
 import rvsnoop.ui.UIManager;
 import rvsnoop.ui.UIUtils;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.util.concurrent.Lock;
 
 /**
  * An action that operates on the currently selected records in the record ledger.
@@ -43,33 +40,19 @@ abstract class LedgerSelectionAction extends AbstractAction implements ListSelec
      */
     public final void actionPerformed(ActionEvent event) {
         final UIManager ui = UIManager.INSTANCE;
-        final int[] indexes = ui.getSelectedRecords();
-        if (indexes == null || indexes.length == 0) {
+        final int[] indices = ui.getSelectedRecords();
+        if (indices != null && indices.length > 0)
+            actionPerformed(MessageLedger.INSTANCE.getRecords(indices));
+        else
             UIUtils.showInformation(INFO_NOTHING_SELECTED);
-            return;
-        }
-        // First, make a local reference to the selected records.
-        final EventList list = MessageLedger.INSTANCE.getEventList();
-        final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
-        try {
-            lock.lock();
-            final int[] rows = UIManager.INSTANCE.getSelectedRecords();
-            final List selected = new ArrayList(rows.length);
-            for (int i = 0, imax = rows.length; i < imax; ++i)
-                selected.add(list.get(rows[i]));
-            // Now we can take our time working on the selection.
-            actionPerformed(selected);
-        } finally {
-            lock.unlock();
-        }
     }
 
     /**
      * Perform the action.
      *
-     * @param selected The selected records, elements can be cast to {@link rvsnoop.Record} safely.
+     * @param records The selected records, elements can be cast to {@link rvsnoop.Record} safely.
      */
-    protected abstract void actionPerformed(List selected);
+    protected abstract void actionPerformed(Record[] records);
 
     public void valueChanged(ListSelectionEvent e) {
         setEnabled(UIManager.INSTANCE.getSelectedRecord() != null);

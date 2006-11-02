@@ -139,7 +139,7 @@ public final class Project extends XMLConfigFile {
                     RecordType.fromXml(elements.get(i));
                 } catch (Exception e) {
                     // Intentionally ignored.
-                }                
+                }
             }
         }
     }

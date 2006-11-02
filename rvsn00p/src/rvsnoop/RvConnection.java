@@ -61,7 +61,7 @@ import com.tibco.tibrv.TibrvRvdTransport;
  */
 public final class RvConnection implements TibrvMsgCallback {
 
-    private static class AddRecordTask implements Runnable {
+    public static class AddRecordTask implements Runnable {
         private final Record record;
 
         public AddRecordTask(Record record) {
@@ -221,7 +221,7 @@ public final class RvConnection implements TibrvMsgCallback {
     public static final String XML_ELEMENT = "connection";
     public static final String XML_NS = "http://rvsnoop.org/ns/connection/rv/1";
     private static final String XML_SUBJECT = "subject";
-    
+
     private static TibrvQueue queue;
 
     private static TibrvListener queueLimitListener;
@@ -249,10 +249,10 @@ public final class RvConnection implements TibrvMsgCallback {
             }
         }
     }
-    
+
     /**
      * Constructs a new RvConnection from information contained in an XML fragment.
-     * 
+     *
      * @param element The element that represents the connection.
      * @return The connection.
      */
@@ -277,19 +277,6 @@ public final class RvConnection implements TibrvMsgCallback {
      */
     public static synchronized String gensym() {
         return "connection-" + count++;
-    }
-
-    /**
-     * Add a message.
-     * <p>
-     * This method hooks into the same add message code as is used in the
-     * regular Rendezvous listeners, but is intended for use in loading messages
-     * from files or as a result of cut-and-paste actions.
-     *
-     * @param message The message to add.
-     */
-    public static void internalOnMsg(TibrvMsg message) {
-        SwingUtilities.invokeLater(new AddRecordTask(new Record(null, message)));
     }
 
     /**

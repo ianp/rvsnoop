@@ -9,8 +9,6 @@ package rvsnoop.actions;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
@@ -53,11 +51,11 @@ final class Republish extends LedgerSelectionAction {
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, mask));
     }
 
-    public void actionPerformed(List selected) {
-        final String question = StringUtils.format(CONFIRM, new Object[] { new Integer(selected.size()) });
+    public void actionPerformed(Record[] records) {
+        final String question = StringUtils.format(CONFIRM, new Object[] { new Integer(records.length) });
         if (!UIUtils.askForConfirmation(question, null)) return;
-        for (final Iterator i = selected.iterator(); i.hasNext(); ) {
-            final Record record = (Record) i.next();
+        for (int i = 0, imax = records.length; i < imax; ++i) {
+            final Record record = records[i];
             try {
                 final RvConnection connection = record.getConnection();
                 if (connection != null)

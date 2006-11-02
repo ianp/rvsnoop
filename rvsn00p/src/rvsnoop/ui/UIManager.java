@@ -62,10 +62,8 @@ import rvsnoop.TreeModelAdapter;
 import rvsnoop.Version;
 import rvsnoop.MessageLedgerFormat.ValueColumn;
 import rvsnoop.actions.Actions;
-import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.EventListModel;
 import ca.odell.glazedlists.swing.EventTableModel;
-import ca.odell.glazedlists.util.concurrent.Lock;
 
 /**
  * The single user interface class for the application.
@@ -352,6 +350,8 @@ public final class UIManager {
         table.setShowGrid(true);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        table.setDragEnabled(true);
+        table.setTransferHandler(new RecordLedgerTransferHandler());
         MessageLedgerRenderer.installStripedRenderers(table, Color.WHITE, new Color(229, 229, 255));
         final List columns = MessageLedgerFormat.INSTANCE.getColumns();
         final Iterator i = MessageLedgerFormat.INSTANCE.getAllColumns().iterator();
@@ -485,18 +485,13 @@ public final class UIManager {
     }
 
     public Record getSelectedRecord() {
-        final EventList list = MessageLedger.INSTANCE.getEventList();
-        final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
         try {
-            lock.lock();
             final int index = messageLedger.getSelectedRow();
-            return index >= 0 ? (Record) list.get(index) : null;
+            return index >= 0 ? MessageLedger.INSTANCE.getRecord(index) : null;
         } catch (IndexOutOfBoundsException e) {
             if (Logger.isErrorEnabled())
                 logger.error("Failed to get selected record from ledger.", e);
             return null;
-        } finally {
-            lock.unlock();
         }
     }
 

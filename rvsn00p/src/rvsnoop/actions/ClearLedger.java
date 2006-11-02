@@ -7,7 +7,6 @@
 package rvsnoop.actions;
 
 import java.awt.event.KeyEvent;
-import java.util.List;
 
 import javax.swing.Action;
 
@@ -40,7 +39,7 @@ final class ClearLedger extends LedgerSelectionAction {
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_E));
     }
 
-    public void actionPerformed(List selected) {
+    public void actionPerformed(Record[] records) {
         MessageLedger.INSTANCE.clear();
         SubjectHierarchy.INSTANCE.reset();
         UIManager.INSTANCE.updateStatusLabel();

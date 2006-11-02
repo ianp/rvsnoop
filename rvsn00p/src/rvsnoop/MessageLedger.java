@@ -117,20 +117,54 @@ public final class MessageLedger {
     }
 
     public EventList getEventList() {
+        // TODO: Remove this method and add delegates instead.
         return filterList;
     }
 
     public ReadWriteLock getLock() {
-        return eventList.getReadWriteLock();
+        // TODO: Remove this method and add delegates instead. Need to add
+        // enough delegates that all locking can be internal to the ledger.
+        return filterList.getReadWriteLock();
     }
 
+    /**
+     * Get a record from the ledger.
+     * <p>
+     * Note that this method applies to the <em>filtered</em> ledger, so the
+     * index will not necessarily be the same as the <code>sequenceNumber</code>
+     * of the record.
+     *
+     * @param index The index of the record to retrieve.
+     * @return The record.
+     */
     public Record getRecord(int index) {
-        final Lock lock = getLock().readLock();
+        filterList.getReadWriteLock().readLock().lock();
         try {
-            lock.lock();
             return (Record) filterList.get(index);
         } finally {
-            lock.unlock();
+            filterList.getReadWriteLock().readLock().unlock();
+        }
+    }
+
+    /**
+     * Bulk accessor for records from the ledger.
+     * <p>
+     * Note that this method applies to the <em>filtered</em> ledger, so the
+     * indices will not necessarily be the same as the
+     * <code>sequenceNumber</code>s of the records.
+     *
+     * @param indices The indices of the records to retrieve.
+     * @return The records.
+     */
+    public Record[] getRecords(int[] indices) {
+        filterList.getReadWriteLock().readLock().lock();
+        try {
+            final Record[] records = new Record[indices.length];
+            for (int i = 0, imax = records.length; i < imax; ++i)
+                records[i] = (Record) filterList.get(indices[i]);
+            return records;
+        } finally {
+            filterList.getReadWriteLock().readLock().unlock();
         }
     }
 
@@ -147,12 +181,11 @@ public final class MessageLedger {
     }
 
     public void removeAll(Collection records) {
-        final Lock lock = getLock().writeLock();
+        getLock().writeLock().lock();
         try {
-            lock.lock();
             eventList.removeAll(records);
         } finally {
-            lock.unlock();
+            getLock().writeLock().unlock();
         }
     }
 

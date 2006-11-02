@@ -68,7 +68,7 @@ public abstract class RecordMatcher implements Matcher {
 
     /**
      * Constructs a new matcher from information contained in an XML fragment.
-     * 
+     *
      * @param element The element that represents the matcher.
      * @return The connection.
      */
@@ -84,7 +84,7 @@ public abstract class RecordMatcher implements Matcher {
 
     public static final String PROP_TYPE = "type";
     public static final String PROP_VALUE = "value";
-    
+
     public static final String XML_ELEMENT = "matcher";
     public static final String XML_NS = "http://rvsnoop.org/ns/matcher/1";
 

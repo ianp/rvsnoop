@@ -9,17 +9,13 @@ package rvsnoop.actions;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import rvsnoop.Logger;
+import rvsnoop.Record;
 import rvsnoop.RecordSelection;
 import rvsnoop.ui.Icons;
-
-import com.tibco.tibrv.TibrvException;
 
 /**
  * Copy the currently selected record(s) to the system clipboard.
@@ -30,13 +26,7 @@ import com.tibco.tibrv.TibrvException;
  */
 final class Copy extends LedgerSelectionAction {
 
-    private static String ERROR_IO = "There was an I/O error whilst writing data to the clipboard.";
-
-    private static String ERROR_RV = "There was a Rendezvous error whilst serializing the messages.";
-
     private static final String ID = "copy";
-
-    private static final Logger logger = Logger.getLogger(Copy.class);
 
     private static String NAME = "Copy";
 
@@ -52,16 +42,10 @@ final class Copy extends LedgerSelectionAction {
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, mask));
     }
 
-    public void actionPerformed(List selected) {
+    public void actionPerformed(Record[] records) {
         final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        try {
-            final RecordSelection selection = new RecordSelection(selected);
-            clipboard.setContents(selection, selection);
-        } catch (TibrvException e) {
-            logger.error(ERROR_RV, e);
-        } catch (IOException e) {
-            logger.error(ERROR_IO, e);
-        }
+        final RecordSelection selection = new RecordSelection(records);
+        clipboard.setContents(selection, selection);
     }
 
 }

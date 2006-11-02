@@ -11,7 +11,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 import javax.swing.Action;
@@ -68,7 +67,7 @@ final class ExportToRvTest extends LedgerSelectionAction {
     /* (non-Javadoc)
      * @see rvsnoop.actions.LedgerSelectionAction#actionPerformed(java.util.List)
      */
-    protected void actionPerformed(List selected) {
+    protected void actionPerformed(Record[] records) {
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new RvTestMessagesFileFilter());
         if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
@@ -77,8 +76,8 @@ final class ExportToRvTest extends LedgerSelectionAction {
         BufferedWriter bw = null;
         try {
             bw = new BufferedWriter(new FileWriter(file));
-            for (int i = 0, imax = selected.size(); i < imax; ++i)
-                bw.write(marshaller.marshal("", ((Record) selected.get(i)).getMessage()));
+            for (int i = 0, imax = records.length; i < imax; ++i)
+                bw.write(marshaller.marshal("", records[i].getMessage()));
             logger.info("Written RvTest messages file to " + file.getName());
         } catch (IOException e) {
             logger.error("There was a problem writing the RvTest messages file.", e);

@@ -9,21 +9,19 @@ package rvsnoop.actions;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import rvsnoop.Logger;
 import rvsnoop.MessageLedger;
+import rvsnoop.Record;
 import rvsnoop.RecordSelection;
 import rvsnoop.ui.Icons;
 
-import com.tibco.tibrv.TibrvException;
-
 /**
- * Copy the currently selected record(s) to the system clipboard then remove them from the ledger.
+ * Copy the currently selected record(s) to the system clipboard then remove
+ * them from the ledger.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
@@ -31,13 +29,7 @@ import com.tibco.tibrv.TibrvException;
  */
 final class Cut extends LedgerSelectionAction {
 
-    private static String ERROR_IO = "There was an I/O error whilst writing data to the clipboard.";
-
-    private static String ERROR_RV = "There was a Rendezvous error whilst serializing the messages.";
-
     private static final String ID = "cut";
-
-    private static final Logger logger = Logger.getLogger(Cut.class);
 
     private static String NAME = "Cut";
 
@@ -53,17 +45,11 @@ final class Cut extends LedgerSelectionAction {
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, mask));
     }
 
-    public void actionPerformed(List selected) {
+    public void actionPerformed(Record[] records) {
         final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        try {
-            final RecordSelection selection = new RecordSelection(selected);
-            clipboard.setContents(selection, selection);
-            MessageLedger.INSTANCE.removeAll(selected);
-        } catch (TibrvException e) {
-            logger.error(ERROR_RV, e);
-        } catch (IOException e) {
-            logger.error(ERROR_IO, e);
-        }
+        final RecordSelection selection = new RecordSelection(records);
+        clipboard.setContents(selection, selection);
+        MessageLedger.INSTANCE.removeAll(Arrays.asList(records));
     }
 
 }

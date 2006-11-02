@@ -117,7 +117,7 @@ public final class RecentConnections implements ListEventListener {
 
     // This needs to be LinkedList then we can use the removeLast method.
     private final LinkedList connections = new LinkedList();
-    
+
     private final File file;
 
     private int maxSize = DEFAULT_MAX_SIZE;

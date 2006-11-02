@@ -8,12 +8,13 @@ package rvsnoop.actions;
 
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import rvsnoop.MessageLedger;
+import rvsnoop.Record;
 import rvsnoop.ui.Icons;
 
 /**
@@ -41,8 +42,8 @@ final class Delete extends LedgerSelectionAction {
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, mask));
     }
 
-    public void actionPerformed(List selected) {
-        MessageLedger.INSTANCE.removeAll(selected);
+    public void actionPerformed(Record[] records) {
+        MessageLedger.INSTANCE.removeAll(Arrays.asList(records));
     }
 
 }

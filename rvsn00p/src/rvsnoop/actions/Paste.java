@@ -8,6 +8,7 @@ package rvsnoop.actions;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
@@ -17,14 +18,15 @@ import java.io.IOException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import rvsnoop.Logger;
+import rvsnoop.Record;
 import rvsnoop.RecordSelection;
 import rvsnoop.RvConnection;
 import rvsnoop.ui.Icons;
 
 import com.tibco.tibrv.TibrvException;
-import com.tibco.tibrv.TibrvMsg;
 
 /**
  * Paste the contents of the system clipboard to the message ledger.
@@ -68,14 +70,15 @@ final class Paste extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         final Transferable clipboardData = clipboard.getContents(this);
-        if (!clipboardData.isDataFlavorSupported(RecordSelection.BYTES_FLAVOUR)) {
+        if (!clipboardData.isDataFlavorSupported(RecordSelection.BYTES_FLAVOUR)
+                && !clipboardData.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             logger.warn(INFO_BAD_CLIP_DATA);
             return;
         }
         try {
-            final TibrvMsg[] messages = RecordSelection.unmarshal(clipboardData);
-            for (int i = 0, imax = messages.length; i < imax; ++i)
-                RvConnection.internalOnMsg(messages[i]);
+            final Record[] records = RecordSelection.read(clipboardData);
+            for (int i = 0, imax = records.length; i < imax; ++i)
+                SwingUtilities.invokeLater(new RvConnection.AddRecordTask(records[i]));
         } catch (TibrvException e) {
             logger.error(ERROR_RV, e);
         } catch (IOException e) {
