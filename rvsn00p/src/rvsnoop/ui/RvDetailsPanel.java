@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 
 import rvsnoop.LazyTreeNode;
 import rvsnoop.Logger;
+import rvsnoop.Record;
 import rvsnoop.RvMessageTreeNode;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -158,20 +159,17 @@ public final class RvDetailsPanel extends JPanel {
         return header;
     }
 
-    public void setMessage(TibrvMsg message) {
-        if (message == null) {
+    public void setMessage(Record record) {
+        if (record == null) {
             clearPanel();
             return;
         }
-        try {
-            wireSize.setText(INT_FORMAT.format(message.getAsBytes().length) + " bytes");
-        } catch (TibrvException e) {
-            wireSize.setText("Unable to determine wire size.");
-        }
+        final TibrvMsg message = record.getMessage();
+        wireSize.setText(INT_FORMAT.format(record.getSizeInBytes()) + " bytes");
         replySubject.setText(message.getReplySubject());
         final String ss = StringUtils.defaultString(message.getSendSubject());
         sendSubject.setText(ss);
-        stringEncoding.setText(message.getMsgStringEncoding());
+        stringEncoding.setText(""); // FIXME: Replace this with something useful.
         if (setCertifiedFields(message)) {
             setIconAndTooltip(Banners.MESSAGE_CM, "Certified messaging co-ordination message");
         } else if (ss.startsWith("_RVFT.")) {

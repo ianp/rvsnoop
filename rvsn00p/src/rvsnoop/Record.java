@@ -40,6 +40,8 @@ public final class Record {
     private final TibrvMsg message;
 
     private final long sequenceNumber;
+    
+    private final int sizeInBytes;
 
     private final SubjectElement subject;
 
@@ -57,6 +59,14 @@ public final class Record {
         super();
         this.connection = connection;
         this.message = message;
+        int sizeInBytes = 0;
+        try {
+            sizeInBytes = message.getAsBytes().length;
+        } catch (TibrvException e) {
+            if (Logger.isWarnEnabled())
+                logger.warn("Unable to extract bytes from message.", e);
+        }
+        this.sizeInBytes = sizeInBytes;
         this.subject = SubjectHierarchy.INSTANCE.getSubjectElement(message.getSendSubject());
         this.timestamp = timestamp;
         synchronized (Record.class) {
@@ -84,15 +94,6 @@ public final class Record {
      */
     public RvConnection getConnection() {
         return connection;
-    }
-
-    /**
-     * Get the string encoding used by this message.
-     *
-     * @return The string encoding.
-     */
-    public String getEncoding() {
-        return message.getMsgStringEncoding();
     }
 
     /**
@@ -141,6 +142,15 @@ public final class Record {
      */
     public long getSequenceNumber() {
         return sequenceNumber;
+    }
+
+    /**
+     * Get the size of the message represented by this record, in bytes.
+     *
+     * @return
+     */
+    public int getSizeInBytes() {
+        return sizeInBytes;
     }
 
     /**

@@ -91,7 +91,7 @@ public final class UIManager {
         }
         public void valueChanged(ListSelectionEvent e) {
             final Record record = getSelectedRecord();
-            if (record != null) detailsPanel.setMessage(record.getMessage());
+            if (record != null) detailsPanel.setMessage(record);
         }
     }
 
