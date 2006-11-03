@@ -495,8 +495,8 @@ public final class UIManager {
         }
     }
 
-    public int[] getSelectedRecords() {
-        return messageLedger.getSelectedRows();
+    public Record[] getSelectedRecords() {
+        return MessageLedger.INSTANCE.getRecords(messageLedger.getSelectedRows());
     }
 
     public JTree getSubjectExplorer() {

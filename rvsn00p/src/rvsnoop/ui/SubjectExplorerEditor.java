@@ -113,7 +113,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
             final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
             final EventList list = MessageLedger.INSTANCE.getEventList();
-            final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
+            final Lock lock = MessageLedger.INSTANCE.getReadLock();
             try {
                 lock.lock();
                 model.setValueIsAdjusting(true);
@@ -140,7 +140,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
             final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
             final EventList list = MessageLedger.INSTANCE.getEventList();
-            final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
+            final Lock lock = MessageLedger.INSTANCE.getReadLock();
             try {
                 lock.lock();
                 model.setValueIsAdjusting(true);

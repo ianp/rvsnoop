@@ -57,17 +57,8 @@ final class RecordLedgerTransferHandler extends TransferHandler {
      */
     protected Transferable createTransferable(JComponent c) {
         final MessageLedger ledger = MessageLedger.INSTANCE;
-        ledger.getLock().readLock().lock();
-        try {
-            final int[] rows = ((JTable) c).getSelectedRows();
-            final Record[] records = new Record[rows.length];
-            for (int i = 0, imax = records.length; i < imax; ++i) {
-                records[i] = ledger.getRecord(rows[i]);
-            }
-            return new RecordSelection(records);
-        } finally {
-            ledger.getLock().readLock().unlock();
-        }
+        final int[] indices = ((JTable) c).getSelectedRows();
+        return new RecordSelection(ledger.getRecords(indices));
     }
 
     /* (non-Javadoc)
@@ -76,7 +67,6 @@ final class RecordLedgerTransferHandler extends TransferHandler {
     protected void exportDone(JComponent source, Transferable data, int action) {
         if (action != MOVE) return;
         final MessageLedger ledger = MessageLedger.INSTANCE;
-        ledger.getLock().writeLock().lock();
         try {
             ledger.removeAll(Arrays.asList(RecordSelection.read(data)));
         } catch (UnsupportedFlavorException e) {
@@ -85,8 +75,6 @@ final class RecordLedgerTransferHandler extends TransferHandler {
             UIUtils.showError(ERROR_REMOVING_RECORDS, e);
         } catch (TibrvException e) {
             UIUtils.showError(ERROR_REMOVING_RECORDS, e);
-        } finally {
-            ledger.getLock().writeLock().unlock();
         }
     }
 
@@ -102,7 +90,6 @@ final class RecordLedgerTransferHandler extends TransferHandler {
      */
     public boolean importData(JComponent comp, Transferable data) {
         final MessageLedger ledger = MessageLedger.INSTANCE;
-        ledger.getLock().writeLock().lock();
         try {
             final Record[] records = RecordSelection.read(data);
             for (int i = 0, imax = records.length; i < imax; ++i)
@@ -110,8 +97,6 @@ final class RecordLedgerTransferHandler extends TransferHandler {
             return true;
         } catch (Exception e) {
             return false;
-        } finally {
-            ledger.getLock().writeLock().unlock();
         }
     }
 }

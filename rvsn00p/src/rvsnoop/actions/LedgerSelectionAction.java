@@ -14,7 +14,6 @@ import javax.swing.Icon;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import rvsnoop.MessageLedger;
 import rvsnoop.Record;
 import rvsnoop.ui.UIManager;
 import rvsnoop.ui.UIUtils;
@@ -40,9 +39,9 @@ abstract class LedgerSelectionAction extends AbstractAction implements ListSelec
      */
     public final void actionPerformed(ActionEvent event) {
         final UIManager ui = UIManager.INSTANCE;
-        final int[] indices = ui.getSelectedRecords();
-        if (indices != null && indices.length > 0)
-            actionPerformed(MessageLedger.INSTANCE.getRecords(indices));
+        final Record[] records = ui.getSelectedRecords();
+        if (records != null && records.length > 0)
+            actionPerformed(records);
         else
             UIUtils.showInformation(INFO_NOTHING_SELECTED);
     }

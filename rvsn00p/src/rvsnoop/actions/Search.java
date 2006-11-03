@@ -77,10 +77,10 @@ final class Search extends AbstractAction {
         if (SEARCH.equals(event.getActionCommand()) && !showDialog()) return;
         if (searchText == null || (searchText = searchText.trim()).length() == 0) return;
         final EventList list = MessageLedger.INSTANCE.getEventList();
-        final Lock lock = MessageLedger.INSTANCE.getLock().readLock();
+        final Lock lock = MessageLedger.INSTANCE.getReadLock();
+        lock.lock();
         int row;
         try {
-            lock.lock();
             lastSearchedRow = Math.min(lastSearchedRow + 1, list.size());
             // Search towards the end of the list first.
             row = search(list, lastSearchedRow, list.size());

@@ -40,7 +40,7 @@ public final class Record {
     private final TibrvMsg message;
 
     private final long sequenceNumber;
-    
+
     private final int sizeInBytes;
 
     private final SubjectElement subject;

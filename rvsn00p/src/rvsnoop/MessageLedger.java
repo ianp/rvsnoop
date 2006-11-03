@@ -22,7 +22,6 @@ import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
 import ca.odell.glazedlists.util.concurrent.Lock;
-import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
 
 /**
  * The message ledger is the main store for received messages.
@@ -89,9 +88,9 @@ public final class MessageLedger {
     }
 
     public void addRecord(Record record) {
-        final Lock lock = getLock().writeLock();
+        final Lock lock = filterList.getReadWriteLock().writeLock();
+        lock.lock();
         try {
-            lock.lock();
             eventList.add(record);
         } finally {
             lock.unlock();
@@ -99,9 +98,9 @@ public final class MessageLedger {
     }
 
     public void clear() {
-        final Lock lock = getLock().writeLock();
+        final Lock lock = filterList.getReadWriteLock().writeLock();
+        lock.lock();
         try {
-            lock.lock();
             eventList.clear();
         } finally {
             lock.unlock();
@@ -121,10 +120,24 @@ public final class MessageLedger {
         return filterList;
     }
 
-    public ReadWriteLock getLock() {
+    /**
+     * Lock the ledger for reading.
+     * <p>
+     * All of the methods which modify the ledger handle locking internally so
+     * there is no corresponsing <code>getWriteLock()</code> moethod.
+     * <p>
+     * Really this should not be exposed. The only methods which still need it
+     * are related to searching, the functionality for this should be added to
+     * this class and should take a Matcher or similar as an argument. Maybe
+     * there should be 2 versions, one returning indices and one returning the
+     * actual records: getIndices(Matcher) and getRecords(Matcher).
+     *
+     * @return
+     */
+    public Lock getReadLock() {
         // TODO: Remove this method and add delegates instead. Need to add
         // enough delegates that all locking can be internal to the ledger.
-        return filterList.getReadWriteLock();
+        return filterList.getReadWriteLock().readLock();
     }
 
     /**
@@ -181,11 +194,12 @@ public final class MessageLedger {
     }
 
     public void removeAll(Collection records) {
-        getLock().writeLock().lock();
+        final Lock lock = filterList.getReadWriteLock().writeLock();
+        lock.lock();
         try {
             eventList.removeAll(records);
         } finally {
-            getLock().writeLock().unlock();
+            lock.unlock();
         }
     }
 
