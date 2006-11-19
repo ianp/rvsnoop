@@ -22,7 +22,7 @@ Since proguard is no longer being used that isn't true any more. But
 the build system needs altering to produce a single distributable
 rather than separate source and binary versions.
 
-### Make Projects be Directory Based
+### Make Projects be Directory Based (SLIP TO 1.7)
 
 With an rvsnoop-project.xml file, use the folder name for the
 project name, add an rvsnoop-project.xml file for project metadata;
@@ -64,13 +64,16 @@ Use these to enable/disable actions. This shoulod use
 KeyboardFocusManager, and look at the way Eclipse handles focus
 management for ideas.
 
-### Sniff Opaques for Serialized Java Data
+Wait until RvSnoop has moved to OSGi and then use a whiteboard for
+tracking this.
+
+### Sniff Opaques for Serialized Java Data (SLIP TO 1.7)
 
 This should show some information about the serialized object and
 allow methods to be invoked where they take no arguments, or only
 primitive values. Probably just include viewing in this version.
 
-### Check for Changes to the Config Files Before Saving
+### Check for Changes to the Config Files Before Saving (SLIP TO 1.7)
 
 Use CRC32 or similar, hash on opening and save hash. If the hash is
 different when we go to write the file pop a dialog asking for
@@ -106,7 +109,7 @@ This is mentioned in feature request [#1579647][FR1579647] in SF.
 
 [FR1579647]: https://sf.net/tracker/?func=detail&atid=504011&aid=1579647&group_id=63447
 
-### Add Selectable Support to the Details Panel
+### Add Selectable Support to the Details Panel (SLIP TO 1.7)
 
 To allow cut/paste of field values.
 
@@ -213,6 +216,12 @@ or other resources (i.e. documentation).
 
 * Speak to Jone A about getting a Norwegian translation.
 
+### Refactor MessageLedger
+
+Cleanly separate out the message ledger (which deals with storing
+records and should be renamed to RecordLedger) and the filtered view
+(which should be named FilteredLedgerView).
+
 ## Release 2.0
 
 There isn't really a target release date for 2.0 yet, but assume
@@ -238,7 +247,6 @@ extension points for a 'core' bundle.
   which would either need these to be built up dynamically or at
   least have well known "addition" points in them.
 
-
 * A mechanism for displaying custom data types in a smart manner.
 
 * To be used in the ledger and detail views.
@@ -250,17 +258,23 @@ extension points for a 'core' bundle.
   This should probably be added after 2.0, either as a point release
   or in the next major revision.
 
-### Break out utilities and make them a dependency
+Bundles:
 
-The utilities should be available from ianp.org and stored in
-subversion there. All of the utilities should be standalone. Allow
-the status bar to depend on Logger though.
-
-A (probably better) alternative is to include commons-lang as a
-dependency. This could be done much earlier (maybe include both
-commons-logging and commons-lang when BDBJE is removed).
+    org.rvsnoop
+    org.rvsnoop.ui
+    org.rvsnoop.help
+    org.rvsnoop.rv
+    org.rvsnoop.rv.ui
+    org.rvsnoop.rv.help
+    org.emssnoop
+    org.emssnoop.ui
+    org.emssnoop.help
 
 ### Add LedgerSnoop Tool Based on TIB Ledger Viewer Type Idea
+
+    org.rvsnoop.ledger
+    org.rvsnoop.ledger.ui
+    org.rvsnoop.ledger.help
 
 ### Add Support for Flying Saucer and use that to Display Help, &c.
 
@@ -313,6 +327,8 @@ option. Do a sync on a scheduled basis, or every X messages maybe.
   map records to row numbers, and vice versa. Fields in the record
   would become document fields in the lucene index. If it makes
   lucene faster, it may still make sense to use a BDB backed index.
+
+* Or maybe something based on Carbonado?
 
 ### Write a *much* Better XHTML Exporter
 

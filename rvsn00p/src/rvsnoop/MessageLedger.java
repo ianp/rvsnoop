@@ -9,8 +9,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 
-import javax.swing.JTable;
-
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
@@ -20,7 +18,6 @@ import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.CompositeMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
-import ca.odell.glazedlists.swing.TableComparatorChooser;
 import ca.odell.glazedlists.util.concurrent.Lock;
 
 /**
@@ -107,14 +104,6 @@ public final class MessageLedger {
         }
     }
 
-    public int getColumnCount() {
-        return MessageLedgerFormat.INSTANCE.getColumnCount();
-    }
-
-    public String getColumnName(int i) {
-        return MessageLedgerFormat.INSTANCE.getColumnName(i);
-    }
-
     public EventList getEventList() {
         // TODO: Remove this method and add delegates instead.
         return filterList;
@@ -187,10 +176,6 @@ public final class MessageLedger {
 
     public int getTotalRowCount() {
         return eventList.size();
-    }
-
-    public void provideSorter(JTable table) {
-        new TableComparatorChooser(table, sortedList, true);
     }
 
     public void removeAll(Collection records) {
