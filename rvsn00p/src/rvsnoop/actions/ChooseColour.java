@@ -30,13 +30,18 @@ public final class ChooseColour extends AbstractAction {
 
     private class CancelListener implements ActionListener {
         final Color original = (Color) valueModel.getValue();
-
+        CancelListener() {
+            super();
+        }
         public void actionPerformed(ActionEvent e) {
             valueModel.setValue(original);
         }
     }
 
     private class OKListener implements ActionListener {
+        OKListener() {
+            super();
+        }
         public void actionPerformed(ActionEvent e) {
             putValue(Action.SMALL_ICON, UIUtils.createSolidColorIcon(14, 14,
                     (Color) valueModel.getValue(), Color.BLACK));
@@ -70,9 +75,9 @@ public final class ChooseColour extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        ColorSelectionModel model = new ColorSelectionAdapter(valueModel);
-        Object source = event.getSource();
-        Component c = source instanceof Component ? (Component) source : null;
+        final ColorSelectionModel model = new ColorSelectionAdapter(valueModel);
+        final Object source = event.getSource();
+        final Component c = source instanceof Component ? (Component) source : null;
         JColorChooser.createDialog(c, TITLE, false, new JColorChooser(model),
                 new OKListener(), new CancelListener()).setVisible(true);
     }

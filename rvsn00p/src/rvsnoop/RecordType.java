@@ -82,7 +82,7 @@ public class RecordType implements Matcher {
 
     private boolean selected = true;
 
-    private RecordMatcher matcher;
+    private final RecordMatcher matcher;
 
     private String name;
 
@@ -165,38 +165,38 @@ public class RecordType implements Matcher {
         propChange.removePropertyChangeListener(propertyName, listener);
     }
 
-    public void setColour(Color colour) {
+    public void setColour(final Color colour) {
         if (colour == null) throw new NullPointerException();
-        Color oldValue = this.colour;
+        final Color oldValue = this.colour;
         this.colour = colour;
         propChange.firePropertyChange(PROP_COLOUR, oldValue, colour);
     }
 
-    public void setMatcherName(String name) {
+    public void setMatcherName(final String name) {
         if (name == null) throw new NullPointerException();
-        String oldValue = matcher.getName();
+        final String oldValue = matcher.getName();
         RecordMatcher.createMatcher(name, matcher.getValue());
         propChange.firePropertyChange(PROP_MATCHER_NAME, oldValue, name);
     }
 
-    public void setMatcherValue(String value) {
+    public void setMatcherValue(final String value) {
         if (value == null) throw new NullPointerException();
-        String oldValue = matcher.getValue();
+        final String oldValue = matcher.getValue();
         matcher.setValue(value);
         propChange.firePropertyChange(PROP_MATCHER_VALUE, oldValue, value);
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         if (name == null) throw new NullPointerException();
-        String oldValue = this.name;
+        final String oldValue = this.name;
         if (RecordTypes.getInstance().isNameInUse(name))
             throw new IllegalArgumentException("Type name already in use: " + name);
         this.name = name;
         propChange.firePropertyChange(PROP_NAME, oldValue, name);
     }
 
-    public void setSelected(boolean selected) {
-        boolean oldValue = this.selected;
+    public void setSelected(final boolean selected) {
+        final boolean oldValue = this.selected;
         this.selected = selected;
         propChange.firePropertyChange(PROP_SELECTED, oldValue, selected);
     }

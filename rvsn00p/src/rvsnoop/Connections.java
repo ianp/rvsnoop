@@ -44,6 +44,9 @@ public final class Connections implements EventList {
 
     private static class DescriptionComparator implements Comparator {
         private final Collator collator = Collator.getInstance();
+        public DescriptionComparator() {
+            super();
+        }
         public int compare(Object o1, Object o2) {
             final String d1 = ((RvConnection) o1).getDescription();
             final String d2 = ((RvConnection) o2).getDescription();
@@ -53,7 +56,9 @@ public final class Connections implements EventList {
 
     private static class Observer implements ObservableElementList.Connector, PropertyChangeListener {
         private ObservableElementList list;
-
+        Observer() {
+            super();
+        }
         /* (non-Javadoc)
          * @see ca.odell.glazedlists.ObservableElementList.Connector#installListener(java.lang.Object)
          */
@@ -61,28 +66,24 @@ public final class Connections implements EventList {
             ((RvConnection) element).addPropertyChangeListener(this);
             return this;
         }
-
         /* (non-Javadoc)
          * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
          */
         public void propertyChange(PropertyChangeEvent evt) {
             list.elementChanged(evt.getSource());
         }
-
         /* (non-Javadoc)
          * @see ca.odell.glazedlists.ObservableElementList.Connector#setObservableElementList(ca.odell.glazedlists.ObservableElementList)
          */
         public void setObservableElementList(ObservableElementList list) {
             this.list = list;
         }
-
         /* (non-Javadoc)
          * @see ca.odell.glazedlists.ObservableElementList.Connector#uninstallListener(java.lang.Object, java.util.EventListener)
          */
         public void uninstallListener(Object element, EventListener listener) {
             ((RvConnection) element).removePropertyChangeListener(this);
         }
-
     }
 
     private static Connections instance;
@@ -108,8 +109,8 @@ public final class Connections implements EventList {
      * call to the un-indexed add method this will throw an
      * <code>IllegalStateException</code> if the element is not added.
      *
-     * @param index
-     * @param element
+     * @param index The index to add the connection at.
+     * @param element The connection to add.
      * @see java.util.List#add(int, java.lang.Object)
      */
     public void add(int index, Object element) {
@@ -120,7 +121,7 @@ public final class Connections implements EventList {
      * As allowed by the contract for {@link java.util.Collection#add(Object)}
      * this method will not add duplicates to the list.
      *
-     * @param o
+     * @param o The connection to add.
      * @return <code>true</code> if the argument was added, <code>false</code> otherwise.
      * @see java.util.List#add(java.lang.Object)
      */
@@ -133,16 +134,14 @@ public final class Connections implements EventList {
         }
     }
 
-    /**
-     * @param c
-     * @return
+    /* (non-Javadoc)
      * @see java.util.List#addAll(java.util.Collection)
      */
     public boolean addAll(Collection c) {
         list.getReadWriteLock().writeLock().lock();
         boolean added = false;
         try {
-            for (Iterator i = c.iterator(); i.hasNext();)
+            for (final  Iterator i = c.iterator(); i.hasNext();)
                 added = internalAdd((RvConnection) i.next()) || added;
         } finally {
             list.getReadWriteLock().writeLock().unlock();
@@ -150,10 +149,7 @@ public final class Connections implements EventList {
         return added;
     }
 
-    /**
-     * @param index
-     * @param c
-     * @return
+    /* (non-Javadoc)
      * @see java.util.List#addAll(int, java.util.Collection)
      */
     public boolean addAll(int index, Collection c) {
@@ -169,7 +165,6 @@ public final class Connections implements EventList {
     }
 
     /**
-     *
      * @see java.util.List#clear()
      */
     public void clear() {
@@ -182,9 +177,7 @@ public final class Connections implements EventList {
         }
     }
 
-    /**
-     * @param o
-     * @return
+    /* (non-Javadoc)
      * @see java.util.List#contains(java.lang.Object)
      */
     public boolean contains(Object o) {
@@ -196,9 +189,7 @@ public final class Connections implements EventList {
         }
     }
 
-    /**
-     * @param c
-     * @return
+    /* (non-Javadoc)
      * @see java.util.List#containsAll(java.util.Collection)
      */
     public boolean containsAll(Collection c) {
@@ -210,10 +201,8 @@ public final class Connections implements EventList {
         }
     }
 
-    /**
-     * @param o
-     * @return
-     * @see java.util.List#equals(java.lang.Object)
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object o) {
         list.getReadWriteLock().readLock().lock();
@@ -225,8 +214,10 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @param index
-     * @return
+     * @param index The index of the connection to return.
+     * @return The connection at the specified position in this list.
+     * @throws IndexOutOfBoundsException if the index is out of range (index
+     *     &lt; 0 || index &gt;= size()).
      * @see java.util.List#get(int)
      */
     public Object get(int index) {
@@ -249,8 +240,8 @@ public final class Connections implements EventList {
     public RvConnection get(String service, String network, String daemon) {
         list.getReadWriteLock().readLock().lock();
         try {
-            for (Iterator i = list.iterator(); i.hasNext();) {
-                RvConnection c = (RvConnection) i.next();
+            for (final Iterator i = list.iterator(); i.hasNext();) {
+                final RvConnection c = (RvConnection) i.next();
                 if (c.getService().equals(service) &&
                         c.getDaemon().equals(daemon) &&
                         c.getNetwork().equals(network))
@@ -263,7 +254,7 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @return
+     * @return The publisher used to distribute {@link ListEvent}s.
      * @see ca.odell.glazedlists.EventList#getPublisher()
      */
     public ListEventPublisher getPublisher() {
@@ -271,24 +262,25 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @return
+     * @return A re-entrant {@link ReadWriteLock} that guarantees thread safe
+     *      access to this list.
      * @see ca.odell.glazedlists.EventList#getReadWriteLock()
      */
     public ReadWriteLock getReadWriteLock() {
         return list.getReadWriteLock();
     }
 
-    /**
-     * @return
-     * @see java.util.List#hashCode()
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
      */
     public int hashCode() {
         return list.hashCode();
     }
 
     /**
-     * @param o
-     * @return
+     * @param o The connection to search for.
+     * @return The index in of the first occurrence of the specified
+     *     connection, or -1 if this list does not contain this connection.
      * @see java.util.List#indexOf(java.lang.Object)
      */
     public int indexOf(Object o) {
@@ -310,7 +302,7 @@ public final class Connections implements EventList {
     }
 
     private RvConnection internalRemove(int index) {
-        RvConnection connection = (RvConnection) list.get(index);
+        final RvConnection connection = (RvConnection) list.get(index);
         if (Logger.isInfoEnabled())
             logger.info("Removing connection: " + connection);
         connection.stop();
@@ -330,7 +322,8 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @return
+     * @return <code>true</code> if there are no connections, <code>false</code>
+     *     otherwise.
      * @see java.util.List#isEmpty()
      */
     public boolean isEmpty() {
@@ -343,7 +336,7 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @return
+     * @return An iterator over all of the connections.
      * @see java.util.List#iterator()
      */
     public Iterator iterator() {
@@ -351,8 +344,9 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @param o
-     * @return
+     * @param o The connection to search for.
+     * @return The index in this list of the last occurrence of the specified
+     *     connection, or -1 if this list does not contain this connection.
      * @see java.util.List#lastIndexOf(java.lang.Object)
      */
     public int lastIndexOf(Object o) {
@@ -364,17 +358,14 @@ public final class Connections implements EventList {
         }
     }
 
-    /**
-     * @return
+    /* (non-Javadoc)
      * @see java.util.List#listIterator()
      */
     public ListIterator listIterator() {
         return list.listIterator();
     }
 
-    /**
-     * @param index
-     * @return
+    /* (non-Javadoc)
      * @see java.util.List#listIterator(int)
      */
     public ListIterator listIterator(int index) {
@@ -382,8 +373,9 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @param index
-     * @return
+     * @param index The connection index to remove.
+     * @return <code>true</code> if a connection was removed,
+     *     <code>false</code> otherwise.
      * @see java.util.List#remove(int)
      */
     public Object remove(int index) {
@@ -396,8 +388,9 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @param o
-     * @return
+     * @param o The connection to remove.
+     * @return <code>true</code> if a connection was removed,
+     *     <code>false</code> otherwise.
      * @see java.util.List#remove(java.lang.Object)
      */
     public boolean remove(Object o) {
@@ -410,15 +403,16 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @param c
-     * @return
+     * @param c The connections to remove.
+     * @return <code>true</code> if any connections were removed,
+     *     <code>false</code> otherwise.
      * @see java.util.List#removeAll(java.util.Collection)
      */
     public boolean removeAll(Collection c) {
         list.getReadWriteLock().writeLock().lock();
         boolean removed = false;
         try {
-            for (Iterator i = c.iterator(); i.hasNext();)
+            for (final Iterator i = c.iterator(); i.hasNext();)
                 removed = internalRemove((RvConnection) i.next()) || removed;
         } finally {
             list.getReadWriteLock().writeLock().unlock();
@@ -452,13 +446,17 @@ public final class Connections implements EventList {
      *
      * @param index The index to update.
      * @param element The element already at the index.
-     * @return
+     * @return The <code>element</code> argument (actually the element at
+     *     <code>index</code>, but they are guaranteed to be equal, even if not
+     *     identical).
+     * @throws IllegalArgumentException if the element at <code>index</code> is
+     *     not equal to the <code>element</code> argument.
      * @see java.util.List#set(int, java.lang.Object)
      */
     public Object set(int index, Object element) {
         list.getReadWriteLock().writeLock().lock();
         try {
-            RvConnection connection = (RvConnection) list.get(index);
+            final RvConnection connection = (RvConnection) list.get(index);
             if (!(connection.equals(element)))
                 throw new IllegalArgumentException("Elements don't match! " + connection + " and " + element);
             return list.set(index, element);
@@ -468,7 +466,7 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @return
+     * @return The number of connections.
      * @see java.util.List#size()
      */
     public int size() {
@@ -494,7 +492,8 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @return May be safely cast to <code>RvConnection[]</code>.
+     * @return An array containing all of the connections. The contents may be
+     *     safely cast to <code>RvConnection[]</code>.
      * @see java.util.List#toArray()
      */
     public Object[] toArray() {
@@ -507,8 +506,9 @@ public final class Connections implements EventList {
     }
 
     /**
-     * @param a
-     * @return
+     * @param a The array to copy the connections into.
+     * @return An array containing all of the connections. The contents may be
+     *     safely cast to <code>RvConnection[]</code>.
      * @see java.util.List#toArray(java.lang.Object[])
      */
     public Object[] toArray(Object[] a) {

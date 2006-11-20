@@ -50,7 +50,7 @@ public class GhostDropPane extends JPanel {
      * @since 1.6
      */
     public class DropAdapter implements DropListener {
-        protected Component component;
+        protected final Component component;
 
         public DropAdapter(final Component component) {
             this.component = component;
@@ -89,9 +89,9 @@ public class GhostDropPane extends JPanel {
 
         static final long serialVersionUID = -1760127114801081816L;
 
-        private Component component;
+        private final Component component;
 
-        private Point point;
+        private final Point point;
 
         public DropEvent(GhostDropPane source, Component component, Point point) {
             super(source);
@@ -169,7 +169,7 @@ public class GhostDropPane extends JPanel {
          *
          * @param component The component to be drawn by default.
          * @param point The point drawn at.
-         * @return
+         * @return The image to ghost.
          */
         protected Image createImage() {
             final GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -186,7 +186,7 @@ public class GhostDropPane extends JPanel {
          * Can be used to provide an image offset if the image returned by
          * createImage is an irregular size.
          *
-         * @return
+         * @return How to shift the ghosted image.
          */
         protected Point createImageOffset() {
             return null;
@@ -195,7 +195,7 @@ public class GhostDropPane extends JPanel {
         protected void fireGhostDropEvent(final Point point) {
             if (listeners == null || listeners.size() == 0) return;
             final DropEvent event = new DropEvent(GhostDropPane.this, component, point);
-            for (Iterator it = listeners.iterator(); it.hasNext(); )
+            for (final Iterator it = listeners.iterator(); it.hasNext(); )
                 ((DropListener) it.next()).ghostDropped(event);
         }
 
@@ -254,23 +254,10 @@ public class GhostDropPane extends JPanel {
         setOpaque(false);
     }
 
-//    /**
-//     * Convenience method to create a new default handler.
-//     * <p>
-//     * <em>Note: don't forget to register it as a mouse listener with the parent
-//     * component!</em>
-//     *
-//     * @param component The component to handle (that is, to drag).
-//     * @return The handler.
-//     */
-//    public MouseHandler createMouseHandler(final Component component) {
-//        return new MouseHandler();
-//    }
-
     public void paintComponent(final Graphics g) {
         if (dragged == null) return;
         final Graphics2D g2 = (Graphics2D) g;
-        Composite savedComposite = g2.getComposite();
+        final Composite savedComposite = g2.getComposite();
         g2.setComposite(composite);
         int x = (int) (location.getX() - dragged.getWidth(this) / 2);
         int y = (int) (location.getY() - dragged.getHeight(this) / 2);

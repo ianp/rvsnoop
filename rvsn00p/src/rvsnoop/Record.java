@@ -147,7 +147,7 @@ public final class Record {
     /**
      * Get the size of the message represented by this record, in bytes.
      *
-     * @return
+     * @return The size of the record, in bytes.
      */
     public int getSizeInBytes() {
         return sizeInBytes;

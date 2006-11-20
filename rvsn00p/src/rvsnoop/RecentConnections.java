@@ -210,7 +210,7 @@ public final class RecentConnections implements ListEventListener {
         OutputStream stream = null;
         try {
             final Element root = new Element(XML_ELEMENT, XML_NS);
-            for (Iterator i = Connections.getInstance().iterator(); i.hasNext(); )
+            for (final Iterator i = Connections.getInstance().iterator(); i.hasNext(); )
                 root.appendChild(((RvConnection) i.next()).toXml());
             stream = new BufferedOutputStream(new FileOutputStream(file));
             final Serializer ser = new Serializer(stream);

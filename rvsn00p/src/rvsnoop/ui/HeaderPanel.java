@@ -74,9 +74,9 @@ final class HeaderPanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!isOpaque()) return;
-        int w = getWidth(), h = getHeight();
-        Graphics2D g2 = (Graphics2D) g;
-        Paint storedPaint = g2.getPaint();
+        final int w = getWidth(), h = getHeight();
+        final Graphics2D g2 = (Graphics2D) g;
+        final Paint storedPaint = g2.getPaint();
         if (gradient == null || width != w) {
             width = w;
             gradient = new GradientPaint(0, 0, Color.WHITE, w, h,

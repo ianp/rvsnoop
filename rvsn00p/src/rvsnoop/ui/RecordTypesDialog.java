@@ -126,7 +126,7 @@ public final class RecordTypesDialog extends JDialog {
             if (EDIT.equals(e.getActionCommand())) {
                 fireEditingStopped();
                 if (row >= 0) {
-                    RecordTypes types = RecordTypes.getInstance();
+                    final RecordTypes types = RecordTypes.getInstance();
                     types.removeType(types.getType(row));
                 }
             }
@@ -216,7 +216,7 @@ public final class RecordTypesDialog extends JDialog {
                 if (Logger.isDebugEnabled())
                     logger.debug("Robot based image capture failed, using fallback method.", e);
                 image = new BufferedImage(bounds.width, bounds.height, Transparency.TRANSLUCENT);
-                Graphics2D g = (Graphics2D) image.getGraphics();
+                final Graphics2D g = (Graphics2D) image.getGraphics();
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
                 g.setColor(Color.BLACK);
                 g.fillRect(0, 0, bounds.width, bounds.height);
@@ -261,6 +261,9 @@ public final class RecordTypesDialog extends JDialog {
     }
 
     private class TypeTableFormat implements AdvancedTableFormat, WritableTableFormat {
+        TypeTableFormat() {
+            super();
+        }
 
         /* (non-Javadoc)
          * @see ca.odell.glazedlists.gui.AdvancedTableFormat#getColumnClass(int)
@@ -342,7 +345,7 @@ public final class RecordTypesDialog extends JDialog {
             try {
                 switch (column) {
                 case 0:
-                    boolean selected = ((Boolean) editedValue).booleanValue();
+                    final boolean selected = ((Boolean) editedValue).booleanValue();
                     if (type.isSelected() == selected) return null;
                     type.setSelected(selected);
                     return type;
@@ -436,7 +439,7 @@ public final class RecordTypesDialog extends JDialog {
 
     public void setVisible(boolean visible) {
         if (visible) {
-            TableColumnModel columns = typesTable.getColumnModel();
+            final TableColumnModel columns = typesTable.getColumnModel();
             shrinkColumn(columns, 0);
             shrinkColumn(columns, 2);
             shrinkColumn(columns, 5);
@@ -445,10 +448,10 @@ public final class RecordTypesDialog extends JDialog {
     }
 
     private void shrinkColumn(TableColumnModel columns, int column) {
-        Object value = typesTable.getValueAt(0, column);
-        TableCellRenderer renderer = typesTable.getCellRenderer(0, column);
-        int width = renderer.getTableCellRendererComponent(typesTable, value, false, false, 0, column).getMinimumSize().width + 4;
-        TableColumn c = columns.getColumn(column);
+        final Object value = typesTable.getValueAt(0, column);
+        final TableCellRenderer renderer = typesTable.getCellRenderer(0, column);
+        final int width = renderer.getTableCellRendererComponent(typesTable, value, false, false, 0, column).getMinimumSize().width + 4;
+        final TableColumn c = columns.getColumn(column);
         c.setMaxWidth(width);
         c.setMinWidth(width);
         c.setPreferredWidth(width);

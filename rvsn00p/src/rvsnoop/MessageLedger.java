@@ -121,7 +121,7 @@ public final class MessageLedger {
      * there should be 2 versions, one returning indices and one returning the
      * actual records: getIndices(Matcher) and getRecords(Matcher).
      *
-     * @return
+     * @return The lock used for reading.
      */
     public Lock getReadLock() {
         // TODO: Remove this method and add delegates instead. Need to add

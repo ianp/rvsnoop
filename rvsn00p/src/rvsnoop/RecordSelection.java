@@ -115,6 +115,9 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
 
     /**
      * A convenience method to unpack an array of messages from a transferrable.
+     * <p>
+     * See <code>BIND_RECORD_SET_MAGIC</code> For details about the stream
+     * format.
      *
      * @param selection The transferable to read from.
      * @return The array of messages.
@@ -123,7 +126,6 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      *     {@linkplain DataFlavor#javaFileListFlavor}.
      * @throws IOException If there was an exception thrown when reading from
      *     the transferable.
-     * @see BIND_RECORD_SET_MAGIC For details about the stream format.
      */
     public static Record[] read(Transferable selection) throws UnsupportedFlavorException, IOException, TibrvException {
         if (selection.isDataFlavorSupported(BYTES_FLAVOUR)) {
@@ -147,8 +149,8 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
     /**
      * Read data from an input.
      *
-     * @param input
-     * @return
+     * @param input The input to read from.
+     * @return The array of records that were unpacked from the input.
      * @throws IOException
      */
     public static Record[] read(DataInput input) throws IOException {
@@ -241,7 +243,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
         }
     }
 
-    private Record[] records;
+    private final Record[] records;
 
     /**
      * Creates an instance that transfers a multiple records.

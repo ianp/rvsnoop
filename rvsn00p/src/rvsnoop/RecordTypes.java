@@ -149,7 +149,7 @@ public final class RecordTypes {
     public RecordType createType(String name, Color color, RecordMatcher matcher) {
         if (RecordTypes.getInstance().isNameInUse(name))
             throw new IllegalArgumentException("Type name already in use: " + name);
-        RecordType type =  new RecordType(name, color, matcher);
+        final RecordType type =  new RecordType(name, color, matcher);
         types.add(type);
         return type;
     }
@@ -157,11 +157,11 @@ public final class RecordTypes {
     private String generateName() {
         types.getReadWriteLock().readLock().lock();
         try {
-            String[] nameArray = new String[types.size()];
+            final String[] nameArray = new String[types.size()];
             for (int i = types.size() - 1; i >= 0; --i) {
                 nameArray[i] = ((RecordType) types.get(i)).getName();
             }
-            List names = Arrays.asList(nameArray);
+            final List names = Arrays.asList(nameArray);
             String name;
             for (int i = 1; true; ++i) {
                 name = "My Record Type #" + Integer.toString(i);
@@ -199,7 +199,7 @@ public final class RecordTypes {
     /**
      * Get a list model suitable for displaying the record types in a swing component.
      *
-     * @return
+     * @return A new list model that holds the record types.
      */
     public ListModel getListModel() {
         return new EventListModel(types);
@@ -212,7 +212,7 @@ public final class RecordTypes {
     /**
      * Get a table model suitable for displaying the record types in a swing component.
      *
-     * @return
+     * @return A new table model that holds the record types.
      */
     public TableModel getTableModel(TableFormat format) {
         return new EventTableModel(types, format);
@@ -261,11 +261,11 @@ public final class RecordTypes {
                 types.add(type);
                 return;
             }
-            int oldIndex = types.indexOf(type);
+            final int oldIndex = types.indexOf(type);
             if (index == oldIndex) return;
             // If the new position is after the old one then adjust the index to
             // take into account the type about to be removed:
-            int newIndex = index > oldIndex ? index - 1 : index;
+            final int newIndex = index > oldIndex ? index - 1 : index;
             types.add(newIndex, types.remove(oldIndex));
         } finally {
             types.getReadWriteLock().writeLock().unlock();

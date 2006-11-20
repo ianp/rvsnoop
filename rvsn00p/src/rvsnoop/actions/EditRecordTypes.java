@@ -42,7 +42,7 @@ final class EditRecordTypes extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        RecordTypesDialog dialog = new RecordTypesDialog();
+        final RecordTypesDialog dialog = new RecordTypesDialog();
         dialog.setModal(true);
         dialog.pack();
         dialog.setVisible(true);

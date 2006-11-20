@@ -8,7 +8,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
 
-import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellRenderer;
@@ -46,10 +45,10 @@ public final class TextFieldTableCellRenderer extends JTextField implements
 
     /** Overridden for performance reasons. */
     public boolean isOpaque() {
-        Color back = getBackground();
+        final Color back = getBackground();
         Component p = getParent();
         if (p != null) p = p.getParent();
-        boolean colorMatch = (back != null) && (p != null)
+        final boolean colorMatch = (back != null) && (p != null)
                 && back.equals(p.getBackground()) && p.isOpaque();
         return !colorMatch && super.isOpaque();
     }

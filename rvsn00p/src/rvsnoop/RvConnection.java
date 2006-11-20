@@ -82,9 +82,9 @@ public final class RvConnection implements TibrvMsgCallback {
         private void invalidateListener(TibrvListener listener) {
             final String listenerSubject = listener.getSubject();
             final List toRemove = new ArrayList();
-            RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+            final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
             for (int i = 0, imax = conns.length; i < imax; ++i) {
-                RvConnection conn = conns[i];
+                final RvConnection conn = conns[i];
                 for (final Iterator j = conn.subjects.keySet().iterator(); j.hasNext();) {
                     final String subject = (String) j.next();
                     if (subject.equals(listenerSubject))
@@ -97,7 +97,7 @@ public final class RvConnection implements TibrvMsgCallback {
         }
 
         private void invalidateTransport(TibrvRvaTransport transport) {
-            RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+            final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
             for (int i = 0, imax = conns.length; i < imax; ++i) {
                 if (transport.equals(conns[i].transport)) {
                     conns[i].stop();
@@ -296,7 +296,7 @@ public final class RvConnection implements TibrvMsgCallback {
             queueLimitListener = new TibrvListener(queue, new NullCallback(), Tibrv.processTransport(), "_RV.WARN.SYSTEM.QUEUE.LIMIT_EXCEEDED", null);
             queue.setLimitPolicy(TibrvQueue.DISCARD_NEW, 1, 1);
         }
-        RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
         for (int i = 0, imax = conns.length; i < imax; ++i) {
             if (conns[i].getState() == State.STARTED)
                 conns[i].pause();
@@ -319,7 +319,7 @@ public final class RvConnection implements TibrvMsgCallback {
                 queueLimitListener = null;
             }
         }
-        RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
         for (int i = 0, imax = conns.length; i < imax; ++i) {
             if (conns[i].getState() == State.PAUSED)
                 conns[i].start();
@@ -328,7 +328,7 @@ public final class RvConnection implements TibrvMsgCallback {
 
     public static synchronized void shutdown() {
         if (queue == null) return;
-        RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
         for (int i = 0, imax = conns.length; i < imax; ++i)
             conns[i].stop();
         try {
@@ -706,7 +706,7 @@ public final class RvConnection implements TibrvMsgCallback {
             element.addAttribute(new Attribute(PROP_NETWORK, network));
         if (!DEFAULT_DAEMON.equals(daemon))
             element.addAttribute(new Attribute(PROP_DAEMON, daemon));
-        for (Iterator i = subjects.keySet().iterator(); i.hasNext(); ) {
+        for (final Iterator i = subjects.keySet().iterator(); i.hasNext(); ) {
             final Element subject = new Element(XML_SUBJECT, XML_NS);
             subject.appendChild((String) i.next());
             element.appendChild(subject);

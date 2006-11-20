@@ -22,9 +22,9 @@ import rvsnoop.ui.Icons;
  * A {@link javax.swing.tree.TreeNode TreeNode} that wraps an Active Enterprise
  * message.
  * <p>
- * At the moment this is a bit of a hack, it should really use a repository
- * connection to create {@link com.tibco.sdk.metadata.MInstance MInstance}s and
- * work with those.
+ * This works directly with <code>MTree</code>s at the moment. It would be nice
+ * to also have a tree node that works with <code>MInstance</code>s, this would
+ * require a connection to a repository however.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$

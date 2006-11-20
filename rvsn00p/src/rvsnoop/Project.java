@@ -162,7 +162,7 @@ public final class Project extends XMLConfigFile {
     }
 
     public static void storeConnections(Element parent) {
-        RvConnection[] connections = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] connections = (RvConnection[]) Connections.getInstance().toArray();
         for (int i = 0, imax = connections.length; i < imax; ++i)
             parent.appendChild(connections[i].toXml());
     }
@@ -191,7 +191,7 @@ public final class Project extends XMLConfigFile {
     }
 
     private static void storeTypes(Element parent) {
-        RecordType[] types = RecordTypes.getInstance().getAllTypes();
+        final RecordType[] types = RecordTypes.getInstance().getAllTypes();
         for (int i = 0, imax = types.length; i < imax; ++i)
             parent.appendChild(types[i].toXml());
     }
