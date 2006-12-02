@@ -294,8 +294,7 @@ public final class UIManager {
         file.add(Actions.OPEN);
         final JMenu fileRecent = new JMenu("Recent Projects");
         fileRecent.setIcon(Icons.OPEN);
-        final PopupMenuListener recentProjects = RecentProjects.INSTANCE.new MenuManager();
-        fileRecent.getPopupMenu().addPopupMenuListener(recentProjects);
+        fileRecent.addMenuListener(RecentProjects.INSTANCE.new MenuManager());
         file.add(fileRecent);
         file.addSeparator();
         file.add(Actions.SAVE);
@@ -310,8 +309,7 @@ public final class UIManager {
         file.add(Actions.ADD_CONNECTION);
         final JMenu connRecent = new JMenu("Recent Connections");
         connRecent.setIcon(Icons.ADD_CONNECTION);
-        final PopupMenuListener recentConnections = RecentConnections.getInstance().new MenuManager();
-        connRecent.getPopupMenu().addPopupMenuListener(recentConnections);
+        connRecent.addMenuListener(RecentConnections.getInstance().new MenuManager());
         file.add(connRecent);
         file.addSeparator();
         file.add(Actions.QUIT);
@@ -459,7 +457,8 @@ public final class UIManager {
         view.add(viewColumns);
         final JMenu viewTypes = new JMenu("Types");
         viewTypes.setIcon(Icons.FILTER);
-        viewTypes.getPopupMenu().addPopupMenuListener(RecordTypes.getInstance().new MenuManager());
+        viewTypes.addMenuListener(RecordTypes.getInstance().new MenuManager());
+        //viewTypes.getPopupMenu().addPopupMenuListener(RecordTypes.getInstance().new MenuManager());
         view.add(viewTypes);
         return view;
     }

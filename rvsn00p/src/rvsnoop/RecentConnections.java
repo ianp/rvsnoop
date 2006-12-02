@@ -20,10 +20,10 @@ import java.util.LinkedList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import org.apache.commons.io.IOUtils;
 
@@ -68,22 +68,19 @@ public final class RecentConnections implements ListEventListener {
 
     /**
      * A class that can populate a menu with recent connections.
-     * <p>
-     * Use it like this:
-     * <code>myMenu.getPopupMenu().addPopupMenuListener(new MenuManager())</code>
      */
-    public class MenuManager implements PopupMenuListener {
+    public class MenuManager implements MenuListener {
         public MenuManager() {
             super();
         }
-        public void popupMenuCanceled(PopupMenuEvent e) {
+        public void menuCanceled(MenuEvent e) {
+            ((JMenu) e.getSource()).removeAll();
+        }
+        public void menuDeselected(MenuEvent e) {
             // Do nothing.
         }
-        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-            // Do nothing.
-        }
-        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-            final JPopupMenu menu = (JPopupMenu) e.getSource();
+        public void menuSelected(MenuEvent e) {
+            final JMenu menu = (JMenu) e.getSource();
             menu.removeAll();
             if (connections.size() == 0) {
                 final JMenuItem item = menu.add("No Recent Connections");

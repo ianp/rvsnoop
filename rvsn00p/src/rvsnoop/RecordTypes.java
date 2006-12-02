@@ -13,10 +13,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JPopupMenu;
+import javax.swing.JMenu;
 import javax.swing.ListModel;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.table.TableModel;
 
 import rvsnoop.actions.Actions;
@@ -40,18 +40,18 @@ import ca.odell.glazedlists.swing.EventTableModel;
  */
 public final class RecordTypes {
 
-    public final class MenuManager implements PopupMenuListener {
+    public final class MenuManager implements MenuListener {
         public MenuManager() {
             super();
         }
-        public void popupMenuCanceled(PopupMenuEvent e) {
+        public void menuCanceled(MenuEvent e) {
+            ((JMenu) e.getSource()).removeAll();
+        }
+        public void menuDeselected(MenuEvent e) {
             // Do nothing.
         }
-        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-            // Do nothing.
-        }
-        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-            final JPopupMenu menu = (JPopupMenu) e.getSource();
+        public void menuSelected(MenuEvent e) {
+            final JMenu menu = (JMenu) e.getSource();
             menu.removeAll();
             int index = 0;
             types.getReadWriteLock().readLock().lock();

@@ -191,8 +191,7 @@ public final class ConnectionListRenderer extends JPanel implements ListCellRend
         popupMenu.add(Actions.ADD_CONNECTION);
         final JMenu recent = new JMenu("Recent Connections");
         recent.setIcon(Icons.ADD_CONNECTION);
-        recent.getPopupMenu().addPopupMenuListener(
-                RecentConnections.getInstance().new MenuManager());
+        recent.addMenuListener(RecentConnections.getInstance().new MenuManager());
         popupMenu.add(recent);
         popupMenu.show(list, x, y);
     }
