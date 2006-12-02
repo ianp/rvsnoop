@@ -43,13 +43,15 @@ if [ -n "$CLASSPATH" ] ; then
   CP="$CP:$CLASSPATH"
 fi
 
-export LIBPATH=$LP         # AIX
-export SHLIB_PATH=$LP      # HP-UX
-export DYLIB_PATH=$LP      # Darwin
-export LD_LIBRARY_PATH=$LP # Solaris & Linux
+export LIBPATH=$LP           # AIX
+export SHLIB_PATH=$LP        # HP-UX
+export DYLD_LIBRARY_PATH=$LP # Darwin / Mac OS X
+export LD_LIBRARY_PATH=$LP   # Solaris & Linux
 
 java -Xmx128m \
   -Drvsnoop.home="$RVSNOOP_HOME" \
   -Dfile.encoding=UTF-8 \
   -Djava.library.path="$LP" \
+  -Dapple.laf.useScreenMenuBar=true \
+  -Dcom.apple.mrj.application.apple.menu.about.name="RvSnoop" \
   -classpath "$CP" rvsnoop.StartRvSnooper $* &

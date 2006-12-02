@@ -31,7 +31,7 @@ final class DisplayHomePage extends AbstractAction {
 
     private static final Logger logger = Logger.getLogger(DisplayHomePage.class);
 
-    private static String NAME = "rvSnoop Web Site";
+    private static String NAME = "Show Web Site";
 
     private static final long serialVersionUID = -6587535307193015605L;
 

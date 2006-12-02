@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -38,6 +39,7 @@ import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.MenuElement;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.WindowConstants;
@@ -47,6 +49,8 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreeNode;
+
+import org.apache.commons.lang.SystemUtils;
 
 import rvsnoop.Connections;
 import rvsnoop.Logger;
@@ -337,6 +341,9 @@ public final class UIManager {
         bar.add(createViewMenu());
         bar.add(createConfigureMenu());
         bar.add(createHelpMenu());
+        // Mac OS X screen menu bars do not normally show icons.
+        if (SystemUtils.IS_OS_MAC_OSX)
+            removeIconsFromMenuElements(bar);
         return bar;
     }
 
@@ -504,6 +511,14 @@ public final class UIManager {
 
     public int getSubjectExplorerDividerLocation() {
         return subjectExplorerSplitter.getDividerLocation();
+    }
+
+    private void removeIconsFromMenuElements(MenuElement elt) {
+        if (elt instanceof AbstractButton)
+            ((AbstractButton) elt).setIcon(null);
+        final MenuElement[] elts = elt.getSubElements();
+        for (int i = 0, imax = elts.length; i < imax; ++i)
+            removeIconsFromMenuElements(elts[i]);
     }
 
     public void selectRecordInLedger(int index) {
