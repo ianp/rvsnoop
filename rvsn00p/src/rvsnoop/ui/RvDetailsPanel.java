@@ -25,8 +25,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
-import org.apache.commons.lang.StringUtils;
-
 import rvsnoop.LazyTreeNode;
 import rvsnoop.Logger;
 import rvsnoop.Record;
@@ -166,8 +164,8 @@ public final class RvDetailsPanel extends JPanel {
         }
         final TibrvMsg message = record.getMessage();
         wireSize.setText(INT_FORMAT.format(record.getSizeInBytes()) + " bytes");
-        replySubject.setText(message.getReplySubject());
-        final String ss = StringUtils.defaultString(message.getSendSubject());
+        replySubject.setText(record.getReplySubject());
+        final String ss = record.getSendSubject();
         sendSubject.setText(ss);
         stringEncoding.setText(""); // FIXME: Replace this with something useful.
         if (setCertifiedFields(message)) {

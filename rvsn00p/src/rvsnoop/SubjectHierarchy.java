@@ -31,6 +31,11 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/4/06 2:03 PM
 public final class SubjectHierarchy extends DefaultTreeModel {
 
+    /**
+     * A string used to label an element which represents no subject.
+     */
+    public static final String NO_SUBJECT_LABEL = "[No Subject!]";
+
     private static class SubjectHierarchyMatcherEditor extends AbstractMatcherEditor {
         SubjectHierarchyMatcherEditor() {
             super();
@@ -84,7 +89,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
 
     private synchronized SubjectElement getNoSubjectElement() {
         if (noSubjectElement == null)
-            noSubjectElement = insertNewChild((SubjectElement) getRoot(), "[No Subject!]", 0, true);
+            noSubjectElement = insertNewChild((SubjectElement) getRoot(), NO_SUBJECT_LABEL, 0, true);
         return noSubjectElement;
     }
 

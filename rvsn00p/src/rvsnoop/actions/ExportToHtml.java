@@ -7,27 +7,22 @@
 package rvsnoop.actions;
 
 import java.awt.event.KeyEvent;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.Locale;
 
 import javax.swing.Action;
-import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.io.IOUtils;
 import org.znerd.xmlenc.XMLOutputter;
 
-import rvsnoop.Logger;
 import rvsnoop.Marshaller;
 import rvsnoop.Record;
 import rvsnoop.RecordTypes;
 import rvsnoop.StringUtils;
 import rvsnoop.Version;
-import rvsnoop.ui.UIManager;
 
 /**
  * Export the current ledger selction to XHTML.
@@ -36,7 +31,8 @@ import rvsnoop.ui.UIManager;
  * @version $Revision$, $Date$
  * @since 1.5
  */
-final class ExportToHtml extends LedgerSelectionAction {
+final class ExportToHtml extends ExportToFile {
+
     private static class HTMLFileFilter extends FileFilter {
         HTMLFileFilter() {
             super();
@@ -52,98 +48,88 @@ final class ExportToHtml extends LedgerSelectionAction {
 
     private static final String ID = "exportToHtml";
 
-    private static final Logger logger = Logger.getLogger(ExportToHtml.class);
-
     private static String NAME = "HTML Report";
 
     private static final long serialVersionUID = -483492422948058345L;
 
     private static String TOOLTIP = "Export the selected records to HTML";
 
+    private XMLOutputter out;
+
     public ExportToHtml() {
-        super(ID, NAME, null);
+        super(ID, NAME, null, new HTMLFileFilter());
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_H));
     }
 
     /* (non-Javadoc)
-     * @see rvsnoop.actions.LedgerSelectionAction#actionPerformed(java.util.List)
+     * @see rvsnoop.actions.ExportToFile#writeHeader(int)
      */
-    protected void actionPerformed(Record[] records) {
-        final JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new HTMLFileFilter());
-        if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
-            return;
-        final File file = chooser.getSelectedFile();
-        BufferedWriter bw = null;
-        try {
-            bw = new BufferedWriter(new FileWriter(file));
-            final XMLOutputter xmlout = new XMLOutputter(bw, "UTF-8");
-            writeHeader(xmlout);
-            for (int i = 0, imax = records.length; i < imax; ++i)
-                writeRecord(xmlout, records[i]);
-            xmlout.close();
-            logger.info("Written HTML report to " + file.getName());
-        } catch (IOException e) {
-            logger.error("There was a problem writing the HTML report.", e);
-        } finally {
-            IOUtils.closeQuietly(bw);
-        }
+    protected void writeFooter() throws IOException {
+        out.close();
     }
 
-    private static void writeHeader(XMLOutputter out) throws IllegalStateException, IllegalArgumentException, IOException {
+    /* (non-Javadoc)
+     * @see rvsnoop.actions.ExportToFile#writeHeader(int)
+     */
+    protected void writeHeader(int numberOfRecords) throws IOException {
+        out = new XMLOutputter(new OutputStreamWriter(stream), "UTF-8");
         final String title = Version.getAsStringWithName() + " HTML Report (" + Marshaller.getImplementationName() + " marshaller)";
         out.declaration();
         out.dtd("html", "-//W3C//DTD XHTML 1.0 Strict//EN", "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
         out.startTag("html");
         out.attribute("xmlns", "http://www.w3.org/1999/xhtml");
         out.startTag("head");
-        writeTagged(out, "title", title);
-        writeHttpEquiv(out, "Content-Type", "application/xhtml+xml; charset=utf-8");
-        writeHttpEquiv(out, "Content-Language", "en-uk");
-        writeMeta(out, "generator", Version.getAsStringWithName());
+        writeTagged("title", title);
+        writeHttpEquiv("Content-Type", "application/xhtml+xml; charset=utf-8");
+        writeHttpEquiv("Content-Language", "en-uk");
+        writeMeta("generator", Version.getAsStringWithName());
         out.endTag(); // head
         out.startTag("body");
-        writeTagged(out, "h1", title);
+        writeTagged("h1", title);
         out.startTag("table");
         out.startTag("tr");
-        writeTagged(out, "th", "Timestamp");
-        writeTagged(out, "th", "Sequence Number");
-        writeTagged(out, "th", "Type");
-        writeTagged(out, "th", "Send Subject");
-        writeTagged(out, "th", "Tracking ID");
-        writeTagged(out, "th", "Message");
+        writeTagged("th", "Timestamp");
+        writeTagged("th", "Sequence Number");
+        writeTagged("th", "Type");
+        writeTagged("th", "Send Subject");
+        writeTagged("th", "Tracking ID");
+        writeTagged("th", "Message");
         out.endTag(); // tr
     }
 
-    private static void writeHttpEquiv(XMLOutputter out, String equiv, String content) throws IllegalStateException, IllegalArgumentException, IOException {
+    private void writeHttpEquiv(String equiv, String content) throws IllegalStateException, IllegalArgumentException, IOException {
         out.startTag("meta");
         out.attribute("http-equiv", equiv);
         out.attribute("content", content);
         out.endTag();
     }
 
-    private static void writeMeta(XMLOutputter out, String name, String content) throws IllegalStateException, IllegalArgumentException, IOException {
+    private void writeMeta(String name, String content) throws IllegalStateException, IllegalArgumentException, IOException {
         out.startTag("meta");
         out.attribute("name", name);
         out.attribute("content", content);
         out.endTag();
     }
 
-    private static void writeRecord(XMLOutputter out, Record record) throws IllegalStateException, IOException {
+
+    /* (non-Javadoc)
+     * @see rvsnoop.actions.ExportToFile#writeRecord(rvsnoop.Record, int)
+     */
+    protected void writeRecord(Record record, int index) throws IOException {
         out.startTag("tr");
-        writeTagged(out, "td", StringUtils.format(new Date(record.getTimestamp())));
-        writeTagged(out, "td", Long.toString(record.getSequenceNumber()));
-        writeTagged(out, "td", RecordTypes.getInstance().getFirstMatchingType(record).getName());
-        writeTagged(out, "td", record.getSendSubject());
-        writeTagged(out, "td", record.getTrackingId());
+        writeTagged("td", StringUtils.format(new Date(record.getTimestamp())));
+        writeTagged("td", Long.toString(record.getSequenceNumber()));
+        writeTagged("td", RecordTypes.getInstance().getFirstMatchingType(record).getName());
+        writeTagged("td", record.getSendSubject());
+        writeTagged("td", record.getTrackingId());
         out.startTag("td");
-        writeTagged(out, "pre", Marshaller.marshal("", record.getMessage()));
-        out.endTag();
-        out.endTag();
+        writeTagged("pre", Marshaller.marshal("", record.getMessage()));
+        out.endTag(); // td
+        out.endTag(); // tr
     }
 
-    private static void writeTagged(XMLOutputter out, String tag, String pcdata) throws IllegalStateException, IllegalArgumentException, IOException {
+    private void writeTagged(String tag, String pcdata) throws IllegalStateException, IllegalArgumentException, IOException {
         out.startTag(tag);
         out.pcdata(pcdata != null ? pcdata : "");
         out.endTag();

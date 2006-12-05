@@ -57,6 +57,12 @@ import com.tibco.tibrv.TibrvMsg;
  *   The connection daemon parameter, as a Java-modified UTF encoded string.
  * </li>
  * <li>
+ *   The send subject, as a Java-modified UTF encoded string.
+ * </li>
+ * <li>
+ *   The reply subject, as a Java-modified UTF encoded string.
+ * </li>
+ * <li>
  *   A long, representing the record timestamp in seconds since epoch.
  * </li>
  * <li>
@@ -66,6 +72,8 @@ import com.tibco.tibrv.TibrvMsg;
  *   A byte array containing the message in Rendezvous wire format.
  * </li>
  * </ol>
+ * Certified messaging information is <em>not</em> stored when using this format.
+ * <p>
  * A series of messages in the format begins with the magic number
  * {@linkplain #BIND_RECORD_SET_MAGIC} followed by an integer representing the
  * number of messages in the stream, followed by that many records in the format
@@ -186,14 +194,17 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
         if (connection == null) {
             connection = new RvConnection(service, network, daemon);
             connection.setDescription(description);
+            connection.addSubject(">");
             connections.add(connection);
         }
+        final String send = input.readUTF();
+        final String reply = input.readUTF();
         final long timestamp = input.readLong();
         final int length = input.readInt();
         final byte[] bytes = new byte[length];
         input.readFully(bytes);
         try {
-            return new Record(connection, new TibrvMsg(bytes), timestamp);
+            return new Record(connection, new TibrvMsg(bytes), send, reply, timestamp);
         } catch (TibrvException e) {
             throw new CausedIOException("Could not convert bytes to record.", e);
         }
@@ -232,6 +243,10 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
         } else {
             output.writeBoolean(false);
         }
+        final String ss = record.getSendSubject();
+        output.writeUTF(SubjectHierarchy.NO_SUBJECT_LABEL.equals(ss) ? "" : ss);
+        final String rs = record.getReplySubject();
+        output.writeUTF(SubjectHierarchy.NO_SUBJECT_LABEL.equals(rs) ? "" : rs);
         output.writeLong(record.getTimestamp());
         byte[] bytes;
         try {

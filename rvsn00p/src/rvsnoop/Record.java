@@ -50,15 +50,26 @@ public final class Record {
     private String trackingId;
 
     /**
-     * Private constructor to allow setting a custom timestamp.
-     * @param connection
-     * @param message
-     * @param timestamp
+     * Constructor that allows setting a custom timestamp and subjects.
+     * 
+     * @param connection The connection the message was received on.
+     * @param message The message.
+     * @param send The send subject of the message.
+     * @param reply The reply subject of the message.
+     * @param timestamp The time the message was received.
+     * @throws TibrvException 
      */
-    Record(RvConnection connection, TibrvMsg message, long timestamp) {
+    public Record(RvConnection connection, TibrvMsg message, String send, String reply, long timestamp) {
         super();
         this.connection = connection;
         this.message = message;
+        try {
+            if (send != null && send.length() > 0) message.setSendSubject(send);
+            if (reply != null && reply.length() > 0) message.setReplySubject(reply);
+        } catch (TibrvException e) {
+            if (Logger.isErrorEnabled())
+                logger.error("Could not set subject on message.",e);
+        }
         int sizeInBytes = 0;
         try {
             sizeInBytes = message.getAsBytes().length;
@@ -67,13 +78,30 @@ public final class Record {
                 logger.warn("Unable to extract bytes from message.", e);
         }
         this.sizeInBytes = sizeInBytes;
-        this.subject = SubjectHierarchy.INSTANCE.getSubjectElement(message.getSendSubject());
+        this.subject = SubjectHierarchy.INSTANCE.getSubjectElement(send);
         this.timestamp = timestamp;
         synchronized (Record.class) {
             sequenceNumber = nextSequenceNumber++;
         }
     }
 
+    /**
+     * Constructor that allows setting a custom timestamp.
+     * 
+     * @param connection The connection the message was received on.
+     * @param message The message.
+     * @param timestamp The time the message was received.
+     */
+    public Record(RvConnection connection, TibrvMsg message, long timestamp) {
+        this(connection, message, message.getSendSubject(), message.getReplySubject(), System.currentTimeMillis());
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param connection The connection the message was received on.
+     * @param message The message.
+     */
     public Record(RvConnection connection, TibrvMsg message) {
         this(connection, message, System.currentTimeMillis());
     }

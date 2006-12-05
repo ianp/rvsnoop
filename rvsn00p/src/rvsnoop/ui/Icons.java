@@ -46,6 +46,7 @@ public final class Icons {
     public static final Icon FILTER_COLUMNS = createIcon("/resources/icons/filter_columns.png", ICON_SIZE);
     public static final Icon FONT = createIcon("/resources/icons/font.png", ICON_SIZE);
     public static final Icon HELP = createIcon("/resources/icons/help.png", ICON_SIZE);
+    public static final Icon IMPORT = createIcon("/resources/icons/import.png", ICON_SIZE);
     public static final Icon LICENSE = createIcon("/resources/icons/license.png", ICON_SIZE);
     public static final Icon OPEN = createIcon("/resources/icons/open.png", ICON_SIZE);
     public static final Icon PASTE = createIcon("/resources/icons/paste.png", ICON_SIZE);

@@ -84,6 +84,8 @@ public final class Actions {
 
     public static final Action EXPORT_TO_HTML = add(new ExportToHtml());
 
+    public static final Action EXPORT_TO_RECORD_BUNDLE = add(new ExportToRecordBundle());
+
     public static final Action EXPORT_TO_RVSCRIPT = add(new ExportToRvScript());
 
     public static final Action EXPORT_TO_RVTEST = add(new ExportToRvTest());
@@ -93,6 +95,8 @@ public final class Actions {
     public static final Action FILTER_BY_SELECTION = add(new Filter(Filter.FILTER_BY_SELECTION, "Filter by Selection", "Filter the records visible in the ledger"));
 
     public static final Action HELP = add(new Help());
+
+    public static final Action IMPORT_FROM_RECORD_BUNDLE = add(new ImportFromRecordBundle());
 
     public static final Action OPEN = add(new Open());
 

@@ -7,22 +7,14 @@
 package rvsnoop.actions;
 
 import java.awt.event.KeyEvent;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Locale;
 
 import javax.swing.Action;
-import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.io.IOUtils;
-
-import rvsnoop.Logger;
 import rvsnoop.Marshaller;
 import rvsnoop.Record;
-import rvsnoop.ui.UIManager;
 
 /**
  * Export the current ledger selction to an RvTest format message file.
@@ -31,7 +23,7 @@ import rvsnoop.ui.UIManager;
  * @version $Revision$, $Date$
  * @since 1.5
  */
-final class ExportToRvTest extends LedgerSelectionAction {
+final class ExportToRvTest extends ExportToFile {
     private static class RvTestMessagesFileFilter extends FileFilter {
         RvTestMessagesFileFilter() {
             super();
@@ -47,8 +39,6 @@ final class ExportToRvTest extends LedgerSelectionAction {
 
     private static final String ID = "exportToRvTest";
 
-    private static final Logger logger = Logger.getLogger(ExportToRvTest.class);
-
     private static String NAME = "RvTest Messages File";
 
     private static final long serialVersionUID = -483492422948058345L;
@@ -58,35 +48,21 @@ final class ExportToRvTest extends LedgerSelectionAction {
     private final Marshaller.Implementation marshaller = Marshaller.getImplementation(Marshaller.IMPL_RVTEST);
 
     public ExportToRvTest() {
-        super(ID, NAME, null);
+        super(ID, NAME, null, new RvTestMessagesFileFilter());
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_T));
         setEnabled(marshaller != null);
     }
 
-    /* (non-Javadoc)
-     * @see rvsnoop.actions.LedgerSelectionAction#actionPerformed(java.util.List)
-     */
-    protected void actionPerformed(Record[] records) {
-        final JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new RvTestMessagesFileFilter());
-        if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
-            return;
-        final File file = chooser.getSelectedFile();
-        BufferedWriter bw = null;
-        try {
-            bw = new BufferedWriter(new FileWriter(file));
-            for (int i = 0, imax = records.length; i < imax; ++i)
-                bw.write(marshaller.marshal("", records[i].getMessage()));
-            logger.info("Written RvTest messages file to " + file.getName());
-        } catch (IOException e) {
-            logger.error("There was a problem writing the RvTest messages file.", e);
-        } finally {
-            IOUtils.closeQuietly(bw);
-        }
-    }
-
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled && marshaller != null);
     }
+
+    /* (non-Javadoc)
+     * @see rvsnoop.actions.ExportToFile#writeRecord(rvsnoop.Record, int)
+     */
+    protected void writeRecord(Record record, int index) {
+        marshaller.marshal("", record.getMessage());
+    }
+
 }

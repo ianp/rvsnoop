@@ -306,9 +306,14 @@ public final class UIManager {
         final JMenu fileExport = new JMenu("Export To");
         fileExport.setIcon(Icons.EXPORT);
         fileExport.add(Actions.EXPORT_TO_HTML);
+        fileExport.add(Actions.EXPORT_TO_RECORD_BUNDLE);
         fileExport.add(Actions.EXPORT_TO_RVSCRIPT);
         fileExport.add(Actions.EXPORT_TO_RVTEST);
         file.add(fileExport);
+        final JMenu fileImport = new JMenu("Import From");
+        fileExport.setIcon(Icons.IMPORT);
+        fileImport.add(Actions.IMPORT_FROM_RECORD_BUNDLE);
+        file.add(fileImport);
         file.addSeparator();
         file.add(Actions.ADD_CONNECTION);
         final JMenu connRecent = new JMenu("Recent Connections");
