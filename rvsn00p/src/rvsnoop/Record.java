@@ -93,7 +93,7 @@ public final class Record {
      * @param timestamp The time the message was received.
      */
     public Record(RvConnection connection, TibrvMsg message, long timestamp) {
-        this(connection, message, message.getSendSubject(), message.getReplySubject(), System.currentTimeMillis());
+        this(connection, message, null, null, timestamp);
     }
 
     /**

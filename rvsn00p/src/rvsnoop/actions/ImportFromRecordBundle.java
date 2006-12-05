@@ -55,7 +55,7 @@ final class ImportFromRecordBundle extends ImportFromFile {
      */
     protected void importFromFile(InputStream stream) throws IOException {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        byte[] bytes = new byte[1024];
+        final byte[] bytes = new byte[1024];
         zip = new ZipInputStream(stream);
         while (zip.getNextEntry() != null) {
             int count;
