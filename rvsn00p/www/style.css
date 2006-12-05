@@ -1,4 +1,4 @@
-/* Style sheet for rvSnoop web site and local documentation. */
+/* Style information for the RvSnoop web site. */
 /* $Id$ */
 
 body {
@@ -70,7 +70,7 @@ img.wide {
   border-bottom: 1px solid black;
   height: 14px;
   margin: 0;
-  padding: 1px, 0;
+  padding: 0 1px;
 }
 
 .navigation ul {
@@ -83,8 +83,6 @@ img.wide {
   border-right: 1px solid black;
   height: 100%;
   float: left;
-  font-family: Verdana, sans-serif;
-  font-variant: small-caps;
   list-style: none;
   padding: 0 4px;
 }

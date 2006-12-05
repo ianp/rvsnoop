@@ -6,21 +6,16 @@ This file contains an overview of the planned features in future
 versions of RvSnoop. Any alterations should be formatted using
 [Markdown][MD] syntax.
 
-## Release 1.6	
+## Release 1.6
 
 The target release date for 1.6 is late November, 2006. This means
 that it should be into beta by the beginnning of that month.
 
-### Build System Clean Up
+### Better log messages
 
-Add in all of the planned dependencies, this should be no problem
-because proguard will strip the classes at dist time until they are
-used. This will let us selectively use classes as they are needed
-(e.g. the tuple binding stuff from BDB).
-
-Since proguard is no longer being used that isn't true any more. But
-the build system needs altering to produce a single distributable
-rather than separate source and binary versions.
+When starting up, if classes cannot be found use more descriptive
+log messages instead of just dumping a stack trace. Look at
+StartRvSnooper and Marshaller for this.
 
 ### Make Projects be Directory Based (SLIP TO 1.7)
 
@@ -65,7 +60,7 @@ KeyboardFocusManager, and look at the way Eclipse handles focus
 management for ideas.
 
 Wait until RvSnoop has moved to OSGi and then use a whiteboard for
-tracking this.
+tracking this. Maybe?
 
 ### Sniff Opaques for Serialized Java Data (SLIP TO 1.7)
 
@@ -330,6 +325,12 @@ option. Do a sync on a scheduled basis, or every X messages maybe.
 
 * Or maybe something based on Carbonado?
 
+* Or maybe an embedded database (H2 looks good)?
+
+  H2 will support BLOBs as external files in the 1.1 release, this
+  would make it a good contender for a persistent store. Actually, I
+  think that it already does support BLOBs this way.
+
 ### Write a *much* Better XHTML Exporter
 
 Get rid of the marshaller code, but still allow a custom marshalling
@@ -345,7 +346,6 @@ Like the package explorer in IntelliJ. This could maybe be done with
 a 'SubjectViewProvider' SPI.
 
 ### Add a Real Submit Bug Action and Dialog
-
 
 Maybe. This would require logging in to SF and submitting the
 correct form values. It should be possible using Commons HTTP

@@ -1,37 +1,30 @@
 <?xml version='1.0' encoding='utf-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
   <head>
-    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta http-equiv="Content-Language" content="en-uk" />
-    <meta name="Copyright" content="Copyright © 2002-@year@ Apache Software Foundation." />
-    <meta name="Copyright" content="Copyright © 2005 Ian Phillips." />
-    <meta name="Author" content="Örjan Lundberg" />
+    <meta name="Copyright" content="Copyright © 2005-@year@ Ian Phillips." />
     <meta name="Author" content="Ian Phillips" />
     <meta name="ID" content="$Id$" />
     <style type="text/css" media="all">@import "style.css";</style>
-    <title>rvSnoop @version@ FAQ</title>
+    <title>RvSnoop ~ Frequently Asked Questions</title>
   </head>
   <body>
     <div class="page">
       <div class="header"><h1>Frequently Asked Questions</h1></div>
       <div class="navigation">
         <ul>
-          <li><a href="index@suffix@">Home</a></li>
-          <li><a href="features@suffix@">Features</a></li>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="features.html">Features</a></li>
           <li id="current"><acronym>FAQ</acronym></li>
-          <li><a href="links@suffix@">Links</a></li>
-          <li><a href="changes@suffix@">Change Log</a></li>
-          <li><a href="http://www.sourceforge.net/projects/rvsn00p">Project Page</a></li>
-          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsnoop-@version@-bin.tgz?download">Binary Download</a></li>
-          <li><a href="http://prdownloads.sourceforge.net/rvsn00p/rvsnoop-@version@-src.tgz?download">Source Download</a></li>
+          <li><a href="links.html">Links</a></li>
+          <li><a href="http://www.sourceforge.net/projects/rvsn00p">SourceForge Project</a></li>
+          <li><a href="http://downloads.sourceforge.net/rvsn00p/rvsnoop-@version@.tgz?download">Get RvSnoop</a></li>
         </ul>
       </div>
       <div class="content">
-        <h2>What does the command line argument <code>tcp:7500|7500||subjecta,subjectb</code> mean?</h2>
-        <p>It is one or more sets of <code>daemon|service|network|subject</code> that rvSnoop should listen to. You can enter multiple connection definitions on the command line. This form of setting the initial connections is no longer supported as of version 1.5, you should now set an initial project to load using the <code>-p &lt;projectfile&gt;</code> or <code>--project=&lt;projectfile&gt;</code> switches.</p>
-        <h2>I cannot start rvSnoop or I get strange errors when starting rvSnoop, what is wrong?</h2>
+        <h2>I cannot start RvSnoop or I get strange errors when starting RvSnoop, what is wrong?</h2>
         <p>First, check that you have the appropriate classpath set for the Java libraries that are required.</p>
         <p>If the classpath is set correctly it is possible that you need to configure the library path to find the native Rendezvous libraries. The new style launch scripts should give you enough information to locate and set this correctly.</p>
         <p>If you are still having trouble file a support request via the <a href="http://sourceforge.net/tracker/?atid=504009&amp;group_id=63447&amp;func=browse">SourceForge Tracker</a>.</p>
@@ -42,13 +35,9 @@
         <h2>How do I get a new feature implemented?</h2>
         <p>Add a feature request via the <a href="http://sourceforge.net/tracker/?atid=504011&amp;group_id=63447&amp;func=browse">SourceForge Tracker</a>. If you need something major adding, or would like urgent changes made feel free to <a href="mailto:ianp@ianp.org">contact me</a> directly to discuss rates for contract work.</p>
         <p>Of course you have to remember that this is all open source, so you can always just go ahead and implement you feature yourself! If you do this please <a href="http://sourceforge.net/tracker/?atid=504010&amp;group_id=63447&amp;func=browse">send me the code</a> then I can add it to a released version.</p>
-        <h2>Why do the help pages look so bad on Windows?</h2>
-        <p>Because you are using Internet Explorer, the worlds worst web browser! The web site and help pages for RvSnoop are written in <a href="http://validator.w3.org/check/referer">valid <acronym>XHTML</acronym></a> which <acronym>IE</acronym> does not yet support (the standard is only 7 years old now, give them time). Try <a href="http://www.mozilla.com">FireFox</a> instead. In my copious free time I will look at improving the situation for Windows users, but it's a low priority right now.</p>
       </div>
       <div class="footer">
-        <p>Copyright © 2002-@year@ <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright © 2005-@year@ <a href="http://ianp.org">Ian Phillips</a>.</p>
-        <p>Project support and file distribution provided by <a href="http://sourceforge.net">SourceForge</a>.</p>
-        <p>This site is <a href="http://validator.w3.org/check/referer">valid <acronym>XHTML</acronym></a> and is best viewed with a modern browser such as <a href="http://mozilla.com/firefox">FireFox</a>.</p>
+        <p>Copyright © 2005-@year@ <a href="http://ianp.org">Ian Phillips</a>. <a href="http://validator.w3.org/check/referer" title="Validate HTML">HTML</a> | <a href="http://jigsaw.w3.org/css-validator/check/referer" title="Validate CSS">CSS</a></p>
       </div>
     </div>
     <script type="text/javascript" src="http://www.google-analytics.com/urchin.js"></script>
