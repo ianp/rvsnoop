@@ -44,7 +44,7 @@ final class CheckForUpdates extends AbstractAction {
 
     private static final long serialVersionUID = 947745941196389522L;
 
-    private static String TOOLTIP = "Check for newer versions of rvSnoop";
+    private static String TOOLTIP = "Check for newer versions of RvSnoop (stable versions only)";
 
     public CheckForUpdates() {
         super(NAME, Icons.CHECK_UPDATES);

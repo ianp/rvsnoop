@@ -42,7 +42,7 @@ final class Quit extends AbstractAction {
 
     private static final long serialVersionUID = -75328795847562924L;
 
-    private static String TOOLTIP = "Close all listeners and exit rvSnoop";
+    private static String TOOLTIP = "Close all listeners and exit RvSnoop";
 
     public Quit() {
         super(NAME, Icons.QUIT);

@@ -17,7 +17,7 @@ import rvsnoop.Logger;
 import rvsnoop.ui.Icons;
 
 /**
- * Display the rvSnoop home page in a browser.
+ * Display the RvSnoop home page in a browser.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$

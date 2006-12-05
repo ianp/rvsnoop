@@ -63,8 +63,8 @@ public class RecordType implements Matcher {
      * @return The connection.
      */
     public static RecordType fromXml(Element element) {
-        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + ".");
-        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + ".");
+        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + '.');
+        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + '.');
         final Element matcherElt = element.getFirstChildElement(RecordMatcher.XML_ELEMENT, RecordType.XML_NS);
         final RecordMatcher matcher = RecordMatcher.fromXml(matcherElt);
         final Color colour = Color.decode(element.getAttributeValue(PROP_COLOUR));

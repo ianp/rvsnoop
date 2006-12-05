@@ -51,8 +51,11 @@ public final class Marshaller {
 
         MTreeImpl() {
             super("MTree");
-            // Just a sanity check for the classpath.
-            MTree.class.getName();
+            try {
+                Class.forName("com.tibco.sdk.MTree");
+            } catch (ClassNotFoundException e) {
+                // Handled by Marshaller static initializer.
+            }
         }
 
         public String marshal(String name, TibrvMsg message) {

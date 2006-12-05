@@ -24,7 +24,7 @@ public final class Record {
 
     private static final Logger logger = Logger.getLogger(Record.class);
 
-    private static long nextSequenceNumber = 0;
+    private static long nextSequenceNumber;
 
     /**
      * Resets that sequence number to zero.

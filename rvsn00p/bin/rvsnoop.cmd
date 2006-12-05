@@ -1,10 +1,10 @@
 @echo off
-rem Start script for rvSnoop @version@ on Windows platforms.
+rem Start script for RvSnoop @version@ on Windows platforms.
 rem $Id$
 
 setlocal
 
-title rvSnoop @version@
+title RvSnoop @version@
 
 goto :skip_function_defs
 

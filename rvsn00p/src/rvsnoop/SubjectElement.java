@@ -34,9 +34,9 @@ public final class SubjectElement extends DefaultMutableTreeNode {
 
     private boolean isSelected = true;
 
-    private int numRecordsHere = 0;
+    private int numRecordsHere;
 
-    private int numRecordsUnder = 0;
+    private int numRecordsUnder;
 
     private TreeNode[] path;
 

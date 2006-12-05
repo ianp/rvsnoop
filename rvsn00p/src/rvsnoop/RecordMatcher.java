@@ -73,8 +73,8 @@ public abstract class RecordMatcher implements Matcher {
      * @return The connection.
      */
     public static RecordMatcher fromXml(Element element) {
-        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + ".");
-        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + ".");
+        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + '.');
+        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + '.');
         final String type = element.getAttributeValue(PROP_TYPE);
         final String value = element.getAttributeValue(PROP_VALUE);
         return createMatcher(type, value);
@@ -103,7 +103,7 @@ public abstract class RecordMatcher implements Matcher {
     public static RecordMatcher createMatcher(String typeOrName, String value) {
         Class clazz = (Class) matchersById.get(typeOrName);
         if (clazz == null) clazz = (Class) matchersByName.get(typeOrName);
-        if (clazz == null) throw new IllegalArgumentException("No matcher named " + typeOrName + ".");
+        if (clazz == null) throw new IllegalArgumentException("No matcher named " + typeOrName + '.');
         try {
             final Constructor ctor = clazz.getConstructor(new Class[] { String.class });
             return (RecordMatcher) ctor.newInstance(new Object[] { value });

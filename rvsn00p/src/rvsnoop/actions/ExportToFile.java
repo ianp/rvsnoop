@@ -53,12 +53,12 @@ abstract class ExportToFile extends LedgerSelectionAction {
         final File file = chooser.getSelectedFile();
         try {
             stream = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);
-            logger.info("Exporting " + records.length + " records to " + file.getPath() + ".");
+            logger.info("Exporting " + records.length + " records to " + file.getPath() + '.');
             writeHeader(records.length);
             for (int i = 0, imax = records.length; i < imax; ++i)
                 writeRecord(records[i], i);
             writeFooter();
-            logger.info("Exported " + records.length + " records to " + file.getPath() + ".");
+            logger.info("Exported " + records.length + " records to " + file.getPath() + '.');
         } catch (IOException e) {
             logger.error("There was a problem exporting the selected records.", e);
         } finally {

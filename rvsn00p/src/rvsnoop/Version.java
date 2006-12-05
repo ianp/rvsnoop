@@ -66,11 +66,11 @@ public final class Version {
     }
 
     public static String getAsStringWithName() {
-        return "rvSnoop @version@" + getBuildType();
+        return "RvSnoop @version@" + getBuildType();
     }
 
     public static String getAsStringWithNameAndBuildNumber() {
-        return "rvSnoop @version@ (Build @build.number@" + getBuildType() + ")";
+        return "RvSnoop @version@ (Build @build.number@" + getBuildType() + ')';
     }
 
     public static boolean isFinal() {

@@ -9,7 +9,7 @@ package rvsnoop.ui;
 import javax.swing.Icon;
 
 /**
- * All of the icons used by rvSnoop.
+ * All of the banners used by RvSnoop.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$

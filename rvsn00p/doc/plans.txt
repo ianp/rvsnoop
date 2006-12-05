@@ -439,7 +439,7 @@ These really should be different, even if there is some overlap
 (e.g. FAQ). Specifically, look at some of the advice on the Google
 Analytics site to improve naviagtion and content on the site. the
 web site should have more overview information, some use-cases for
-rvSnoop, and less actual product docs. the product docs should be
+RvSnoop, and less actual product docs. the product docs should be
 more in-depth, especially moving towards 2.0.
 
 Looking at the browsers visiting the site it really needs to look

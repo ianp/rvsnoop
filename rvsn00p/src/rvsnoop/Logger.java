@@ -64,7 +64,7 @@ public final class Logger {
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
-        log("Logger", LABELS[INFO], Version.getAsStringWithName() + " started at " + StringUtils.format(new Date()) + ".", null);
+        log("Logger", LABELS[INFO], Version.getAsStringWithName() + " started at " + StringUtils.format(new Date()) + '.', null);
         final String logLevel = System.getProperty("rvsnoop.logging");
         if (logLevel != null) setLevel(logLevel);
     }
@@ -80,10 +80,10 @@ public final class Logger {
     private static synchronized void log(String simpleName, String level, String message, Throwable throwable) {
         if (Logger.level == OFF) return;
         date.setTime(System.currentTimeMillis());
-        buffer.append(StringUtils.format(date)).append(" ").append(level);
+        buffer.append(StringUtils.format(date)).append(' ').append(level);
         buffer.append(level.length() == 4 ? "  " : " ");
         buffer.append(simpleName).append(" - ").append(message);
-        if (throwable != null) buffer.append(" [").append(throwable.getMessage()).append("]");
+        if (throwable != null) buffer.append(" [").append(throwable.getMessage()).append(']');
         try {
             writer.write(buffer.append("\n").toString());
             writer.flush();
@@ -181,7 +181,7 @@ public final class Logger {
 
     public static void setLevel(int level) {
         if (level < 0 || level >= LABELS.length) throw new IndexOutOfBoundsException();
-        log("Logger", LABELS[INFO], "Setting log level to " + LABELS[level] + ".", null);
+        log("Logger", LABELS[INFO], "Setting log level to " + LABELS[level] + '.', null);
         Logger.level = level;
     }
 
@@ -193,7 +193,7 @@ public final class Logger {
             }
         }
         if (isErrorEnabled())
-            log("Logger", LABELS[ERROR], "Not a valid log level: " + level + ".", null);
+            log("Logger", LABELS[ERROR], "Not a valid log level: " + level + '.', null);
     }
 
     public synchronized void warn(String message) {

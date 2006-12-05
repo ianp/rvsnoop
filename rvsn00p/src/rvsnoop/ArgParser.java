@@ -77,7 +77,7 @@ final class ArgParser {
 
     private void pad(StringBuffer buffer) {
         final int indents = longestArg - INDENT.length() - buffer.length();
-        for (int i = 0; i < indents; ++i) buffer.append(" ");
+        for (int i = 0; i < indents; ++i) buffer.append(' ');
     }
 
     public void parseArgs(String[] args) {
@@ -122,7 +122,7 @@ final class ArgParser {
                 buffer.setLength(0);
                 buffer.append(INDENT);
                 if (next.shortForm != 0) {
-                    buffer.append("-").append(next.shortForm);
+                    buffer.append('-').append(next.shortForm);
                     if (!next.isBoolean) buffer.append("<value>");
                     if (next.longForm != null) buffer.append(", ");
                 }

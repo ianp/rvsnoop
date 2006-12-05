@@ -11,7 +11,7 @@
     <meta name="Author" content="Ian Phillips" />
     <meta name="ID" content="$Id$" />
     <style type="text/css" media="all">@import "style.css";</style>
-    <title>rvSnoop @version@ Features</title>
+    <title>RvSnoop @version@ Features</title>
   </head>
   <body>
     <div class="page">
@@ -29,13 +29,13 @@
         </ul>
       </div>
       <div class="content">
-        <p>On startup the rvSnoop display is split into four main sections: the connection list (1), the subject explorer (2), the message ledger (3), and the message details panel (4).</p>
+        <p>On startup the RvSnoop display is split into four main sections: the connection list (1), the subject explorer (2), the message ledger (3), and the message details panel (4).</p>
         <img src="images/tour.png" alt="RvSnoop Interface Tour" class="wide"/>
         <h2>Connection List</h2>
         <p><img src="images/connection_list.png" alt="Connection List"/>The connection list shows all of the connections to Rendezvous daemons, for each connection the connection name is displayed (this will also be visible in the description field of the <acronym>RVD</acronym>s <acronym>HTTP</acronym> interface). In a smaller typeface the list also displays the parameters (service, network, and daemon) for each connection. The list of subjects subscribed to is available as a tooltip, and an icon next to the connection name shows the current state of the connection. A context (right-click) menu is available to alter the state of individual connections.</p>
         <h2>Subject Explorer</h2>
         <p><img src="images/subject_explorer.png" alt="Subject Explorer"/>The subject explorer displays all of the subjects that have been published to in a hierarchical tree-like fashion. You can use this to browse through all of the subscribed subjects. Subjects on which error messages have been received are highlighed in red, all of there parent subject nodes are highlighted in orange, this allows you to quickly spot error conditions in the subject hierarchy even when it is collapsed.</p>
-        <p>The checkboxes can be used to filter out subjects that you are not interested in, messages received on any subject element which is not checked will not appear in the ledger. A context menu provides some quick options for checking and unchecking messages as well as collapsing and expanding tree nodes.</p>
+        <p>The check boxes can be used to filter out subjects that you are not interested in, messages received on any subject element which is not checked will not appear in the ledger. A context menu provides some quick options for checking and unchecking messages as well as collapsing and expanding tree nodes.</p>
         <h2>Message Ledger</h2>
         <img src="images/message_ledger.png" alt="Message Ledger" class="wide"/>
         <p>The message ledger shows a summary of all of the received messages, the columns which are displayed can be configured via the view menu (the example screen shot shows some of the columns being hidden).</p>
@@ -49,16 +49,14 @@
         <h2>Republish Message</h2>
         <p>A simple republishing facility has been added, this will republish the selected messages from the ledger. At the moment there is no facility to edit messages before publishing but this is planned for a future release.</p>
         <h2>Full Text Search</h2>
-        <p><img src="images/search.png" alt="Search Dialog"/>rvSnoop supports full text searches across all messages in the ledger. The search dialog lets you selectively include or exclude different portions of the message data from your searches. Your search will start from the currently selected record (but will wrap around to ensure that the entire ledger is searched) or the start of the ledger if no record is selected.</p>
+        <p><img src="images/search.png" alt="Search Dialog"/>RvSnoop supports full text searches across all messages in the ledger. The search dialog lets you selectively include or exclude different portions of the message data from your searches. Your search will start from the currently selected record (but will wrap around to ensure that the entire ledger is searched) or the start of the ledger if no record is selected.</p>
         <h2>Export Message Data</h2>
-        <p>The export sub-menu allows you to save the currently selected messages from ledger to a number of formats: a basic <acronym>XHTML</acronym> table to allow you to easily include this information in bug reports and training documents; and RvScript and RvTest format mesage files. The RvScript and RvTest options will only be available if those libraries are found by rvSnoop at runtime.</p>
+        <p>The export sub-menu allows you to save the currently selected messages from ledger to a number of formats: a basic <acronym>XHTML</acronym> table to allow you to easily include this information in bug reports and training documents; and RvScript and RvTest format mesage files. The RvScript and RvTest options will only be available if those libraries are found by RvSnoop at runtime.</p>
         <h2>Saved Project Settings</h2>
         <p>You can now choose to save your configuration to a file, this will save all of the connections and the state of the subject explorer. Recent projects are easily availoable from a sub-menu, as are recent connections (which are stored independently of their projects.</p>
       </div>
       <div class="footer">
-        <p>Copyright © 2002-@year@ <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright © 2005-@year@ <a href="http://ianp.org">Ian Phillips</a>.</p>
-        <p>Project support and file distribution provided by <a href="http://sourceforge.net">SourceForge</a>.</p>
-        <p>This site is <a href="http://validator.w3.org/check/referer">valid <acronym>XHTML</acronym></a> and is best viewed with a modern browser such as <a href="http://mozilla.com/firefox">FireFox</a>.</p>
+        <p>Copyright © 2005-@year@ <a href="http://ianp.org">Ian Phillips</a>. <a href="http://validator.w3.org/check/referer" title="Validate HTML">HTML</a> | <a href="http://jigsaw.w3.org/css-validator/check/referer" title="Validate CSS">CSS</a></p>
       </div>
     </div>
     <script type="text/javascript" src="http://www.google-analytics.com/urchin.js"></script>

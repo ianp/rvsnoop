@@ -44,11 +44,11 @@ public final class AeMsgTreeNode extends LazyTreeNode {
         data.use_tibrvMsg(message);
         switch (data.getMessageFormat()) {
         case MMessageFormat.AERV :
-            text = "Active Enterprise Message (Format: RV, Version: " + message.getField("^ver^").data + ")";
+            text = "Active Enterprise Message (Format: RV, Version: " + message.getField("^ver^").data + ')';
             children.add(new RvFieldTreeNode(this, message.getField("^data^"), "Message Data", null));
             break;
         case MMessageFormat.XMLRV :
-            text = "Active Enterprise Message (Format: XML, Version: " + message.getField("^ver^").data + ")";
+            text = "Active Enterprise Message (Format: XML, Version: " + message.getField("^ver^").data + ')';
             // final TibrvMsg m = (TibrvMsg) message.getField("^data^").data;
             children.add(new RvFieldTreeNode(this, message.getField("^xmldata^"), "Message Data", null));
             break;

@@ -395,7 +395,7 @@ public final class RecordTypesDialog extends JDialog {
      *
      * @throws HeadlessException if the VM is running in headless mode.
      */
-    public RecordTypesDialog() throws HeadlessException {
+    public RecordTypesDialog() {
         super(UIManager.INSTANCE.getFrame());
         setGlassPane(glass);
         Container contents = getContentPane();

@@ -32,6 +32,6 @@ public class ProjectFileFilter extends FileFilter {
     }
 
     public String getDescription() {
-        return "rvSnoop Project Files";
+        return "RvSnoop Project Files";
     }
 }

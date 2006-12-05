@@ -28,11 +28,11 @@ final class DisplayAbout extends AbstractAction {
 
     private static final String ID = "displayAbout";
 
-    private static String NAME = "About rvSnoop";
+    private static String NAME = "About RvSnoop";
 
     private static final long serialVersionUID = 1725655570348239778L;
 
-    private static String TOOLTIP = "Show some information about rvSnoop";
+    private static String TOOLTIP = "Show some information about RvSnoop";
 
     public DisplayAbout() {
         super(NAME);

@@ -47,7 +47,7 @@ public final class StringUtils {
             final StringBuffer buffer = new StringBuffer();
             buffer.append("Null pattern passed to format! Fields: { ");
             for (int i = 0, size = fields.length; i < size; ++i)
-                buffer.append("'").append(fields[i]).append("', ");
+                buffer.append('\'').append(fields[i]).append("', ");
             buffer.setLength(buffer.length() - 2);
             return buffer.append(" }").toString();
         }

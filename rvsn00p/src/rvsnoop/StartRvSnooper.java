@@ -64,7 +64,7 @@ public final class StartRvSnooper {
                 PreferencesManager.INSTANCE.store();
                 RecentConnections.getInstance().store();
                 RecentProjects.INSTANCE.store();
-                logger.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + ".");
+                logger.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + '.');
             } catch (IOException ignored) {
                 // Oh well, we may lose the preferences then.
             }
@@ -81,7 +81,7 @@ public final class StartRvSnooper {
     public static void main(final String[] args) {
         MultiLineToolTipUI.configure();
         if (!SystemUtils.isJavaVersionAtLeast(142) && Logger.isWarnEnabled())
-            logger.warn("Java version 1.4.2 or higher is required, rvSnoop may fail unexpectedly with earlier versions.");
+            logger.warn("Java version 1.4.2 or higher is required, RvSnoop may fail unexpectedly with earlier versions.");
         final ArgParser parser = new ArgParser(Version.getAsStringWithName());
         parser.addArgument('h', "help", true, "Display a short help message and exit.");
         parser.addArgument('p', "project", false, "Load a project file on startup.");

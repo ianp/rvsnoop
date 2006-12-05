@@ -5,7 +5,6 @@
 //:FileID:  $Id$
 package rvsnoop;
 
-import java.awt.Color;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -14,9 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Locale;
-
-import org.apache.commons.io.IOUtils;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -24,6 +20,8 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Serializer;
 import nu.xom.Text;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Handles storing and retreiving application state from XML files.
@@ -71,18 +69,6 @@ abstract class XMLConfigFile {
         try {
             final String value = parent.getAttributeValue(attr);
             return Boolean.valueOf(value).booleanValue();
-        } catch (Exception e) {
-            return def;
-        }
-    }
-
-    static final Color getColour(Element parent, String name, Color def) {
-        try {
-            final String value = parent.getAttributeValue(name);
-            final int r = Integer.parseInt(value.substring(0, 2), 16);
-            final int g = Integer.parseInt(value.substring(2, 4), 16);
-            final int b = Integer.parseInt(value.substring(4, 6), 16);
-            return new Color(r, g, b);
         } catch (Exception e) {
             return def;
         }
@@ -152,13 +138,6 @@ abstract class XMLConfigFile {
 
     static final void setBoolean(Element parent, String name, boolean value) {
         parent.addAttribute(new Attribute(name, Boolean.toString(value)));
-    }
-
-    static final void setColour(Element parent, String name, Color value) {
-        final String r = Integer.toHexString(value.getRed());
-        final String g = Integer.toHexString(value.getGreen());
-        final String b = Integer.toHexString(value.getBlue());
-        parent.addAttribute(new Attribute(name, (r + g + b).toUpperCase(Locale.ENGLISH)));
     }
 
     static final Element setInteger(Element parent, String name, int value) {

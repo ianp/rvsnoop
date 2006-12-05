@@ -232,7 +232,7 @@ public final class RvConnection implements TibrvMsgCallback {
             Tibrv.open();
             Tibrv.setErrorCallback(new ErrorCallback());
             queue = new TibrvQueue();
-            queue.setName("rvSnoop");
+            queue.setName("RvSnoop");
             // No need to keep references to the dispatchers.
             new TibrvDispatcher(Tibrv.defaultQueue());
             new TibrvDispatcher(queue);
@@ -257,8 +257,8 @@ public final class RvConnection implements TibrvMsgCallback {
      * @return The connection.
      */
     public static RvConnection fromXml(Element element) {
-        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + ".");
-        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + ".");
+        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + '.');
+        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + '.');
         final String service = element.getAttributeValue(PROP_SERVICE);
         final String network = element.getAttributeValue(PROP_NETWORK);
         final String daemon = element.getAttributeValue(PROP_DAEMON);

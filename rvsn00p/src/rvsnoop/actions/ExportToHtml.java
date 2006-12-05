@@ -98,14 +98,14 @@ final class ExportToHtml extends ExportToFile {
         out.endTag(); // tr
     }
 
-    private void writeHttpEquiv(String equiv, String content) throws IllegalStateException, IllegalArgumentException, IOException {
+    private void writeHttpEquiv(String equiv, String content) throws IOException {
         out.startTag("meta");
         out.attribute("http-equiv", equiv);
         out.attribute("content", content);
         out.endTag();
     }
 
-    private void writeMeta(String name, String content) throws IllegalStateException, IllegalArgumentException, IOException {
+    private void writeMeta(String name, String content) throws IOException {
         out.startTag("meta");
         out.attribute("name", name);
         out.attribute("content", content);
@@ -129,7 +129,7 @@ final class ExportToHtml extends ExportToFile {
         out.endTag(); // tr
     }
 
-    private void writeTagged(String tag, String pcdata) throws IllegalStateException, IllegalArgumentException, IOException {
+    private void writeTagged(String tag, String pcdata) throws IOException {
         out.startTag(tag);
         out.pcdata(pcdata != null ? pcdata : "");
         out.endTag();

@@ -55,11 +55,11 @@ abstract class ImportFromFile extends AbstractAction {
         InputStream stream = null;
         try {
             stream = new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
-            logger.info("Importing records from " + file.getPath() + ".");
+            logger.info("Importing records from " + file.getPath() + '.');
             importFromFile(stream);
-            logger.info("Imported records from " + file.getPath() + ".");
+            logger.info("Imported records from " + file.getPath() + '.');
         } catch (IOException e) {
-            logger.error("There was a problem importing the file" + file.getPath() + ".", e);
+            logger.error("There was a problem importing the file" + file.getPath() + '.', e);
         } finally {
             IOUtils.closeQuietly(stream);
         }
