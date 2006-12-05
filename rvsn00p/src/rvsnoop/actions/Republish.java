@@ -9,14 +9,19 @@ package rvsnoop.actions;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import rvsnoop.Connections;
 import rvsnoop.Record;
 import rvsnoop.RvConnection;
+import rvsnoop.State;
 import rvsnoop.StringUtils;
 import rvsnoop.ui.Icons;
+import rvsnoop.ui.UIManager;
 import rvsnoop.ui.UIUtils;
 
 import com.tibco.tibrv.TibrvException;
@@ -36,10 +41,7 @@ final class Republish extends LedgerSelectionAction {
 
     private static String NAME = "Republish";
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 1L;
 
     private static String TOOLTIP = "Republish the selected records";
 
@@ -53,15 +55,24 @@ final class Republish extends LedgerSelectionAction {
 
     public void actionPerformed(Record[] records) {
         final String question = StringUtils.format(CONFIRM, new Object[] { new Integer(records.length) });
-        if (!UIUtils.askForConfirmation(question, null)) return;
+        final RvConnection[] connections = (RvConnection[]) Connections.getInstance().toArray();
+        final String[] connectionNames = new String[connections.length];
+        for (int i = 0, imax = connections.length; i < imax; ++i) {
+            connectionNames[i] = connections[i].getDescription();
+        }
+        final String name = (String) JOptionPane.showInputDialog(
+                UIManager.INSTANCE.getFrame(),
+                question, NAME, JOptionPane.QUESTION_MESSAGE, null,
+                connectionNames, connectionNames[0]);
+        if (name == null) return; // User cancelled republishing.
+        final RvConnection connection = connections[Arrays.asList(connectionNames).indexOf(name)];
+        if (connection.getState() != State.STARTED) {
+            connection.start();
+        }
         for (int i = 0, imax = records.length; i < imax; ++i) {
             final Record record = records[i];
             try {
-                final RvConnection connection = record.getConnection();
-                if (connection != null)
-                    connection.publish(record);
-                else
-                    UIUtils.showInformation("No connection is configured to publish the record on.");
+                connection.publish(record);
             } catch (IllegalStateException e) {
                 UIUtils.showError("Could not republish record " + record.getSequenceNumber(), e);
             } catch (TibrvException e) {

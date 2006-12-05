@@ -151,19 +151,6 @@ There should be no open bugs in the bug tracker on SF.
 There isn't really a target release date for 1.7 yet, but assume
 sometime in Q1 2007.
 
-### Add in Support for Republishing to a Different Connection
-
-The publish dialog should allow the user to select a different
-transport to publish on. Also, maybe as part of this work, the user
-should be able to edit the message. Probably the best way to add
-editing is to first allow non-structural editing (i.e. changing
-fields) and later to allow structural editing (i.e. adding/removing
-fields).
-
-This is feature request [#1579646][FR1579646] in SF.
-
-[FR1579646]: https://sf.net/tracker/?func=detail&atid=504011&aid=1579646&group_id=63447
-
 ### Move Preferences to a Dedicated Dialog
 
 Get rid of the configure menu. Think about how preferences will be

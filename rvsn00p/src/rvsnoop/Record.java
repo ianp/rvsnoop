@@ -78,7 +78,7 @@ public final class Record {
                 logger.warn("Unable to extract bytes from message.", e);
         }
         this.sizeInBytes = sizeInBytes;
-        this.subject = SubjectHierarchy.INSTANCE.getSubjectElement(send);
+        this.subject = SubjectHierarchy.INSTANCE.getSubjectElement(message.getSendSubject());
         this.timestamp = timestamp;
         synchronized (Record.class) {
             sequenceNumber = nextSequenceNumber++;
