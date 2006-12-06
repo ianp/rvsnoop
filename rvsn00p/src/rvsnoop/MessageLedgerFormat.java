@@ -96,6 +96,13 @@ public final class MessageLedgerFormat implements AdvancedTableFormat {
         }
     };
 
+    public static final ValueColumn SIZE_IN_BYTES = new ValueColumn("Size (bytes)", String.class) {
+        private static final long serialVersionUID = 2274660797219318776L;
+        public Object getValue(Record record) {
+            return Integer.toString(record.getSizeInBytes());
+        }
+    };
+
     public static final ValueColumn SUBJECT = new ValueColumn("Subject", String.class) {
         private static final long serialVersionUID = 7415054603888398693L;
         public Object getValue(Record record) {
@@ -128,7 +135,7 @@ public final class MessageLedgerFormat implements AdvancedTableFormat {
     public static final MessageLedgerFormat INSTANCE = new MessageLedgerFormat();
 
     private final List allColumns = Arrays.asList(new ValueColumn[] {
-        CONNECTION, TIMESTAMP, SEQUENCE_NO, TYPE, SUBJECT, TRACKING_ID, MESSAGE
+        CONNECTION, TIMESTAMP, SEQUENCE_NO, TYPE, SUBJECT, SIZE_IN_BYTES, TRACKING_ID, MESSAGE
     });
 
     private final List columns = new ArrayList(allColumns.size());

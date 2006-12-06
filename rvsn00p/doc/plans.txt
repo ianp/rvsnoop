@@ -55,7 +55,7 @@ Subfolders in the project could include...
 
 ### Add ConnectionList and MessageLedger Selection Events
 
-Use these to enable/disable actions. This shoulod use
+Use these to enable/disable actions. This should use
 KeyboardFocusManager, and look at the way Eclipse handles focus
 management for ideas.
 
@@ -107,23 +107,6 @@ This is mentioned in feature request [#1579647][FR1579647] in SF.
 ### Add Selectable Support to the Details Panel (SLIP TO 1.7)
 
 To allow cut/paste of field values.
-
-### Add A Column for Wire Size to the Message Ledger
-
-This would mean adding a field for wire size to the record class,
-there will be an impact on read performance, but it is something
-that we will have to pay eventually anyway as the message bytes will
-need to be marshalled into a persistent store.
-
-Need to think about the API for the message store here, I'm assuming
-that records will not hold references to the file objects but will
-get them from a StoreManager or similar by SequenceNumber. Probably
-the best way to add a record to the store is via a method like this:
-
-    Record record = ...
-    MessageStore store = MessageStore.getInstance();
-    byte[] bytes = record.getAsBytes(); // new method!
-    store.add(record.getSequenceNumber(), bytes);
 
 ### Polish!	
 

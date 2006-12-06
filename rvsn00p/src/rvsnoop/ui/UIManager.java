@@ -226,6 +226,7 @@ public final class UIManager {
                 else if (e.getStateChange() == ItemEvent.DESELECTED)
                     MessageLedgerFormat.INSTANCE.hideColumn(column);
                 model.setTableFormat(MessageLedgerFormat.INSTANCE);
+                MessageLedgerRenderer.installStripedRenderers(messageLedger);
             }
         });
         popupMenu.add(item);
@@ -362,7 +363,7 @@ public final class UIManager {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         table.setDragEnabled(true);
         table.setTransferHandler(new RecordLedgerTransferHandler());
-        MessageLedgerRenderer.installStripedRenderers(table, Color.WHITE, new Color(229, 229, 255));
+        MessageLedgerRenderer.installStripedRenderers(table);
         final List columns = MessageLedgerFormat.INSTANCE.getColumns();
         final Iterator i = MessageLedgerFormat.INSTANCE.getAllColumns().iterator();
         while (i.hasNext()) {

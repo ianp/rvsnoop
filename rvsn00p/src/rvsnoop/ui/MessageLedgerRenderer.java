@@ -93,12 +93,10 @@ final class MessageLedgerRenderer implements TableCellRenderer {
      * A utility method to install renderers for all of the default column types in a typical {@link JTable}.
      *
      * @param table
-     * @param oddRowsColor
-     * @param evenRowsColor
      */
-    public static void installStripedRenderers(JTable table, Color oddRowsColor, Color evenRowsColor) {
-        final MessageLedgerRenderer dateRenderer = new MessageLedgerRenderer(oddRowsColor, evenRowsColor, new DateCellRenderer());
-        final MessageLedgerRenderer renderer = new MessageLedgerRenderer(oddRowsColor, evenRowsColor, null);
+    public static void installStripedRenderers(JTable table) {
+        final MessageLedgerRenderer dateRenderer = new MessageLedgerRenderer(new DateCellRenderer());
+        final MessageLedgerRenderer renderer = new MessageLedgerRenderer(null);
         final TableColumnModel columns = table.getColumnModel();
         for (int i = 0, imax = columns.getColumnCount(); i < imax; ++i) {
             final Class columnClass = table.getColumnClass(i);
@@ -117,15 +115,10 @@ final class MessageLedgerRenderer implements TableCellRenderer {
 
     private final RecordTypes types = RecordTypes.getInstance();
 
-    /**
-     * @param evenRowsColor
-     * @param oddRowsColor
-     */
-    public MessageLedgerRenderer(Color evenRowsColor, Color oddRowsColor, TableCellRenderer baseRenderer) {
-        super();
+    private MessageLedgerRenderer(TableCellRenderer baseRenderer) {
         this.baseRenderer = baseRenderer;
-        this.evenRowsColor = evenRowsColor;
-        this.oddRowsColor = oddRowsColor;
+        this.evenRowsColor = Color.WHITE;
+        this.oddRowsColor = new Color(229, 229, 255);
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value,
