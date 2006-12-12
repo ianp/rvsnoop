@@ -33,7 +33,7 @@
   <target name="-init" description="Configure the properties and filtersets." depends="-svnversion">
     <property name="version.major" value="1"/>
     <property name="version.minor" value="6"/>
-    <property name="version.patch" value="0"/>
+    <property name="version.patch" value="1"/>
     <property name="version.alpha"  value="false"/>
     <property name="version.beta"  value="false"/>
     <property name="version" value="${version.major}.${version.minor}.${version.patch}"/>
@@ -176,6 +176,7 @@
     <copy todir="${dir.dist.bin}">
       <fileset dir="${dir.build.bin}" includes="*"/>
     </copy>
+    <chmod dir="${dir.dist.bin}" includes="*.sh" perm="750"/>
     <echo>Packaging the documentation.</echo>
     <mkdir dir="${dir.dist.doc}"/>
     <mkdir dir="${dir.dist.doc}/images"/>

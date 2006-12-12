@@ -104,7 +104,7 @@ final class RvFieldTreeNode extends LazyTreeNode {
             case TibrvMsg.XML:
                 return FD_XML.format(new Object[] {field.name, new Integer(((TibrvXml) field.data).getBytes().length)});
             case TibrvMsg.STRING:
-                final String s = new String(((TibrvXml) field.data).getBytes());
+                final String s = (String) field.data;
                 if (s.startsWith("<?xml ")) return FD_STRING_XML.format(new Object[] {field.name, new Integer(s.length())});
                 if (s.length() > 60) return FD_STRING_LONG.format(new Object[] {field.name, new Integer(s.length()), s.substring(0, 60)});
                 return FD_STRING.format(new Object[] {field.name, s});
