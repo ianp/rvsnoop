@@ -293,10 +293,6 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
             write(records, new DataOutputStream(stream));
             return new ByteArrayInputStream(stream.toByteArray());
         }
-        if (DataFlavor.javaFileListFlavor.equals(flavor)) {
-            // FIXME: what to do here ???? How do we get a list of files to use?
-            // Maybe pop up a file chooser?
-        }
         throw new UnsupportedFlavorException(flavor);
     }
 
@@ -304,14 +300,14 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      * @see java.awt.datatransfer.Transferable#getTransferDataFlavors()
      */
     public DataFlavor[] getTransferDataFlavors() {
-        return new DataFlavor[] { BYTES_FLAVOUR /*, DataFlavor.javaFileListFlavor */ };
+        return new DataFlavor[] { BYTES_FLAVOUR };
     }
 
     /* (non-Javadoc)
      * @see java.awt.datatransfer.Transferable#isDataFlavorSupported(java.awt.datatransfer.DataFlavor)
      */
     public boolean isDataFlavorSupported(DataFlavor flavor) {
-        return BYTES_FLAVOUR.equals(flavor) /* || flavor.isFlavorJavaFileListType() */;
+        return BYTES_FLAVOUR.equals(flavor);
     }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {

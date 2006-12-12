@@ -167,7 +167,7 @@ public final class RvDetailsPanel extends JPanel {
         replySubject.setText(record.getReplySubject());
         final String ss = record.getSendSubject();
         sendSubject.setText(ss);
-        stringEncoding.setText(""); // FIXME: Replace this with something useful.
+        stringEncoding.setText(""); // TODO: Replace this with something useful.
         if (setCertifiedFields(message)) {
             setIconAndTooltip(Banners.MESSAGE_CM, "Certified messaging co-ordination message");
         } else if (ss.startsWith("_RVFT.")) {

@@ -706,10 +706,12 @@ public final class RvConnection implements TibrvMsgCallback {
             element.addAttribute(new Attribute(PROP_NETWORK, network));
         if (!DEFAULT_DAEMON.equals(daemon))
             element.addAttribute(new Attribute(PROP_DAEMON, daemon));
-        for (final Iterator i = subjects.keySet().iterator(); i.hasNext(); ) {
-            final Element subject = new Element(XML_SUBJECT, XML_NS);
-            subject.appendChild((String) i.next());
-            element.appendChild(subject);
+        final Object[] subjects = this.subjects.keySet().toArray();
+        for (int i = 0, imax = subjects.length; i < imax; ++i) {
+            final String subject = (String) subjects[i];
+            final Element elt = new Element(XML_SUBJECT, XML_NS);
+            elt.appendChild(subject);
+            element.appendChild(elt);
         }
         return element;
     }

@@ -17,8 +17,6 @@ import javax.swing.table.TableColumn;
 
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
 
-import com.tibco.tibrv.TibrvMsg;
-
 /**
  * A format that describes the contents of the message ledger.
  *
@@ -29,17 +27,6 @@ import com.tibco.tibrv.TibrvMsg;
 // Class provides a static instance instead of a factory method.
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/17/06 6:30 PM
 public final class MessageLedgerFormat implements AdvancedTableFormat {
-
-    private static final class MessageComparator implements Comparator {
-        MessageComparator() {
-            super();
-        }
-        public int compare(Object o1, Object o2) {
-            final String s1 = Marshaller.marshal("", (TibrvMsg) o1);
-            final String s2 = Marshaller.marshal("", (TibrvMsg) o2);
-            return s1.compareTo(s2);
-        }
-    }
 
     private static final class ComparableComparator implements Comparator {
         ComparableComparator() {
@@ -82,7 +69,7 @@ public final class MessageLedgerFormat implements AdvancedTableFormat {
         }
     };
 
-    public static final ValueColumn MESSAGE = new ValueColumn("Message", Object.class, new MessageComparator()) {
+    public static final ValueColumn MESSAGE = new ValueColumn("Message", Object.class, null) {
         private static final long serialVersionUID = 3526646591996520301L;
         public Object getValue(Record record) {
             return record.getMessage();

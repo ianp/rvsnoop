@@ -103,16 +103,16 @@ public final class StartRvSnooper {
     }
 
     private static void setLookAndFeel(String className) {
+        if (className == null) {
+            className = SystemUtils.IS_OS_WINDOWS
+                      ? "com.jgoodies.looks.windows.WindowsLookAndFeel"
+                      : "com.jgoodies.looks.plastic.PlasticXPLookAndFeel";
+        }
         try {
-            if (className != null)
-                javax.swing.UIManager.setLookAndFeel(className);
-            else if (System.getProperty("os.name").toLowerCase().startsWith("win"))
-                javax.swing.UIManager.setLookAndFeel("com.jgoodies.looks.windows.WindowsLookAndFeel");
-            else
-                javax.swing.UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
+            javax.swing.UIManager.setLookAndFeel(className);
         } catch(Exception e) {
             if (Logger.isWarnEnabled())
-                logger.warn("Could not set look and feel: " + className, e);
+                logger.warn("Could not set look and feel to " + className);
         }
     }
 

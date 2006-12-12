@@ -102,12 +102,11 @@ final class RvFieldTreeNode extends LazyTreeNode {
             case TibrvMsg.U32: return FD_U32.format(new Object[] {field.name, field.data});
             case TibrvMsg.U64: return FD_U64.format(new Object[] {field.name, field.data});
             case TibrvMsg.XML:
-                if (!showXmlAsText)
-                    return FD_XML.format(new Object[] {field.name, new Integer(((TibrvXml) field.data).getBytes().length)});
+                return FD_XML.format(new Object[] {field.name, new Integer(((TibrvXml) field.data).getBytes().length)});
             case TibrvMsg.STRING:
-                final String s = showXmlAsText ? new String(((TibrvXml) field.data).getBytes()) : (String) field.data;
-                if (!showXmlAsText && s.startsWith("<?xml ")) return FD_STRING_XML.format(new Object[] {field.name, new Integer(s.length())});
-                if (!showLongStrings && s.length() > 60) return FD_STRING_LONG.format(new Object[] {field.name, new Integer(s.length()), s.substring(0, 60)});
+                final String s = new String(((TibrvXml) field.data).getBytes());
+                if (s.startsWith("<?xml ")) return FD_STRING_XML.format(new Object[] {field.name, new Integer(s.length())});
+                if (s.length() > 60) return FD_STRING_LONG.format(new Object[] {field.name, new Integer(s.length()), s.substring(0, 60)});
                 return FD_STRING.format(new Object[] {field.name, s});
             default: return FD_USER.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
         }
@@ -146,11 +145,6 @@ final class RvFieldTreeNode extends LazyTreeNode {
     private static final MessageFormat FD_STRING_XML = new MessageFormat("{0} ({1} characters of string encoded XML data)");
     private static final MessageFormat FD_USER = new MessageFormat("{0} ({1} bytes of custom user data)");
 
-    // FIXME: These should be removed before 1.6 is released!!!
-    private static boolean showLongStrings = Boolean.getBoolean("hack.showLongStrings");
-    private static boolean showXmlAsText = Boolean.getBoolean("hack.showXmlAsText");
-    // End of hack.
-
     private final boolean allowsChildren;
 
     private final Icon icon;
@@ -175,7 +169,7 @@ final class RvFieldTreeNode extends LazyTreeNode {
         if (field.type == TibrvMsg.MSG) {
             allowsChildren = true;
         } else if (field.type == TibrvMsg.XML) {
-            allowsChildren = !showXmlAsText;
+            allowsChildren = true;
         } else {
             allowsChildren = field.type == TibrvMsg.STRING && ((String) field.data).startsWith("<?xml ");
         }
@@ -191,10 +185,10 @@ final class RvFieldTreeNode extends LazyTreeNode {
 
     protected List createChildren() {
         List children = null;
-        if (!showXmlAsText && field.type == TibrvMsg.XML) {
+        if (field.type == TibrvMsg.XML) {
             final InputStream stream = new ByteArrayInputStream(((TibrvXml) field.data).getBytes());
             children = createChildrenFromXML(new InputStreamReader(stream));
-        } else if (!showXmlAsText && field.type == TibrvMsg.STRING && ((String) field.data).startsWith("<?xml ")) {
+        } else if (field.type == TibrvMsg.STRING && ((String) field.data).startsWith("<?xml ")) {
             children = createChildrenFromXML(new StringReader((String) field.data));
         } else if (field.type == TibrvMsg.MSG) {
             final TibrvMsg msg = (TibrvMsg) field.data;

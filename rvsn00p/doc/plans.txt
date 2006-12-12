@@ -11,12 +11,6 @@ versions of RvSnoop. Any alterations should be formatted using
 The target release date for 1.6 is late November, 2006. This means
 that it should be into beta by the beginnning of that month.
 
-### Better log messages
-
-When starting up, if classes cannot be found use more descriptive
-log messages instead of just dumping a stack trace. Look at
-StartRvSnooper and Marshaller for this.
-
 ### Make Projects be Directory Based (SLIP TO 1.7)
 
 With an rvsnoop-project.xml file, use the folder name for the
@@ -74,24 +68,14 @@ Use CRC32 or similar, hash on opening and save hash. If the hash is
 different when we go to write the file pop a dialog asking for
 confirmation.
 
-### Add String Flavour Support to RecordSelectable
+### Add String Flavour Support to RecordSelection (SLIP TO 1.7)
 
-Use the marshaller to serialize records to strings. While we are at
-it, allow unmarshalling directly from byte[] as well as
-Transferrable; and enhance RecordSelection to support single
-messages directly as well as in arrays of 1 message (i.e. without
-the BIND_RECORD_SET_MAGIC header).
+Use the marshaller to serialize records to strings.
 
 Some thought needs to be given as to how we will handle the default
 copy behaviour, my current thinking is that the default should be to
 copy byte streams (like it does now), but maybe add a menu option to
 "copy as ..." for the different marshaller types.
-
-Yes. Add Copy, Copy As..., Export... as options. Look at using the
-RecordSelection code to handle exporting & importing. Look at
-migrating the Marshaller code to be based on RecordSelection
-instead, this would allow more flexible handling of copy/paste and
-export/import.
 
 A though occurs here that I should include a default XML
 serialization format for messages, the ideal would be to agree a
@@ -108,20 +92,6 @@ This is mentioned in feature request [#1579647][FR1579647] in SF.
 
 To allow cut/paste of field values.
 
-### Polish!	
-
-This means ensuring that there are no unrequired PMD warnings on the
-source.
-
-* This means fixing ALL of the FIXME level comments in the code.
-
-* This means ensuring that the docs and release notes are up to
-  date.
-
-* This means considering adding Lint4J to the build and fixing
-  anything that it suggests, although it may be better to add this
-  as part of 1.7 instead.
-
 ### Bug Fix!
 
 There is a bug in the FontChooser that causes the size to reset
@@ -132,7 +102,7 @@ There should be no open bugs in the bug tracker on SF.
 ## Release 1.7
 
 There isn't really a target release date for 1.7 yet, but assume
-sometime in Q1 2007.
+sometime in the first half of 2007.
 
 ### Move Preferences to a Dedicated Dialog
 
@@ -166,7 +136,7 @@ selection should try to produce a filter matching all selected
 records.
 
 The first time filter is applied it should work like filter by
-selection, aftwerwards it should edit the current filter.
+selection, afterwards it should edit the current filter.
 
 ### Prepare All Strings for I18N
 
@@ -186,6 +156,20 @@ or other resources (i.e. documentation).
 Cleanly separate out the message ledger (which deals with storing
 records and should be renamed to RecordLedger) and the filtered view
 (which should be named FilteredLedgerView).
+
+### Refactor the RecentConnections and Connections classes.
+
+There should be a single class, it should have 2 constructors, one
+should take a maxSize parameter, this controls the number of entries
+that are allowed. When called with this constructor the connection
+list is *passive*, that it, it works like RecentConnections (does
+not try to start and/or stop the connections).
+
+The other constructor takes no arguments and works like the current
+Connections class.
+
+Basically, the import & export functionality needs to be common to
+the 2 classes.
 
 ## Release 2.0
 
@@ -245,7 +229,7 @@ Bundles:
 
 Not too sure how useful this will be in practice, it may make more
 sense to clean up the browserlauncher code and stick with that. An
-alternative would be go move to a JavaHelp based system.
+alternative would be to move to a JavaHelp based system.
 
 ### Add in Support for Persistent Message Stores.
 

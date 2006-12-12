@@ -96,7 +96,7 @@ public final class RecentConnections implements ListEventListener {
     private static final int DEFAULT_MAX_SIZE = 10;
 
     private static final String XML_ELEMENT = "connections";
-    private static final String XML_NS = "http://rvsnoop.org/ns/recentConnections/1";
+    private static final String XML_NS = "http://rvsnoop.org/ns/connections/1";
 
     public static RecentConnections instance;
 
