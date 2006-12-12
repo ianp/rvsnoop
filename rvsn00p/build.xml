@@ -34,7 +34,7 @@
     <property name="version.major" value="1"/>
     <property name="version.minor" value="6"/>
     <property name="version.patch" value="0"/>
-    <property name="version.alpha"  value="true"/>
+    <property name="version.alpha"  value="false"/>
     <property name="version.beta"  value="false"/>
     <property name="version" value="${version.major}.${version.minor}.${version.patch}"/>
     <property name="dir.orig.bin"  value="bin"/>
