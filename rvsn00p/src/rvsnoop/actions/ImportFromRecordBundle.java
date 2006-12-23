@@ -32,7 +32,7 @@ import rvsnoop.RvConnection;
  * @version $Revision$, $Date$
  * @since 1.6
  */
-final class ImportFromRecordBundle extends ImportFromFile {
+public final class ImportFromRecordBundle extends ImportFromFile {
 
     private static final String ID = "importFromRecordBundle";
 
@@ -53,7 +53,7 @@ final class ImportFromRecordBundle extends ImportFromFile {
     /* (non-Javadoc)
      * @see rvsnoop.actions.ImportFromFile#importFromFile(java.io.InputStream)
      */
-    protected void importFromFile(InputStream stream) throws IOException {
+    protected void importRecords(InputStream stream) throws IOException {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         final byte[] bytes = new byte[1024];
         zip = new ZipInputStream(stream);

@@ -27,7 +27,7 @@ import rvsnoop.ui.UIManager;
  * @version $Revision$, $Date$
  * @since 1.6
  */
-abstract class ExportToFile extends LedgerSelectionAction {
+public abstract class ExportToFile extends LedgerSelectionAction {
 
     private static final int BUFFER_SIZE = 64 * 1024;
 
@@ -51,6 +51,16 @@ abstract class ExportToFile extends LedgerSelectionAction {
         if (JFileChooser.APPROVE_OPTION != chooser.showSaveDialog(UIManager.INSTANCE.getFrame()))
             return;
         final File file = chooser.getSelectedFile();
+        exportRecords(records, file);
+    }
+
+    /**
+     * Export a group of records to a file.
+     *
+     * @param records The records to export.
+     * @param file The file to export to.
+     */
+    public void exportRecords(Record[] records, final File file) {
         try {
             stream = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);
             logger.info("Exporting " + records.length + " records to " + file.getPath() + '.');

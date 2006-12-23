@@ -29,7 +29,7 @@ import rvsnoop.ui.UIManager;
  * @version $Revision$, $Date$
  * @since 1.6
  */
-abstract class ImportFromFile extends AbstractAction {
+public abstract class ImportFromFile extends AbstractAction {
 
     private static final int BUFFER_SIZE = 64 * 1024;
 
@@ -52,11 +52,20 @@ abstract class ImportFromFile extends AbstractAction {
         if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(UIManager.INSTANCE.getFrame()))
             return;
         final File file = chooser.getSelectedFile();
+        importRecords(file);
+    }
+
+    /**
+     * Import the records contained in the file.
+     *
+     * @param file The file containing the records.
+     */
+    public void importRecords(final File file) {
         InputStream stream = null;
         try {
             stream = new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
             logger.info("Importing records from " + file.getPath() + '.');
-            importFromFile(stream);
+            importRecords(stream);
             logger.info("Imported records from " + file.getPath() + '.');
         } catch (IOException e) {
             logger.error("There was a problem importing the file" + file.getPath() + '.', e);
@@ -70,6 +79,6 @@ abstract class ImportFromFile extends AbstractAction {
      *
      * @param stream The stream containing the file contents.
      */
-    protected abstract void importFromFile(InputStream stream) throws IOException;
+    protected abstract void importRecords(InputStream stream) throws IOException;
 
 }

@@ -32,16 +32,17 @@ import rvsnoop.Version;
  * @version $Revision$, $Date$
  * @since 1.6
  */
-final class ExportToRecordBundle extends ExportToFile {
+public final class ExportToRecordBundle extends ExportToFile {
 
     static class FileFilter extends javax.swing.filechooser.FileFilter {
         FileFilter() {
             super();
         }
         public boolean accept(File f) {
-            return f.isDirectory() || f.getName().toLowerCase(Locale.ENGLISH).endsWith(".srb");
+            if (f.isDirectory()) return true;
+            final String lower = f.getName().toLowerCase(Locale.ENGLISH);
+            return lower.endsWith(".srb") || lower.endsWith(".rbz");
         }
-
         public String getDescription() {
             return "Record Bundles";
         }
