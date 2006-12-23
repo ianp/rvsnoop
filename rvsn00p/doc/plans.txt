@@ -6,12 +6,43 @@ This file contains an overview of the planned features in future
 versions of RvSnoop. Any alterations should be formatted using
 [Markdown][MD] syntax.
 
-## Release 1.6
+## Web Site
 
-The target release date for 1.6 is late November, 2006. This means
-that it should be into beta by the beginnning of that month.
+Project display name: RvSnoop
+Development status: remove 4, mark as 5 (stable)
+Translations: remove swedish (for now)
+License: ASL 2.0 (be specific about version)
 
-### Make Projects be Directory Based (SLIP TO 1.7)
+Update description to match version.xml text.
+
+## Release 1.7
+
+There isn't really a target release date for 1.7 yet, but assume
+sometime in the first half of 2007. Probably March (i.e. 2007Q1).
+
+### Write better documentation
+
+Write a user guide and a developer guide, these can both be 'works
+in progress' and should be written as the code is re-factored into
+cleaner packages.
+
+Re-structure the file layout to be
+
+    doc/ -- in DocBook 5
+       api/ -- generated
+       user/ -- in DocBook 5
+       developer/ -- in DocBook 5
+       licenses/ -- the various licenses used, in XHTML 1.0 Strict
+       www/ -- the web site, in HTML4.01
+       index.html -- in XHTML 1.0 Strict
+
+the shipped guides should be XHTML 1.0 strict, generated from the
+DocBook.
+
+Start with articles on the record ledger (mainly in the developer
+guide) and the import/export formats.
+
+### Make Projects be Directory Based
 
 With an rvsnoop-project.xml file, use the folder name for the
 project name, add an rvsnoop-project.xml file for project metadata;
@@ -34,7 +65,7 @@ This should create a new directory with the same name (sans the .rsp
 extension), then migrate the contents of the rsp file to the various
 project files.
 
-Subfolders in the project could include...	
+Subfolders in the project could include...
 
 * messages
 
@@ -56,19 +87,19 @@ management for ideas.
 Wait until RvSnoop has moved to OSGi and then use a whiteboard for
 tracking this. Maybe?
 
-### Sniff Opaques for Serialized Java Data (SLIP TO 1.7)
+### Sniff Opaques for Serialized Java Data
 
 This should show some information about the serialized object and
 allow methods to be invoked where they take no arguments, or only
 primitive values. Probably just include viewing in this version.
 
-### Check for Changes to the Config Files Before Saving (SLIP TO 1.7)
+### Check for Changes to the Config Files Before Saving
 
 Use CRC32 or similar, hash on opening and save hash. If the hash is
 different when we go to write the file pop a dialog asking for
 confirmation.
 
-### Add String Flavour Support to RecordSelection (SLIP TO 1.7)
+### Add String Flavour Support to RecordSelection
 
 Use the marshaller to serialize records to strings.
 
@@ -88,7 +119,7 @@ This is mentioned in feature request [#1579647][FR1579647] in SF.
 
 [FR1579647]: https://sf.net/tracker/?func=detail&atid=504011&aid=1579647&group_id=63447
 
-### Add Selectable Support to the Details Panel (SLIP TO 1.7)
+### Add Selectable Support to the Details Panel
 
 To allow cut/paste of field values.
 
@@ -96,13 +127,6 @@ To allow cut/paste of field values.
 
 There is a bug in the FontChooser that causes the size to reset
 whenever the family or style is changed.
-
-There should be no open bugs in the bug tracker on SF.
-
-## Release 1.7
-
-There isn't really a target release date for 1.7 yet, but assume
-sometime in the first half of 2007.
 
 ### Move Preferences to a Dedicated Dialog
 
@@ -125,7 +149,7 @@ Include an option to show date & time vs. only time in the ledger.
 
 * Create a panel to allow configuration of date & time views.
 
-### Add an Export Dialog
+### Add an Export Dialog (or Wizard)
 
 Have the different export formats available via a combo box.
 
@@ -157,6 +181,11 @@ Cleanly separate out the message ledger (which deals with storing
 records and should be renamed to RecordLedger) and the filtered view
 (which should be named FilteredLedgerView).
 
+Change the package to org.rvsnoop, make non-static (add instances to
+StartRvSnooper and UIManager), add test cases and documentation.
+
+7. Re-factor existing code to use new classes.
+
 ### Refactor the RecentConnections and Connections classes.
 
 There should be a single class, it should have 2 constructors, one
@@ -167,6 +196,9 @@ not try to start and/or stop the connections).
 
 The other constructor takes no arguments and works like the current
 Connections class.
+
+Or have a Connections class with an ActiveConnections filter around
+it.
 
 Basically, the import & export functionality needs to be common to
 the 2 classes.

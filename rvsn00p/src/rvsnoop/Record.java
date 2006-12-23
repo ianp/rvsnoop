@@ -51,13 +51,13 @@ public final class Record {
 
     /**
      * Constructor that allows setting a custom timestamp and subjects.
-     * 
+     *
      * @param connection The connection the message was received on.
      * @param message The message.
      * @param send The send subject of the message.
      * @param reply The reply subject of the message.
      * @param timestamp The time the message was received.
-     * @throws TibrvException 
+     * @throws TibrvException
      */
     public Record(RvConnection connection, TibrvMsg message, String send, String reply, long timestamp) {
         super();
@@ -87,7 +87,7 @@ public final class Record {
 
     /**
      * Constructor that allows setting a custom timestamp.
-     * 
+     *
      * @param connection The connection the message was received on.
      * @param message The message.
      * @param timestamp The time the message was received.
@@ -98,7 +98,7 @@ public final class Record {
 
     /**
      * Constructor.
-     * 
+     *
      * @param connection The connection the message was received on.
      * @param message The message.
      */
