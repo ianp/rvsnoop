@@ -159,7 +159,7 @@
     <mkdir dir="${dir.build.doc}"/>
     <javadoc destdir="${dir.build.doc}/api" version="true" author="true" use="true"
              access="${javadoc.access}" windowtitle="RvSnoop ${version} API Documentation">
-      <doctitle><![CDATA[<h1>rvSnoop ${version}</h1>]]></doctitle>
+      <doctitle><![CDATA[<h1>RvSnoop ${version}</h1>]]></doctitle>
       <bottom><![CDATA[Copyright &copy; 2002-2006 <a href="http://www.apache.org">Apache Software Foundation</a>. Copyright &copy; 2005-2006 <a href="http://ianp.org">Ian Phillips</a>.]]></bottom>
       <packageset dir="${dir.build.src}" defaultexcludes="true" includes="**"/>
       <link href="http://java.sun.com/j2se/1.4.2/docs/api" offline="${javadoc.offline}"/>
@@ -195,10 +195,10 @@
       manifestencoding="UTF-8" index="true" basedir="${dir.build.lib}"
       includes="**/*.class, **/*.png, **/*.gif, **/*.properties">
       <manifest>
-        <attribute name="Implementation-Title" value="rvSnoop"/>
+        <attribute name="Implementation-Title" value="RvSnoop"/>
         <attribute name="Implementation-Version" value="${version}"/>
         <attribute name="Implementation-Vendor" value="Örjan Lundberg &amp; Ian Phillips"/>
-        <attribute name="Implementation-URL" value="http://rvsn00p.sf.net"/>
+        <attribute name="Implementation-URL" value="http://rvsnoop.org/"/>
         <attribute name="Main-Class" value="rvsnoop.StartRvSnooper"/>
       </manifest>
     </jar>
@@ -215,7 +215,7 @@
     </copy>
     <echo>Packaging the binary distributable.</echo>
     <tar destfile="rvsnoop-${version}-bin.tar">
-      <tarfileset dir="${dir.dist}/.." mode="440" dirmode="750">
+      <tarfileset dir="${dir.dist}/.." mode="440" dirmode="550">
         <include name="**/*.*"/>
         <include name="rvsnoop-${version}/${file.version}"/>
         <exclude name="rvsnoop-${version}/bin/*.cmd"/>
@@ -223,10 +223,10 @@
         <exclude name="rvsnoop-${version}/src"/>
         <exclude name="rvsnoop-${version}/doc/rvsnoop-api.jar"/>
       </tarfileset>
-      <tarfileset dir="${dir.dist}/.." mode="640">
+      <tarfileset dir="${dir.dist}/.." mode="640" dirmode="550">
         <include name="rvsnoop-${version}/bin/*.cmd"/>
       </tarfileset>
-      <tarfileset dir="${dir.dist}/.." mode="750">
+      <tarfileset dir="${dir.dist}/.." mode="750" dirmode="550">
         <include name="rvsnoop-${version}/bin/*.sh"/>
       </tarfileset>
     </tar>
@@ -246,16 +246,16 @@
          includes="**/*.java" compress="true"/>
     <echo>Packaging the source distributable.</echo>
     <tar destfile="rvsnoop-${version}-src.tar">
-      <tarfileset dir="${dir.dist}/.." mode="440" dirmode="750">
+      <tarfileset dir="${dir.dist}/.." mode="440" dirmode="550">
         <include name="**/*.*"/>
         <include name="rvsnoop-${version}/${file.version}"/>
         <exclude name="rvsnoop-${version}/bin/*.cmd"/>
         <exclude name="rvsnoop-${version}/bin/*.sh"/>
       </tarfileset>
-      <tarfileset dir="${dir.dist}/.." mode="640">
+      <tarfileset dir="${dir.dist}/.." mode="640" dirmode="550">
         <include name="rvsnoop-${version}/bin/*.cmd"/>
       </tarfileset>
-      <tarfileset dir="${dir.dist}/.." mode="750">
+      <tarfileset dir="${dir.dist}/.." mode="750" dirmode="550">
         <include name="rvsnoop-${version}/bin/*.sh"/>
       </tarfileset>
     </tar>
