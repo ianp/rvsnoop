@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:l="http://www.w3.org/1999/xlink"
+         version="5.0" xml:lang="en">
+  <title>The Record Ledger</title>
+  <para>
+    The central component of RvSnoop is the record ledger. The ledger deals with
+    storing records and with sorting and filtering them. RvSnoop supports
+    various types of ledger, providing different storage mechanisms for records,
+    the default ledger type (and the only ledger supported by early versions of
+    RvSnoop) is an in-memory store. Alternative stores are file- and
+    database-based. For database based ledgers any <acronym
+    l:href="http://java.sun.com/products/jdbc/">JDBC</acronym> compliant
+    database is supported, although an embedded <link
+    l:href="http://www.h2database.com/">H2</link> based store is supplied.
+  </para>
+  <para>
+    The basic interface of the ledger is supplied as an abstract base class, the
+    different storage mechanisms are supported as concrete subclasses of this.
+    The diagram below illustrates the relationship between these classes.
+  </para>
+  <figure>
+    <title>Record Ledger Classes</title>
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="recordledgerclasses.svg" align="center"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+  <para>
+    Basically, the ledger is a wrapper around an <classname>EventList</classname>
+    instance. The wrapped list takes care of all of the persistence details
+    while the ledger class handles all of the locking and synchronisation. The
+    different ledger types also allow properties to be set controlling their
+    behaviour (for example, whether the file based ledger uses synchronous
+    writes or not).
+  </para>
+  <para>
+    An additional class is the <classname>FilteredLedgerView</classname> which
+    allows a view to show a subset of the records in the ledger; this is the
+    class which provides the standard view of the ledger in the main window.
+  </para>
+</chapter>
