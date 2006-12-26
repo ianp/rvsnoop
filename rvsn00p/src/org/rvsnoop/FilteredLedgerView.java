@@ -21,6 +21,7 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.7
  */
 public final class FilteredLedgerView extends RecordLedger {
 

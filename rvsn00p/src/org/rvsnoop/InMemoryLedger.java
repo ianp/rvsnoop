@@ -14,6 +14,7 @@ import ca.odell.glazedlists.BasicEventList;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.7
  */
 public final class InMemoryLedger extends RecordLedger {
 

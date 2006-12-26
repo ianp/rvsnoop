@@ -1,7 +1,10 @@
-//:File:    RecordLedgerTest.java
-//:Legal:   Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     RecordLedgerTest
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package org.rvsnoop;
 
 import java.io.BufferedInputStream;
@@ -126,6 +129,14 @@ public abstract class RecordLedgerTest extends TestCase {
         // Now test that the search wraps around correctly:
         found = ledger.find(matcher, 6);
         assertSame(records[4], found);
+    }
+
+    public void testFindAllIndices() {
+        ledger.addAll(Arrays.asList(records));
+        Matcher matcher = new TestMatcher(4);
+        int[] indices = ledger.findAllIndices(matcher);
+        assertEquals(1, indices.length);
+        assertEquals(4, indices[0]);
     }
 
     public void testFindIndex() {

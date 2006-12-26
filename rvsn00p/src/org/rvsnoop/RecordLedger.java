@@ -7,6 +7,7 @@
  */
 package org.rvsnoop;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import rvsnoop.Record;
@@ -133,7 +134,10 @@ public abstract class RecordLedger {
      * @return A new table model.
      */
     public final EventTableModel createTableModel() {
-        return new EventTableModel(list, new RecordLedgerFormat());
+        final RecordLedgerFormat format = new RecordLedgerFormat();
+        final EventTableModel model = new EventTableModel(list, format);
+        format.setModel(model);
+        return model;
     }
 
     /**
@@ -162,6 +166,32 @@ public abstract class RecordLedger {
             lock.unlock();
         }
         return null;
+    }
+
+    /**
+     * Find the positions of all records matching a given criterion.
+     * <p>
+     * This method acquires a read lock on the underlying list.
+     *
+     * @param criteria How to match records.
+     * @return The indices of the matching records.
+     */
+    public final int[] findAllIndices(Matcher criteria) {
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
+        final int[] temp = new int[list.size()];
+        try {
+            int pos = 0;
+            for (int i = 0, imax = list.size(); i < imax; ++i) {
+                final Record record = (Record) list.get(i);
+                if (criteria.matches(record)) { temp[pos++] = i; }
+            }
+            final int[] indices = new int[pos];
+            System.arraycopy(temp, 0, indices, 0, pos);
+            return indices;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -301,4 +331,16 @@ public abstract class RecordLedger {
         }
     }
 
+    /**
+     * Synchronize the ledger with it's backing store.
+     * <p>
+     * If the ledger implementation is persistent this method should ensure that
+     * it's backing store is in a consistent state (e.g. data flushed to disk).
+     *
+     * @throws IOException If there was a problem writing to the persistent
+     *     storage.
+     */
+    public void syncronize() throws IOException {
+        // This is just a hook for persistend sub-classes to use.
+    }
 }

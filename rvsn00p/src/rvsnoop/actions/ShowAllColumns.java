@@ -1,12 +1,11 @@
-//:File:    ShowAllColumns.java
-//:Created: Jan 18, 2006
-//:Legal:   Copyright © 2006-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2006-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     ShowAllColumns
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop.actions;
-
-import ca.odell.glazedlists.swing.EventTableModel;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -17,7 +16,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import rvsnoop.MessageLedgerFormat;
+import org.rvsnoop.RecordLedgerFormat;
+
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIManager;
 
@@ -53,9 +53,7 @@ final class ShowAllColumns extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        MessageLedgerFormat.INSTANCE.showAllColumns();
-        final EventTableModel model = (EventTableModel) UIManager.INSTANCE.getMessageLedger().getModel();
-        model.setTableFormat(MessageLedgerFormat.INSTANCE);
+        UIManager.INSTANCE.getMessageLedger().getTableFormat().setColumns(RecordLedgerFormat.ALL_COLUMNS);
     }
 
 }

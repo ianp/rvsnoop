@@ -48,14 +48,16 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
     public static abstract class ColumnFormat {
         private final Class clazz;
         private final Comparator comparator;
+        private final String identifier;
         private final String name;
-        ColumnFormat(String name, Class clazz) {
-            this(name, clazz, Collator.getInstance());
+        ColumnFormat(String id, String name, Class clazz) {
+            this(id, name, clazz, Collator.getInstance());
         }
-        ColumnFormat(String name, Class clazz, Comparator comparator) {
-            this.name = name;
+        ColumnFormat(String id, String name, Class clazz, Comparator comparator) {
             this.clazz = clazz;
             this.comparator = comparator;
+            this.identifier = id;
+            this.name = name;
         }
         public Class getClazz() {
             return clazz;
@@ -63,13 +65,16 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         public Comparator getComparator() {
             return comparator;
         }
+        public final String getIdentifier() {
+            return identifier;
+        }
         public final String getName() {
             return name;
         }
         public abstract Object getValue(Record record);
     }
 
-    public static ColumnFormat CONNECTION = new ColumnFormat("Connection", String.class, new ComparableComparator()) {
+    public static ColumnFormat CONNECTION = new ColumnFormat("connection", "Connection", String.class, new ComparableComparator()) {
         private static final long serialVersionUID = -4938884664732119140L;
         public Object getValue(Record record) {
             final RvConnection connection = record.getConnection();
@@ -77,49 +82,49 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         }
     };
 
-    public static final ColumnFormat MESSAGE = new ColumnFormat("Message", Object.class) {
+    public static final ColumnFormat MESSAGE = new ColumnFormat("message", "Message", Object.class) {
         private static final long serialVersionUID = 3526646591996520301L;
         public Object getValue(Record record) {
             return record.getMessage();
         }
     };
 
-    public static final ColumnFormat SEQUENCE_NO = new ColumnFormat("Seq. No.", Long.class, new ComparableComparator()) {
+    public static final ColumnFormat SEQUENCE_NO = new ColumnFormat("sequence", "Seq. No.", Long.class, new ComparableComparator()) {
         private static final long serialVersionUID = -5762735421370128862L;
         public Object getValue(Record record) {
             return Long.toString(record.getSequenceNumber());
         }
     };
 
-    public static final ColumnFormat SIZE_IN_BYTES = new ColumnFormat("Size (bytes)", Integer.class, new ComparableComparator()) {
+    public static final ColumnFormat SIZE_IN_BYTES = new ColumnFormat("size", "Size (bytes)", Integer.class, new ComparableComparator()) {
         private static final long serialVersionUID = 2274660797219318776L;
         public Object getValue(Record record) {
             return new Integer(record.getSizeInBytes());
         }
     };
 
-    public static final ColumnFormat SUBJECT = new ColumnFormat("Subject", String.class, new ComparableComparator()) {
+    public static final ColumnFormat SUBJECT = new ColumnFormat("subject", "Subject", String.class, new ComparableComparator()) {
         private static final long serialVersionUID = 7415054603888398693L;
         public Object getValue(Record record) {
             return record.getSendSubject();
         }
     };
 
-    public static final ColumnFormat TIMESTAMP = new ColumnFormat("Timestamp", Date.class, new ComparableComparator()) {
+    public static final ColumnFormat TIMESTAMP = new ColumnFormat("timestamp", "Timestamp", Date.class, new ComparableComparator()) {
         private static final long serialVersionUID = -3858078006527711756L;
         public Object getValue(Record record) {
             return new Date(record.getTimestamp());
         }
     };
 
-    public static final ColumnFormat TRACKING_ID = new ColumnFormat("Tracking ID", String.class, new ComparableComparator()) {
+    public static final ColumnFormat TRACKING_ID = new ColumnFormat("tracking", "Tracking ID", String.class, new ComparableComparator()) {
         private static final long serialVersionUID = -3033175036104293820L;
         public Object getValue(Record record) {
             return record.getTrackingId();
         }
     };
 
-    public static final ColumnFormat TYPE = new ColumnFormat("Type", String.class, new ComparableComparator()) {
+    public static final ColumnFormat TYPE = new ColumnFormat("type", "Type", String.class, new ComparableComparator()) {
         private static final long serialVersionUID = 6353909616946303068L;
         final RecordTypes types = RecordTypes.getInstance();
         public Object getValue(Record record) {
@@ -127,11 +132,26 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         }
     };
 
-    public static final List ALL_COLUMNS = Arrays.asList(new ColumnFormat[] {
-        CONNECTION, TIMESTAMP, SEQUENCE_NO, TYPE,
-        SUBJECT, SIZE_IN_BYTES, TRACKING_ID, MESSAGE
-    });
+    public static final List ALL_COLUMNS = Collections.unmodifiableList(
+        Arrays.asList(new ColumnFormat[] {
+            CONNECTION, TIMESTAMP, SEQUENCE_NO, TYPE,
+            SUBJECT, SIZE_IN_BYTES, TRACKING_ID, MESSAGE
+    }));
 
+    /**
+     * Gets a column format by it's ID.
+     *
+     * @param id The ID of the column.
+     * @return The column, or <code>null</code> if none match the supplied ID.
+     */
+    public static ColumnFormat getColumn(String id) {
+        for (int i = 0, imax = ALL_COLUMNS.size(); i < imax; ++i) {
+            final ColumnFormat column = (ColumnFormat) ALL_COLUMNS.get(i);
+            if (column.getIdentifier().equals(id)) { return column; }
+        }
+        return null;
+    }
+    
     private final List columns = new ArrayList(ALL_COLUMNS);
 
     private EventTableModel model;
@@ -150,8 +170,10 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      *
      * @param column The column to add.
      */
-    public void addColumn(ColumnFormat column) {
-        if (!columns.contains(column)) columns.add(column);
+    public void add(ColumnFormat column) {
+        if (!columns.contains(column) && columns.add(column) && model != null) {
+            model.setTableFormat(this);
+        }
     }
 
     /* (non-Javadoc)
@@ -217,6 +239,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
     public void setColumns(List columns) {
         columns.clear();
         columns.addAll(columns);
+        if (model != null) { model.setTableFormat(this); }
     }
 
     /**
@@ -227,7 +250,8 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      *
      * @param model
      */
-    void setModel(EventTableModel model) {
+    public void setModel(EventTableModel model) {
+        // TODO: reduce visibility.
         this.model = model;
     }
 

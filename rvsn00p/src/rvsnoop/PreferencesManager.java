@@ -1,8 +1,10 @@
-//:File:    PreferencesManager.java
-//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2005-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     PreferencesManager
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop;
 
 import java.awt.Font;
@@ -11,10 +13,15 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.table.TableColumn;
+
+import org.rvsnoop.RecordLedgerFormat;
+import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
+import org.rvsnoop.ui.RecordLedgerTable;
+
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
-import rvsnoop.MessageLedgerFormat.ValueColumn;
 import rvsnoop.ui.UIManager;
 
 /**
@@ -77,18 +84,21 @@ public final class PreferencesManager extends XMLConfigFile {
         }
     }
 
-    private static void loadTableColumns(Element parent) {
+    private static void loadTableColumns(RecordLedgerTable table, Element parent) {
         final Elements columns = parent.getChildElements(COLUMNS);
         final int size = columns.size();
-        MessageLedgerFormat.INSTANCE.showAllColumns();
+        final RecordLedgerFormat format = table.getTableFormat();
         for (int i = 0; i < size; ++i) {
-            final Element columnElt = columns.get(i);
-            final String name = getString(columnElt, COLUMN_NAME);
-            final ValueColumn column = MessageLedgerFormat.INSTANCE.getColumn(name);
+            final Element element = columns.get(i);
+            final String name = getString(element, COLUMN_NAME);
+            final ColumnFormat column = RecordLedgerFormat.getColumn(name);
             try {
-                column.setPreferredWidth(getInteger(columnElt, COLUMN_WIDTH, column.getWidth()));
-                if (!getBoolean(columnElt, COLUMN_SELECTED, true))
-                    MessageLedgerFormat.INSTANCE.hideColumn(column);
+                if (!getBoolean(element, COLUMN_SELECTED, true)) {
+                    format.remove(column);
+                } else {
+                    final TableColumn tc = table.getColumn(name);
+                    tc.setPreferredWidth(getInteger(element, COLUMN_WIDTH, tc.getWidth()));
+                }
             } catch (Exception ignored) {
                 // Intentionally ignored.
             }
@@ -137,17 +147,19 @@ public final class PreferencesManager extends XMLConfigFile {
         setInteger(clSplit, SPLIT_DIVIDER, UIManager.INSTANCE.getConnectionListDividerLocation());
     }
 
-    private static void storeTableColumns(Element parent) {
+    private static void storeTableColumns(RecordLedgerTable table, Element parent) {
         final Element columns = appendElement(parent, COLUMNS);
-        final List visible = MessageLedgerFormat.INSTANCE.getColumns();
-        final Iterator i = MessageLedgerFormat.INSTANCE.getAllColumns().iterator();
+        final List visible = table.getTableFormat().getColumns();
+        final Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator();
         while (i.hasNext()) {
-            final ValueColumn column = (ValueColumn) i.next();
-            if (column == null) continue;
-            final Element columnElt = appendElement(columns, COLUMN);
-            setString(columnElt, COLUMN_NAME, column.getName());
-            setBoolean(columnElt, COLUMN_SELECTED, visible.contains(column));
-            setInteger(columnElt, COLUMN_WIDTH, column.getWidth());
+            final ColumnFormat column = (ColumnFormat) i.next();
+            if (column == null) { throw new NullPointerException(); }
+            final String identifier = column.getIdentifier();
+            final Element element = appendElement(columns, COLUMN);
+            setString(element, COLUMN_NAME, identifier);
+            setBoolean(element, COLUMN_SELECTED, visible.contains(column));
+            final int width = table.getColumn(identifier).getWidth();
+            setInteger(element, COLUMN_WIDTH, width);
         }
     }
 
@@ -168,13 +180,18 @@ public final class PreferencesManager extends XMLConfigFile {
         setString(window, WINDOW_HEIGHT, Integer.toString(r.height));
     }
 
+    private RecordLedgerTable table;
+    public void setRecordLedgerTable(RecordLedgerTable table) {
+        this.table = table;
+    }
+    
     private PreferencesManager() {
         super(getPreferencesFile());
     }
 
     protected Document getDocument() {
         final Element root = new Element(ROOT);
-        storeTableColumns(root);
+        storeTableColumns(table, root);
         storeTableFont(root);
         storeSplitPosition(root);
         storeWindowPosition(root);
@@ -182,7 +199,7 @@ public final class PreferencesManager extends XMLConfigFile {
     }
 
     protected void load(Element root) {
-        loadTableColumns(root);
+        loadTableColumns(table, root);
         loadTableFont(root);
         loadSplitPosition(root);
         loadWindowPosition(root);

@@ -1,8 +1,10 @@
-//:File:    StartRvSnooper.java
-//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2005-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     StartRvSnooper
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop;
 
 import java.io.File;
@@ -41,6 +43,7 @@ public final class StartRvSnooper {
         }
 
         public void run() {
+            PreferencesManager.INSTANCE.setRecordLedgerTable(UIManager.INSTANCE.getMessageLedger());
             PreferencesManager.INSTANCE.load();
             UIManager.INSTANCE.setVisible(true);
             if (file != null && file.exists() && file.canRead()) {

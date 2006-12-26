@@ -1,8 +1,10 @@
-//:File:    UIManager.java
-//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2005-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     UIManager
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop.ui;
 
 import java.awt.BorderLayout;
@@ -51,11 +53,13 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang.SystemUtils;
+import org.rvsnoop.RecordLedgerFormat;
+import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
+import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.Connections;
 import rvsnoop.Logger;
 import rvsnoop.MessageLedger;
-import rvsnoop.MessageLedgerFormat;
 import rvsnoop.PreferencesManager;
 import rvsnoop.RecentConnections;
 import rvsnoop.RecentProjects;
@@ -64,7 +68,6 @@ import rvsnoop.RecordTypes;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.TreeModelAdapter;
 import rvsnoop.Version;
-import rvsnoop.MessageLedgerFormat.ValueColumn;
 import rvsnoop.actions.Actions;
 import ca.odell.glazedlists.swing.EventListModel;
 import ca.odell.glazedlists.swing.EventTableModel;
@@ -152,7 +155,7 @@ public final class UIManager {
     private final JList connectionList = createConnectionList();
     private final JTree subjectExplorer = createSubjectExplorer();
     private final RvDetailsPanel detailsPanel = new RvDetailsPanel();
-    private final JTable messageLedger = createMessageLedger();
+    private final RecordLedgerTable messageLedger = createMessageLedger();
 
     // Widget scrollers.
 
@@ -205,11 +208,11 @@ public final class UIManager {
         frame.addWindowListener(new WindowCloseListener());
     }
 
-    private void createColumnMenuItem(JPopupMenu popupMenu, final MessageLedgerFormat.ValueColumn column, final EventTableModel model, boolean selected) {
+    private void createColumnMenuItem(JPopupMenu popupMenu, final ColumnFormat column, final RecordLedgerFormat format, final EventTableModel model, boolean selected) {
         final JCheckBoxMenuItem item = new JCheckBoxMenuItem(column.getName());
         popupMenu.addPopupMenuListener(new PopupMenuListener() {
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                item.setSelected(MessageLedgerFormat.INSTANCE.getColumns().contains(column));
+                item.setSelected(format.getColumns().contains(column));
             }
             public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
                 // no-op
@@ -221,11 +224,11 @@ public final class UIManager {
         item.setSelected(selected);
         item.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    MessageLedgerFormat.INSTANCE.showColumn(column);
-                else if (e.getStateChange() == ItemEvent.DESELECTED)
-                    MessageLedgerFormat.INSTANCE.hideColumn(column);
-                model.setTableFormat(MessageLedgerFormat.INSTANCE);
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    format.add(column);
+                } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    format.remove(column);
+                }
                 MessageLedgerRenderer.installStripedRenderers(messageLedger);
             }
         });
@@ -353,9 +356,11 @@ public final class UIManager {
         return bar;
     }
 
-    private JTable createMessageLedger() {
-        final EventTableModel model = new EventTableModel(MessageLedger.INSTANCE.getEventList(), MessageLedgerFormat.INSTANCE);
-        final JTable table = new JTable(model);
+    private RecordLedgerTable createMessageLedger() {
+        final RecordLedgerFormat format = new RecordLedgerFormat();
+        final EventTableModel model = new EventTableModel(MessageLedger.INSTANCE.getEventList(), format);
+        format.setModel(model);
+        final RecordLedgerTable table = new RecordLedgerTable(model);
         table.setBackground(Color.WHITE);
         table.setBorder(BorderFactory.createEmptyBorder());
         table.setShowGrid(true);
@@ -364,11 +369,11 @@ public final class UIManager {
         table.setDragEnabled(true);
         table.setTransferHandler(new RecordLedgerTransferHandler());
         MessageLedgerRenderer.installStripedRenderers(table);
-        final List columns = MessageLedgerFormat.INSTANCE.getColumns();
-        final Iterator i = MessageLedgerFormat.INSTANCE.getAllColumns().iterator();
+        final List columns = format.getColumns();
+        final Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator();
         while (i.hasNext()) {
-            final ValueColumn column = (ValueColumn) i.next();
-            createColumnMenuItem(columnsPopup, column, model, columns.contains(column));
+            final ColumnFormat column = (ColumnFormat) i.next();
+            createColumnMenuItem(columnsPopup, column, format, model, columns.contains(column));
         }
         return table;
     }
@@ -461,11 +466,12 @@ public final class UIManager {
         viewColumns.setIcon(Icons.FILTER_COLUMNS);
         final JPopupMenu viewColumnsPopup = viewColumns.getPopupMenu();
         final EventTableModel model = (EventTableModel) messageLedger.getModel();
-        final List columns = MessageLedgerFormat.INSTANCE.getColumns();
-        final Iterator i = MessageLedgerFormat.INSTANCE.getAllColumns().iterator();
+        final RecordLedgerFormat format = messageLedger.getTableFormat();
+        final List columns = format.getColumns();
+        final Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator();
         while (i.hasNext()) {
-            final ValueColumn column = (ValueColumn) i.next();
-            createColumnMenuItem(viewColumnsPopup, column, model, columns.contains(column));
+            final ColumnFormat column = (ColumnFormat) i.next();
+            createColumnMenuItem(viewColumnsPopup, column, format, model, columns.contains(column));
         }
         view.add(viewColumns);
         final JMenu viewTypes = new JMenu("Types");
@@ -484,7 +490,7 @@ public final class UIManager {
         return frame;
     }
 
-    public JTable getMessageLedger() {
+    public RecordLedgerTable getMessageLedger() {
         return messageLedger;
     }
 
