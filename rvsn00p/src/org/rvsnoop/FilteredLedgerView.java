@@ -99,8 +99,8 @@ public final class FilteredLedgerView extends RecordLedger {
      * @param filtering Enable subject filtering or not.
      */
     public synchronized void setFilteringOnSubject(boolean filtering) {
-        if (filtering && subjectFilter != null) return;
-        if (!filtering && subjectFilter == null) return;
+        if (filtering && subjectFilter != null) { return; }
+        if (!filtering && subjectFilter == null) { return; }
         final EventList editors = filters.getMatcherEditors();
         final Lock lock = editors.getReadWriteLock().writeLock();
         lock.lock();
