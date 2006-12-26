@@ -1,7 +1,10 @@
-//:File:    InMemoryLedger.java
-//:Legal:   Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     InMemoryLedger
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package org.rvsnoop;
 
 import ca.odell.glazedlists.BasicEventList;
