@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+    <meta http-equiv="Content-Language" content="en-uk" />
+    <meta name="Copyright" content="Copyright © 2005-2007 Ian Phillips." />
+    <meta name="Author" content="Ian Phillips" />
+    <meta name="ID" content="$Id$" />
+    <style type="text/css" media="all">@import "../style.css";</style>
+    <title>Coding Standards &amp; Organization ~ RvSnoop @version@ Developer’s Guide</title>
+  </head>
+  <body>
+    <div id="nav">
+      <a href="building.html">Previous Chapter (Downloading &amp; Building From Source)</a> |
+      <a href="index.html">Contents</a> |
+      <a href="records.html">Next Chapter (Records, Subjects, &amp; Types)</a>
+    </div>
+    <h1>Coding Standards &amp; Organization</h1>
+    <p>
+      Generally the <a href="http://java.sun.com/docs/codeconv/index.html">Sun
+      Java Code Conventions</a> are followed. There are some additional
+      conventions over and above those recommended by Sun. First, the file
+      header comment contains some additional information, an example of this
+      is shown below.
+    </p>
+    <pre>
+/*
+ * Class:     FilteredLedgerView
+ * Version:   $Revision: 363$
+ * Date:      $Date: 2006-12-23 20:07:53 +0000 (Sat, 23 Dec 2006) $
+ * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
+    </pre>
+    <p>
+      Indents are 4 spaces as per the conventions, but in addition tabs are
+      not used (set your editor to always use spaces, sometimes called ‘soft
+      tabs’). Ternary expressions are displayed on a single line or wrapped
+      over three lines (never two). Differing from the Sun conventions,
+      <code>if</code> statements can be compressed onto a single line if they
+      are short, but the line should still include the braces. For example:
+    </p>
+    <pre>
+if (filtering &amp;&amp; subjectFilter != null) { return; }
+    </pre>
+    <p>
+      When it comes to comments all public and protected methods and variables
+      should have a complete doc comment, they are optional for private and
+      default methods and variables. Short doc comments are compressed onto a
+      single line. Numeric literals can be used if they make sense without
+      additional documentation.
+    </p>
+    <p>
+      Care should be taken to include additional blank lines sparingly, I
+      develop RvSnoop on a laptop so screen real estate is at a premium.
+    </p>
+    <h2>Code Layout</h2>
+    <p>
+      The code is split between two directories: <em>src</em> holds all of the
+      application code, while <em>tests</em> holds all of the unit tests. The
+      package structure in the two directories is identical. Packages start
+      with the prefix <em>org.rvsnoop</em>, although some of the older classes
+      do not follow this convention they will be migrated to it over time. The
+      code is split between three packages, roughly speaking equivalent to the
+      three components in the model, view, controller pattern.
+    </p>
+    <dl>
+      <dt>org.rvsnoop</dt>
+      <dd>
+        This holds the ‘model’ classes, the application entry point, and some
+        small utility classes. It corresponds, roughly speaking, to the ‘M’
+        portion of the MVC pattern.
+      </dd>
+      <dt>org.rvsnoop.actions</dt>
+      <dd>
+        This holds all of the actions used by RvSnoop, it corresponds to the
+        ‘C’ portion of the MVC pattern. Some small actions are set up and used
+        as inner classes in the other packages as well.
+      </dd>
+      <dt>org.rvsnoop.ui</dt>
+      <dd>
+        This holds all of the user interface components, it corresponds to the
+        ‘V’ in MVC.
+      </dd>
+    </dl>
+    <div id="nav">
+      <a href="building.html">Previous Chapter (Downloading &amp; Building From Source)</a> |
+      <a href="index.html">Contents</a> |
+      <a href="records.html">Next Chapter (Records, Subjects, &amp; Types)</a>
+    </div>
+  </body>
+</html>

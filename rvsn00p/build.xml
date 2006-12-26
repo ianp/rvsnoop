@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!-- Build file tested with Ant version 1.6.5. -->
 <!-- $Id$ -->
 <project name="rvsnoop" default="printusage" basedir=".">
@@ -33,13 +33,13 @@
     <property file="build.number" />
     <delete file="build.number" />
   </target>
-    
+
   <!-- Configure the properties and filtersets. -->
   <target name="setproperties" depends="setbuildversion">
     <property name="version.major" value="1"/>
     <property name="version.minor" value="6"/>
     <property name="version.patch" value="1"/>
-    <property name="version.alpha"  value="false"/>
+    <property name="version.alpha" value="false"/>
     <property name="version.beta"  value="false"/>
     <property name="version" value="${version.major}.${version.minor}.${version.patch}"/>
     <property name="dir.stage"     value="stage"/>
@@ -62,8 +62,6 @@
       <pathelement location="${lib.looks}"/>
       <pathelement location="${lib.xmlenc}"/>
       <pathelement location="${lib.xom}"/>
-      <!-- Append the system class path. -->
-      <pathelement path="${env.java.class.path}"/>
     </path>
     <condition property="build.number" value="${build.svnversion}" else="0">
       <isset property="build.svnversion"/>
@@ -96,10 +94,10 @@
     <mkdir dir="${dir.stage}/tests"/>
     <mkdir dir="${dir.stage}/www"/>
     <echo>Moving all files to staging area: ${dir.stage}</echo>
-    <copy todir="${dir.stage}" file="version.xml">
+    <copy todir="${dir.stage}" file="version.xml" encoding="UTF-8">
       <filterset refid="filters"/>
     </copy>
-    <copy todir="${dir.stage}/bin">
+    <copy todir="${dir.stage}/bin" encoding="UTF-8">
       <filterset refid="filters"/>
       <fileset dir="bin" includes="*.cmd, *.sh"/>
     </copy>
@@ -121,14 +119,14 @@
     <copy todir="${dir.stage}/tests">
       <fileset dir="tests" includes="**/*.rbz"/>
     </copy>
-    <copy todir="${dir.stage}/doc">
+    <copy todir="${dir.stage}/doc" encoding="UTF-8">
       <filterset refid="filters"/>
-      <fileset dir="doc" includes="**/*.html"/>
+      <fileset dir="doc" includes="**/*.html, **/*.css"/>
     </copy>
     <copy todir="${dir.stage}/doc">
-      <fileset dir="doc" includes="**/*.png, **/*.css"/>
+      <fileset dir="doc" includes="**/*.png"/>
     </copy>
-    <copy todir="${dir.stage}/www">
+    <copy todir="${dir.stage}/www" encoding="UTF-8">
       <filterset refid="filters"/>
       <fileset dir="www" includes="*.html, *.css"/>
     </copy>
@@ -211,7 +209,7 @@
     </copy>
     <echo>Copying in the runtime libraries.</echo>
     <jar jarfile="${dir.dist}/lib/rvsnoop.jar" compress="false"
-      manifestencoding="UTF-8" index="true">
+         manifestencoding="UTF-8" index="true">
       <manifest>
         <attribute name="Implementation-Title" value="RvSnoop"/>
         <attribute name="Implementation-Version" value="${version}"/>
@@ -272,18 +270,42 @@
 
   <target name="analyze" depends="compile"
           description="Analyze the code base and generate reports.">
-    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"
-             classpath="${lib.pmd}"/>
+    <taskdef name="pmd" classpath="${lib.pmd}"
+             classname="net.sourceforge.pmd.ant.PMDTask"/>
+    <taskdef name="lint4j" classpath="${lib.lint4j}"
+             classname="com.jutils.lint4j.ant.Lint4jAntTask"/>
+    <taskdef name="findbugs" classpath="${lib.findbugs}/lib/findbugs-ant.jar"
+             classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+    <property name="findbugs.home" value="${lib.findbugs}"/>
+    <echo>Analyzing with PMD.</echo>
     <pmd shortFilenames="true" encoding="UTF-8">
       <ruleset>rvsnoop.pmd</ruleset>
       <formatter type="html" toFile="${dir.build}/doc/developer/pmdreport.html"
                  linkPrefix="file://../../src/"/>
       <fileset dir="${dir.stage}/src" includes="**/*.java"/>
     </pmd>
+    <echo>Analyzing with Lint4J.</echo>
+    <lint4j sourcepath="${dir.stage}/src" level="4"
+            packages="org.rvsnoop,rvsnoop,rvsnoop.actions,rvsnoop.ui">
+      <classpath refid="path.class"/>
+      <formatters>
+        <formatter toFile="${dir.build}/doc/developer/lint4jreport.xml" type="xml"/>
+      </formatters>
+    </lint4j>
+    <echo>Analyzing with FindBugs.</echo>
+    <!-- There is a bug in the Ant task, will be resolved in FB 1.1.3 ...
+    <findbugs home="${lib.findbugs}" output="html"
+              outputFile="${dir.build}/doc/developer/fbreport.html">
+      <auxClasspath>
+        <path refid="path.class"/>
+      </auxClasspath>
+      <sourcePath path="${dir.stage}/src"/>
+      <class location="${dir.build}/classes/main"/>
+    </findbugs>
+    -->
   </target>
 
-  <target name="clean"
-          description="Remove all of the generated files.">
+  <target name="clean" description="Remove all of the generated files.">
     <delete dir="${dir.build}/"/>
     <delete dir="${dir.dist}/"/>
     <delete dir="${dir.stage}/"/>
