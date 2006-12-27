@@ -70,7 +70,7 @@ public final class RvConnection implements TibrvMsgCallback {
 
         public void run() {
             SubjectHierarchy.INSTANCE.addRecord(record);
-            MessageLedger.INSTANCE.addRecord(record);
+            MessageLedger.RECORD_LEDGER.add(record);
             UIManager.INSTANCE.updateStatusLabel();
         }
     }

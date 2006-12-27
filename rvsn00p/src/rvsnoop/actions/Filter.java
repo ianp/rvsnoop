@@ -6,6 +6,7 @@
 //:FileID:  $Id$
 package rvsnoop.actions;
 
+import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
 
 import java.awt.event.ActionEvent;
@@ -29,11 +30,11 @@ import rvsnoop.ui.UIManager;
 final class Filter extends AbstractAction {
 
     private static class FilterMatcher implements Matcher {
-        private final String sendSubject;
-        private final String trackingId;
+        private String sendSubject;
+        private String trackingId;
 
-        private final boolean sendSubjectEnabled;
-        private final boolean trackingIdEnabled;
+        private boolean sendSubjectEnabled;
+        private boolean trackingIdEnabled;
 
         FilterMatcher(String sendSubject, String trackingId, boolean sendSubjectEnabled, boolean trackingIdEnabled) {
             super();
@@ -49,12 +50,21 @@ final class Filter extends AbstractAction {
             if (trackingIdEnabled && record.getTrackingId().indexOf(trackingId) < 0) return false;
             return true;
         }
-
     }
 
+    private static class FilterMatcherEditor extends AbstractMatcherEditor {
+        // TODO: Make this more efficient by re-using the matcher and firing
+        // constrained or relaxed instead of just changed each time.
+        FilterMatcherEditor() {
+            super();
+        }
+        void setMatcher(Matcher matcher) {
+            currentMatcher = matcher;
+            fireChanged(matcher);
+        }
+    }
+    
     private static final long serialVersionUID = 1L;
-
-    //private static final Logger logger = Logger.getLogger(Filter.class);
 
     public static final String FILTER = "filter";
 
@@ -66,6 +76,8 @@ final class Filter extends AbstractAction {
     private boolean sendSubjectEnabled;
     private boolean trackingIdEnabled;
 
+    private FilterMatcherEditor matcherEditor;
+    
     public Filter(String id, String name, String tooltip) {
         super(name);
         putValue(Action.ACTION_COMMAND_KEY, id);
@@ -94,7 +106,13 @@ final class Filter extends AbstractAction {
         trackingId = dialog.getTrackingId();
         sendSubjectEnabled = dialog.isSendSubjectSelected();
         trackingIdEnabled = dialog.isTrackingIdSelected();
-        MessageLedger.INSTANCE.setMatcher(new FilterMatcher(sendSubject, trackingId, sendSubjectEnabled, trackingIdEnabled));
+        synchronized (this) {
+            if (matcherEditor == null) {
+                matcherEditor = new FilterMatcherEditor();
+                MessageLedger.FILTERED_VIEW.addFilter(matcherEditor);
+            }
+        }
+        matcherEditor.setMatcher(new FilterMatcher(sendSubject, trackingId, sendSubjectEnabled, trackingIdEnabled));
         final StringBuffer buffer = new StringBuffer();
         if (sendSubjectEnabled) buffer.append("Send Subject: ").append(sendSubject);
         if (sendSubjectEnabled && trackingIdEnabled) buffer.append("\n");

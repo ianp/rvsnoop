@@ -40,7 +40,7 @@ final class ClearLedger extends LedgerSelectionAction {
     }
 
     public void actionPerformed(Record[] records) {
-        MessageLedger.INSTANCE.clear();
+        MessageLedger.RECORD_LEDGER.clear();
         SubjectHierarchy.INSTANCE.reset();
         UIManager.INSTANCE.updateStatusLabel();
         UIManager.INSTANCE.clearDetails();

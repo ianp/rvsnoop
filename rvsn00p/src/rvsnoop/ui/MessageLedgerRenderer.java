@@ -29,7 +29,7 @@ import rvsnoop.RecordTypes;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-final class MessageLedgerRenderer implements TableCellRenderer {
+public final class MessageLedgerRenderer implements TableCellRenderer {
 
     /**
      * Cell renderer that selects a date representation based on the current column width.
@@ -130,7 +130,7 @@ final class MessageLedgerRenderer implements TableCellRenderer {
         }
         final Component component = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
         if (!isSelected) {
-            component.setForeground(types.getFirstMatchingType(MessageLedger.INSTANCE.getRecord(row)).getColour());
+            component.setForeground(types.getFirstMatchingType(MessageLedger.FILTERED_VIEW.get(row)).getColour());
             component.setBackground(row % 2 == 0 ? evenRowsColor : oddRowsColor);
         }
         return component;

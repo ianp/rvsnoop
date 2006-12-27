@@ -23,7 +23,7 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  * @version $Revision$, $Date$
  * @since 1.7
  */
-public final class FilteredLedgerView extends RecordLedger {
+public class FilteredLedgerView extends RecordLedger {
 
     private final CompositeMatcherEditor filters = new CompositeMatcherEditor();
 
@@ -35,6 +35,7 @@ public final class FilteredLedgerView extends RecordLedger {
      * Create a new <code>FilteredLedgerView</code>.
      *
      * @param ledger The base ledger to display records from.
+     * @param feezable Can this view be frozen.
      */
     public FilteredLedgerView(RecordLedger ledger) {
         super(new FilterList(ledger.getEventList()));
@@ -78,6 +79,10 @@ public final class FilteredLedgerView extends RecordLedger {
      */
     public synchronized boolean isFilteringOnType() {
         return typeFilter != null;
+    }
+
+    public synchronized boolean isFrozen() {
+        return false;
     }
 
     /**

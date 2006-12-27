@@ -50,6 +50,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
+import javax.swing.table.TableModel;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang.SystemUtils;
@@ -208,7 +209,7 @@ public final class UIManager {
         frame.addWindowListener(new WindowCloseListener());
     }
 
-    private void createColumnMenuItem(JPopupMenu popupMenu, final ColumnFormat column, final RecordLedgerFormat format, final EventTableModel model, boolean selected) {
+    private void createColumnMenuItem(JPopupMenu popupMenu, final ColumnFormat column, final RecordLedgerFormat format, final TableModel model, boolean selected) {
         final JCheckBoxMenuItem item = new JCheckBoxMenuItem(column.getName());
         popupMenu.addPopupMenuListener(new PopupMenuListener() {
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -357,18 +358,9 @@ public final class UIManager {
     }
 
     private RecordLedgerTable createMessageLedger() {
-        final RecordLedgerFormat format = new RecordLedgerFormat();
-        final EventTableModel model = new EventTableModel(MessageLedger.INSTANCE.getEventList(), format);
-        format.setModel(model);
-        final RecordLedgerTable table = new RecordLedgerTable(model);
-        table.setBackground(Color.WHITE);
-        table.setBorder(BorderFactory.createEmptyBorder());
-        table.setShowGrid(true);
-        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-        table.setDragEnabled(true);
-        table.setTransferHandler(new RecordLedgerTransferHandler());
-        MessageLedgerRenderer.installStripedRenderers(table);
+        final RecordLedgerTable table = new RecordLedgerTable(MessageLedger.FILTERED_VIEW);
+        final RecordLedgerFormat format = table.getTableFormat();
+        final TableModel model = table.getModel();
         final List columns = format.getColumns();
         final Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator();
         while (i.hasNext()) {
@@ -505,7 +497,7 @@ public final class UIManager {
     public Record getSelectedRecord() {
         try {
             final int index = messageLedger.getSelectedRow();
-            return index >= 0 ? MessageLedger.INSTANCE.getRecord(index) : null;
+            return index >= 0 ? MessageLedger.FILTERED_VIEW.get(index) : null;
         } catch (IndexOutOfBoundsException e) {
             if (Logger.isErrorEnabled())
                 logger.error("Failed to get selected record from ledger.", e);
@@ -514,7 +506,7 @@ public final class UIManager {
     }
 
     public Record[] getSelectedRecords() {
-        return MessageLedger.INSTANCE.getRecords(messageLedger.getSelectedRows());
+        return MessageLedger.FILTERED_VIEW.getAll(messageLedger.getSelectedRows());
     }
 
     public JTree getSubjectExplorer() {
@@ -579,8 +571,8 @@ public final class UIManager {
     }
 
     public void updateStatusLabel() {
-        final int visible = MessageLedger.INSTANCE.getRowCount();
-        final int total = MessageLedger.INSTANCE.getTotalRowCount();
+        final int visible = MessageLedger.FILTERED_VIEW.size();
+        final int total = MessageLedger.RECORD_LEDGER.size();
         final String toolTipText = statusBarItemCount.getToolTipText();
         final Icon icon = toolTipText == null || toolTipText.length() == 0 ? null : ICON_FILTER;
         statusBarItemFilterBuffer.setLength(0);

@@ -53,8 +53,6 @@ public abstract class RecordLedgerTest extends TestCase {
 
     private Record[] records;
 
-    private InputStream testData;
-
     /**
      * Hook to allow creation and testing of different ledger implementations.
      *
@@ -62,34 +60,28 @@ public abstract class RecordLedgerTest extends TestCase {
      */
     protected abstract RecordLedger createRecordLedger();
 
-    public void setUp() throws IOException {
-        ledger = createRecordLedger();
-        testData = ClassLoader.getSystemClassLoader().getResourceAsStream(TEST_DATA);
-        records = loadTestRecords(new BufferedInputStream(testData));
-        assertEquals(10, records.length);
-    }
-
-    public void tearDown() {
-        IOUtils.closeQuietly(testData);
-    }
-
     // FIXME: Create a RecordBundle class and put all of the logic to handle
     // record bundles into  it. Use the logic there instead of this copy/paste
     // hack. Do the same for RecordStream (or refactor RecordSelection).
-    private Record[] loadTestRecords(InputStream stream) throws IOException {
+    public void setUp() throws IOException {
+        ledger = createRecordLedger();
+        final InputStream stream =
+            new BufferedInputStream(ClassLoader.getSystemResource(TEST_DATA).openStream());
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         final byte[] bytes = new byte[1024];
         final ZipInputStream zip = new ZipInputStream(stream);
-        final List records = new ArrayList();
+        final List recordList = new ArrayList();
         while (zip.getNextEntry() != null) {
             int count;
             buffer.reset();
             while ((count = zip.read(bytes, 0, 1024)) != -1)
                 buffer.write(bytes, 0, count);
             final DataInput in = new DataInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-            records.addAll(Arrays.asList(RecordSelection.read(in)));
+            recordList.addAll(Arrays.asList(RecordSelection.read(in)));
         }
-        return (Record[]) records.toArray(new Record[records.size()]);
+        records = (Record[]) recordList.toArray(new Record[recordList.size()]);
+        assertEquals(10, records.length);
+        IOUtils.closeQuietly(stream);
     }
 
     public void testAdd() {

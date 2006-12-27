@@ -43,7 +43,7 @@ final class Delete extends LedgerSelectionAction {
     }
 
     public void actionPerformed(Record[] records) {
-        MessageLedger.INSTANCE.removeAll(Arrays.asList(records));
+        MessageLedger.FILTERED_VIEW.removeAll(Arrays.asList(records));
     }
 
 }

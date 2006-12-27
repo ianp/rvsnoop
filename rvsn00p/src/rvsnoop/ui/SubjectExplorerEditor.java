@@ -13,7 +13,6 @@ import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.EventObject;
-import java.util.Iterator;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
@@ -28,12 +27,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
+import org.rvsnoop.RecordSubjectMatcher;
+
 import rvsnoop.MessageLedger;
-import rvsnoop.Record;
 import rvsnoop.SubjectElement;
 import rvsnoop.SubjectHierarchy;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.util.concurrent.Lock;
+import ca.odell.glazedlists.matchers.Matcher;
 
 /**
  * A custom editor for nodes in the subject explorer tree.
@@ -104,55 +103,25 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         }
     }
 
-    private class SelectAllRecordsAt extends AbstractAction {
-        private static final long serialVersionUID = 6732078846733331503L;
-        SelectAllRecordsAt() {
-            super("Select All Records At");
+    private class SelectRecords extends AbstractAction {
+        private static final long serialVersionUID = -2934261387681391415L;
+        private final boolean descendants;
+        SelectRecords(String name, boolean descendants) {
+            super(name);
+            this.descendants = descendants;
         }
         public void actionPerformed(ActionEvent e) {
             final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
             final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
-            final EventList list = MessageLedger.INSTANCE.getEventList();
-            final Lock lock = MessageLedger.INSTANCE.getReadLock();
             try {
-                lock.lock();
                 model.setValueIsAdjusting(true);
                 model.clearSelection();
-                int index = 0;
-                for (final Iterator i = list.iterator(); i.hasNext(); ++index) {
-                    final Record record = (Record) i.next();
-                    if (subject.equals(record.getSubject()))
-                        model.addSelectionInterval(index, index);
+                final Matcher matcher = new RecordSubjectMatcher(subject, descendants);
+                final int[] indices = MessageLedger.FILTERED_VIEW.findAllIndices(matcher);
+                for (int i = 0, imax = indices.length; i < imax; ++i) {
+                    model.addSelectionInterval(indices[i], indices[i]);
                 }
             } finally {
-                lock.unlock();
-                model.setValueIsAdjusting(false);
-            }
-        }
-    }
-
-    private class SelectAllRecordsUnder extends AbstractAction {
-        private static final long serialVersionUID = -7342058243983715186L;
-        SelectAllRecordsUnder() {
-            super("Select All Records Under");
-        }
-        public void actionPerformed(ActionEvent e) {
-            final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
-            final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
-            final EventList list = MessageLedger.INSTANCE.getEventList();
-            final Lock lock = MessageLedger.INSTANCE.getReadLock();
-            try {
-                lock.lock();
-                model.setValueIsAdjusting(true);
-                model.clearSelection();
-                int index = 0;
-                for (final Iterator i = list.iterator(); i.hasNext(); ++index) {
-                    final Record record = (Record) i.next();
-                    if (subject.isNodeDescendant(record.getSubject()))
-                        model.addSelectionInterval(index, index);
-                }
-            } finally {
-                lock.unlock();
                 model.setValueIsAdjusting(false);
             }
         }
@@ -187,8 +156,8 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         popupMenu.add(new Select());
         popupMenu.add(new Deselect());
         popupMenu.addSeparator();
-        popupMenu.add(new SelectAllRecordsAt());
-        popupMenu.add(new SelectAllRecordsUnder());
+        popupMenu.add(new SelectRecords("Select All Records At", false));
+        popupMenu.add(new SelectRecords("Select All Records Under", true));
         popupMenu.addSeparator();
         popupMenu.add(new Expand());
         popupMenu.add(new Collapse());

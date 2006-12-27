@@ -28,13 +28,13 @@ cleaner packages.
 
 Re-structure the file layout to be
 
-    doc/ -- in DocBook 5
-       api/ -- generated
-       user/ -- in DocBook 5
-       developer/ -- in DocBook 5
-       licenses/ -- the various licenses used, in XHTML 1.0 Strict
-       www/ -- the web site, in HTML4.01
-       index.html -- in XHTML 1.0 Strict
+    doc/
+        api/ -- generated
+        user/ -- in XHTML 1.0 Strict
+        developer/ -- in XHTML 1.0 Strict
+        index.html -- in XHTML 1.0 Strict
+        license.html -- in XHTML 1.0 Strict
+    www/ -- the web site, in HTML4.01
 
 the shipped guides should be XHTML 1.0 strict, generated from the
 DocBook.

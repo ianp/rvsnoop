@@ -8,7 +8,6 @@ package rvsnoop.actions;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -21,8 +20,7 @@ import rvsnoop.Record;
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.SearchDialog;
 import rvsnoop.ui.UIManager;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.util.concurrent.Lock;
+import ca.odell.glazedlists.matchers.Matcher;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
@@ -37,6 +35,112 @@ import com.tibco.tibrv.TibrvXml;
  * @since 1.4
  */
 final class Search extends AbstractAction {
+    
+    private static class Searcher implements Matcher {
+        private final boolean fieldData;
+        private final boolean fieldNames;
+        private final boolean replySubject;
+        private final boolean sendSubject;
+        private final boolean trackingId;
+        private final String searchText;
+        Searcher(boolean fieldData, boolean fieldNames, boolean replySubject,
+                 boolean sendSubject, boolean trackingId, String searchText) {
+            this.fieldData = fieldData;
+            this.fieldNames = fieldNames;
+            this.replySubject = replySubject;
+            this.sendSubject = sendSubject;
+            this.trackingId = trackingId;
+            this.searchText = searchText;
+        }
+
+        private boolean isTextInFieldData(String text, TibrvMsgField field) throws TibrvException {
+            if (fieldNames && field.name.indexOf(text) >= 0) return true;
+            switch (field.type) {
+            case TibrvMsg.MSG:
+                return isTextInMessageData(text, (TibrvMsg) field.data);
+            case TibrvMsg.STRING:
+                return ((String) field.data).indexOf(text) >= 0;
+            case TibrvMsg.XML:
+                // XXX: Should we do something here to sniff the correct encoding from the bytes?
+                return isTextInXmlData(text.getBytes(), ((TibrvXml) field.data).getBytes());
+            default:
+                return false;
+            }
+        }
+
+        /**
+         * Search all of the text in a message for a given string.
+         * <p>
+         * This will search all fields which contain strings, and recursively search
+         * all nested messages.
+         *
+         * @param text The text to search for.
+         * @param message The message to search.
+         * @return <code>true</code> if the text was matched, <code>false</code>
+         *         otherwise.
+         * @throws TibrvException
+         */
+        private boolean isTextInMessageData(String text, TibrvMsg message) throws TibrvException {
+            for (int i = 0, imax = message.getNumFields(); i < imax; ++i)
+                if (isTextInFieldData(text, message.getFieldByIndex(i)))
+                    return true;
+            return false;
+        }
+
+        private boolean isTextInXmlData(byte[] text, byte[] xml) {
+            final byte firstByte = text[0];
+            SCAN_XML:
+            for (int i = 0, imax = xml.length; i < imax; ++i) {
+                if (xml[i] != firstByte) continue;
+                if (text.length == 1) return true; // Guard for single byte text.
+                if (++i == xml.length) return false; // Guard for end of XML.
+                // OK, now look for the rest of the text...
+                for (int j = 1, jmax = text.length; j < jmax; ) {
+                    if (xml[i] != text[j]) continue SCAN_XML;
+                    if (++i == xml.length) return false; // Guard for end of XML.
+                    if (++j == text.length) return true;
+                }
+            }
+            return false;
+        }
+
+        /* (non-Javadoc)
+         * @see ca.odell.glazedlists.matchers.Matcher#matches(java.lang.Object)
+         */
+        public boolean matches(Object item) {
+            if (!(item instanceof Record)) { return false; }
+            final Record record = (Record) item;
+            if ((fieldData || fieldNames) && matchMessage(record)) return true;
+            if (sendSubject && matchSendSubject(record)) return true;
+            if (replySubject && matchReplySubject(record)) return true;
+            return trackingId && matchTrackingId(record);
+        }
+
+        private boolean matchMessage(Record record) {
+            try {
+                return isTextInMessageData(searchText, record.getMessage());
+            } catch (TibrvException e) {
+                logger.error("Error reading message field.", e);
+                return false;
+            }
+        }
+
+        private boolean matchReplySubject(Record record) {
+            final String replySubject = record.getReplySubject();
+            return replySubject != null && replySubject.indexOf(searchText) >= 0;
+        }
+
+        private boolean matchSendSubject(Record record) {
+            final String sendSubject = record.getSendSubject();
+            return sendSubject != null && sendSubject.indexOf(searchText) >= 0;
+        }
+
+        private boolean matchTrackingId(Record record) {
+            final String trackingId = record.getTrackingId();
+            return trackingId != null && trackingId.indexOf(searchText) >= 0;
+        }
+
+    }
 
     private static final Logger logger = Logger.getLogger(Search.class);
 
@@ -47,8 +151,6 @@ final class Search extends AbstractAction {
     private static final long serialVersionUID = -5833838900255559506L;
 
     private String searchText = "Enter your search text here";
-
-    private int lastSearchedRow = -1;
 
     private boolean trackingId;
     private boolean fieldData = true;
@@ -76,113 +178,14 @@ final class Search extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         if (SEARCH.equals(event.getActionCommand()) && !showDialog()) return;
         if (searchText == null || (searchText = searchText.trim()).length() == 0) return;
-        final EventList list = MessageLedger.INSTANCE.getEventList();
-        final Lock lock = MessageLedger.INSTANCE.getReadLock();
-        lock.lock();
-        int row;
-        try {
-            lastSearchedRow = Math.min(lastSearchedRow + 1, list.size());
-            // Search towards the end of the list first.
-            row = search(list, lastSearchedRow, list.size());
-            // If we get there without matching, wrap to the start of the list.
-            if (row == -1)
-                row = search(list, 0, lastSearchedRow);
-            if (row >= 0)
-                UIManager.INSTANCE.selectRecordInLedger(row);
-            else
-                JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), "Nothing matched.");
-        } finally {
-            lock.unlock();
+        final Searcher searcher = new Searcher(fieldData, fieldNames,
+                replySubject, sendSubject, trackingId, searchText);
+        final int[] indices = MessageLedger.FILTERED_VIEW.findAllIndices(searcher);
+        if (indices.length == 0) {
+            JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), "Nothing matched.");
+        } else {
+            // TODO: Display SearchResultsWindow
         }
-    }
-
-    private boolean isTextInFieldData(String text, TibrvMsgField field) throws TibrvException {
-        if (fieldNames && field.name.indexOf(text) >= 0) return true;
-        switch (field.type) {
-        case TibrvMsg.MSG:
-            return isTextInMessageData(text, (TibrvMsg) field.data);
-        case TibrvMsg.STRING:
-            return ((String) field.data).indexOf(text) >= 0;
-        case TibrvMsg.XML:
-            // XXX: Should we do something here to sniff the correct encoding from the bytes?
-            return isTextInXmlData(text.getBytes(), ((TibrvXml) field.data).getBytes());
-        default:
-            return false;
-        }
-    }
-
-    /**
-     * Search all of the text in a message for a given string.
-     * <p>
-     * This will search all fields which contain strings, and recursively search
-     * all nested messages.
-     *
-     * @param text The text to search for.
-     * @param message The message to search.
-     * @return <code>true</code> if the text was matched, <code>false</code>
-     *         otherwise.
-     * @throws TibrvException
-     */
-    private boolean isTextInMessageData(String text, TibrvMsg message) throws TibrvException {
-        for (int i = 0, imax = message.getNumFields(); i < imax; ++i)
-            if (isTextInFieldData(text, message.getFieldByIndex(i)))
-                return true;
-        return false;
-    }
-
-    private boolean isTextInXmlData(byte[] text, byte[] xml) {
-        final byte firstByte = text[0];
-        SCAN_XML:
-        for (int i = 0, imax = xml.length; i < imax; ++i) {
-            if (xml[i] != firstByte) continue;
-            if (text.length == 1) return true; // Guard for single byte text.
-            if (++i == xml.length) return false; // Guard for end of XML.
-            // OK, now look for the rest of the text...
-            for (int j = 1, jmax = text.length; j < jmax; ) {
-                if (xml[i] != text[j]) continue SCAN_XML;
-                if (++i == xml.length) return false; // Guard for end of XML.
-                if (++j == text.length) return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean matches(Record record) {
-        if ((fieldData || fieldNames) && matchMessage(record)) return true;
-        if (sendSubject && matchSendSubject(record)) return true;
-        if (replySubject && matchReplySubject(record)) return true;
-        return trackingId && matchTrackingId(record);
-    }
-
-    private boolean matchMessage(Record record) {
-        try {
-            return isTextInMessageData(searchText, record.getMessage());
-        } catch (TibrvException e) {
-            logger.error("Error reading message field.", e);
-            return false;
-        }
-    }
-
-    private boolean matchReplySubject(Record record) {
-        final String replySubject = record.getReplySubject();
-        return replySubject != null && replySubject.indexOf(searchText) >= 0;
-    }
-
-    private boolean matchSendSubject(Record record) {
-        final String sendSubject = record.getSendSubject();
-        return sendSubject != null && sendSubject.indexOf(searchText) >= 0;
-    }
-
-    private boolean matchTrackingId(Record record) {
-        final String trackingId = record.getTrackingId();
-        return trackingId != null && trackingId.indexOf(searchText) >= 0;
-    }
-
-    private int search(List list, int from, int to) {
-        for (int i = from; i < to; ++i)
-            if (matches((Record) list.get(i)))
-                return i;
-        return -1;
     }
 
     private boolean showDialog() {

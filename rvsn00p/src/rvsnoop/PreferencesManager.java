@@ -90,13 +90,13 @@ public final class PreferencesManager extends XMLConfigFile {
         final RecordLedgerFormat format = table.getTableFormat();
         for (int i = 0; i < size; ++i) {
             final Element element = columns.get(i);
-            final String name = getString(element, COLUMN_NAME);
-            final ColumnFormat column = RecordLedgerFormat.getColumn(name);
+            final String identifier = getString(element, COLUMN_NAME);
+            final ColumnFormat column = RecordLedgerFormat.getColumn(identifier);
             try {
                 if (!getBoolean(element, COLUMN_SELECTED, true)) {
                     format.remove(column);
                 } else {
-                    final TableColumn tc = table.getColumn(name);
+                    final TableColumn tc = table.getColumn(column.getName());
                     tc.setPreferredWidth(getInteger(element, COLUMN_WIDTH, tc.getWidth()));
                 }
             } catch (Exception ignored) {
@@ -158,7 +158,7 @@ public final class PreferencesManager extends XMLConfigFile {
             final Element element = appendElement(columns, COLUMN);
             setString(element, COLUMN_NAME, identifier);
             setBoolean(element, COLUMN_SELECTED, visible.contains(column));
-            final int width = table.getColumn(identifier).getWidth();
+            final int width = table.getColumn(column.getName()).getWidth();
             setInteger(element, COLUMN_WIDTH, width);
         }
     }

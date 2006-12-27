@@ -49,7 +49,7 @@ final class Cut extends LedgerSelectionAction {
         final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         final RecordSelection selection = new RecordSelection(records);
         clipboard.setContents(selection, selection);
-        MessageLedger.INSTANCE.removeAll(Arrays.asList(records));
+        MessageLedger.FILTERED_VIEW.removeAll(Arrays.asList(records));
     }
 
 }

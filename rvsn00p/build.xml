@@ -21,6 +21,7 @@
     <tstamp/>
     <tstamp><format property="build.date" pattern="yyyy-MM-dd HH:mm:ss"/></tstamp>
     <tstamp><format property="build.year" pattern="yyyy"/></tstamp>
+    <echo>Timestamp for build set to: ${build.date}</echo>
     <property file="local.properties"/>
   </target>
 
@@ -137,11 +138,15 @@
 
   <target name="compile" depends="stage"
           description="Compile all of the Java class files (including tests).">
+    <echo>Compiling application.</echo>
+    <mkdir dir="${dir.build}/classes/main"/>
     <javac srcdir="${dir.stage}/src" destdir="${dir.build}/classes/main" includes="**/*.java"
            debug="${javac.debug}" optimize="${javac.optimize}" encoding="UTF-8"
            deprecation="${javac.deprecation}" source="1.4" target="1.4">
       <classpath refid="path.class"/>
     </javac>
+    <echo>Compiling unit tests.</echo>
+    <mkdir dir="${dir.build}/classes/tests"/>
     <javac srcdir="${dir.stage}/tests" destdir="${dir.build}/classes/tests" includes="**/*.java"
            debug="${javac.debug}" optimize="${javac.optimize}" encoding="UTF-8"
            deprecation="${javac.deprecation}" source="1.4" target="1.4">
@@ -167,13 +172,16 @@
     </javadoc>
   </target>
 
-  <target name="runtests" depends="compile" description="Run the unit tests.">
+  <target name="runtests" depends="compile"
+          description="Run the unit tests.">
     <mkdir dir="${dir.build}/doc/developer/tests"/>
     <junit printsummary="true" haltonerror="true" fork="true" forkmode="perBatch">
       <classpath>
         <path refid="path.class"/>
         <pathelement location="${dir.build}/classes/main"/>
         <pathelement location="${dir.build}/classes/tests"/>
+        <!-- This is needed to access the test data. -->
+        <pathelement location="${dir.stage}/tests"/>
       </classpath>
       <formatter type="plain"/>
       <batchtest todir="${dir.build}/doc/developer/tests">
@@ -305,7 +313,8 @@
     -->
   </target>
 
-  <target name="clean" description="Remove all of the generated files.">
+  <target name="clean" depends="setproperties"
+          description="Remove all of the generated files.">
     <delete dir="${dir.build}/"/>
     <delete dir="${dir.dist}/"/>
     <delete dir="${dir.stage}/"/>
