@@ -176,9 +176,7 @@ public class FastFileHandler extends StreamHandler {
         }
         logDirectory = new File(path);
         try {
-            System.err.println("Using " + path + " for logs...");
             FileUtils.forceMkdir(logDirectory);
-            System.err.println("Ready to create log files.");
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
