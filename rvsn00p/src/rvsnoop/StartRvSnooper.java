@@ -9,13 +9,20 @@ package rvsnoop;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Application;
 
 import rvsnoop.ui.MultiLineToolTipUI;
 import rvsnoop.ui.UIManager;
@@ -36,27 +43,25 @@ import rvsnoop.ui.UIManager;
 public final class StartRvSnooper {
 
     private static class CreateAndShowTask implements Runnable {
-        private final String filename;
-        private final File file;
+        private final Application application;
 
-        public CreateAndShowTask(String filename, File file) {
-            this.filename = filename;
-            this.file = file;
+        public CreateAndShowTask(Application application) {
+            this.application = application;
         }
 
         public void run() {
             PreferencesManager.INSTANCE.setRecordLedgerTable(UIManager.INSTANCE.getMessageLedger());
             PreferencesManager.INSTANCE.load();
             UIManager.INSTANCE.setVisible(true);
-            if (file != null && file.exists() && file.canRead()) {
-                try {
-                    final Project project = new Project(file.getCanonicalFile());
-                    project.load();
-                    RecentProjects.INSTANCE.add(project);
-                } catch(IOException e) {
-                    log.error("Could not load project from " + filename, e);
-                }
-            }
+//            if (file != null && file.exists() && file.canRead()) {
+//                try {
+//                    final Project project = new Project(file.getCanonicalFile());
+//                    project.load();
+//                    RecentProjects.INSTANCE.add(project);
+//                } catch(IOException e) {
+//                    log.error("Could not load project from " + filename, e);
+//                }
+//            }
         }
     }
 
@@ -69,14 +74,45 @@ public final class StartRvSnooper {
                 PreferencesManager.INSTANCE.store();
                 RecentConnections.getInstance().store();
                 RecentProjects.INSTANCE.store();
-                log.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + '.');
-            } catch (IOException ignored) {
-                // Oh well, we may lose the preferences then.
+            } catch (IOException e) {
+                if (log.isErrorEnabled()) {
+                    log.error("Error saving session state.", e);
+                }
             }
+            log.info(Version.getAsStringWithName() + " stopped at " + DateFormatUtils.ISO_DATETIME_FORMAT.format(System.currentTimeMillis()) + '.');
         }
     }
 
+    private static final Application application = new Application();
+    
     private static final Log log = LogFactory.getLog(StartRvSnooper.class);
+
+    private static void handleHelpOption(final Options options) {
+        new HelpFormatter().printHelp("rvsnoop", options);
+        System.exit(0);
+    }
+
+    private static void handleProjectOption(final String project) {
+        final File file = new File(project);
+        if (file.canRead()) {
+            if (log.isInfoEnabled()) {
+                log.info("Loading project from " + project);
+            }
+            try {
+                application.setProject(new Project(file));
+            } catch (IOException e) {
+                if (log.isErrorEnabled()) {
+                    log.error("Error reading project from " + project, e);
+                }
+            }
+        } else if (log.isErrorEnabled()) {
+            if (file.exists()) {
+                log.error("The project could not be read from " + project);
+            } else {
+                log.error("No project could be found at " + project);
+            }
+        }
+    }
 
     /**
      * The application entry point.
@@ -85,42 +121,32 @@ public final class StartRvSnooper {
      */
     public static void main(final String[] args) {
         MultiLineToolTipUI.configure();
-        if (!SystemUtils.isJavaVersionAtLeast(142) && log.isWarnEnabled())
-            log.warn("Java version 1.4.2 or higher is required, RvSnoop may fail unexpectedly with earlier versions.");
-        final ArgParser parser = new ArgParser(Version.getAsStringWithName());
-        parser.addArgument('h', "help", true, "Display a short help message and exit.");
-        parser.addArgument('p', "project", false, "Load a project file on startup.");
-        parser.addArgument('i', "interface", false, "Use the specified look and feel (class name).");
-        parser.parseArgs(args);
-        if (parser.getBooleanArg("help")) {
-            parser.printUsage(System.out);
-            System.exit(0);
+        if (!SystemUtils.isJavaVersionAtLeast(142)) {
+            Object message = new String[] { 
+                "Java 1.4.2 or later is required to run " + Version.getAsStringWithName(),
+                "Please rerun using a supported Java version."
+            };
+            JOptionPane.showMessageDialog(null, message, "Error!",
+                    JOptionPane.ERROR_MESSAGE);
         }
-        setLookAndFeel(parser.getStringArg("interface"));
-        final String filename = parser.getStringArg("project");
-        if (filename != null && log.isDebugEnabled()) log.debug("Loading project file: " + filename);
-        final File file = filename == null ? null : new File(filename);
-        SwingUtilities.invokeLater(new CreateAndShowTask(filename, file));
+        final Options options = new Options();
+        options.addOption("h", "help", false, "Display a short help message then exit.");
+        options.addOption("p", "project", true, "Load a project file on startup.");
+        try {
+            final CommandLine commands = new PosixParser().parse(options, args);
+            if (commands.hasOption("h")) { handleHelpOption(options); }
+            if (commands.hasOption("p")) {
+                handleProjectOption(commands.getOptionValue("p"));
+            }
+        } catch (ParseException e) {
+            new HelpFormatter().printHelp("rvsnoop", options);
+            System.exit(-1);
+        }
+        SwingUtilities.invokeLater(new CreateAndShowTask(application));
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookTask(), "shutdownHook"));
     }
 
-    private static void setLookAndFeel(String className) {
-        if (className == null) {
-            className = SystemUtils.IS_OS_WINDOWS
-                      ? "com.jgoodies.looks.windows.WindowsLookAndFeel"
-                      : "com.jgoodies.looks.plastic.PlasticXPLookAndFeel";
-        }
-        try {
-            javax.swing.UIManager.setLookAndFeel(className);
-        } catch(Exception e) {
-            if (log.isWarnEnabled())
-                log.warn("Could not set look and feel to " + className);
-        }
-    }
-
-    /**
-     * Do not instantiate.
-     */
+    /** Do not instantiate. */
     private StartRvSnooper() {
         throw new UnsupportedOperationException();
     }
