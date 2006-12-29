@@ -12,7 +12,9 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.RvConnection;
 import rvsnoop.ui.Icons;
 
@@ -32,7 +34,7 @@ final class PauseAllConnections extends AbstractAction {
 
     private static final String ID = "pauseAllConnections";
 
-    private static final Logger logger = Logger.getLogger(PauseAllConnections.class);
+    private static final Log log = LogFactory.getLog(PauseAllConnections.class);
 
     private static String NAME_PAUSE = "Pause All";
 
@@ -64,9 +66,13 @@ final class PauseAllConnections extends AbstractAction {
                 putValue(Action.SHORT_DESCRIPTION, TOOLTIP_PAUSE);
                 putValue(Action.SMALL_ICON, Icons.PAUSE);
                 isPaused = false;
-                logger.info("All connections have now been resumed.");
+                if (log.isInfoEnabled()) {
+                    log.info("All connections have now been resumed.");
+                }
             } catch (TibrvException e) {
-                logger.error("There was a problem resuming the connections.", e);
+                if (log.isErrorEnabled()) {
+                    log.error("There was a problem resuming the connections.", e);
+                }
             }
         } else {
             try {
@@ -75,9 +81,13 @@ final class PauseAllConnections extends AbstractAction {
                 putValue(Action.SHORT_DESCRIPTION, TOOLTIP_RESUME);
                 putValue(Action.SMALL_ICON, Icons.RESUME);
                 isPaused = true;
-                logger.info("All connections have now been paused.");
+                if (log.isInfoEnabled()) {
+                    log.info("All connections have now been paused.");
+                }
             } catch (TibrvException e) {
-                logger.error("There was a problem pausing the connections.", e);
+                if (log.isErrorEnabled()) {
+                    log.error("There was a problem pausing the connections.", e);
+                }
             }
         }
     }

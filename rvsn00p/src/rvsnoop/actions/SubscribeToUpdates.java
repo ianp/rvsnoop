@@ -12,8 +12,10 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.BrowserLauncher;
-import rvsnoop.Logger;
 import rvsnoop.ui.Icons;
 
 /**
@@ -29,7 +31,7 @@ final class SubscribeToUpdates extends AbstractAction {
 
     private static final String ID = "subscribeToUpdates";
 
-    private static final Logger logger = Logger.getLogger(SubscribeToUpdates.class);
+    private static final Log log = LogFactory.getLog(SubscribeToUpdates.class);
 
     private static String NAME = "Subscribe to Updates";
 
@@ -51,7 +53,7 @@ final class SubscribeToUpdates extends AbstractAction {
         try {
             BrowserLauncher.openURL("http://sourceforge.net/project/filemodule_monitor.php?filemodule_id=60335");
         } catch (Exception e) {
-            logger.error(ERROR_BROWSER, e);
+            if (log.isErrorEnabled()) { log.error(ERROR_BROWSER, e); }
         }
     }
 

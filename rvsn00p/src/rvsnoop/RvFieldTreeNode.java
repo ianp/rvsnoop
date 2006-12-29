@@ -28,6 +28,8 @@ import javax.swing.Icon;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -151,7 +153,7 @@ final class RvFieldTreeNode extends LazyTreeNode {
 
     private final String text;
 
-    private static final Logger logger = Logger.getLogger(RvFieldTreeNode.class);
+    private static final Log log = LogFactory.getLog(RvFieldTreeNode.class);
 
     private final TibrvMsgField field;
 
@@ -198,8 +200,9 @@ final class RvFieldTreeNode extends LazyTreeNode {
                 for (int i = 0; i < numChildren; ++i)
                     children.add(new RvFieldTreeNode(this, msg.getFieldByIndex(i)));
             } catch (TibrvException e) {
-                if (Logger.isErrorEnabled())
-                    logger.error("Error reading field.", e);
+                if (log.isErrorEnabled()) {
+                    log.error("Error reading field.", e);
+                }
             }
         }
         return children != null ? children : Collections.EMPTY_LIST;
@@ -215,7 +218,7 @@ final class RvFieldTreeNode extends LazyTreeNode {
             for (int i = 0; i < numChildren; ++i)
                 children.add(new XMLTreeNode(this, doc.getChild(i)));
         } catch (Exception e) {
-            logger.error("Error extracting XML.", e);
+            log.error("Error extracting XML.", e);
         } finally {
             IOUtils.closeQuietly(reader);
         }

@@ -225,7 +225,7 @@
         <attribute name="Implementation-URL" value="http://rvsnoop.org/"/>
       </manifest>
       <fileset dir="${dir.build}/classes/main" includes="**/*.class"/>
-      <fileset dir="${dir.stage}/src" includes="**/*.png, **/*.properties"/>
+      <fileset dir="${dir.stage}/src" includes="**/*.png"/>
     </jar>
     <copy todir="${dir.dist}/lib">
       <fileset file="${lib.binding}"/>
@@ -237,6 +237,7 @@
       <fileset file="${lib.looks}"/>
       <fileset file="${lib.xmlenc}"/>
       <fileset file="${lib.xom}"/>
+      <fileset file="${dir.stage}/src/*.properties"/>
     </copy>
     <echo>Copying in the source code.</echo>
     <copy todir="${dir.dist}/src">

@@ -21,6 +21,9 @@ import javax.swing.JMenuItem;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -74,7 +77,7 @@ public final class RecentProjects extends XMLConfigFile {
 
         public void actionPerformed(ActionEvent e) {
             Project.setCurrentProject(project);
-            logger.info("Loaded project from " + project.getFile().getName());
+            log.info("Loaded project from " + project.getFile().getName());
         }
 
     }
@@ -85,7 +88,7 @@ public final class RecentProjects extends XMLConfigFile {
     private static final String PROJECT = "project";
     private static final String ROOT = "recentProjects";
 
-    private static final Logger logger = Logger.getLogger(RecentProjects.class);
+    private static final Log log = LogFactory.getLog(RecentProjects.class);
 
     public static RecentProjects INSTANCE = new RecentProjects();
 
@@ -153,8 +156,9 @@ public final class RecentProjects extends XMLConfigFile {
                 try {
                     add(new Project(file.getCanonicalFile()));
                 } catch (IOException e) {
-                    if (Logger.isWarnEnabled())
-                        logger.warn("Could not canonicalize file name: " + file.getPath(), e);
+                    if (log.isWarnEnabled()) {
+                        log.warn("Could not canonicalize file name: " + file.getPath(), e);
+                    }
                 }
         }
     }

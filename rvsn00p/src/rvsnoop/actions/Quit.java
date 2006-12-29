@@ -15,7 +15,9 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.RvConnection;
 import rvsnoop.ui.Banners;
 import rvsnoop.ui.Icons;
@@ -36,7 +38,7 @@ final class Quit extends AbstractAction {
 
     private static final String ID = "quit";
 
-    private static final Logger logger = Logger.getLogger(Quit.class);
+    private static final Log log = LogFactory.getLog(Quit.class);
 
     private static String NAME = "Quit";
 
@@ -64,8 +66,9 @@ final class Quit extends AbstractAction {
         try {
             RvConnection.shutdown();
         } catch (Exception e) {
-            if (Logger.isErrorEnabled())
-                logger.error("Problem whilst shutting down.", e);
+            if (log.isErrorEnabled()) {
+                log.error("Problem whilst shutting down.", e);
+            }
         } finally {
             System.exit(0);
         }

@@ -14,6 +14,8 @@ import java.util.Date;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import rvsnoop.ui.MultiLineToolTipUI;
 import rvsnoop.ui.UIManager;
@@ -52,7 +54,7 @@ public final class StartRvSnooper {
                     project.load();
                     RecentProjects.INSTANCE.add(project);
                 } catch(IOException e) {
-                    logger.error("Could not load project from " + filename, e);
+                    log.error("Could not load project from " + filename, e);
                 }
             }
         }
@@ -67,14 +69,14 @@ public final class StartRvSnooper {
                 PreferencesManager.INSTANCE.store();
                 RecentConnections.getInstance().store();
                 RecentProjects.INSTANCE.store();
-                logger.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + '.');
+                log.info(Version.getAsStringWithName() + " stopped at " + StringUtils.format(new Date()) + '.');
             } catch (IOException ignored) {
                 // Oh well, we may lose the preferences then.
             }
         }
     }
 
-    private static final Logger logger = Logger.getLogger(StartRvSnooper.class);
+    private static final Log log = LogFactory.getLog(StartRvSnooper.class);
 
     /**
      * The application entry point.
@@ -83,23 +85,20 @@ public final class StartRvSnooper {
      */
     public static void main(final String[] args) {
         MultiLineToolTipUI.configure();
-        if (!SystemUtils.isJavaVersionAtLeast(142) && Logger.isWarnEnabled())
-            logger.warn("Java version 1.4.2 or higher is required, RvSnoop may fail unexpectedly with earlier versions.");
+        if (!SystemUtils.isJavaVersionAtLeast(142) && log.isWarnEnabled())
+            log.warn("Java version 1.4.2 or higher is required, RvSnoop may fail unexpectedly with earlier versions.");
         final ArgParser parser = new ArgParser(Version.getAsStringWithName());
         parser.addArgument('h', "help", true, "Display a short help message and exit.");
         parser.addArgument('p', "project", false, "Load a project file on startup.");
         parser.addArgument('i', "interface", false, "Use the specified look and feel (class name).");
-        parser.addArgument('l', "logging", false, "Set the log level to {off|fatal|error|warn|info|debug}.");
         parser.parseArgs(args);
-        final String logLevel = parser.getStringArg("logging");
-        if (logLevel != null) Logger.setLevel(logLevel);
         if (parser.getBooleanArg("help")) {
             parser.printUsage(System.out);
             System.exit(0);
         }
         setLookAndFeel(parser.getStringArg("interface"));
         final String filename = parser.getStringArg("project");
-        if (filename != null && Logger.isDebugEnabled()) logger.debug("Loading project file: " + filename);
+        if (filename != null && log.isDebugEnabled()) log.debug("Loading project file: " + filename);
         final File file = filename == null ? null : new File(filename);
         SwingUtilities.invokeLater(new CreateAndShowTask(filename, file));
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookTask(), "shutdownHook"));
@@ -114,8 +113,8 @@ public final class StartRvSnooper {
         try {
             javax.swing.UIManager.setLookAndFeel(className);
         } catch(Exception e) {
-            if (Logger.isWarnEnabled())
-                logger.warn("Could not set look and feel to " + className);
+            if (log.isWarnEnabled())
+                log.warn("Could not set look and feel to " + className);
         }
     }
 

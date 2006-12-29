@@ -46,7 +46,9 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.RecordMatcher;
 import rvsnoop.RecordType;
 import rvsnoop.RecordTypes;
@@ -213,8 +215,9 @@ public final class RecordTypesDialog extends JDialog {
             } catch (Exception e) {
                 // If robot isn't supported by the graphics configuration
                 // just use a plain gray rectangle of the correct size.
-                if (Logger.isDebugEnabled())
-                    logger.debug("Robot based image capture failed, using fallback method.", e);
+                if (log.isDebugEnabled()) {
+                    log.debug("Robot based image capture failed, using fallback method.", e);
+                }
                 image = new BufferedImage(bounds.width, bounds.height, Transparency.TRANSLUCENT);
                 final Graphics2D g = (Graphics2D) image.getGraphics();
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
@@ -380,7 +383,7 @@ public final class RecordTypesDialog extends JDialog {
 
     static String HEADER_TITLE = "Edit Record Types";
 
-    private static final Logger logger = Logger.getLogger(RecordTypesDialog.class);
+    private static final Log log = LogFactory.getLog(RecordTypesDialog.class);
 
     static final long serialVersionUID = -7458805721398275868L;
 

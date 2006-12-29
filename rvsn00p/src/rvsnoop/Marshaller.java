@@ -5,6 +5,9 @@
 //:FileID:  $Id$
 package rvsnoop;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.reuters.msgtest.MsgTestException;
 import com.reuters.msgtest.XMLConverter;
 import com.tibco.rvscript.tibrvXmlConvert;
@@ -136,7 +139,9 @@ public final class Marshaller {
             try {
                 return converter.createXML(message).toString();
             } catch (MsgTestException e) {
-                if (Logger.isErrorEnabled()) logger.error("Unable to marshal message.", e);
+                if (log.isErrorEnabled()) {
+                    log.error("Unable to marshal message.", e);
+                }
                 return "";
             }
         }
@@ -150,7 +155,7 @@ public final class Marshaller {
 
     private static final Implementation implementation;
 
-    private static final Logger logger = Logger.getLogger(Marshaller.class);
+    private static final Log log = LogFactory.getLog(Marshaller.class);
 
     private static final String[] PREFERRED = {
         IMPL_RVTEST, IMPL_RVSCRIPT, IMPL_MTREE, IMPL_RVMSG
@@ -160,12 +165,14 @@ public final class Marshaller {
         try {
             return (Implementation) Class.forName(className).newInstance();
         } catch (Exception e) {
-            if (Logger.isDebugEnabled())
-                logger.debug("Failed to load marshaller: " + className);
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to load marshaller: " + className);
+            }
             return null;
         } catch (NoClassDefFoundError e) {
-            if (Logger.isDebugEnabled())
-                logger.debug("Failed to load marshaller: " + className);
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to load marshaller: " + className);
+            }
             return null;
         }
     }
@@ -181,11 +188,12 @@ public final class Marshaller {
             if ((impl = getImplementation(preferred[i])) != null)
                 break;
         implementation = impl;
-        if (Logger.isInfoEnabled()) {
-            if (impl == null)
-                logger.info("No marshaller loaded!");
-            else
-                logger.info("Using marshaller: " + impl.name);
+        if (log.isInfoEnabled()) {
+            if (impl == null) {
+                log.info("No marshaller loaded!");
+            } else {
+                log.info("Using marshaller: " + impl.name);
+            }
         }
     }
 
@@ -195,7 +203,9 @@ public final class Marshaller {
      * @return The name of the marshaller.
      */
     public static String getImplementationName() {
-        if (implementation == null) throw new UnsupportedOperationException();
+        if (implementation == null) {
+            throw new UnsupportedOperationException();
+        }
         return implementation.getName();
     }
 
@@ -208,7 +218,9 @@ public final class Marshaller {
      * @return The message's string form
      */
     public static String marshal(String name, TibrvMsg message) {
-        if (implementation == null) throw new UnsupportedOperationException();
+        if (implementation == null) {
+            throw new UnsupportedOperationException();
+        }
         return implementation.marshal(name, message);
     }
 
@@ -222,7 +234,9 @@ public final class Marshaller {
      * @throws UnsupportedOperationException
      */
     public static TibrvMsg unmarshal(String string) {
-        if (implementation == null) throw new UnsupportedOperationException();
+        if (implementation == null) {
+            throw new UnsupportedOperationException();
+        }
         return implementation.unmarshal(string);
     }
 

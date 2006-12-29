@@ -11,6 +11,9 @@ import java.util.List;
 
 import javax.swing.Icon;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.ui.Icons;
 
 import com.tibco.tibrv.TibrvException;
@@ -27,7 +30,7 @@ import com.tibco.tibrv.TibrvMsg;
  */
 public final class RvMessageTreeNode extends LazyTreeNode {
 
-    private static final Logger logger = Logger.getLogger(RvMessageTreeNode.class);
+    private static final Log log = LogFactory.getLog(RvMessageTreeNode.class);
 
     private final TibrvMsg message;
 
@@ -46,7 +49,7 @@ public final class RvMessageTreeNode extends LazyTreeNode {
             try {
                 children.add(new RvFieldTreeNode(this, message.getFieldByIndex(i)));
             } catch (TibrvException e) {
-                logger.error("Problem reading message.", e);
+                log.error("Problem reading message.", e);
                 break;
             }
         return children;

@@ -23,6 +23,8 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import nu.xom.Attribute;
 import nu.xom.Element;
@@ -108,7 +110,7 @@ public final class RvConnection implements TibrvMsgCallback {
 
         public void onError(Object tibrvObject, int errorCode, String message, Throwable cause) {
             final String msg = StringUtils.format(ERROR_RV, new Object[] { new Integer(errorCode), message });
-            logger.error(msg, cause);
+            log.error(msg, cause);
             if (tibrvObject instanceof TibrvRvaTransport)
                 invalidateTransport((TibrvRvaTransport) tibrvObject);
             else if (tibrvObject instanceof TibrvListener)
@@ -191,7 +193,7 @@ public final class RvConnection implements TibrvMsgCallback {
 
     private static String ERROR_RV_OPEN = "The RV libraries could not be loaded and started because: {0}. The Rendezvous error code that was reported was: {1}.";
 
-    private static final Logger logger = Logger.getLogger(RvConnection.class);
+    private static final Log log = LogFactory.getLog(RvConnection.class);
 
     /**
      * Property key for the RV daemon setting of this connection.
@@ -238,7 +240,7 @@ public final class RvConnection implements TibrvMsgCallback {
             new TibrvDispatcher(queue);
         } catch (TibrvException e) {
             final String msg = StringUtils.format(ERROR_RV_OPEN, new Object[] { e.getLocalizedMessage(), new Integer(e.error) });
-            logger.error(msg, e);
+            log.error(msg, e);
             try {
                 // try to clean up.
                 queue.destroy();
@@ -334,7 +336,7 @@ public final class RvConnection implements TibrvMsgCallback {
         try {
             Tibrv.close();
         } catch (TibrvException e) {
-            logger.error("There was a problem closing the Rendezvous library.", e);
+            log.error("There was a problem closing the Rendezvous library.", e);
         }
         queue = null;
     }
@@ -432,10 +434,14 @@ public final class RvConnection implements TibrvMsgCallback {
         if (state == State.STOPPED) return null;
         try {
             ensureInitialized();
-            if (Logger.isDebugEnabled()) logger.debug("Creating listener for ‘" + description + "’ on subject ‘" + subject + "’.");
+            if (log.isDebugEnabled()) {
+                log.debug("Creating listener for ‘" + description + "’ on subject ‘" + subject + "’.");
+            }
             return new TibrvListener(queue, this, transport, subject, this);
         } catch (TibrvException e) {
-            logger.error("Could not create Rendezvous connection.", e);
+            if (log.isErrorEnabled()) {
+                log.error("Could not create Rendezvous connection.", e);
+            }
             return null;
         }
     }
@@ -565,10 +571,10 @@ public final class RvConnection implements TibrvMsgCallback {
     public synchronized void pause() {
         if (state != State.STARTED)
             throw new IllegalStateException("Connection must be started before it can be paused.");
-        logger.info("Pausing connection: " + description);
+        log.info("Pausing connection: " + description);
         final State oldState = state;
         state = State.PAUSED;
-        logger.info("Paused connection: " + description);
+        log.info("Paused connection: " + description);
         changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
     }
 
@@ -622,7 +628,7 @@ public final class RvConnection implements TibrvMsgCallback {
             this.description = description != null ? description : "";
             changeSupport.firePropertyChange(PROP_DESCRIPTION, oldDescription, this.description);
         } catch (TibrvException e) {
-            logger.error("Could not set connection description.", e);
+            log.error("Could not set connection description.", e);
         }
     }
 
@@ -645,7 +651,7 @@ public final class RvConnection implements TibrvMsgCallback {
     public synchronized void start() {
         if (parentList == null) throw new IllegalStateException("Not added to a connection list!");
         if (state == State.STARTED) throw new IllegalStateException("Cannot start if already started.");
-        logger.info("Starting connection: " + description);
+        log.info("Starting connection: " + description);
         final State oldState = state;
         if (state == State.PAUSED) {
             state = State.STARTED;
@@ -657,10 +663,10 @@ public final class RvConnection implements TibrvMsgCallback {
                     final String subject = (String) i.next();
                     subjects.put(subject, createListener(subject));
                 }
-                logger.info("Started connection: " + description);
+                log.info("Started connection: " + description);
             } catch (TibrvException e) {
                 state = State.STOPPED;
-                logger.error("The connection named " + description + " could not be started.", e);
+                log.error("The connection named " + description + " could not be started.", e);
             }
         }
         changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
@@ -668,7 +674,7 @@ public final class RvConnection implements TibrvMsgCallback {
 
     public synchronized void stop() {
         if (state == State.STOPPED) return;
-        logger.info("Stopping connection: " + description);
+        log.info("Stopping connection: " + description);
         for (final Iterator i = subjects.values().iterator(); i.hasNext(); )
             ((TibrvEvent) i.next()).destroy();
         subjects.values().clear();
@@ -676,7 +682,7 @@ public final class RvConnection implements TibrvMsgCallback {
         transport = null;
         final State oldState = state;
         state = State.STOPPED;
-        logger.info("Stopped connection: " + description);
+        log.info("Stopped connection: " + description);
         changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
     }
 

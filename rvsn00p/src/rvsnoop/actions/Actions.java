@@ -20,7 +20,9 @@ import java.util.Set;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.StringUtils;
 
 /**
@@ -58,7 +60,7 @@ public final class Actions {
     // String -> Action
     private static final Map actionCommandMap = new HashMap();
 
-    private static final Logger logger = Logger.getLogger(Actions.class);
+    private static final Log log = LogFactory.getLog(Actions.class);
 
     public static final Action ADD_CONNECTION = add(new AddConnection());
 
@@ -132,10 +134,11 @@ public final class Actions {
         final KeyStroke accelerator = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
         if (accelerator != null) {
             final Object old = acceleratorKeyMap.put(accelerator, action);
-            if (old != null && Logger.isWarnEnabled()) {
+            if (old != null && log.isWarnEnabled()) {
                 final Object[] fields = new Object[] { accelerator.toString(), ((Action) old).getValue(Action.ACTION_COMMAND_KEY), command };
-                if (Logger.isWarnEnabled())
-                    logger.warn(StringUtils.format("Redefining accelerator key '{0}' from {1} to {2}.", fields));
+                if (log.isWarnEnabled()) {
+                    log.warn(StringUtils.format("Redefining accelerator key '{0}' from {1} to {2}.", fields));
+                }
             }
         }
         return action;

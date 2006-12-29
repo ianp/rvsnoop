@@ -6,6 +6,8 @@
 package rvsnoop;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
@@ -22,7 +24,7 @@ import com.tibco.tibrv.TibrvMsgField;
  */
 public final class Record {
 
-    private static final Logger logger = Logger.getLogger(Record.class);
+    private static final Log log = LogFactory.getLog(Record.class);
 
     private static long nextSequenceNumber;
 
@@ -67,15 +69,16 @@ public final class Record {
             if (send != null && send.length() > 0) message.setSendSubject(send);
             if (reply != null && reply.length() > 0) message.setReplySubject(reply);
         } catch (TibrvException e) {
-            if (Logger.isErrorEnabled())
-                logger.error("Could not set subject on message.",e);
+            if (log.isErrorEnabled())
+                log.error("Could not set subject on message.",e);
         }
         int sizeInBytes = 0;
         try {
             sizeInBytes = message.getAsBytes().length;
         } catch (TibrvException e) {
-            if (Logger.isWarnEnabled())
-                logger.warn("Unable to extract bytes from message.", e);
+            if (log.isWarnEnabled()) {
+                log.warn("Unable to extract bytes from message.", e);
+            }
         }
         this.sizeInBytes = sizeInBytes;
         this.subject = SubjectHierarchy.INSTANCE.getSubjectElement(message.getSendSubject());
@@ -214,7 +217,7 @@ public final class Record {
                 trackingId = "";
             } catch (TibrvException e) {
                 trackingId = "";
-                logger.error("Unable to determine tracking ID.", e);
+                log.error("Unable to determine tracking ID.", e);
             }
         }
         return trackingId;

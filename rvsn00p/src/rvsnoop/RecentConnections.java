@@ -26,6 +26,8 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
@@ -100,7 +102,7 @@ public final class RecentConnections implements ListEventListener {
 
     public static RecentConnections instance;
 
-    private static final Logger logger = Logger.getLogger(RecentConnections.class);
+    private static final Log log = LogFactory.getLog(RecentConnections.class);
 
     public static synchronized RecentConnections getInstance() {
         if (instance == null) {
@@ -158,11 +160,15 @@ public final class RecentConnections implements ListEventListener {
     public void load() {
         if (!file.exists()) return;
         if (!file.canRead()) {
-            if (Logger.isWarnEnabled()) logger.warn("Cannot read file: " + file.getName());
+            if (log.isWarnEnabled()) {
+                log.warn("Cannot read file: " + file.getName());
+            }
             return;
         }
         if (file.length() == 0) {
-            if (Logger.isWarnEnabled()) logger.warn("File is empty: " + file.getName());
+            if (log.isWarnEnabled()) {
+                log.warn("File is empty: " + file.getName());
+            }
             return;
         }
         InputStream stream = null;
@@ -175,8 +181,9 @@ public final class RecentConnections implements ListEventListener {
                 connections.add(conn);
             }
         } catch (Exception e) {
-            if (Logger.isErrorEnabled())
-                logger.error("Unable to load file: " + file.getName(), e);
+            if (log.isErrorEnabled()) {
+                log.error("Unable to load file: " + file.getName(), e);
+            }
         } finally {
             IOUtils.closeQuietly(stream);
             setMaxSize(maxSize);

@@ -54,4 +54,5 @@ java -Xmx128m \
   -Djava.library.path="$LP" \
   -Dapple.laf.useScreenMenuBar=true \
   -Dcom.apple.mrj.application.apple.menu.about.name="RvSnoop" \
+  -Djava.util.logging.config.file="${RVSNOOP_HOME}/lib/commons-logging.properties" \
   -classpath "$CP" rvsnoop.StartRvSnooper $* &

@@ -15,6 +15,8 @@ import java.util.List;
 
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.RecordLedgerFormat;
 import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
 import org.rvsnoop.ui.RecordLedgerTable;
@@ -60,7 +62,7 @@ public final class PreferencesManager extends XMLConfigFile {
     private static final String WINDOW_X = "x";
     private static final String WINDOW_Y = "y";
 
-    private static final Logger logger = Logger.getLogger(PreferencesManager.class);
+    private static final Log log = LogFactory.getLog(PreferencesManager.class);
 
     public static final PreferencesManager INSTANCE = new PreferencesManager();
 
@@ -114,8 +116,8 @@ public final class PreferencesManager extends XMLConfigFile {
             final int style = getInteger(elt, FONT_STYLE, font.getStyle());
             UIManager.INSTANCE.setMessageLedgerFont(new Font(name != null ? name : font.getName(), style, size));
         } catch (Exception e) {
-            if (Logger.isWarnEnabled())
-                logger.warn("Unable to restore font preferences.", e);
+            if (log.isWarnEnabled())
+                log.warn("Unable to restore font preferences.", e);
             UIManager.INSTANCE.setMessageLedgerFont(new Font("Dialog", Font.PLAIN, 11));
         }
     }

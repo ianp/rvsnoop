@@ -15,7 +15,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.Project;
 import rvsnoop.ui.Icons;
 
@@ -30,7 +32,7 @@ final class Save extends AbstractAction {
 
     private static final String ID = "save";
 
-    private static final Logger logger = Logger.getLogger(Save.class);
+    private static final Log log = LogFactory.getLog(Save.class);
 
     private static String NAME = "Save";
 
@@ -57,9 +59,13 @@ final class Save extends AbstractAction {
         } else {
             try {
                 project.store();
-                logger.info("Saved project to " + project.getFile().getName());
+                if (log.isInfoEnabled()) {
+                    log.info("Saved project to " + project.getFile().getName());
+                }
             } catch (IOException e) {
-                logger.error("There was a problem saving the project.", e);
+                if (log.isErrorEnabled()) {
+                    log.error("There was a problem saving the project.", e);
+                }
             }
         }
     }

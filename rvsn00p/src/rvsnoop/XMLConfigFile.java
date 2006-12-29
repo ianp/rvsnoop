@@ -22,6 +22,8 @@ import nu.xom.Serializer;
 import nu.xom.Text;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Handles storing and retreiving application state from XML files.
@@ -33,7 +35,7 @@ abstract class XMLConfigFile {
     // TODO: Make final and use has-a rather than is-a for composition.
     //       Alter the API to match the OSGi Preferences node.
 
-    private static final Logger logger = Logger.getLogger(XMLConfigFile.class);
+    private static final Log log = LogFactory.getLog(XMLConfigFile.class);
 
     final File file;
 
@@ -59,8 +61,9 @@ abstract class XMLConfigFile {
             if (file.exists())
                 file.delete();
         } catch (Exception e) {
-            if (Logger.isErrorEnabled())
-                logger.error("Unable to delete file: " + file.getName(), e);
+            if (log.isErrorEnabled()) {
+                log.error("Unable to delete file: " + file.getName(), e);
+            }
         }
         postDeleteHook();
     }
@@ -104,11 +107,15 @@ abstract class XMLConfigFile {
      */
     public final void load() {
         if (!file.canRead()) {
-            if (Logger.isWarnEnabled()) logger.warn("Cannot read file: " + file.getName());
+            if (log.isWarnEnabled()) {
+                log.warn("Cannot read file: " + file.getName());
+            }
             return;
         }
         if (file.length() == 0) {
-            if (Logger.isWarnEnabled()) logger.warn("File is empty: " + file.getName());
+            if (log.isWarnEnabled()) {
+                log.warn("File is empty: " + file.getName());
+            }
             return;
         }
         InputStream stream = null;
@@ -117,8 +124,9 @@ abstract class XMLConfigFile {
             final Document doc = new Builder().build(stream);
             load(doc.getRootElement());
         } catch (Exception e) {
-            if (Logger.isErrorEnabled())
-                logger.error("Unable to load file: " + file.getName(), e);
+            if (log.isErrorEnabled()) {
+                log.error("Unable to load file: " + file.getName(), e);
+            }
         } finally {
             IOUtils.closeQuietly(stream);
         }

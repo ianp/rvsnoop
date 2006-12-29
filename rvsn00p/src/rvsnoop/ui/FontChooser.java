@@ -48,7 +48,8 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.jgoodies.forms.factories.ButtonBarFactory;
 
@@ -123,8 +124,8 @@ public final class FontChooser extends JComponent {
                 final Document doc = event.getDocument();
                 newValue = doc.getText(0, doc.getLength());
             } catch (BadLocationException e) {
-                if (Logger.isWarnEnabled())
-                logger.warn("Bad document location.", e);
+                if (log.isWarnEnabled())
+                log.warn("Bad document location.", e);
             }
             if (newValue.length() > 0) {
                 int index = list.getNextMatch(newValue, 0, Position.Bias.Forward);
@@ -241,7 +242,7 @@ public final class FontChooser extends JComponent {
 
     private static final Border TEXT_BORDER = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY);
 
-    private static final Logger logger = Logger.getLogger(FontChooser.class);
+    private static final Log log = LogFactory.getLog(FontChooser.class);
 
     /**
      * Return value from {@link #showDialog(Component)}.

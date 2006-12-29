@@ -54,12 +54,13 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.RecordLedgerFormat;
 import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
 import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.Connections;
-import rvsnoop.Logger;
 import rvsnoop.MessageLedger;
 import rvsnoop.PreferencesManager;
 import rvsnoop.RecentConnections;
@@ -139,7 +140,7 @@ public final class UIManager {
 
     private static final String TOOLTIP_VISIBLE_COLUMNS = "Show or hide individual table columns";
 
-    private static final Logger logger = Logger.getLogger(UIManager.class);
+    private static final Log log = LogFactory.getLog(UIManager.class);
 
     public static final UIManager INSTANCE = new UIManager();
 
@@ -499,8 +500,9 @@ public final class UIManager {
             final int index = messageLedger.getSelectedRow();
             return index >= 0 ? MessageLedger.FILTERED_VIEW.get(index) : null;
         } catch (IndexOutOfBoundsException e) {
-            if (Logger.isErrorEnabled())
-                logger.error("Failed to get selected record from ledger.", e);
+            if (log.isErrorEnabled()) {
+                log.error("Failed to get selected record from ledger.", e);
+            }
             return null;
         }
     }
@@ -526,7 +528,7 @@ public final class UIManager {
     }
 
     public void selectRecordInLedger(int index) {
-        logger.info("Selecting record " + index);
+        if (log.isInfoEnabled()) { log.info("Selecting record " + index); }
         messageLedger.getSelectionModel().setSelectionInterval(index, index);
         messageLedgerScroller.getVerticalScrollBar().setValue(index);
     }
@@ -566,8 +568,6 @@ public final class UIManager {
 
     public void setVisible(boolean visible) {
         frame.setVisible(visible);
-        // Enable UI notification from the logger if the frame is visible.
-        Logger.setRunningHeadless(visible);
     }
 
     public void updateStatusLabel() {

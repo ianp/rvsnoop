@@ -14,6 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ObservableElementList;
@@ -88,7 +91,7 @@ public final class Connections implements EventList {
 
     private static Connections instance;
 
-    private static final Logger logger = Logger.getLogger(Connections.class);
+    private static final Log log = LogFactory.getLog(Connections.class);
 
     public static synchronized Connections getInstance() {
         if (instance == null) instance = new Connections();
@@ -294,8 +297,8 @@ public final class Connections implements EventList {
 
     private boolean internalAdd(RvConnection connection) {
         if (list.contains(connection)) return false;
-        if (Logger.isInfoEnabled())
-            logger.info("Adding connection: " + connection);
+        if (log.isInfoEnabled())
+            log.info("Adding connection: " + connection);
         connection.setParentList(this);
         list.add(connection);
         return true;
@@ -303,8 +306,8 @@ public final class Connections implements EventList {
 
     private RvConnection internalRemove(int index) {
         final RvConnection connection = (RvConnection) list.get(index);
-        if (Logger.isInfoEnabled())
-            logger.info("Removing connection: " + connection);
+        if (log.isInfoEnabled())
+            log.info("Removing connection: " + connection);
         connection.stop();
         connection.setParentList(null);
         list.remove(index);
@@ -313,8 +316,8 @@ public final class Connections implements EventList {
 
     private boolean internalRemove(RvConnection connection) {
         if (!list.contains(connection)) return false;
-        if (Logger.isInfoEnabled())
-            logger.info("Removing connection: " + connection);
+        if (log.isInfoEnabled())
+            log.info("Removing connection: " + connection);
         connection.stop();
         connection.setParentList(null);
         list.remove(connection);

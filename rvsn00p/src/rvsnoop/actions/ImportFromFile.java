@@ -18,8 +18,9 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import rvsnoop.Logger;
 import rvsnoop.ui.UIManager;
 
 /**
@@ -33,7 +34,7 @@ public abstract class ImportFromFile extends AbstractAction {
 
     private static final int BUFFER_SIZE = 64 * 1024;
 
-    private static final Logger logger = Logger.getLogger(ImportFromFile.class);
+    private static final Log log = LogFactory.getLog(ImportFromFile.class);
 
     private final FileFilter filter;
 
@@ -64,11 +65,17 @@ public abstract class ImportFromFile extends AbstractAction {
         InputStream stream = null;
         try {
             stream = new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
-            logger.info("Importing records from " + file.getPath() + '.');
+            if (log.isInfoEnabled()) {
+                log.info("Importing records from " + file.getPath() + '.');
+            }
             importRecords(stream);
-            logger.info("Imported records from " + file.getPath() + '.');
+            if (log.isInfoEnabled()) {
+                log.info("Imported records from " + file.getPath() + '.');
+            }
         } catch (IOException e) {
-            logger.error("There was a problem importing the file" + file.getPath() + '.', e);
+            if (log.isErrorEnabled()) {
+                log.error("There was a problem importing the file" + file.getPath() + '.', e);
+            }
         } finally {
             IOUtils.closeQuietly(stream);
         }

@@ -14,7 +14,9 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.MessageLedger;
 import rvsnoop.Record;
 import rvsnoop.ui.Icons;
@@ -36,7 +38,7 @@ import com.tibco.tibrv.TibrvXml;
  */
 final class Search extends AbstractAction {
     
-    private static class Searcher implements Matcher {
+    private class Searcher implements Matcher {
         private final boolean fieldData;
         private final boolean fieldNames;
         private final boolean replySubject;
@@ -120,7 +122,9 @@ final class Search extends AbstractAction {
             try {
                 return isTextInMessageData(searchText, record.getMessage());
             } catch (TibrvException e) {
-                logger.error("Error reading message field.", e);
+                if (log.isErrorEnabled()) {
+                    log.error("Error reading message field.", e);
+                }
                 return false;
             }
         }
@@ -142,7 +146,7 @@ final class Search extends AbstractAction {
 
     }
 
-    private static final Logger logger = Logger.getLogger(Search.class);
+    private static final Log log = LogFactory.getLog(Search.class);
 
     public static final String SEARCH = "search";
 

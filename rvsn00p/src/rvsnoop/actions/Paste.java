@@ -20,7 +20,9 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
 import rvsnoop.RvConnection;
@@ -47,7 +49,7 @@ final class Paste extends AbstractAction {
 
     private static final String ID = "paste";
 
-    private static final Logger logger = Logger.getLogger(Paste.class);
+    private static final Log log = LogFactory.getLog(Paste.class);
 
     private static String NAME = "Paste";
 
@@ -72,7 +74,7 @@ final class Paste extends AbstractAction {
         final Transferable clipboardData = clipboard.getContents(this);
         if (!clipboardData.isDataFlavorSupported(RecordSelection.BYTES_FLAVOUR)
                 && !clipboardData.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-            logger.warn(INFO_BAD_CLIP_DATA);
+            if (log.isWarnEnabled()) { log.warn(INFO_BAD_CLIP_DATA); }
             return;
         }
         try {
@@ -80,11 +82,11 @@ final class Paste extends AbstractAction {
             for (int i = 0, imax = records.length; i < imax; ++i)
                 SwingUtilities.invokeLater(new RvConnection.AddRecordTask(records[i]));
         } catch (TibrvException e) {
-            logger.error(ERROR_RV, e);
+            if (log.isErrorEnabled()) { log.error(ERROR_RV, e); }
         } catch (IOException e) {
-            logger.error(ERROR_IO, e);
+            if (log.isErrorEnabled()) { log.error(ERROR_IO, e); }
         } catch (UnsupportedFlavorException e) {
-            logger.error(ERROR_CLIPBOARD_LOST, e);
+            if (log.isErrorEnabled()) { log.error(ERROR_CLIPBOARD_LOST, e); }
         }
     }
 

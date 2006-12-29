@@ -15,8 +15,9 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import rvsnoop.Logger;
 import rvsnoop.Record;
 import rvsnoop.ui.UIManager;
 
@@ -31,7 +32,7 @@ public abstract class ExportToFile extends LedgerSelectionAction {
 
     private static final int BUFFER_SIZE = 64 * 1024;
 
-    private static final Logger logger = Logger.getLogger(ExportToFile.class);
+    private static final Log log = LogFactory.getLog(ExportToFile.class);
 
     private final FileFilter filter;
 
@@ -63,14 +64,20 @@ public abstract class ExportToFile extends LedgerSelectionAction {
     public void exportRecords(Record[] records, final File file) {
         try {
             stream = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);
-            logger.info("Exporting " + records.length + " records to " + file.getPath() + '.');
+            if (log.isInfoEnabled()) {
+                log.info("Exporting " + records.length + " records to " + file.getPath() + '.');
+            }
             writeHeader(records.length);
             for (int i = 0, imax = records.length; i < imax; ++i)
                 writeRecord(records[i], i);
             writeFooter();
-            logger.info("Exported " + records.length + " records to " + file.getPath() + '.');
+            if (log.isInfoEnabled()) {
+                log.info("Exported " + records.length + " records to " + file.getPath() + '.');
+            }
         } catch (IOException e) {
-            logger.error("There was a problem exporting the selected records.", e);
+            if (log.isErrorEnabled()) {
+                log.error("There was a problem exporting the selected records.", e);
+            }
         } finally {
             IOUtils.closeQuietly(stream);
         }

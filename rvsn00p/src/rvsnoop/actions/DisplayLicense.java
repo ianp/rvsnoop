@@ -13,8 +13,10 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.BrowserLauncher;
-import rvsnoop.Logger;
 import rvsnoop.ui.Icons;
 
 /**
@@ -30,7 +32,7 @@ final class DisplayLicense extends AbstractAction {
 
     private static final String ID = "displayLicense";
 
-    private static final Logger logger = Logger.getLogger(DisplayLicense.class);
+    private static final Log log = LogFactory.getLog(DisplayLicense.class);
 
     private static String NAME = "Show License";
 
@@ -57,7 +59,7 @@ final class DisplayLicense extends AbstractAction {
                 ? "" : "file://";
             BrowserLauncher.openURL(prefix + license.getAbsolutePath());
         } catch (Exception e) {
-            logger.error(ERROR_BROWSER, e);
+            if (log.isErrorEnabled()) { log.error(ERROR_BROWSER, e); }
         }
     }
 

@@ -13,8 +13,10 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.BrowserLauncher;
-import rvsnoop.Logger;
 import rvsnoop.ui.Icons;
 
 /**
@@ -30,7 +32,7 @@ final class Help extends AbstractAction {
 
     private static final String ID = "help";
 
-    private static final Logger logger = Logger.getLogger(Help.class);
+    private static final Log log = LogFactory.getLog(Help.class);
 
     private static String NAME = "Help Contents";
 
@@ -57,7 +59,8 @@ final class Help extends AbstractAction {
                 ? "" : "file://";
             BrowserLauncher.openURL(prefix + help.getAbsolutePath());
         } catch (Exception e) {
-            logger.error(ERROR_BROWSER, e);
+            if (log.isErrorEnabled()) { log.error(ERROR_BROWSER, e); } 
+            
         }
     }
 

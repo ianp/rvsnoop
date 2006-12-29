@@ -18,6 +18,8 @@ import nu.xom.Element;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ca.odell.glazedlists.matchers.Matcher;
 
@@ -88,7 +90,7 @@ public abstract class RecordMatcher implements Matcher {
     public static final String XML_ELEMENT = "matcher";
     public static final String XML_NS = "http://rvsnoop.org/ns/matcher/1";
 
-    private static final Logger logger = Logger.getLogger(RecordMatcher.class);
+    private static final Log log = LogFactory.getLog(RecordMatcher.class);
 
     /**
      * Create a new matcher.
@@ -108,8 +110,8 @@ public abstract class RecordMatcher implements Matcher {
             final Constructor ctor = clazz.getConstructor(new Class[] { String.class });
             return (RecordMatcher) ctor.newInstance(new Object[] { value });
         } catch (Exception e) {
-            if (Logger.isErrorEnabled())
-                logger.error("Could not create a matcher from name=‘" + typeOrName + "’ and value=‘" + value + "’.", e);
+            if (log.isErrorEnabled())
+                log.error("Could not create a matcher from name=‘" + typeOrName + "’ and value=‘" + value + "’.", e);
             return null;
         }
     }

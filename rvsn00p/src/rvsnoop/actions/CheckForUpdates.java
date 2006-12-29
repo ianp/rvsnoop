@@ -12,10 +12,12 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import nu.xom.Builder;
 import nu.xom.Document;
 
-import rvsnoop.Logger;
 import rvsnoop.Version;
 import rvsnoop.ui.Banners;
 import rvsnoop.ui.Icons;
@@ -34,7 +36,7 @@ final class CheckForUpdates extends AbstractAction {
 
     private static final String ID = "checkForUpdates";
 
-    private static final Logger logger = Logger.getLogger(CheckForUpdates.class);
+    private static final Log log = LogFactory.getLog(CheckForUpdates.class);
 
     private static String MESSAGE_NEW_VERSION = "A new version is available.";
 
@@ -64,7 +66,7 @@ final class CheckForUpdates extends AbstractAction {
             else
                 UIUtils.showInformation(MESSAGE_UP_TO_DATE, Banners.UPDATE_ALREADY);
         } catch (Exception e) {
-            logger.error(ERROR, e);
+            if (log.isErrorEnabled()) { log.error(ERROR, e); }
         }
     }
 

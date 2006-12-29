@@ -18,7 +18,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.MessageLedger;
 import rvsnoop.RecordTypes;
 
@@ -38,7 +40,7 @@ public final class MessageLedgerRenderer implements TableCellRenderer {
      * @version $Revision$, $Date$
      */
     private static class DateCellRenderer extends DefaultTableCellRenderer {
-        private static final Logger logger = Logger.getLogger(DateCellRenderer.class);
+        private static final Log log = LogFactory.getLog(DateCellRenderer.class);
         private static final long serialVersionUID = -6397207684112537883L;
         private static final DateFormat[] FORMATS = {
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
@@ -74,15 +76,17 @@ public final class MessageLedgerRenderer implements TableCellRenderer {
                     final int dateWidth = metrics.stringWidth(FORMATS[i].format(date));
                     if (dateWidth < width) {
                         currentFormat = FORMATS[i];
-                        if (Logger.isDebugEnabled())
-                            logger.debug("Setting date format to " + FORMATS[i].format(date));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Setting date format to " + FORMATS[i].format(date));
+                        }
                         break;
                     }
                 }
                 if (currentFormat == null) {
                     currentFormat = FORMATS[FORMATS.length - 1];
-                    if (Logger.isDebugEnabled())
-                        logger.debug("Setting date format to " + FORMATS[FORMATS.length - 1].format(date));
+                    if (log.isDebugEnabled()) {
+                        log.debug("Setting date format to " + FORMATS[FORMATS.length - 1].format(date));
+                    }
                 }
             }
             return currentFormat;

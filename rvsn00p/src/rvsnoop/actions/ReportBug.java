@@ -12,8 +12,10 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.BrowserLauncher;
-import rvsnoop.Logger;
 import rvsnoop.ui.Icons;
 
 /**
@@ -29,7 +31,7 @@ final class ReportBug extends AbstractAction {
 
     private static final String ID = "reportBug";
 
-    private static final Logger logger = Logger.getLogger(ReportBug.class);
+    private static final Log log = LogFactory.getLog(ReportBug.class);
 
     private static String NAME = "Report Bug";
 
@@ -51,7 +53,7 @@ final class ReportBug extends AbstractAction {
         try {
             BrowserLauncher.openURL("http://sourceforge.net/tracker/?group_id=63447");
         } catch (Exception e) {
-            logger.error(ERROR_BROWSER, e);
+            if (log.isErrorEnabled()) { log.error(ERROR_BROWSER, e); }
         }
     }
 

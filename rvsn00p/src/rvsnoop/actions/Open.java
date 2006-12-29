@@ -17,7 +17,9 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
-import rvsnoop.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import rvsnoop.Project;
 import rvsnoop.ProjectFileFilter;
 import rvsnoop.RvConnection;
@@ -37,7 +39,7 @@ final class Open extends AbstractAction {
 
     private static final String ID = "open";
 
-    private static final Logger logger = Logger.getLogger(Open.class);
+    private static final Log log = LogFactory.getLog(Open.class);
 
     private static String NAME = "Open...";
 
@@ -64,16 +66,24 @@ final class Open extends AbstractAction {
             return;
         try {
             final File file = chooser.getSelectedFile().getCanonicalFile();
-            logger.info("Loading project from " + file.getName());
+            if (log.isInfoEnabled()) {
+                log.info("Loading project from " + file.getName());
+            }
             Project.setCurrentProject(new Project(file));
-            logger.info("Loaded project from " + file.getName());
+            if (log.isInfoEnabled()) {
+                log.info("Loaded project from " + file.getName());
+            }
         } catch (IOException e) {
-            logger.error("Could not load project file.", e);
+            if (log.isErrorEnabled()) {
+                log.error("Could not load project file.", e);
+            }
         }
         try {
             RvConnection.resumeQueue();
         } catch (TibrvException e) {
-            logger.error("Could not restart all connections.", e);
+            if (log.isErrorEnabled()) {
+                log.error("Could not restart all connections.", e);
+            }
         }
     }
 
