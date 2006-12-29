@@ -55,6 +55,7 @@
       <pathelement location="${tibco.rvscript}"/>
       <pathelement location="${tibco.rvtest}"/>
       <pathelement location="${lib.binding}"/>
+      <pathelement location="${lib.cli}"/>
       <pathelement location="${lib.forms}"/>
       <pathelement location="${lib.glazed}"/>
       <pathelement location="${lib.io}"/>
@@ -183,7 +184,7 @@
         <!-- This is needed to access the test data. -->
         <pathelement location="${dir.stage}/tests"/>
       </classpath>
-      <formatter type="plain"/>
+      <formatter type="xml"/>
       <batchtest todir="${dir.build}/doc/developer/tests">
         <fileset dir="${dir.build}/classes/tests">
           <include name="**/*Test.class"/>
@@ -192,6 +193,20 @@
         </fileset>
       </batchtest>
     </junit>
+    <echo>Generating report from test results.</echo>
+    <junitreport todir="${dir.build}/doc/developer/tests">
+      <!-- This fileset includes just the individual tests. -->
+      <fileset dir="${dir.build}/doc/developer/tests">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report todir="${dir.build}/doc/developer/tests"/>
+    </junitreport>
+    <delete>
+      <!-- This fileset includes both the individual and aggregated tests. -->
+      <fileset dir="${dir.build}/doc/developer/tests">
+        <include name="TEST*.xml"/>
+      </fileset>
+    </delete>
   </target>
 
   <target name="dist" depends="runtests, analyze, genjavadoc"
@@ -229,6 +244,7 @@
     </jar>
     <copy todir="${dir.dist}/lib">
       <fileset file="${lib.binding}"/>
+      <fileset file="${lib.cli}"/>
       <fileset file="${lib.forms}"/>
       <fileset file="${lib.glazed}"/>
       <fileset file="${lib.io}"/>
