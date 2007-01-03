@@ -30,7 +30,7 @@ public class FilteredLedgerView extends RecordLedger {
     private MatcherEditor subjectFilter;
 
     private MatcherEditor typeFilter;
-    
+
     /**
      * Create a new <code>FilteredLedgerView</code>.
      *
@@ -125,7 +125,7 @@ public class FilteredLedgerView extends RecordLedger {
             lock.unlock();
         }
     }
-    
+
     /**
      * Tell this view whether to filter records based on their type.
      *

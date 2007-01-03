@@ -66,7 +66,7 @@ import org.apache.commons.lang.SystemUtils;
  * <dd>Should log files be compressed when they are closed, the default is
  * <code>false</code>.</dd>
  * </dl>
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.7
@@ -153,16 +153,16 @@ public class FastFileHandler extends StreamHandler {
             rotate();
             return null;
         }
-        
+
     }
 
     private static final Level DEFAULT_LEVEL = Level.INFO;
 
     private static final MessageFormat fileNamePattern =
         new MessageFormat("rvsnoop-{0,time,yyyyMMddHHmmss}.log");
-    
+
     private static final File logDirectory;
-    
+
     private static final int MIN_FILE_SIZE = 64 * 1024;
 
     static {
@@ -315,7 +315,7 @@ public class FastFileHandler extends StreamHandler {
             this.maxFileSize = Math.max(maxFileSize, MIN_FILE_SIZE);
         }
     }
-    
+
     private void open(File file) throws IOException {
         BufferedOutputStream stream =
             new BufferedOutputStream(new FileOutputStream(file.toString()));
@@ -326,7 +326,7 @@ public class FastFileHandler extends StreamHandler {
 
     /**
      * Format and publish a {@link LogRecord}.
-     * 
+     *
      * @param record The record describing the logged event.
      */
     public synchronized void publish(LogRecord record) {

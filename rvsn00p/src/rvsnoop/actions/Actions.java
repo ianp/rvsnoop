@@ -7,21 +7,23 @@
 package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Application;
+import org.rvsnoop.actions.ClearLedger;
+import org.rvsnoop.actions.RvSnoopAction;
 
 import rvsnoop.StringUtils;
 
@@ -67,8 +69,6 @@ public final class Actions {
     public static final Action CHANGE_TABLE_FONT = add(new ChangeTableFont());
 
     public static final Action CHECK_FOR_UPDATES = add(new CheckForUpdates());
-
-    public static final Action CLEAR_LEDGER = add(new ClearLedger());
 
     public static final Action COPY = add(new Copy());
 
@@ -145,16 +145,6 @@ public final class Actions {
     }
 
     /**
-     * Perform an action.
-     *
-     * @param actionCommand
-     * @throws NullPointerException if the action does not exist.
-     */
-    public static void execute(String actionCommand) {
-        ((ActionListener) actionCommandMap.get(actionCommand)).actionPerformed(null);
-    }
-
-    /**
      * Returns a read-only collection containing all of the actions known to the
      * application.
      *
@@ -164,22 +154,36 @@ public final class Actions {
         return Collections.unmodifiableCollection(actionCommandMap.values());
     }
 
-    /**
-     * Returns a read-only set containing all of the action commands known
-     * to the application.
-     *
-     * @return All known action commands.
-     */
-    public static Set getActionCommands() {
-        return Collections.unmodifiableSet(actionCommandMap.keySet());
-    }
-
     public static KeyListener getAcceleratorKeyListener() {
         return acceleratorKeyListener;
     }
 
-    private Actions() {
-        super();
+    private final Map acceleratorKeyToActionMap = new HashMap();
+    private final Map commandToActionMap = new HashMap();
+
+    public Actions(Application application) {
+        addAction(new ClearLedger(application));
+    }
+
+    public void addAction(RvSnoopAction action) {
+        final String cmd = (String) action.getValue(Action.ACTION_COMMAND_KEY);
+        commandToActionMap.put(cmd, action);
+        final KeyStroke acc = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
+        if (acc == null) { return; }
+        Object old = acceleratorKeyToActionMap.put(acc, action);
+        if (old != null && log.isWarnEnabled()) {
+            if (log.isWarnEnabled()) {
+                old = ((Action) old).getValue(Action.ACTION_COMMAND_KEY);
+                MessageFormat.format(
+                        "Redefining accelerator key '{0}' from {1} to {2}.",
+                        new Object[] { acc.toString(), old, cmd });
+            }
+        }
+    }
+
+    public RvSnoopAction getAction(String command) {
+        final Object action = commandToActionMap.get(command);
+        return action instanceof RvSnoopAction ? (RvSnoopAction) action : null;
     }
 
 }

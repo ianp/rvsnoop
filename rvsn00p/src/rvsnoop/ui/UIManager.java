@@ -56,12 +56,13 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Application;
 import org.rvsnoop.RecordLedgerFormat;
 import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
+import org.rvsnoop.actions.ClearLedger;
 import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.Connections;
-import rvsnoop.MessageLedger;
 import rvsnoop.PreferencesManager;
 import rvsnoop.RecentConnections;
 import rvsnoop.RecentProjects;
@@ -132,8 +133,8 @@ public final class UIManager {
         }
     }
 
+    // TODO move defaults into the session state.
     private static final int DEFAULT_HEIGHT = 480;
-
     private static final int DEFAULT_WIDTH = 640;
 
     private static final Icon ICON_FILTER = Icons.createIcon("/resources/icons/filter.png", 14);
@@ -142,7 +143,10 @@ public final class UIManager {
 
     private static final Log log = LogFactory.getLog(UIManager.class);
 
-    public static final UIManager INSTANCE = new UIManager();
+    // FIXME: Remove this field.
+    public static UIManager INSTANCE;
+
+    private final Application application;
 
     // Popup menus.
 
@@ -178,8 +182,7 @@ public final class UIManager {
     private final StatusBar.StatusBarItem statusBarItemEncoding = statusBar.createItem();
     private final StatusBar.StatusBarItem statusBarItemCount = statusBar.createItem();
 
-    private UIManager() {
-        super();
+    public UIManager(Application application) {
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.setIconImage(Icons.APPLICATION);
         frame.setJMenuBar(createMenuBar());
@@ -192,6 +195,7 @@ public final class UIManager {
         statusBarItemEncoding.set(System.getProperty("file.encoding"), Locale.getDefault().getDisplayName(), null);
         updateStatusLabel();
         connectListeners();
+        this.application = application;
     }
 
     public void clearDetails() {
@@ -231,7 +235,6 @@ public final class UIManager {
                 } else if (e.getStateChange() == ItemEvent.DESELECTED) {
                     format.remove(column);
                 }
-                MessageLedgerRenderer.installStripedRenderers(messageLedger);
             }
         });
         popupMenu.add(item);
@@ -278,7 +281,6 @@ public final class UIManager {
         splitter.setBorder(BorderFactory.createEmptyBorder());
         return splitter;
     }
-
 
     private JMenu createEditMenu() {
         final JMenu edit = new JMenu("Edit");
@@ -359,7 +361,7 @@ public final class UIManager {
     }
 
     private RecordLedgerTable createMessageLedger() {
-        final RecordLedgerTable table = new RecordLedgerTable(MessageLedger.FILTERED_VIEW);
+        final RecordLedgerTable table = new RecordLedgerTable(application.getFilteredLedger());
         final RecordLedgerFormat format = table.getTableFormat();
         final TableModel model = table.getModel();
         final List columns = format.getColumns();
@@ -402,7 +404,7 @@ public final class UIManager {
         tree.setShowsRootHandles(true);
         tree.setEditable(true);
         tree.setCellRenderer(new SubjectExplorerRenderer());
-        tree.setCellEditor(new SubjectExplorerEditor(tree));
+        tree.setCellEditor(new SubjectExplorerEditor(application, tree));
         SubjectHierarchy.INSTANCE.addTreeModelListener(new TreeExpander());
         // This line allows the cell renderer to provide a custom tooltip for each node.
         ToolTipManager.sharedInstance().registerComponent(tree);
@@ -424,6 +426,7 @@ public final class UIManager {
     }
 
     private JToolBar createToolBar() {
+        final Actions factory = application.getActionFactory();
         final JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
         toolBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
@@ -433,7 +436,7 @@ public final class UIManager {
         toolBar.addSeparator();
         createToolBarButton(toolBar, Actions.ADD_CONNECTION);
         toolBar.addSeparator();
-        createToolBarButton(toolBar, Actions.CLEAR_LEDGER);
+        createToolBarButton(toolBar, factory.getAction(ClearLedger.COMMAND));
         toolBar.addSeparator();
         createToolBarButton(toolBar, Actions.PAUSE_ALL);
         return toolBar;
@@ -498,7 +501,7 @@ public final class UIManager {
     public Record getSelectedRecord() {
         try {
             final int index = messageLedger.getSelectedRow();
-            return index >= 0 ? MessageLedger.FILTERED_VIEW.get(index) : null;
+            return index >= 0 ? application.getFilteredLedger().get(index) : null;
         } catch (IndexOutOfBoundsException e) {
             if (log.isErrorEnabled()) {
                 log.error("Failed to get selected record from ledger.", e);
@@ -508,7 +511,7 @@ public final class UIManager {
     }
 
     public Record[] getSelectedRecords() {
-        return MessageLedger.FILTERED_VIEW.getAll(messageLedger.getSelectedRows());
+        return application.getFilteredLedger().getAll(messageLedger.getSelectedRows());
     }
 
     public JTree getSubjectExplorer() {
@@ -571,8 +574,8 @@ public final class UIManager {
     }
 
     public void updateStatusLabel() {
-        final int visible = MessageLedger.FILTERED_VIEW.size();
-        final int total = MessageLedger.RECORD_LEDGER.size();
+        final int visible = application.getFilteredLedger().size();
+        final int total = application.getLedger().size();
         final String toolTipText = statusBarItemCount.getToolTipText();
         final Icon icon = toolTipText == null || toolTipText.length() == 0 ? null : ICON_FILTER;
         statusBarItemFilterBuffer.setLength(0);

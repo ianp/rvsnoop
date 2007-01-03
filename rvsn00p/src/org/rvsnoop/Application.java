@@ -9,7 +9,12 @@ package org.rvsnoop;
 
 import java.io.IOException;
 
+import org.rvsnoop.actions.RvSnoopAction;
+
+import rvsnoop.PreferencesManager;
 import rvsnoop.Project;
+import rvsnoop.actions.Actions;
+import rvsnoop.ui.UIManager;
 
 /**
  * The main application class.
@@ -23,42 +28,42 @@ import rvsnoop.Project;
  */
 public final class Application {
 
-    /** The current project. */
-    private Project project;
-
-    private RecordLedger ledger;
+    private Actions actionFactory;
 
     private FilteredLedgerView filteredLedger;
 
+    /** The main application frame. */
+    private UIManager frame;
+
+    private RecordLedger ledger;
+
+    /** The current project. */
+    private Project project;
+
+    /** The session state for the application. */
+    private PreferencesManager sessionState;
+
     /**
-     * Get the current project.
+     * Get an action from the applications action factory.
      *
-     * @return The project, or <code>null</code> if the project has not been
-     *     saved yet.
+     * @param command The action command to get.
+     * @return The action that corresponds to the supplied command, or
+     *     <code>null</code> if no action exists for the command.
+     * @see Actions#getAction(String)
      */
-    public synchronized Project getProject() {
-        return project;
+    public RvSnoopAction getAction(String command) {
+        return getActionFactory().getAction(command);
     }
 
     /**
-     * Set a new current project.
+     * Get the action factory for this application.
      * <p>
-     * This will close and unload the current project if there is one.
+     * Note that there is also a convenience method to get individual actions.
      *
-     * @param project The project to set.
-     * @throws IOException If there is a current ledger and it could not be
-     *     synchronized (applies to persistent ledgers only).
      */
-    public synchronized void setProject(Project project) throws IOException {
-        if (this.project != null) {
-            ledger.syncronize();
-            ledger = null;
-            filteredLedger = null;
-        }
-        this.project = project;
-        // TODO: Configure the ledger from data in the project file.
-        ledger = new InMemoryLedger();
-        filteredLedger = new FilteredLedgerView(ledger);
+    public synchronized Actions getActionFactory() {
+        if (actionFactory == null) { actionFactory = new Actions(this); }
+        return actionFactory;
     }
 
     /**
@@ -92,6 +97,55 @@ public final class Application {
             ledger = new InMemoryLedger();
         }
         return ledger;
+    }
+
+    /**
+     * Get the current project.
+     *
+     * @return The project, or <code>null</code> if the project has not been
+     *     saved yet.
+     */
+    public synchronized Project getProject() {
+        return project;
+    }
+
+    /**
+     * Set a new current project.
+     * <p>
+     * This will close and unload the current project if there is one.
+     *
+     * @param project The project to set.
+     * @throws IOException If there is a current ledger and it could not be
+     *     synchronized (applies to persistent ledgers only).
+     */
+    public synchronized void setProject(Project project) throws IOException {
+        // XXX when changing the ledger be sure to copy any listeners across
+        //     to the new ledger instance.
+        if (this.project != null) {
+            ledger.syncronize();
+            ledger = null;
+            filteredLedger = null;
+        }
+        this.project = project;
+        // TODO configure the ledger from data in the project file.
+        ledger = new InMemoryLedger();
+        filteredLedger = new FilteredLedgerView(ledger);
+    }
+
+    /**
+     * @return the frame
+     */
+    public synchronized UIManager getFrame() {
+        if (frame == null) { frame = new UIManager(this); }
+        return frame;
+    }
+
+    /**
+     * @return the sessionState
+     */
+    public synchronized PreferencesManager getSessionState() {
+        if (sessionState == null) { sessionState = new PreferencesManager(this); }
+        return sessionState;
     }
 
 }

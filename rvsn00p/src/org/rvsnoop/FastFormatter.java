@@ -25,7 +25,7 @@ import org.apache.commons.lang.text.StrBuilder;
  * @version $Revision$, $Date$
  */
 public final class FastFormatter extends Formatter {
-    
+
     private static class StrBuilderWriter extends Writer {
         private final StrBuilder builder;
         StrBuilderWriter(StrBuilder builder) {

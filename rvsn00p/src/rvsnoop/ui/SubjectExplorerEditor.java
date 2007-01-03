@@ -27,9 +27,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
+import org.rvsnoop.Application;
 import org.rvsnoop.RecordSubjectMatcher;
 
-import rvsnoop.MessageLedger;
 import rvsnoop.SubjectElement;
 import rvsnoop.SubjectHierarchy;
 import ca.odell.glazedlists.matchers.Matcher;
@@ -117,7 +117,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
                 model.setValueIsAdjusting(true);
                 model.clearSelection();
                 final Matcher matcher = new RecordSubjectMatcher(subject, descendants);
-                final int[] indices = MessageLedger.FILTERED_VIEW.findAllIndices(matcher);
+                final int[] indices = application.getFilteredLedger().findAllIndices(matcher);
                 for (int i = 0, imax = indices.length; i < imax; ++i) {
                     model.addSelectionInterval(indices[i], indices[i]);
                 }
@@ -139,6 +139,8 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
 
     private static final long serialVersionUID = 7957683568277521431L;
 
+    private final Application application;
+
     private SubjectElement element;
 
     private final EventListenerList listenerList = new EventListenerList();
@@ -147,8 +149,8 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
 
     private final JTree tree;
 
-    public SubjectExplorerEditor(final JTree tree) {
-        super();
+    public SubjectExplorerEditor(final Application application, final JTree tree) {
+        this.application = application;
         this.tree = tree;
         tree.addTreeSelectionListener(this);
         tree.addMouseListener(new PopupMenuListener());

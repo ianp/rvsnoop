@@ -59,8 +59,8 @@ final class Help extends AbstractAction {
                 ? "" : "file://";
             BrowserLauncher.openURL(prefix + help.getAbsolutePath());
         } catch (Exception e) {
-            if (log.isErrorEnabled()) { log.error(ERROR_BROWSER, e); } 
-            
+            if (log.isErrorEnabled()) { log.error(ERROR_BROWSER, e); }
+
         }
     }
 

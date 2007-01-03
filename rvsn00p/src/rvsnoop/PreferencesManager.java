@@ -17,6 +17,7 @@ import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Application;
 import org.rvsnoop.RecordLedgerFormat;
 import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
 import org.rvsnoop.ui.RecordLedgerTable;
@@ -186,9 +187,13 @@ public final class PreferencesManager extends XMLConfigFile {
     public void setRecordLedgerTable(RecordLedgerTable table) {
         this.table = table;
     }
-    
+
     private PreferencesManager() {
         super(getPreferencesFile());
+    }
+
+    public PreferencesManager(Application application) {
+        this();
     }
 
     protected Document getDocument() {

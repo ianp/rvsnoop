@@ -50,18 +50,12 @@ public final class StartRvSnooper {
         }
 
         public void run() {
+            // FIXME this is a hack, there should be no static field.
+            UIManager.INSTANCE = application.getFrame();
+            // FIXME all of this should go, use event listeners instead.
             PreferencesManager.INSTANCE.setRecordLedgerTable(UIManager.INSTANCE.getMessageLedger());
             PreferencesManager.INSTANCE.load();
             UIManager.INSTANCE.setVisible(true);
-//            if (file != null && file.exists() && file.canRead()) {
-//                try {
-//                    final Project project = new Project(file.getCanonicalFile());
-//                    project.load();
-//                    RecentProjects.INSTANCE.add(project);
-//                } catch(IOException e) {
-//                    log.error("Could not load project from " + filename, e);
-//                }
-//            }
         }
     }
 
@@ -83,8 +77,6 @@ public final class StartRvSnooper {
         }
     }
 
-    private static final Application application = new Application();
-    
     private static final Log log = LogFactory.getLog(StartRvSnooper.class);
 
     private static void handleHelpOption(final Options options) {
@@ -92,7 +84,7 @@ public final class StartRvSnooper {
         System.exit(0);
     }
 
-    private static void handleProjectOption(final String project) {
+    private static void handleProjectOption(String project, Application application) {
         final File file = new File(project);
         if (file.canRead()) {
             if (log.isInfoEnabled()) {
@@ -122,13 +114,14 @@ public final class StartRvSnooper {
     public static void main(final String[] args) {
         MultiLineToolTipUI.configure();
         if (!SystemUtils.isJavaVersionAtLeast(142)) {
-            Object message = new String[] { 
+            Object message = new String[] {
                 "Java 1.4.2 or later is required to run " + Version.getAsStringWithName(),
                 "Please rerun using a supported Java version."
             };
             JOptionPane.showMessageDialog(null, message, "Error!",
                     JOptionPane.ERROR_MESSAGE);
         }
+        final Application application = new Application();
         final Options options = new Options();
         options.addOption("h", "help", false, "Display a short help message then exit.");
         options.addOption("p", "project", true, "Load a project file on startup.");
@@ -136,7 +129,7 @@ public final class StartRvSnooper {
             final CommandLine commands = new PosixParser().parse(options, args);
             if (commands.hasOption("h")) { handleHelpOption(options); }
             if (commands.hasOption("p")) {
-                handleProjectOption(commands.getOptionValue("p"));
+                handleProjectOption(commands.getOptionValue("p"), application);
             }
         } catch (ParseException e) {
             new HelpFormatter().printHelp("rvsnoop", options);

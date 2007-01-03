@@ -15,32 +15,103 @@ License: ASL 2.0 (be specific about version)
 
 Update description to match version.xml text.
 
-## Release 1.7
+## Imminent Changes
+
+### (DONE) Change Command Parser to Commons CLI.
+
+Started to rewrite the actions code so that it no longer requires so many
+static instances. At the same time, continued to migrate classes from the
+rvsnoop... package tree to thr org.rvsnoop... tree.
+
+Not comitted yet!
+
+Commit failed (details follow):
+COPY of /svnroot/rvsn00p/!svn/bc/377/trunk/rvsn00p/src/rvsnoop/actions/ClearLedger.java: 403 Forbidden (https://svn.sourceforge.net)
+
+may need to ship a gzip'ed copy of the changes to ianp.org and run svn commit
+from there for the time being?
+
+### (2001-01-07) Create RecordBundleV1 Class.
+
+Created RecordBundleV1 class and moved all record bundle logic into it.
+
+The name is because I will add a RecordBundleV2 as well which can store more
+information and metadata. V2 should allow storing of connections.xml,
+types.xml, subjects.xml (probably in a meta/ folder in the ZIP). It should
+allow records to be selectively imported based on these criteria. Also, all
+entried should be checksummed.
+
+    public class RecordBundleV1 {
+        public RecordBundleV1() { /* For streamed writing. */ }
+        public RecordBundleV1(File bundle) { /* Reading */ }
+        public RecordBundleV1(InputStream stream) { /* Reading */ }
+        public RecordBundleV1(Record[] records) { /* Writing, closed afterwards. */ }
+        public RecordBundleV1(Record[] records, int compression) { /* Writing, closed afterwards. */ }
+
+        public void addRecord(Record record) throws IllegalStateException { }
+        public void close() { }
+        public String getHeaderInfo() { }
+        public Iterator getRecords() { }
+        public void setCompression(int level /* 0-9 */) throws IllegalStateException { }
+        public int size() { }
+    }
+
+    public class NonWritableBundleException extends IllegalStateException {
+        // Either the bundle has been opened for reading or the bundle
+        // has been opened for writing but close() has been called.
+    }
+
+Header info should be, e.g.
+
+    RvSnoop Record Bundle (V1).
+    Created by RvSnoop 1.7.0.
+    Created on 2007-01-22 at 17:22:44.
+
+How to get this if no getComment() method on ZipInputStream ? May have to bin
+that method, but still write the header for the benefit of other tools. Maybe
+look at TrueZIP library to see if they read comments?
+
+### (2001-01-07) Update Copyright Notices.
+
+Reformatted file comments as per Sun Java code conventions.
+Updated copyright notices to 2007.
+
+### (2001-01-07) Rename Actions to ActionFactory.
+
+Rename Actions to ActionFactory, make all actions public and have their action
+commands as static fields (called COMMAND).
+
+Look at gui-commands for some ideas about how to use the action factory to
+create components. Maybe something like:
+
+    public JButton createButton(String command, boolean toolbar) { }
+    public JMenuItem createMenuItem(String command) { }
+
+Add a method to UIUtils to create menus:
+
+    public JMenu createMenu(String name, KeyStroke accel, int mnemonic, String iconName) { }
+
+Move UIUtils#createSmallButton to UIManager
+
+### (2001-01-07) Update build.xml to use betterdocs.
+
+Changed genjavadoc target to use betterdoc tool from XOM (converts nasty Sun
+markup into clean XHTML 1.0 Frameset).
+
+### (2001-01-07) Update build.xml to Create Nice Lint4J Reports.
+
+Write ann XSLT 2.0 stylesheet to convert the Lint4J XML report into a bunch of
+XHTML file. Look at this article for a starter:
+
+    http://www-128.ibm.com/developerworks/xml/library/x-tipmultxsl.html
+
+Note that the XML report in Lint4J 0.9.1 reports the wrong version, it claims
+to be created with 0.8.1!
+
+## Release 1.7 - 2007Q1
 
 There isn't really a target release date for 1.7 yet, but assume
 sometime in the first half of 2007. Probably March (i.e. 2007Q1).
-
-### Write better documentation
-
-Write a user guide and a developer guide, these can both be 'works
-in progress' and should be written as the code is re-factored into
-cleaner packages.
-
-Re-structure the file layout to be
-
-    doc/
-        api/ -- generated
-        user/ -- in XHTML 1.0 Strict
-        developer/ -- in XHTML 1.0 Strict
-        index.html -- in XHTML 1.0 Strict
-        license.html -- in XHTML 1.0 Strict
-    www/ -- the web site, in HTML4.01
-
-the shipped guides should be XHTML 1.0 strict, generated from the
-DocBook.
-
-Start with articles on the record ledger (mainly in the developer
-guide) and the import/export formats.
 
 ### Make Projects be Directory Based
 
@@ -78,14 +149,29 @@ Subfolders in the project could include...
 
   For the lucene index files
 
-### Add ConnectionList and MessageLedger Selection Events
+### (2001-01-14) Add ConnectionList and MessageLedger Selection Events
 
 Use these to enable/disable actions. This should use
-KeyboardFocusManager, and look at the way Eclipse handles focus
+`KeyboardFocusManager`, and look at the way Eclipse handles focus
 management for ideas.
 
-Wait until RvSnoop has moved to OSGi and then use a whiteboard for
-tracking this. Maybe?
+    public interface RecordLedgerSelectionListener extends EventListener {
+        public void valueChanged(RecordLedgerSelectionEvent event);
+    }
+
+    public interface ConnectionSelectionListener extends EventListener {
+        public void valueChanged(ConnectionSelectionEvent event);
+    }
+
+Give the action factory `ListSelectionListener`s which in turn redirect to
+listeners of these interfaces. Probably best not to fire the redirected events
+if the valueIsAdjusting property is set on the original list.
+
+    public final class RecordLedgerSelectionEvent extends EventObject {
+        public boolean isSelectionEmpty() { }
+        public Record[] getSelectedRecords() { /* create lazily? */ }
+        public int[] getSelectedIndices() { /* cteate lazily? */ }
+    }
 
 ### Sniff Opaques for Serialized Java Data
 
@@ -122,11 +208,6 @@ This is mentioned in feature request [#1579647][FR1579647] in SF.
 ### Add Selectable Support to the Details Panel
 
 To allow cut/paste of field values.
-
-### Bug Fix!
-
-There is a bug in the FontChooser that causes the size to reset
-whenever the family or style is changed.
 
 ### Move Preferences to a Dedicated Dialog
 
@@ -175,7 +256,7 @@ or other resources (i.e. documentation).
 
 * Speak to Jone A about getting a Norwegian translation.
 
-### Refactor MessageLedger
+### (2001-01-14) Refactor MessageLedger
 
 Cleanly separate out the message ledger (which deals with storing
 records and should be renamed to RecordLedger) and the filtered view
@@ -198,12 +279,22 @@ The other constructor takes no arguments and works like the current
 Connections class.
 
 Or have a Connections class with an ActiveConnections filter around
-it.
+it (similar to the RecordLedger/FilteredLedgerView classes).
 
 Basically, the import & export functionality needs to be common to
 the 2 classes.
 
-## Release 2.0
+This will also allow passive connections lists to be used in other places
+(e.g. filter lists).
+
+### (2001-01-14) Rewrite PreferencesManager to use java.util.prefs
+
+    Preferences.userRoot().node("org").node("rvsnoop").node("sessionState");
+
+Add a field to ColumnFormat for width. Make add/remove methods take
+identifiers instead of column objects (use Iterator#remove()).
+
+## Release 2.0 - 2007Q3
 
 There isn't really a target release date for 2.0 yet, but assume
 sometime towards the end of 2007, exactly when depends on how
@@ -372,22 +463,40 @@ those.
 
 The SwingX stuff is cool though.
 
-### Upgrade Ant to 1.7 and Clean up Build Script (again!)
-
-Ant 1.7 should make e.g. SVN support better. Also, I'm guessing that
-the move to OSGi will make the build process quite a bit more
-convoluted!
-
-## Unspecified Future Version (Refactoring)
+## Unspecified Future Version & Refactoring
 
 These features should probably be blogged about to solicit feedback,
 then they can be slotted in to releases as demanded. Note that some
 of these ideas are pretty pie-in-the-sky but it's good to try to
 keep track of them somewhere!
 
+### Scripting Support
+
+Add a Scriptable interface and an execute(String) method on the action factory
+class. The execute method should peek at the command line then use Commons CLI
+to parse it, ask the action for the Options.
+
+    public interface Scriptable {
+        public void execute(CommandLine command) throws Exception;
+        public String getHelpString();
+        public Options getOptions();
+    }
+
+Maybe add a 'macro recorder' menu option, this would need to add an interface
+to support it:
+
+    public interface Recordable {
+        public ? record();
+        public void play(?);
+    }
+
+Where record and play take enough information to recreate the event. Maybe
+some type of XML?
+
 ### Improve RecordMatcher
 
-Generalize it to NamedMatcher. Add a method for isValueValid which could be used in GUI validators. Or throw an exception for invalid values.
+Generalize it to NamedMatcher. Add a method for isValueValid which could be
+used in GUI validators. Or throw an exception for invalid values.
 
 ### Move to Using MultiSplitPane for the Main Window Layout
 
@@ -395,13 +504,6 @@ Create a project based on MultiSplitPane but ported to Java 1.4.2
 (maybe). Enhance this so that it has collapsible panes and named
 panes. Look at iTunes for UI design. Move RvSnoop to use this
 project instead of nested JSplitPanes
-
-### Add a Whole Bunch of JUnit Tests
-
-This should get easier as the ledger is separated out more cleanly.
-Probably as part of 1.7 we should start moving things towards the
-required layout for OSGi, then we can start adding tests based on
-that.
 
 ### Add a View to Display XML Documents as Text
 
@@ -431,22 +533,6 @@ Or maybe a "Productivity Tips" progress dialog like IntelliJ IDEA uses.
 A first step towards features like this may be to generalize and
 expand the matcher support. Split things like record types into
 matchers and actions.
-
-### Separate out the User Guide and the Web Site
-
-These really should be different, even if there is some overlap
-(e.g. FAQ). Specifically, look at some of the advice on the Google
-Analytics site to improve naviagtion and content on the site. the
-web site should have more overview information, some use-cases for
-RvSnoop, and less actual product docs. the product docs should be
-more in-depth, especially moving towards 2.0.
-
-Looking at the browsers visiting the site it really needs to look
-good in IE 6.0! At the same time, the local docs could be XHTML
-displayed via Flying Saucer.
-
-Everybody seems to use fucking massive monitors! So it's not at all
-a problem going to an 800x600 or 1024x768 based layout.
 
 ### Add More Visualizations for Data
 

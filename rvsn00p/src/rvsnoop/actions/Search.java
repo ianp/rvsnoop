@@ -37,7 +37,7 @@ import com.tibco.tibrv.TibrvXml;
  * @since 1.4
  */
 final class Search extends AbstractAction {
-    
+
     private class Searcher implements Matcher {
         private final boolean fieldData;
         private final boolean fieldNames;

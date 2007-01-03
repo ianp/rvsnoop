@@ -43,7 +43,7 @@ public final class FastJdk14Logger implements Log, Serializable {
 
     /** The JDK logger being wrapped. */
     private transient Logger logger;
-    
+
     /** The name of the logger being wrapping. */
     private final String name;
 
@@ -60,7 +60,7 @@ public final class FastJdk14Logger implements Log, Serializable {
     public FastJdk14Logger() {
         this.name = "";
     }
-    
+
     /**
      * Logs a message with <code>java.util.logging.Level.FINE</code>.
      *
@@ -216,7 +216,7 @@ public final class FastJdk14Logger implements Log, Serializable {
         final Logger logger = getLogger();
         if (logger.isLoggable(level)) { logger.log(level, message); }
     }
-    
+
     /**
      * Logs a message with <code>java.util.logging.Level.FINEST</code>.
      *

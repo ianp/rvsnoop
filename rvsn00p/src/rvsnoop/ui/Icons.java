@@ -35,7 +35,6 @@ public final class Icons {
     public static final Icon ADD_CONNECTION = createIcon("/resources/icons/add_connection.png", ICON_SIZE);
     public static final Icon BUG = createIcon("/resources/icons/bug.png", ICON_SIZE);
     public static final Icon CHECK_UPDATES = createIcon("/resources/icons/check_updates.png", ICON_SIZE);
-    public static final Icon CLEAR_LEDGER = createIcon("/resources/icons/clear_ledger.png", ICON_SIZE);
     public static final Icon COLUMNS_CORNER = createIcon("/resources/icons/columns_corner_button.png", 14);
     public static final Icon COPY = createIcon("/resources/icons/copy.png", ICON_SIZE);
     public static final Icon CUT = createIcon("/resources/icons/cut.png", ICON_SIZE);
@@ -92,6 +91,10 @@ public final class Icons {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static Icon createSmallIcon(String iconName) {
+        return createIcon("/resources/icons/" + iconName + ".png", ICON_SIZE);
     }
 
     private static Icon getMissingIcon(int size) {

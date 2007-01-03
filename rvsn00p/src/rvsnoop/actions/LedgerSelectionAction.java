@@ -25,11 +25,11 @@ import rvsnoop.ui.UIUtils;
  * @version $Revision$, $Date$
  * @since 1.5
  */
-abstract class LedgerSelectionAction extends AbstractAction implements ListSelectionListener {
+public abstract class LedgerSelectionAction extends AbstractAction implements ListSelectionListener {
 
     private static String INFO_NOTHING_SELECTED = "No selection to operate on!";
 
-    LedgerSelectionAction(String id, String name, Icon icon) {
+    public LedgerSelectionAction(String id, String name, Icon icon) {
         super(name, icon);
         putValue(Action.ACTION_COMMAND_KEY, id);
     }

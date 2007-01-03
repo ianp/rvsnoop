@@ -20,7 +20,7 @@ public final class MessageLedger {
 
     // FIXME:
     // These are nasty hacks to allow this class to be removed while the new
-    // ledger implementations are used instead. 
+    // ledger implementations are used instead.
     public static final RecordLedger RECORD_LEDGER = new InMemoryLedger();
     public static final FilteredLedgerView FILTERED_VIEW = new FilteredLedgerView(RECORD_LEDGER);
 

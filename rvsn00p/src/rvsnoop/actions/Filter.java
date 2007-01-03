@@ -63,7 +63,7 @@ final class Filter extends AbstractAction {
             fireChanged(matcher);
         }
     }
-    
+
     private static final long serialVersionUID = 1L;
 
     public static final String FILTER = "filter";
@@ -77,7 +77,7 @@ final class Filter extends AbstractAction {
     private boolean trackingIdEnabled;
 
     private FilterMatcherEditor matcherEditor;
-    
+
     public Filter(String id, String name, String tooltip) {
         super(name);
         putValue(Action.ACTION_COMMAND_KEY, id);

@@ -8,23 +8,35 @@
 package org.rvsnoop.ui;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.RecordLedger;
 import org.rvsnoop.RecordLedgerFormat;
 
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
-import rvsnoop.ui.MessageLedgerRenderer;
+import rvsnoop.RecordTypes;
 import rvsnoop.ui.UIUtils;
 
 import com.tibco.tibrv.TibrvException;
@@ -39,6 +51,93 @@ import ca.odell.glazedlists.swing.EventTableModel;
  * @since 1.7
  */
 public final class RecordLedgerTable extends JTable {
+
+    private static class DateCellRenderer extends DefaultTableCellRenderer {
+        private static final Log log = LogFactory.getLog(DateCellRenderer.class);
+        private static final long serialVersionUID = -6397207684112537883L;
+        private static final DateFormat[] FORMATS = {
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
+            new SimpleDateFormat("yy-MM-dd HH:mm:ss.SSS"),
+            new SimpleDateFormat("MM/dd HH:mm:ss.SSS"),
+            new SimpleDateFormat("HH:mm:ss.SSS"),
+            new SimpleDateFormat("HH:mm:ss.SS"),
+            new SimpleDateFormat("HH:mm:ss.S"),
+            new SimpleDateFormat("HH:mm:ss"),
+            new SimpleDateFormat("HH:mm") };
+        private int currentWidth;
+        private Font currentFont;
+        private DateFormat currentFormat;
+        DateCellRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int col) {
+            final DateFormat format = getFormat(table.getColumnModel().getColumn(col).getWidth(), table);
+            final String displayed = value != null ? format.format((Date) value) : "";
+            return super.getTableCellRendererComponent(table, displayed, isSelected, hasFocus, row, col);
+        }
+        private DateFormat getFormat(int width, JTable table) {
+            final Font font = table.getFont();
+            if (currentWidth != width) currentFormat = null;
+            if (currentFont == null || !currentFont.equals(font)) currentFormat = null;
+            if (currentFormat == null) {
+                currentWidth = width;
+                currentFont = font;
+                final Date date = new Date();
+                final FontMetrics metrics = table.getFontMetrics(font);
+                for (int i = 0, imax = FORMATS.length; i < imax; ++i) {
+                    final int dateWidth = metrics.stringWidth(FORMATS[i].format(date));
+                    if (dateWidth < width) {
+                        currentFormat = FORMATS[i];
+                        if (log.isDebugEnabled()) {
+                            log.debug("Setting date format to " + FORMATS[i].format(date));
+                        }
+                        break;
+                    }
+                }
+                if (currentFormat == null) {
+                    currentFormat = FORMATS[FORMATS.length - 1];
+                    if (log.isDebugEnabled()) {
+                        log.debug("Setting date format to " + FORMATS[FORMATS.length - 1].format(date));
+                    }
+                }
+            }
+            return currentFormat;
+        }
+    }
+
+    public final class StripedCellRenderer implements TableCellRenderer {
+
+        private final TableCellRenderer baseRenderer;
+
+        private final Color evenRowsColor;
+
+        private final Color oddRowsColor;
+
+        private final RecordTypes types = RecordTypes.getInstance();
+
+        private StripedCellRenderer(TableCellRenderer baseRenderer) {
+            this.baseRenderer = baseRenderer;
+            this.evenRowsColor = Color.WHITE;
+            this.oddRowsColor = new Color(229, 229, 255);
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int col) {
+            TableCellRenderer renderer = baseRenderer;
+            if (renderer == null) {
+                final Class rendererClass = value != null ? value.getClass() : Object.class;
+                renderer = table.getDefaultRenderer(rendererClass);
+            }
+            final Component component = renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            if (!isSelected) {
+                component.setForeground(types.getFirstMatchingType(ledger.get(row)).getColour());
+                component.setBackground(row % 2 == 0 ? evenRowsColor : oddRowsColor);
+            }
+            return component;
+        }
+
+    }
 
     /**
      * A handler to support importing and exporting records to/from the ledger.
@@ -134,7 +233,37 @@ public final class RecordLedgerTable extends JTable {
         setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         setDragEnabled(true);
         setTransferHandler(new TransferHandler());
-        MessageLedgerRenderer.installStripedRenderers(this);
+        configureRenderers();
+    }
+
+    /* (non-Javadoc)
+     * @see javax.swing.JTable#columnAdded(javax.swing.event.TableColumnModelEvent)
+     */
+    public void columnAdded(TableColumnModelEvent e) {
+        super.columnAdded(e);
+        configureRenderers();
+    }
+
+    /* (non-Javadoc)
+     * @see javax.swing.JTable#columnRemoved(javax.swing.event.TableColumnModelEvent)
+     */
+    public void columnRemoved(TableColumnModelEvent e) {
+        super.columnRemoved(e);
+        configureRenderers();
+    }
+
+    private void configureRenderers() {
+        final StripedCellRenderer striper = new StripedCellRenderer(null);
+        final TableColumnModel columns = getColumnModel();
+        for (int i = 0, imax = columns.getColumnCount(); i < imax; ++i) {
+            final Class columnClass = getColumnClass(i);
+            if (Date.class.isAssignableFrom(columnClass)) {
+                columns.getColumn(i).setCellRenderer(
+                        new StripedCellRenderer(new DateCellRenderer()));
+            } else {
+                columns.getColumn(i).setCellRenderer(striper);
+            }
+        }
     }
 
     /**

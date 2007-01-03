@@ -151,7 +151,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         }
         return null;
     }
-    
+
     private final List columns = new ArrayList(ALL_COLUMNS);
 
     private EventTableModel model;

@@ -274,7 +274,7 @@ public abstract class RecordLedger {
     EventList getEventList() {
         return list;
     }
-    
+
     /**
      * Remove a single record from the ledger.
      * <p>
