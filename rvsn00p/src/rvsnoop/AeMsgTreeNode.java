@@ -1,9 +1,10 @@
-//:File:    AeMsgTreeNode.java
-//:Created: Jan 8, 2006
-//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2005-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     AeMsgTreeNode
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop;
 
 import com.tibco.sdk.MMessageFormat;

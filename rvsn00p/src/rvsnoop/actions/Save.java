@@ -1,9 +1,10 @@
-//:File:    Save.java
-//:Created: Jan 4, 2006
-//:Legal:   Copyright © 2006-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2006-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     Save
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop.actions;
 
 import java.awt.Toolkit;

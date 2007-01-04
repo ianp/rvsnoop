@@ -1,8 +1,10 @@
-//:File:    SubjectElement.java
-//:Legal:   Copyright © 2002-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2005-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     SubjectElement
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop;
 
 import javax.swing.tree.DefaultMutableTreeNode;

@@ -17,19 +17,11 @@ Update description to match version.xml text.
 
 ## Imminent Changes
 
-### (DONE) Change Command Parser to Commons CLI.
-
-Started to rewrite the actions code so that it no longer requires so many
-static instances. At the same time, continued to migrate classes from the
-rvsnoop... package tree to thr org.rvsnoop... tree.
-
-Not comitted yet!
-
-Commit failed (details follow):
-COPY of /svnroot/rvsn00p/!svn/bc/377/trunk/rvsn00p/src/rvsnoop/actions/ClearLedger.java: 403 Forbidden (https://svn.sourceforge.net)
-
-may need to ship a gzip'ed copy of the changes to ianp.org and run svn commit
-from there for the time being?
+### (DONE) Created separate user and developer guides.
+### (DONE) Changed the logging system to use Commons Logging.
+### (DONE) Added an HTML formatted report of the JUnit test results.
+### (DONE) Changed the command parser to use Commons CLI.
+### (DONE) Update Copyright Notices.
 
 ### (2001-01-07) Create RecordBundleV1 Class.
 
@@ -70,11 +62,6 @@ Header info should be, e.g.
 How to get this if no getComment() method on ZipInputStream ? May have to bin
 that method, but still write the header for the benefit of other tools. Maybe
 look at TrueZIP library to see if they read comments?
-
-### (2001-01-07) Update Copyright Notices.
-
-Reformatted file comments as per Sun Java code conventions.
-Updated copyright notices to 2007.
 
 ### (2001-01-07) Rename Actions to ActionFactory.
 

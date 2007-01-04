@@ -1,9 +1,10 @@
-//:File:    RvFieldTreeNode.java
-//:Created: Dec 12, 2005
-//:Legal:   Copyright © 2005-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2005-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     RvFieldTreeNode
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop;
 
 import com.tibco.tibrv.TibrvException;

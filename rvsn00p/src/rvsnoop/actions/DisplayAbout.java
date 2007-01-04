@@ -1,9 +1,10 @@
-//:File:    DisplayAbout.java
-//:Created: Dec 24, 2005
-//:Legal:   Copyright © 2005-@year@ Apache Software Foundation.
-//:Legal:   Copyright © 2005-@year@ Ian Phillips.
-//:License: Licensed under the Apache License, Version 2.0.
-//:FileID:  $Id$
+/*
+ * Class:     DisplayAbout
+ * Version:   $Revision$
+ * Date:      $Date$
+ * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
+ * License:   Apache Software License (Version 2.0)
+ */
 package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -51,7 +52,7 @@ final class DisplayAbout extends AbstractAction {
             new String[] { Version.getAsStringWithName(),
                            " ",
                            "Constructed by Örjan Lundberg (lundberg@home.se)",
-                           " and Ian Phillips (ianp@ianp.org)",
+                           "and Ian Phillips (ianp@ianp.org)",
                            " ",
                            "This product includes software developed by",
                            "The Apache Software Foundation (http://www.apache.org).",
@@ -62,13 +63,11 @@ final class DisplayAbout extends AbstractAction {
                            "\tMagnus L Johansson, Anders Lindlof, Linda Lundberg",
                            "\tStephanie Lundberg, Cedric Rouvrais, and Richard Valk.",
                            " ",
-                           "Copyright © 2002-@year@ Apache Software Foundation.",
-                           "Copyright © 2005-@year@ Ian Phillips.",
+                           "Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.",
                            " ",
-                           "Licensed under the Apache License, Version 2.0.",
+                           "Licensed under the Apache Software License (Version 2.0).",
                            "\tA copy of the license has been included with this",
-                           "\tdistribution as doc/license.@suffix@, or may be obtained",
-                           "\tfrom http://www.apache.org/licenses/LICENSE-2.0.html" },
+                           "\tdistribution in the file doc/license.html." },
             NAME, JOptionPane.PLAIN_MESSAGE);
     }
 
