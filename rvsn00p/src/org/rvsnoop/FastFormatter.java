@@ -74,6 +74,7 @@ public final class FastFormatter extends Formatter {
         if (message != null) { builder.append(message); }
         final Throwable thrown = record.getThrown();
         if (thrown != null) {
+            builder.appendNewLine();
             // Use an auto-flushing writer that appends directly to the builder,
             // so no need to worry about cleaning up or catching IOExceptions.
             thrown.printStackTrace(new PrintWriter(new StrBuilderWriter(builder), true));

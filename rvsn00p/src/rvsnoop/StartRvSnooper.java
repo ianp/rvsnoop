@@ -19,7 +19,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
@@ -52,6 +51,8 @@ public final class StartRvSnooper {
         public void run() {
             // FIXME this is a hack, there should be no static field.
             UIManager.INSTANCE = application.getFrame();
+            MessageLedger.RECORD_LEDGER = application.getLedger();
+            MessageLedger.FILTERED_VIEW = application.getFilteredLedger();
             // FIXME all of this should go, use event listeners instead.
             PreferencesManager.INSTANCE.setRecordLedgerTable(UIManager.INSTANCE.getMessageLedger());
             PreferencesManager.INSTANCE.load();
@@ -73,7 +74,9 @@ public final class StartRvSnooper {
                     log.error("Error saving session state.", e);
                 }
             }
-            log.info(Version.getAsStringWithName() + " stopped at " + DateFormatUtils.ISO_DATETIME_FORMAT.format(System.currentTimeMillis()) + '.');
+            if (log.isInfoEnabled()) {
+                log.info(Version.getAsStringWithName() + " stopped.");
+            }
         }
     }
 
@@ -112,6 +115,9 @@ public final class StartRvSnooper {
      * @param args The command line arguments.
      */
     public static void main(final String[] args) {
+        if (log.isInfoEnabled()) {
+            log.info(Version.getAsStringWithName() + " started.");
+        }
         MultiLineToolTipUI.configure();
         if (!SystemUtils.isJavaVersionAtLeast(142)) {
             Object message = new String[] {

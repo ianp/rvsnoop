@@ -161,8 +161,8 @@ public final class PreferencesManager extends XMLConfigFile {
             final Element element = appendElement(columns, COLUMN);
             setString(element, COLUMN_NAME, identifier);
             setBoolean(element, COLUMN_SELECTED, visible.contains(column));
-            final int width = table.getColumn(column.getName()).getWidth();
-            setInteger(element, COLUMN_WIDTH, width);
+//            final int width = table.getColumn(column.getName()).getWidth();
+//            setInteger(element, COLUMN_WIDTH, width);
         }
     }
 

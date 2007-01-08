@@ -7,6 +7,14 @@
  */
 package rvsnoop;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.math.NumberUtils;
+
 /**
  * Version information.
  *
@@ -22,24 +30,33 @@ public final class Version {
     // work in an IDE having the Ant filter tags in their raw form
     // just won't cut it, so this is a (lame) work-around.
 
-    private static final boolean ALPHA =
-        Boolean.valueOf("@version.alpha@").booleanValue();
+    private static final boolean ALPHA = BooleanUtils.toBoolean("@version.alpha@");
 
-    private static final boolean BETA =
-        Boolean.valueOf("@version.beta@").booleanValue();
+    private static final boolean BETA = BooleanUtils.toBoolean("@version.beta@");
 
-    private static final String DATE = "@build.date@";
+    private static final Date BUILD_DATE;
 
-    private static final int MAJOR = Integer.parseInt("@version.major@");
+    private static final int MAJOR = NumberUtils.toInt("@version.major@");
 
-    private static final int MINOR = Integer.parseInt("@version.minor@");
+    private static final int MINOR = NumberUtils.toInt("@version.minor@");
 
-    private static final int PATCH = Integer.parseInt("@version.patch@");
+    private static final int PATCH = NumberUtils.toInt("@version.patch@");
 
-    private static final int BUILD_NUMBER = Integer.parseInt("@build.number@");
+    private static final int BUILD_NUMBER = NumberUtils.toInt("@build.number@");
 
-    public static String getDateString() {
-        return DATE;
+    static {
+        Date date;
+        try {
+            final DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            date = format.parse("@build.date@");
+        } catch (ParseException e) {
+            date = new Date(0L);
+        }
+        BUILD_DATE = date;
+    }
+
+    public static Date getBuildDate() {
+        return BUILD_DATE;
     }
 
     public static int getMajor() {

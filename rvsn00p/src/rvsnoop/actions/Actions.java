@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.Action;
@@ -23,8 +24,22 @@ import javax.swing.KeyStroke;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.actions.DisplayAbout;
+import org.rvsnoop.actions.NewRvConnection;
 import org.rvsnoop.actions.ClearLedger;
+import org.rvsnoop.actions.Copy;
+import org.rvsnoop.actions.Cut;
+import org.rvsnoop.actions.Delete;
+import org.rvsnoop.actions.EditRecordTypes;
+import org.rvsnoop.actions.Filter;
+import org.rvsnoop.actions.OpenProject;
+import org.rvsnoop.actions.Quit;
+import org.rvsnoop.actions.Republish;
 import org.rvsnoop.actions.RvSnoopAction;
+import org.rvsnoop.actions.SaveProjectAs;
+import org.rvsnoop.actions.SaveProject;
+import org.rvsnoop.event.RecordLedgerSelectionListener;
+import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.StringUtils;
 
@@ -65,25 +80,13 @@ public final class Actions {
 
     private static final Log log = LogFactory.getLog(Actions.class);
 
-    public static final Action ADD_CONNECTION = add(new AddConnection());
-
     public static final Action CHANGE_TABLE_FONT = add(new ChangeTableFont());
 
     public static final Action CHECK_FOR_UPDATES = add(new CheckForUpdates());
 
-    public static final Action COPY = add(new Copy());
-
-    public static final Action CUT = add(new Cut());
-
-    public static final Action DELETE = add(new Delete());
-
-    public static final Action DISPLAY_ABOUT = add(new DisplayAbout());
-
     public static final Action DISPLAY_HOME_PAGE = add(new DisplayHomePage());
 
     public static final Action DISPLAY_LICENSE = add(new DisplayLicense());
-
-    public static final Action EDIT_RECORD_TYPES = add(new EditRecordTypes());
 
     public static final Action EXPORT_TO_HTML = add(new ExportToHtml());
 
@@ -93,15 +96,9 @@ public final class Actions {
 
     public static final Action EXPORT_TO_RVTEST = add(new ExportToRvTest());
 
-    public static final Action FILTER = add(new Filter(Filter.FILTER, "Filter...", "Filter the records visible in the ledger"));
-
-    public static final Action FILTER_BY_SELECTION = add(new Filter(Filter.FILTER_BY_SELECTION, "Filter by Selection", "Filter the records visible in the ledger"));
-
     public static final Action HELP = add(new Help());
 
     public static final Action IMPORT_FROM_RECORD_BUNDLE = add(new ImportFromRecordBundle());
-
-    public static final Action OPEN = add(new Open());
 
     public static final Action PASTE = add(new Paste());
 
@@ -109,15 +106,7 @@ public final class Actions {
 
     public static final Action PRUNE_EMPTY_SUBJECTS = add(new PruneEmptySubjects());
 
-    public static final Action QUIT = add(new Quit());
-
     public static final Action REPORT_BUG = add(new ReportBug());
-
-    public static final Action REPUBLISH = add(new Republish());
-
-    public static final Action SAVE = add(new Save());
-
-    public static final Action SAVE_AS = add(new SaveAs());
 
     public static final Action SEARCH = add(new Search(Search.SEARCH, "Find...", "Search for text in the messages", KeyEvent.VK_F));
 
@@ -159,11 +148,27 @@ public final class Actions {
         return acceleratorKeyListener;
     }
 
+    private final Application application;
+
     private final Map acceleratorKeyToActionMap = new HashMap();
     private final Map commandToActionMap = new HashMap();
 
     public Actions(Application application) {
+        this.application = application;
         addAction(new ClearLedger(application));
+        addAction(new Copy(application));
+        addAction(new Cut(application));
+        addAction(new Delete(application));
+        addAction(new DisplayAbout(application));
+        addAction(new EditRecordTypes(application));
+        addAction(new Filter(application, false));
+        addAction(new Filter(application, true));
+        addAction(new NewRvConnection(application));
+        addAction(new OpenProject(application));
+        addAction(new Republish(application));
+        addAction(new SaveProject(application));
+        addAction(new SaveProjectAs(application));
+        addAction(new Quit(application));
     }
 
     public void addAction(RvSnoopAction action) {
@@ -183,8 +188,20 @@ public final class Actions {
     }
 
     public RvSnoopAction getAction(String command) {
-        final Object action = commandToActionMap.get(command);
-        return action instanceof RvSnoopAction ? (RvSnoopAction) action : null;
+        return (RvSnoopAction) commandToActionMap.get(command);
+    }
+
+    public void configureListeners() {
+        final RecordLedgerTable table = application.getLedgerTable();
+        final Iterator actions = commandToActionMap.values().iterator();
+        while (actions.hasNext()) {
+            final RvSnoopAction action = (RvSnoopAction) actions.next();
+            if (action instanceof RecordLedgerSelectionListener) {
+                table.addRecordLedgerSelectionListener(
+                        (RecordLedgerSelectionListener) action);
+                action.setEnabled(false);
+            }
+        }
     }
 
 }

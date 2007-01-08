@@ -26,7 +26,7 @@
   </target>
 
   <!-- Get the build version. -->
-  <target name="setbuildversion" unless="svnversion.offline" depends="settimestamp">
+  <target name="setbuildversion" unless="skip.setbuildversion" depends="settimestamp">
     <exec executable="${svnversion}" spawn="false" dir="." output="build.number" failifexecutionfails="false">
       <arg line="."/>
     </exec>
@@ -116,7 +116,7 @@
     </copy>
     <copy todir="${dir.stage}/tests" encoding="UTF-8">
       <filterset refid="filters"/>
-      <fileset dir="tests" includes="**/*.java"/>
+      <fileset dir="tests" includes="**/*.java, **/*.properties, **/*.txt"/>
     </copy>
     <copy todir="${dir.stage}/tests">
       <fileset dir="tests" includes="**/*.rbz"/>
@@ -159,11 +159,12 @@
     </javac>
   </target>
 
-  <target name="genjavadoc" depends="stage"
+  <target name="genjavadoc" depends="stage" unless="skip.genjavadoc"
           description="Compile all of the Java API documentation.">
     <mkdir dir="${dir.build}/doc/api"/>
-    <javadoc destdir="${dir.build}/doc/api" version="true" author="true" use="true"
-             access="${javadoc.access}" windowtitle="RvSnoop ${version} API Documentation">
+    <javadoc destdir="${dir.build}/doc/api" version="true" author="true"
+             use="true" source="1.4" access="${javadoc.access}"
+             windowtitle="RvSnoop ${version} API Documentation">
       <doctitle><![CDATA[<h1>RvSnoop ${version}</h1>]]></doctitle>
       <bottom><![CDATA[Copyright © 2002-${year} <a href="http://ianp.org/">Ian Phillips</a> and Örjan Lundberg.]]></bottom>
       <packageset dir="${dir.stage}/src" defaultexcludes="true" includes="**"/>
@@ -241,6 +242,7 @@
       </manifest>
       <fileset dir="${dir.build}/classes/main" includes="**/*.class"/>
       <fileset dir="${dir.stage}/src" includes="**/*.png"/>
+      <fileset dir="${dir.stage}/src" includes="**/*.properties" excludes="commons-logging.properties"/>
     </jar>
     <copy todir="${dir.dist}/lib">
       <fileset file="${lib.binding}"/>
@@ -293,7 +295,7 @@
     </scp>
   </target>
 
-  <target name="analyze" depends="compile"
+  <target name="analyze" depends="compile" unless="skip.analyze"
           description="Analyze the code base and generate reports.">
     <taskdef name="pmd" classpath="${lib.pmd}"
              classname="net.sourceforge.pmd.ant.PMDTask"/>

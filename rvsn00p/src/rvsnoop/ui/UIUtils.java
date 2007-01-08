@@ -44,16 +44,9 @@ import com.tibco.tibrv.TibrvException;
  */
 public final class UIUtils {
 
-    private static String CONFIRM_TITLE = "Confirm";
-
     private static String ERROR_TITLE = "Error";
 
     private static String INFORMATION_TITLE = "Information";
-
-    public static boolean askForConfirmation(Object message, Icon icon) {
-        return JOptionPane.YES_OPTION
-            == JOptionPane.showConfirmDialog(UIManager.INSTANCE.getFrame(), message, CONFIRM_TITLE, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
-    }
 
     public static void centerWindowOnScreen(final Window window) {
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();

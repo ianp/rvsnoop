@@ -8,27 +8,18 @@
 package rvsnoop;
 
 import java.awt.Color;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
 import javax.swing.ListModel;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import javax.swing.table.TableModel;
 
-import rvsnoop.actions.Actions;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
-import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.EventListModel;
 import ca.odell.glazedlists.swing.EventTableModel;
 
@@ -43,54 +34,12 @@ import ca.odell.glazedlists.swing.EventTableModel;
  */
 public final class RecordTypes {
 
-    public final class MenuManager implements MenuListener {
-        public MenuManager() {
-            super();
-        }
-        public void menuCanceled(MenuEvent e) {
-            ((JMenu) e.getSource()).removeAll();
-        }
-        public void menuDeselected(MenuEvent e) {
-            // Do nothing.
-        }
-        public void menuSelected(MenuEvent e) {
-            final JMenu menu = (JMenu) e.getSource();
-            menu.removeAll();
-            int index = 0;
-            types.getReadWriteLock().readLock().lock();
-            try {
-                for (int i = 0, imax = types.size(); i < imax; ++i) {
-                    final RecordType type = (RecordType) types.get(i);
-                    final JCheckBoxMenuItem item = new JCheckBoxMenuItem(
-                            DEFAULT.equals(type) ? "Default" : type.getName());
-                    item.setSelected(type.isSelected());
-                    item.setMnemonic(KeyEvent.VK_0 + ++index);
-                    item.addItemListener(new ItemListener() {
-                        public void itemStateChanged(ItemEvent e) {
-                            if (e.getStateChange() == ItemEvent.SELECTED) {
-                                type.setSelected(true);
-                                matcherEditor.relax();
-                            } else if (e.getStateChange() == ItemEvent.DESELECTED) {
-                                type.setSelected(false);
-                                matcherEditor.constrain();
-                            }
-                        }
-                    });
-                    menu.add(item);
-                }
-            } finally {
-                types.getReadWriteLock().readLock().unlock();
-            }
-            menu.addSeparator();
-            menu.add(Actions.EDIT_RECORD_TYPES);
-        }
-    }
-
-    private class MessageTypeMatcherEditor extends AbstractMatcherEditor {
+    // TODO make private again
+    public class MessageTypeMatcherEditor extends AbstractMatcherEditor {
         MessageTypeMatcherEditor() {
             super();
         }
-        void constrain() {
+        public void constrain() {
             fireConstrained(getMatcher());
         }
         public Matcher getMatcher() {
@@ -112,14 +61,14 @@ public final class RecordTypes {
                 }
             };
         }
-        void relax() {
+        public void relax() {
             fireRelaxed(getMatcher());
         }
     }
 
     private static RecordTypes instance;
 
-    public static final RecordType DEFAULT = new RecordType("", Color.BLACK, RecordMatcher.DEFAULT_MATCHER);
+    public static final RecordType DEFAULT = new RecordType("Normal", Color.BLACK, RecordMatcher.DEFAULT_MATCHER);
     public static final RecordType ERROR = new RecordType("Error", Color.RED, new RecordMatcher.SendSubjectContains("ERROR"));
 
     public static synchronized RecordTypes getInstance() {
@@ -208,7 +157,7 @@ public final class RecordTypes {
         return new EventListModel(types);
     }
 
-    public MatcherEditor getMatcherEditor() {
+    public MessageTypeMatcherEditor getMatcherEditor() {
         return matcherEditor;
     }
 

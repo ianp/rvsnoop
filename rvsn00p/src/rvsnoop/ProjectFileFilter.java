@@ -19,12 +19,9 @@ import javax.swing.filechooser.FileFilter;
  * @version $Revision$, $Date$
  * @since 1.5
  */
-// Class provides static instance instead of factory method.
-// @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/17/06 2:00 PM
-public class ProjectFileFilter extends FileFilter {
-    public static final ProjectFileFilter INSTANCE = new ProjectFileFilter();
+public final class ProjectFileFilter extends FileFilter {
 
-    private ProjectFileFilter() {
+    public ProjectFileFilter() {
         super();
     }
 

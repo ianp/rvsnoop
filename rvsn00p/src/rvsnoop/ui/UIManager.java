@@ -9,26 +9,23 @@ package rvsnoop.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 
 import javax.swing.AbstractButton;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -47,33 +44,42 @@ import javax.swing.ToolTipManager;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
-import javax.swing.table.TableModel;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
-import org.rvsnoop.RecordLedgerFormat;
-import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
+import org.rvsnoop.RecordLedger;
+import org.rvsnoop.actions.DisplayAbout;
+import org.rvsnoop.actions.NewRvConnection;
 import org.rvsnoop.actions.ClearLedger;
+import org.rvsnoop.actions.Copy;
+import org.rvsnoop.actions.Cut;
+import org.rvsnoop.actions.Delete;
+import org.rvsnoop.actions.EditRecordTypes;
+import org.rvsnoop.actions.Filter;
+import org.rvsnoop.actions.OpenProject;
+import org.rvsnoop.actions.Quit;
+import org.rvsnoop.actions.Republish;
+import org.rvsnoop.actions.SaveProjectAs;
+import org.rvsnoop.actions.SaveProject;
+import org.rvsnoop.ui.ConnectionList;
+import org.rvsnoop.ui.ImageFactory;
 import org.rvsnoop.ui.RecordLedgerTable;
+import org.rvsnoop.ui.RecordTypesMenuManager;
+import org.rvsnoop.ui.VisibleColumnsMenuManager;
 
 import rvsnoop.Connections;
 import rvsnoop.PreferencesManager;
 import rvsnoop.RecentConnections;
 import rvsnoop.RecentProjects;
 import rvsnoop.Record;
-import rvsnoop.RecordTypes;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.TreeModelAdapter;
 import rvsnoop.Version;
 import rvsnoop.actions.Actions;
-import ca.odell.glazedlists.swing.EventListModel;
-import ca.odell.glazedlists.swing.EventTableModel;
 
 /**
  * The single user interface class for the application.
@@ -85,15 +91,6 @@ import ca.odell.glazedlists.swing.EventTableModel;
 // Class provides a static instance instead of a factory method.
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/17/06 7:58 PM
 public final class UIManager {
-
-    private final class FilterBySelectionListener implements ListSelectionListener {
-        FilterBySelectionListener() {
-            super();
-        }
-        public void valueChanged(ListSelectionEvent e) {
-            Actions.FILTER_BY_SELECTION.setEnabled(getSelectedRecord() != null);
-        }
-    }
 
     private final class MessageLedgerListener implements ListSelectionListener {
         MessageLedgerListener() {
@@ -124,12 +121,12 @@ public final class UIManager {
         }
     }
 
-    private static final class WindowCloseListener extends WindowAdapter {
+    private final class WindowCloseListener extends WindowAdapter {
         WindowCloseListener() {
             super();
         }
         public void windowClosing(WindowEvent e) {
-            Actions.QUIT.actionPerformed(null);
+            application.shutdown();
         }
     }
 
@@ -158,22 +155,22 @@ public final class UIManager {
 
     // Widgets.
 
-    private final JList connectionList = createConnectionList();
+    private final ConnectionList connectionList;
     private final JTree subjectExplorer = createSubjectExplorer();
     private final RvDetailsPanel detailsPanel = new RvDetailsPanel();
-    private final RecordLedgerTable messageLedger = createMessageLedger();
+    private final RecordLedgerTable messageLedger;
 
     // Widget scrollers.
 
-    private final JScrollPane connectionListScroller = createConnectionListScroller(connectionList);
-    private final JScrollPane subjectExplorerScroller = createSubjectExplorerScroller(subjectExplorer);
-    private final JScrollPane messageLedgerScroller = createMessageLedgerScroller(messageLedger);
+    private final JScrollPane connectionListScroller;
+    private final JScrollPane subjectExplorerScroller;
+    private final JScrollPane messageLedgerScroller;
 
     // Widget splitters.
 
-    private final JSplitPane messageLedgerSplitter = createMessageLedgerSplitter(messageLedgerScroller, detailsPanel);
-    private final JSplitPane subjectExplorerSplitter = createSubjectExplorerSplitter(subjectExplorerScroller, messageLedgerSplitter);
-    private final JSplitPane connectionListSplitter = createConnectionListSplitter(connectionListScroller, subjectExplorerSplitter);
+    private final JSplitPane messageLedgerSplitter;
+    private final JSplitPane subjectExplorerSplitter;
+    private final JSplitPane connectionListSplitter;
 
     // Status bar and contents.
 
@@ -182,12 +179,22 @@ public final class UIManager {
     private final StatusBar.StatusBarItem statusBarItemEncoding = statusBar.createItem();
     private final StatusBar.StatusBarItem statusBarItemCount = statusBar.createItem();
 
-    public UIManager(Application application) {
+    public UIManager(final Application application) {
+        this.application = application;
+        connectionList = new ConnectionList(application, Connections.getInstance());
+        messageLedger = createMessageLedger(application.getFilteredLedger());
+        connectionListScroller = createConnectionListScroller(connectionList);
+        subjectExplorerScroller = createSubjectExplorerScroller(subjectExplorer);
+        messageLedgerScroller = createMessageLedgerScroller(messageLedger);
+        messageLedgerSplitter = createMessageLedgerSplitter(messageLedgerScroller, detailsPanel);
+        subjectExplorerSplitter = createSubjectExplorerSplitter(subjectExplorerScroller, messageLedgerSplitter);
+        connectionListSplitter = createConnectionListSplitter(connectionListScroller, subjectExplorerSplitter);
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.setIconImage(Icons.APPLICATION);
-        frame.setJMenuBar(createMenuBar());
+        final Actions factory = application.getActionFactory();
+        frame.setJMenuBar(createMenuBar(messageLedger, factory));
         frame.getContentPane().add(connectionListSplitter, BorderLayout.CENTER);
-        frame.getContentPane().add(createToolBar(), BorderLayout.NORTH);
+        frame.getContentPane().add(createToolBar(factory), BorderLayout.NORTH);
         frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
         frame.pack();
         frame.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
@@ -195,7 +202,6 @@ public final class UIManager {
         statusBarItemEncoding.set(System.getProperty("file.encoding"), Locale.getDefault().getDisplayName(), null);
         updateStatusLabel();
         connectListeners();
-        this.application = application;
     }
 
     public void clearDetails() {
@@ -204,7 +210,6 @@ public final class UIManager {
 
     private void connectListeners() {
         final ListSelectionModel messageLedgerSelectionModel = messageLedger.getSelectionModel();
-        messageLedgerSelectionModel.addListSelectionListener(new FilterBySelectionListener());
         messageLedgerSelectionModel.addListSelectionListener(new MessageLedgerListener());
         for (final Iterator i = Actions.getActions().iterator(); i.hasNext(); ) {
             final Object action = i.next();
@@ -212,32 +217,6 @@ public final class UIManager {
                 messageLedgerSelectionModel.addListSelectionListener((ListSelectionListener) action);
         }
         frame.addWindowListener(new WindowCloseListener());
-    }
-
-    private void createColumnMenuItem(JPopupMenu popupMenu, final ColumnFormat column, final RecordLedgerFormat format, final TableModel model, boolean selected) {
-        final JCheckBoxMenuItem item = new JCheckBoxMenuItem(column.getName());
-        popupMenu.addPopupMenuListener(new PopupMenuListener() {
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                item.setSelected(format.getColumns().contains(column));
-            }
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                // no-op
-            }
-            public void popupMenuCanceled(PopupMenuEvent e) {
-                // no-op
-            }
-        });
-        item.setSelected(selected);
-        item.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    format.add(column);
-                } else if (e.getStateChange() == ItemEvent.DESELECTED) {
-                    format.remove(column);
-                }
-            }
-        });
-        popupMenu.add(item);
     }
 
     private JMenu createConfigureMenu() {
@@ -259,15 +238,6 @@ public final class UIManager {
         return result;
     }
 
-    private JList createConnectionList() {
-        final JList list = new JList(new EventListModel(Connections.getInstance()));
-        list.setBorder(BorderFactory.createEmptyBorder());
-        list.setCellRenderer(new ConnectionListRenderer(list, false));
-        // This line allows the cell renderer to provide a custom tooltip for each node.
-        ToolTipManager.sharedInstance().registerComponent(list);
-        return list;
-    }
-
     private JScrollPane createConnectionListScroller(JList listenerList) {
         final JScrollPane scrollPane = new JScrollPane(listenerList);
         scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY));
@@ -282,35 +252,36 @@ public final class UIManager {
         return splitter;
     }
 
-    private JMenu createEditMenu() {
+    private JMenu createEditMenu(final Actions factory) {
         final JMenu edit = new JMenu("Edit");
         edit.setMnemonic('e');
-        edit.add(Actions.CUT);
-        edit.add(Actions.COPY);
+        edit.add(factory.getAction(Cut.COMMAND));
+        edit.add(factory.getAction(Copy.COMMAND));
         edit.add(Actions.PASTE);
         edit.addSeparator();
         edit.add(Actions.SEARCH);
         edit.add(Actions.SEARCH_AGAIN);
         edit.addSeparator();
-        edit.add(Actions.REPUBLISH);
+        edit.add(factory.getAction(Republish.COMMAND));
         edit.addSeparator();
         edit.add(Actions.PRUNE_EMPTY_SUBJECTS);
         edit.addSeparator();
-        edit.add(Actions.DELETE);
+        edit.add(factory.getAction(Delete.COMMAND));
         return edit;
     }
 
-    private JMenu createFileMenu() {
+    private JMenu createFileMenu(final Actions factory) {
+        final ImageFactory images = ImageFactory.getInstance();
         final JMenu file = new JMenu("File");
         file.setMnemonic('f');
-        file.add(Actions.OPEN);
+        file.add(factory.getAction(OpenProject.COMMAND));
         final JMenu fileRecent = new JMenu("Recent Projects");
-        fileRecent.setIcon(Icons.OPEN);
+        fileRecent.setIcon(new ImageIcon(images.getIconImage(OpenProject.COMMAND)));
         fileRecent.addMenuListener(RecentProjects.INSTANCE.new MenuManager());
         file.add(fileRecent);
         file.addSeparator();
-        file.add(Actions.SAVE);
-        file.add(Actions.SAVE_AS);
+        file.add(factory.getAction(SaveProject.COMMAND));
+        file.add(factory.getAction(SaveProjectAs.COMMAND));
         final JMenu fileExport = new JMenu("Export To");
         fileExport.setIcon(Icons.EXPORT);
         fileExport.add(Actions.EXPORT_TO_HTML);
@@ -323,17 +294,17 @@ public final class UIManager {
         fileImport.add(Actions.IMPORT_FROM_RECORD_BUNDLE);
         file.add(fileImport);
         file.addSeparator();
-        file.add(Actions.ADD_CONNECTION);
+        file.add(factory.getAction(NewRvConnection.COMMAND));
         final JMenu connRecent = new JMenu("Recent Connections");
         connRecent.setIcon(Icons.ADD_CONNECTION);
         connRecent.addMenuListener(RecentConnections.getInstance().new MenuManager());
         file.add(connRecent);
         file.addSeparator();
-        file.add(Actions.QUIT);
+        file.add(factory.getAction(Quit.COMMAND));
         return file;
     }
 
-    private JMenu createHelpMenu() {
+    private JMenu createHelpMenu(final Actions factory) {
         final JMenu help = new JMenu("Help");
         help.setMnemonic('h');
         help.add(Actions.HELP);
@@ -343,33 +314,26 @@ public final class UIManager {
         help.add(Actions.SUBSCRIBE_TO_UPDATES);
         help.addSeparator();
         help.add(Actions.DISPLAY_LICENSE);
-        help.add(Actions.DISPLAY_ABOUT);
+        help.add(factory.getAction(DisplayAbout.COMMAND));
         return help;
     }
 
-    private JMenuBar createMenuBar() {
+    private JMenuBar createMenuBar(RecordLedgerTable table, Actions factory) {
         final JMenuBar bar = new JMenuBar();
-        bar.add(createFileMenu());
-        bar.add(createEditMenu());
-        bar.add(createViewMenu());
+        bar.add(createFileMenu(factory));
+        bar.add(createEditMenu(factory));
+        bar.add(createViewMenu(factory, table));
         bar.add(createConfigureMenu());
-        bar.add(createHelpMenu());
+        bar.add(createHelpMenu(factory));
         // Mac OS X screen menu bars do not normally show icons.
         if (SystemUtils.IS_OS_MAC_OSX)
             removeIconsFromMenuElements(bar);
         return bar;
     }
 
-    private RecordLedgerTable createMessageLedger() {
-        final RecordLedgerTable table = new RecordLedgerTable(application.getFilteredLedger());
-        final RecordLedgerFormat format = table.getTableFormat();
-        final TableModel model = table.getModel();
-        final List columns = format.getColumns();
-        final Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator();
-        while (i.hasNext()) {
-            final ColumnFormat column = (ColumnFormat) i.next();
-            createColumnMenuItem(columnsPopup, column, format, model, columns.contains(column));
-        }
+    private RecordLedgerTable createMessageLedger(RecordLedger ledger) {
+        final RecordLedgerTable table = new RecordLedgerTable(ledger);
+        columnsPopup.addPopupMenuListener(new VisibleColumnsMenuManager(table.getTableFormat()));
         return table;
     }
 
@@ -425,55 +389,47 @@ public final class UIManager {
         return splitter;
     }
 
-    private JToolBar createToolBar() {
-        final Actions factory = application.getActionFactory();
-        final JToolBar toolBar = new JToolBar();
-        toolBar.setFloatable(false);
-        toolBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
-        toolBar.setRollover(true);
-        createToolBarButton(toolBar, Actions.OPEN);
-        createToolBarButton(toolBar, Actions.SAVE);
-        toolBar.addSeparator();
-        createToolBarButton(toolBar, Actions.ADD_CONNECTION);
-        toolBar.addSeparator();
-        createToolBarButton(toolBar, factory.getAction(ClearLedger.COMMAND));
-        toolBar.addSeparator();
-        createToolBarButton(toolBar, Actions.PAUSE_ALL);
-        return toolBar;
+    private JToolBar createToolBar(final Actions factory) {
+        final JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        toolbar.setRollover(true);
+        toolbar.add(factory.getAction(OpenProject.COMMAND));
+        toolbar.add(factory.getAction(SaveProject.COMMAND));
+        toolbar.addSeparator();
+        toolbar.add(factory.getAction(NewRvConnection.COMMAND));
+        toolbar.addSeparator();
+        toolbar.add(factory.getAction(ClearLedger.COMMAND));
+        toolbar.addSeparator();
+        toolbar.add(Actions.PAUSE_ALL);
+        final Component[] components = toolbar.getComponents();
+        for (int i = 0, imax = components.length; i < imax; ++i) {
+            Component component = components[i];
+            if (component instanceof AbstractButton) {
+                ((AbstractButton) component).setBorderPainted(false);
+                ((AbstractButton) component).setOpaque(false);
+            }
+        }
+        return toolbar;
     }
 
-    private void createToolBarButton(JToolBar toolBar, Action action) {
-        final JButton button = toolBar.add(action);
-        // The painted borders on Java toolbar buttons look really bad...
-        button.setBorderPainted(false);
-        button.setOpaque(false);
-    }
-
-    private JMenu createViewMenu() {
+    private JMenu createViewMenu(final Actions factory, final RecordLedgerTable table) {
+        final ImageFactory images = ImageFactory.getInstance();
         final JMenu view = new JMenu("View");
         view.setMnemonic('v');
         view.add(Actions.SELECT_ALL_MESSAGES);
         view.add(Actions.SHOW_ALL_COLUMNS);
         view.addSeparator();
-        view.add(Actions.FILTER);
-        view.add(Actions.FILTER_BY_SELECTION);
+        view.add(factory.getAction(Filter.FILTER_COMMAND));
+        view.add(factory.getAction(Filter.FILTER_BY_SELECTION_COMMAND));
         view.addSeparator();
         final JMenu viewColumns = new JMenu("Columns");
         viewColumns.setIcon(Icons.FILTER_COLUMNS);
-        final JPopupMenu viewColumnsPopup = viewColumns.getPopupMenu();
-        final EventTableModel model = (EventTableModel) messageLedger.getModel();
-        final RecordLedgerFormat format = messageLedger.getTableFormat();
-        final List columns = format.getColumns();
-        final Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator();
-        while (i.hasNext()) {
-            final ColumnFormat column = (ColumnFormat) i.next();
-            createColumnMenuItem(viewColumnsPopup, column, format, model, columns.contains(column));
-        }
+        viewColumns.addMenuListener(new VisibleColumnsMenuManager(table.getTableFormat()));
         view.add(viewColumns);
         final JMenu viewTypes = new JMenu("Types");
-        viewTypes.setIcon(Icons.FILTER);
-        viewTypes.addMenuListener(RecordTypes.getInstance().new MenuManager());
-        //viewTypes.getPopupMenu().addPopupMenuListener(RecordTypes.getInstance().new MenuManager());
+        viewTypes.setIcon(new ImageIcon(images.getIconImage(EditRecordTypes.COMMAND)));
+        viewTypes.addMenuListener(new RecordTypesMenuManager(application));
         view.add(viewTypes);
         return view;
     }
@@ -526,8 +482,9 @@ public final class UIManager {
         if (elt instanceof AbstractButton)
             ((AbstractButton) elt).setIcon(null);
         final MenuElement[] elts = elt.getSubElements();
-        for (int i = 0, imax = elts.length; i < imax; ++i)
+        for (int i = 0, imax = elts.length; i < imax; ++i) {
             removeIconsFromMenuElements(elts[i]);
+        }
     }
 
     public void selectRecordInLedger(int index) {
@@ -555,14 +512,6 @@ public final class UIManager {
         final String text = statusBarItemCount.getText();
         final Icon icon = statusBarItemCount.getIcon();
         statusBarItemCount.set(text, filters, icon);
-    }
-
-    public void setStatusBarMessage(String message) {
-        statusBar.setMessage(message);
-    }
-
-    public void setStatusBarWarning(String message) {
-        statusBar.setWarning(message);
     }
 
     public void setSubjectExplorerDividerLocation(final int location) {

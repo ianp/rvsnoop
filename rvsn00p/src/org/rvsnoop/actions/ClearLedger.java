@@ -8,15 +8,14 @@
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.Action;
 
 import org.rvsnoop.Application;
+import org.rvsnoop.NLSUtils;
 
 import rvsnoop.Record;
 import rvsnoop.SubjectHierarchy;
-import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIManager;
 
 /**
@@ -28,18 +27,19 @@ import rvsnoop.ui.UIManager;
  */
 public final class ClearLedger extends RvSnoopAction {
 
+    static { NLSUtils.internationalize(ClearLedger.class); }
+
     private static final long serialVersionUID = -3552599952765687823L;
 
     public static final String COMMAND = "clearLedger";
-    private static String NAME = "Clear Ledger";
-    private static String TOOLTIP = "Delete all records from the ledger";
+    static String MNEMONIC, NAME, TOOLTIP;
 
     public ClearLedger(Application application) {
         super(NAME, application);
         putValue(Action.ACTION_COMMAND_KEY, COMMAND);
-        putValue(Action.SMALL_ICON, Icons.createSmallIcon(COMMAND));
+        putSmallIconValue(COMMAND);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
-        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_E));
+        putMnemonicValue(MNEMONIC);
     }
 
     /* (non-Javadoc)

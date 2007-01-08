@@ -9,10 +9,15 @@ package org.rvsnoop;
 
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.actions.RvSnoopAction;
+import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.PreferencesManager;
 import rvsnoop.Project;
+import rvsnoop.RecordTypes;
+import rvsnoop.RvConnection;
 import rvsnoop.actions.Actions;
 import rvsnoop.ui.UIManager;
 
@@ -27,6 +32,12 @@ import rvsnoop.ui.UIManager;
  * @since 1.7
  */
 public final class Application {
+
+    static { NLSUtils.internationalize(Application.class); }
+    
+    private static final Log log = LogFactory.getLog(Application.class);
+    
+    static String ERROR_SHUTDOWN;
 
     private Actions actionFactory;
 
@@ -79,7 +90,7 @@ public final class Application {
      */
     public synchronized FilteredLedgerView getFilteredLedger() {
         if (filteredLedger == null) {
-            filteredLedger = new FilteredLedgerView(ledger);
+            filteredLedger = new FilteredLedgerView(getLedger());
         }
         return filteredLedger;
     }
@@ -97,6 +108,15 @@ public final class Application {
             ledger = new InMemoryLedger();
         }
         return ledger;
+    }
+
+    /**
+     * Get the record ledger table.
+     *
+     * @return The ledger table.
+     */
+    public RecordLedgerTable getLedgerTable() {
+        return getFrame().getMessageLedger();
     }
 
     /**
@@ -136,8 +156,21 @@ public final class Application {
      * @return the frame
      */
     public synchronized UIManager getFrame() {
-        if (frame == null) { frame = new UIManager(this); }
+        if (frame == null) {
+            frame = new UIManager(this);
+            getActionFactory().configureListeners();
+        }
         return frame;
+    }
+
+    /**
+     * Get all of the known record types.
+     * 
+     * @return The record types.
+     */
+    public synchronized RecordTypes getRecordTypes() {
+        // FIXME this should not use a static instance, they should be loaded from the project.
+        return RecordTypes.getInstance();
     }
 
     /**
@@ -148,4 +181,16 @@ public final class Application {
         return sessionState;
     }
 
+    /**
+     * Shut down the applicatiopn and stop the VM.
+     */
+    public void shutdown() {
+        try {
+            RvConnection.shutdown();
+            System.exit(0);
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) { log.error(ERROR_SHUTDOWN, e); }
+            System.exit(1);
+        }
+    }
 }

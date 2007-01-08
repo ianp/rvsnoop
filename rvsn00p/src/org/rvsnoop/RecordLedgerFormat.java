@@ -74,7 +74,13 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         public abstract Object getValue(Record record);
     }
 
-    public static ColumnFormat CONNECTION = new ColumnFormat("connection", "Connection", String.class, new ComparableComparator()) {
+    static String CONNECTION_NAME, MESSAGE_NAME, SEQUENCE_NO_NAME,
+        SIZE_IN_BYTES_NAME, SUBJECT_NAME, TIMESTAMP_NAME, TRACKING_ID_NAME,
+        TYPE_NAME;
+
+    static { NLSUtils.internationalize(RecordLedgerFormat.class); }
+
+    public static ColumnFormat CONNECTION = new ColumnFormat("connection", CONNECTION_NAME, String.class, new ComparableComparator()) {
         private static final long serialVersionUID = -4938884664732119140L;
         public Object getValue(Record record) {
             final RvConnection connection = record.getConnection();
@@ -82,49 +88,49 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         }
     };
 
-    public static final ColumnFormat MESSAGE = new ColumnFormat("message", "Message", Object.class) {
+    public static final ColumnFormat MESSAGE = new ColumnFormat("message", MESSAGE_NAME, Object.class) {
         private static final long serialVersionUID = 3526646591996520301L;
         public Object getValue(Record record) {
             return record.getMessage();
         }
     };
 
-    public static final ColumnFormat SEQUENCE_NO = new ColumnFormat("sequence", "Seq. No.", Long.class, new ComparableComparator()) {
+    public static final ColumnFormat SEQUENCE_NO = new ColumnFormat("sequence", SEQUENCE_NO_NAME, Long.class, new ComparableComparator()) {
         private static final long serialVersionUID = -5762735421370128862L;
         public Object getValue(Record record) {
             return Long.toString(record.getSequenceNumber());
         }
     };
 
-    public static final ColumnFormat SIZE_IN_BYTES = new ColumnFormat("size", "Size (bytes)", Integer.class, new ComparableComparator()) {
+    public static final ColumnFormat SIZE_IN_BYTES = new ColumnFormat("size", SIZE_IN_BYTES_NAME, Integer.class, new ComparableComparator()) {
         private static final long serialVersionUID = 2274660797219318776L;
         public Object getValue(Record record) {
             return new Integer(record.getSizeInBytes());
         }
     };
 
-    public static final ColumnFormat SUBJECT = new ColumnFormat("subject", "Subject", String.class, new ComparableComparator()) {
+    public static final ColumnFormat SUBJECT = new ColumnFormat("subject", SUBJECT_NAME, String.class, new ComparableComparator()) {
         private static final long serialVersionUID = 7415054603888398693L;
         public Object getValue(Record record) {
             return record.getSendSubject();
         }
     };
 
-    public static final ColumnFormat TIMESTAMP = new ColumnFormat("timestamp", "Timestamp", Date.class, new ComparableComparator()) {
+    public static final ColumnFormat TIMESTAMP = new ColumnFormat("timestamp", TIMESTAMP_NAME, Date.class, new ComparableComparator()) {
         private static final long serialVersionUID = -3858078006527711756L;
         public Object getValue(Record record) {
             return new Date(record.getTimestamp());
         }
     };
 
-    public static final ColumnFormat TRACKING_ID = new ColumnFormat("tracking", "Tracking ID", String.class, new ComparableComparator()) {
+    public static final ColumnFormat TRACKING_ID = new ColumnFormat("tracking", TRACKING_ID_NAME, String.class, new ComparableComparator()) {
         private static final long serialVersionUID = -3033175036104293820L;
         public Object getValue(Record record) {
             return record.getTrackingId();
         }
     };
 
-    public static final ColumnFormat TYPE = new ColumnFormat("type", "Type", String.class, new ComparableComparator()) {
+    public static final ColumnFormat TYPE = new ColumnFormat("type", TYPE_NAME, String.class, new ComparableComparator()) {
         private static final long serialVersionUID = 6353909616946303068L;
         final RecordTypes types = RecordTypes.getInstance();
         public Object getValue(Record record) {
@@ -174,6 +180,17 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         if (!columns.contains(column) && columns.add(column) && model != null) {
             model.setTableFormat(this);
         }
+    }
+
+    /**
+     * Is a given column visible in this format.
+     *
+     * @param column The column to check.
+     * @return <code>true</code> if the column is currently visible,
+     *     <code>false</code> otherwise.
+     */
+    public boolean contains(ColumnFormat column) {
+        return columns.contains(column);
     }
 
     /* (non-Javadoc)
@@ -250,8 +267,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      *
      * @param model
      */
-    public void setModel(EventTableModel model) {
-        // TODO: reduce visibility.
+    void setModel(EventTableModel model) {
         this.model = model;
     }
 

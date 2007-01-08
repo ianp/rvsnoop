@@ -26,6 +26,7 @@ import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.event.ListEventPublisher;
+import ca.odell.glazedlists.util.concurrent.Lock;
 import ca.odell.glazedlists.util.concurrent.ReadWriteLock;
 
 /**
@@ -211,11 +212,12 @@ public final class Connections implements EventList {
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object o) {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             return list.equals(o);
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -227,11 +229,12 @@ public final class Connections implements EventList {
      * @see java.util.List#get(int)
      */
     public Object get(int index) {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             return list.get(index);
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -244,7 +247,8 @@ public final class Connections implements EventList {
      * @return The existing connection, or <code>null</code> if it does not exist.
      */
     public RvConnection get(String service, String network, String daemon) {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             for (final Iterator i = list.iterator(); i.hasNext();) {
                 final RvConnection c = (RvConnection) i.next();
@@ -255,7 +259,7 @@ public final class Connections implements EventList {
             }
             return null;
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -290,18 +294,25 @@ public final class Connections implements EventList {
      * @see java.util.List#indexOf(java.lang.Object)
      */
     public int indexOf(Object o) {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             return list.indexOf(o);
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 
     private boolean internalAdd(RvConnection connection) {
-        if (list.contains(connection)) return false;
-        if (log.isInfoEnabled())
+        if (list.contains(connection)) {
+            if (log.isInfoEnabled()) {
+                log.info("Ignoring attempt to add duplicate connection: " + connection);
+            }
+            return false;
+        }
+        if (log.isInfoEnabled()) {
             log.info("Adding connection: " + connection);
+        }
         connection.setParentList(this);
         list.add(connection);
         return true;
@@ -309,8 +320,9 @@ public final class Connections implements EventList {
 
     private RvConnection internalRemove(int index) {
         final RvConnection connection = (RvConnection) list.get(index);
-        if (log.isInfoEnabled())
+        if (log.isInfoEnabled()) {
             log.info("Removing connection: " + connection);
+        }
         connection.stop();
         connection.setParentList(null);
         list.remove(index);
@@ -318,9 +330,10 @@ public final class Connections implements EventList {
     }
 
     private boolean internalRemove(RvConnection connection) {
-        if (!list.contains(connection)) return false;
-        if (log.isInfoEnabled())
+        if (!list.contains(connection)) { return false; }
+        if (log.isInfoEnabled()) {
             log.info("Removing connection: " + connection);
+        }
         connection.stop();
         connection.setParentList(null);
         list.remove(connection);
@@ -333,11 +346,12 @@ public final class Connections implements EventList {
      * @see java.util.List#isEmpty()
      */
     public boolean isEmpty() {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock =  list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             return list.isEmpty();
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -356,11 +370,12 @@ public final class Connections implements EventList {
      * @see java.util.List#lastIndexOf(java.lang.Object)
      */
     public int lastIndexOf(Object o) {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             return list.lastIndexOf(o);
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -385,11 +400,12 @@ public final class Connections implements EventList {
      * @see java.util.List#remove(int)
      */
     public Object remove(int index) {
-        list.getReadWriteLock().writeLock().lock();
+        final Lock lock = list.getReadWriteLock().writeLock();
+        lock.lock();
         try {
             return internalRemove(index);
         } finally {
-            list.getReadWriteLock().writeLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -400,11 +416,12 @@ public final class Connections implements EventList {
      * @see java.util.List#remove(java.lang.Object)
      */
     public boolean remove(Object o) {
-        list.getReadWriteLock().writeLock().lock();
+        final Lock lock = list.getReadWriteLock().writeLock();
+        lock.lock();
         try {
             return internalRemove((RvConnection) o);
         } finally {
-            list.getReadWriteLock().writeLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -415,13 +432,14 @@ public final class Connections implements EventList {
      * @see java.util.List#removeAll(java.util.Collection)
      */
     public boolean removeAll(Collection c) {
-        list.getReadWriteLock().writeLock().lock();
+        final Lock lock = list.getReadWriteLock().writeLock();
+        lock.lock();
         boolean removed = false;
         try {
             for (final Iterator i = c.iterator(); i.hasNext();)
                 removed = internalRemove((RvConnection) i.next()) || removed;
         } finally {
-            list.getReadWriteLock().writeLock().unlock();
+            lock.unlock();
         }
         return removed;
     }
@@ -460,14 +478,15 @@ public final class Connections implements EventList {
      * @see java.util.List#set(int, java.lang.Object)
      */
     public Object set(int index, Object element) {
-        list.getReadWriteLock().writeLock().lock();
+        final Lock lock = list.getReadWriteLock().writeLock();
+        lock.lock();
         try {
             final RvConnection connection = (RvConnection) list.get(index);
             if (!(connection.equals(element)))
                 throw new IllegalArgumentException("Elements don't match! " + connection + " and " + element);
             return list.set(index, element);
         } finally {
-            list.getReadWriteLock().writeLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -476,11 +495,12 @@ public final class Connections implements EventList {
      * @see java.util.List#size()
      */
     public int size() {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             return list.size();
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -503,11 +523,12 @@ public final class Connections implements EventList {
      * @see java.util.List#toArray()
      */
     public Object[] toArray() {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             return list.toArray(new RvConnection[list.size()]);
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -518,11 +539,12 @@ public final class Connections implements EventList {
      * @see java.util.List#toArray(java.lang.Object[])
      */
     public Object[] toArray(Object[] a) {
-        list.getReadWriteLock().readLock().lock();
+        final Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
         try {
             return list.toArray(a);
         } finally {
-            list.getReadWriteLock().readLock().unlock();
+            lock.unlock();
         }
     }
 

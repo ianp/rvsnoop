@@ -15,10 +15,14 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.net.URL;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * All of the icons used by RvSnoop.
@@ -29,26 +33,42 @@ import javax.swing.ImageIcon;
  */
 public final class Icons {
 
+    private static class ErrorReporter implements ImageObserver {
+        private final String image;
+        ErrorReporter(String image) {
+            this.image = image;
+        }
+        /* (non-Javadoc)
+         * @see java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
+         */
+        public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+            if ((infoflags & ImageObserver.ERROR) != 0) {
+                if (log.isErrorEnabled()) {
+                    log.error("Error loading image " + image + ".");
+                }
+            }
+            return false;
+        }
+    }
+
     private static final int ICON_SIZE = 16;
 
+    private static final Log log = LogFactory.getLog(Icons.class);
+
     public static final Image APPLICATION = createImage("/resources/icons/rvsnoop.png", ICON_SIZE);
-    public static final Icon ABOUT = createIcon("/resources/icons/about.png", ICON_SIZE);
+    public static final Icon ABOUT = new ImageIcon(getSmallImage("about"));
     public static final Icon ADD_CONNECTION = createIcon("/resources/icons/add_connection.png", ICON_SIZE);
     public static final Icon BUG = createIcon("/resources/icons/bug.png", ICON_SIZE);
     public static final Icon CHECK_UPDATES = createIcon("/resources/icons/check_updates.png", ICON_SIZE);
     public static final Icon COLUMNS_CORNER = createIcon("/resources/icons/columns_corner_button.png", 14);
-    public static final Icon COPY = createIcon("/resources/icons/copy.png", ICON_SIZE);
-    public static final Icon CUT = createIcon("/resources/icons/cut.png", ICON_SIZE);
     public static final Icon DELETE = createIcon("/resources/icons/delete.png", ICON_SIZE);
     public static final Icon DRAG_HANDLE = createIcon("/resources/icons/drag_handle.png", ICON_SIZE);
     public static final Icon EXPORT = createIcon("/resources/icons/export.png", ICON_SIZE);
-    public static final Icon FILTER = createIcon("/resources/icons/filter.png", ICON_SIZE);
     public static final Icon FILTER_COLUMNS = createIcon("/resources/icons/filter_columns.png", ICON_SIZE);
     public static final Icon FONT = createIcon("/resources/icons/font.png", ICON_SIZE);
     public static final Icon HELP = createIcon("/resources/icons/help.png", ICON_SIZE);
     public static final Icon IMPORT = createIcon("/resources/icons/import.png", ICON_SIZE);
     public static final Icon LICENSE = createIcon("/resources/icons/license.png", ICON_SIZE);
-    public static final Icon OPEN = createIcon("/resources/icons/open.png", ICON_SIZE);
     public static final Icon PASTE = createIcon("/resources/icons/paste.png", ICON_SIZE);
     public static final Icon PAUSE = createIcon("/resources/icons/pause.png", ICON_SIZE);
     public static final Icon QUIT = createIcon("/resources/icons/quit.png", ICON_SIZE);
@@ -56,63 +76,47 @@ public final class Icons {
     public static final Icon RESUME = createIcon("/resources/icons/resume.png", ICON_SIZE);
     public static final Icon RV_MESSAGE = createIcon("/resources/icons/rv_message.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon RV_FIELD = createIcon("/resources/icons/rv_field.png", ICON_SIZE); //$NON-NLS-1$
-    public static final Icon RVD_PAUSED = createIcon("/resources/icons/rvd_paused.png", ICON_SIZE); //$NON-NLS-1$
-    public static final Icon RVD_STARTED = createIcon("/resources/icons/rvd_started.png", ICON_SIZE); //$NON-NLS-1$
-    public static final Icon RVD_STOPPED = createIcon("/resources/icons/rvd_stopped.png", ICON_SIZE); //$NON-NLS-1$
-    public static final Icon SAVE = createIcon("/resources/icons/save.png", ICON_SIZE);
-    public static final Icon SAVE_AS = createIcon("/resources/icons/save_as.png", ICON_SIZE);
     public static final Icon SEARCH = createIcon("/resources/icons/search.png", ICON_SIZE);
     public static final Icon SEARCH_AGAIN = createIcon("/resources/icons/search_again.png", ICON_SIZE);
     public static final Icon SELECT_ALL_MESSAGES = createIcon("/resources/icons/select_all.png", ICON_SIZE);
-    //public static final Icon SUBJECT = createIcon("/resources/icons/subject.png", ICON_SIZE);
     public static final Icon SUBSCRIBE_UPDATES = createIcon("/resources/icons/subscribe_updates.png", ICON_SIZE);
     public static final Icon TRACKING = createIcon("/resources/icons/tracking.png", ICON_SIZE);
     public static final Icon WEB = createIcon("/resources/icons/web.png", ICON_SIZE);
     public static final Icon XML_ATTRIBUTE = createIcon("/resources/icons/xml_attribute.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon XML_ELEMENT = createIcon("/resources/icons/xml_element.png", ICON_SIZE); //$NON-NLS-1$
 
-    private static BufferedImage createCompatibleImage(int w, int h) {
-        final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-        return config.createCompatibleImage(w, h, Transparency.TRANSLUCENT);
-    }
-
-    public static Icon createIcon(String filename, int size) {
-        final Image image = createImage(filename, size);
-        return image != null ? new ImageIcon(image) : getMissingIcon(size);
+    static Icon createIcon(String filename, int size) {
+        return new ImageIcon(createImage(filename, size));
     }
 
     private static Image createImage(String filename, int size) {
+        if (log.isDebugEnabled()) {
+            log.debug("Loading image from " + filename);
+        }
+        final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+        final BufferedImage image = config.createCompatibleImage(size, size, Transparency.TRANSLUCENT);
+        final Graphics2D gg = image.createGraphics();
         try {
             final URL url = Icons.class.getResource(filename);
-            Image image = Toolkit.getDefaultToolkit().getImage(url);
-            image = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-            final BufferedImage buffimage = createCompatibleImage(size, size);
-            buffimage.createGraphics().drawImage(image, 0, 0, null);
-            return image;
+            final Image i = Toolkit.getDefaultToolkit().getImage(url);
+            gg.drawImage(i, 0, 0, new ErrorReporter(filename));
         } catch (Exception e) {
-            return null;
+            gg.setColor(Color.RED);
+            gg.fillRect(0, 0, size - 1, size - 1);
         }
+        gg.dispose();
+        return image;
     }
 
-    public static Icon createSmallIcon(String iconName) {
-        return createIcon("/resources/icons/" + iconName + ".png", ICON_SIZE);
+    public static Image getLargeImage(String name) {
+        return createImage("/resources/banners/" + name + ".png", 48);
     }
 
-    private static Icon getMissingIcon(int size) {
-        try {
-            final BufferedImage image = createCompatibleImage(size, size);
-            final Graphics2D g2 = image.createGraphics();
-            g2.setColor(Color.RED);
-            g2.fillRect(0, 0, size - 1, size - 1);
-            return new ImageIcon(image);
-        } catch (Exception e) {
-            return null;
-        }
+    public static Image getSmallImage(String name) {
+        return createImage("/resources/icons/" + name + ".png", 16);
     }
 
-    /**
-     * Do not instantiate.
-     */
+    /** Do not instantiate. */
     private Icons() {
         throw new UnsupportedOperationException();
     }

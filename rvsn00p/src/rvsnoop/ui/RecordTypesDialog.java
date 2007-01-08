@@ -29,7 +29,6 @@ import java.util.Comparator;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
-import javax.swing.Action;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -37,7 +36,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -51,15 +49,16 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.actions.EditRecordTypes;
+import org.rvsnoop.ui.FooterPanel;
+import org.rvsnoop.ui.HeaderPanel;
+import org.rvsnoop.ui.ImageFactory;
 
 import rvsnoop.RecordMatcher;
 import rvsnoop.RecordType;
 import rvsnoop.RecordTypes;
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
 import ca.odell.glazedlists.gui.WritableTableFormat;
-
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
 
 /**
  * A dialog to allow the record types in a project to be customized.
@@ -219,7 +218,7 @@ public final class RecordTypesDialog extends JDialog {
                 // If robot isn't supported by the graphics configuration
                 // just use a plain gray rectangle of the correct size.
                 if (log.isDebugEnabled()) {
-                    log.debug("Robot based image capture failed, using fallback method.", e);
+                    log.debug("Robotic image capture failed, using fallback method.", e);
                 }
                 image = new BufferedImage(bounds.width, bounds.height, Transparency.TRANSLUCENT);
                 final Graphics2D g = (Graphics2D) image.getGraphics();
@@ -324,7 +323,7 @@ public final class RecordTypesDialog extends JDialog {
             final RecordType type = (RecordType) baseObject;
             switch (column) {
             case 0: return type.isSelected() ? Boolean.TRUE : Boolean.FALSE;
-            case 1: return RecordTypes.DEFAULT.equals(type) ? "[Default Type]" : type.getName();
+            case 1: return type.getName();
             case 2: return type.getColour();
             case 3: return type.getMatcherName();
             case 4: return type.getMatcherValue();
@@ -373,7 +372,7 @@ public final class RecordTypesDialog extends JDialog {
                     return type;
                 }
             } catch (IllegalArgumentException e) {
-                JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(),
+                JOptionPane.showMessageDialog(RecordTypesDialog.this,
                         e.getMessage(), "Warning: Invalid Value",
                         JOptionPane.WARNING_MESSAGE);
             }
@@ -402,23 +401,20 @@ public final class RecordTypesDialog extends JDialog {
      * @throws HeadlessException if the VM is running in headless mode.
      */
     public RecordTypesDialog() {
-        super(UIManager.INSTANCE.getFrame());
+        super(/* set the parent frame here */);
         setGlassPane(glass);
         Container contents = getContentPane();
         contents.setLayout(new BorderLayout());
-        final HeaderPanel header = new HeaderPanel(Banners.EDIT_TYPES);
-        header.setTitle(HEADER_TITLE);
-        header.setMessage(HEADER_MESSAGE);
+        final HeaderPanel header = new HeaderPanel(HEADER_TITLE, HEADER_MESSAGE,
+                ImageFactory.getInstance().getBannerImage(EditRecordTypes.COMMAND));
         contents.add(header, BorderLayout.NORTH);
         typesTable = createContents();
         JScrollPane scroller = new JScrollPane(typesTable);
         scroller.setBackground(typesTable.getBackground());
         contents.add(scroller, BorderLayout.CENTER);
-        final Action ok = new OKAction();
-        JPanel btns = ButtonBarFactory.buildOKBar(new JButton(ok));
-        btns.setBorder(Borders.DLU4_BORDER);
-        UIUtils.configureOKAndCancelButtons(btns, ok, null);
-        contents.add(btns, BorderLayout.SOUTH);
+        final FooterPanel footer = new FooterPanel(new OKAction(), null, null);
+        contents.add(footer, BorderLayout.SOUTH);
+        footer.configureActionMap();
         setModal(true);
     }
 

@@ -19,11 +19,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.EventListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -33,6 +36,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.RecordLedger;
 import org.rvsnoop.RecordLedgerFormat;
+import org.rvsnoop.event.RecordLedgerSelectionEvent;
+import org.rvsnoop.event.RecordLedgerSelectionListener;
 
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
@@ -103,6 +108,25 @@ public final class RecordLedgerTable extends JTable {
                 }
             }
             return currentFormat;
+        }
+    }
+
+    private class SelectionHandler implements ListSelectionListener {
+        SelectionHandler() {
+            super();
+        }
+        /* (non-Javadoc)
+         * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+         */
+        public void valueChanged(ListSelectionEvent e) {
+            final EventListener[] listeners =
+                listenerList.getListeners(RecordLedgerSelectionListener.class);
+            if (listeners == null) { return; }
+            final RecordLedgerSelectionEvent event =
+                new RecordLedgerSelectionEvent(RecordLedgerTable.this);
+            for (int i = 0, imax = listeners.length; i < imax; ++i) {
+                ((RecordLedgerSelectionListener) listeners[i]).valueChanged(event);
+            }
         }
     }
 
@@ -233,7 +257,18 @@ public final class RecordLedgerTable extends JTable {
         setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         setDragEnabled(true);
         setTransferHandler(new TransferHandler());
+        getSelectionModel().addListSelectionListener(new SelectionHandler());
         configureRenderers();
+    }
+
+    /**
+     * Adds a listener to the ledger that is notified each time a change to the
+     * selection has occurred.
+     *
+     * @param listener The listener to add.
+     */
+    public void addRecordLedgerSelectionListener(RecordLedgerSelectionListener listener) {
+        listenerList.add(RecordLedgerSelectionListener.class, listener);
     }
 
     /* (non-Javadoc)
@@ -283,6 +318,15 @@ public final class RecordLedgerTable extends JTable {
     public RecordLedgerFormat getTableFormat() {
         final EventTableModel model = ((EventTableModel) getModel());
         return (RecordLedgerFormat) model.getTableFormat();
+    }
+
+    /**
+     * Removes a listener from the ledger.
+     *
+     * @param listener The listener to remove.
+     */
+    public void removeRecordLedgerSelectionListener(RecordLedgerSelectionListener listener) {
+        listenerList.remove(RecordLedgerSelectionListener.class, listener);
     }
 
 }

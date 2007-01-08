@@ -71,7 +71,7 @@ final class Paste extends AbstractAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard(); 
         final Transferable clipboardData = clipboard.getContents(this);
         if (!clipboardData.isDataFlavorSupported(RecordSelection.BYTES_FLAVOUR)
                 && !clipboardData.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {

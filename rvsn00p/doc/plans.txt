@@ -15,7 +15,10 @@ License: ASL 2.0 (be specific about version)
 
 Update description to match version.xml text.
 
-## Imminent Changes
+## Release 1.7 - 2007Q1
+
+Add a warning to the release note that this will be the last version to
+support Java 1.4, RvSnoop 2.0 will be based on the J2SE 5.0 class libraries.
 
 ### (DONE) Created separate user and developer guides.
 ### (DONE) Changed the logging system to use Commons Logging.
@@ -23,7 +26,7 @@ Update description to match version.xml text.
 ### (DONE) Changed the command parser to use Commons CLI.
 ### (DONE) Update Copyright Notices.
 
-### (2001-01-07) Create RecordBundleV1 Class.
+### (2001-01-14) Create RecordBundleV1 Class.
 
 Created RecordBundleV1 class and moved all record bundle logic into it.
 
@@ -63,7 +66,7 @@ How to get this if no getComment() method on ZipInputStream ? May have to bin
 that method, but still write the header for the benefit of other tools. Maybe
 look at TrueZIP library to see if they read comments?
 
-### (2001-01-07) Rename Actions to ActionFactory.
+### (2001-01-14) Rename Actions to ActionFactory.
 
 Rename Actions to ActionFactory, make all actions public and have their action
 commands as static fields (called COMMAND).
@@ -80,12 +83,12 @@ Add a method to UIUtils to create menus:
 
 Move UIUtils#createSmallButton to UIManager
 
-### (2001-01-07) Update build.xml to use betterdocs.
+### (2001-01-21) Update build.xml to use betterdocs.
 
 Changed genjavadoc target to use betterdoc tool from XOM (converts nasty Sun
 markup into clean XHTML 1.0 Frameset).
 
-### (2001-01-07) Update build.xml to Create Nice Lint4J Reports.
+### (2001-01-21) Update build.xml to Create Nice Lint4J Reports.
 
 Write ann XSLT 2.0 stylesheet to convert the Lint4J XML report into a bunch of
 XHTML file. Look at this article for a starter:
@@ -94,11 +97,6 @@ XHTML file. Look at this article for a starter:
 
 Note that the XML report in Lint4J 0.9.1 reports the wrong version, it claims
 to be created with 0.8.1!
-
-## Release 1.7 - 2007Q1
-
-There isn't really a target release date for 1.7 yet, but assume
-sometime in the first half of 2007. Probably March (i.e. 2007Q1).
 
 ### Make Projects be Directory Based
 
@@ -146,7 +144,7 @@ management for ideas.
         public void valueChanged(RecordLedgerSelectionEvent event);
     }
 
-    public interface ConnectionSelectionListener extends EventListener {
+    public interface ConnectionListSelectionListener extends EventListener {
         public void valueChanged(ConnectionSelectionEvent event);
     }
 
@@ -159,6 +157,21 @@ if the valueIsAdjusting property is set on the original list.
         public Record[] getSelectedRecords() { /* create lazily? */ }
         public int[] getSelectedIndices() { /* cteate lazily? */ }
     }
+
+### (2001-01-14) Clean Up the StatusBar Code
+
+The status bar should listen for change events and update itself. Also, it
+could be made more RvSnoop specific, at the moment it's some fairly generic
+code that was copy/pasted from another project.
+
+### Add A Real ErrorDialog
+
+This should show a helpful message and have the following options:
+
+* Quit - call Application.shutdown()
+* Send Report - email a report using Java Mail
+* Show Details - should show the stack trace in a tree
+* Continue (OK)
 
 ### Sniff Opaques for Serialized Java Data
 
@@ -230,14 +243,38 @@ records.
 The first time filter is applied it should work like filter by
 selection, afterwards it should edit the current filter.
 
+There should be a single AbstractSearchAction class which handles editing the
+filter and applying it to a ledger. Subclasses will be:
+
+* Search - opens a new 'active search' dialog with a new filtered view in
+* SearchBySelection
+* Filter - applies the filter to the current ledger based on previous search
+* FilterBySelection
+
+Add a package org.rvsnoop.matchers with a collection of matchers and a custom
+compound matcher to hold them all.
+
+    public abstract class RvSnoopMatcher implements Matcher {
+        public Image getImage() {
+            return ImageFactory.getInstance().getBannerImage("defaultMatcher");
+        }
+        public final boolean matches(Object item) {
+            return matches((Record) item);
+        }
+        public abstract boolean matches(Record record);
+        public abstract String getTitle();
+        public abstract String getValue();
+        public abstract void setValue(String value) throws IllegalArgumentException;
+    }
+
 ### Prepare All Strings for I18N
 
 A neat idea would be to write a script that automatically creates
 transaltions via google. Of course these should be checked by hand
 if possible before shipping.
 
-Note that at this stage we're just talking about strings, not icons
-or other resources (i.e. documentation).
+Note that at this stage we're just talking about strings and icons, not other
+resources (i.e. documentation).
 
 * Speak to Orjan L about getting a Swedish translation.
 
@@ -254,7 +291,7 @@ StartRvSnooper and UIManager), add test cases and documentation.
 
 7. Re-factor existing code to use new classes.
 
-### Refactor the RecentConnections and Connections classes.
+### (2001-01-07) Refactor the RecentConnections and Connections classes.
 
 There should be a single class, it should have 2 constructors, one
 should take a maxSize parameter, this controls the number of entries
@@ -266,20 +303,39 @@ The other constructor takes no arguments and works like the current
 Connections class.
 
 Or have a Connections class with an ActiveConnections filter around
-it (similar to the RecordLedger/FilteredLedgerView classes).
+it (similar to the RecordLedger/FilteredLedgerView classes). The class should
+use HAS-A composition instead of IS-A inheritance, like RecordLedger does.
 
 Basically, the import & export functionality needs to be common to
-the 2 classes.
+the 2 classes. NO! RecentConnections is a preference and must be stored as
+such (i.e. property list).
 
 This will also allow passive connections lists to be used in other places
 (e.g. filter lists).
 
-### (2001-01-14) Rewrite PreferencesManager to use java.util.prefs
+### Refactor the RecordType and RecordTypes classes.
+
+Use the 'active list' pattern like the connections class.
+
+Make the RecordTypes class observe property changes on the type instances and
+use these to constrain and relax the matcher editor when the "selected"
+proprty is changed.
+
+### (2001-01-07) Rewrite PreferencesManager to use java.util.prefs
 
     Preferences.userRoot().node("org").node("rvsnoop").node("sessionState");
 
 Add a field to ColumnFormat for width. Make add/remove methods take
 identifiers instead of column objects (use Iterator#remove()).
+
+When a new main window is opened it should register itself with the
+preferences manager, the prefs mnager needs to maintain weak refs to the open
+windows then it can try to always store some preferences.
+
+### Rewrite `RecordTypesDialog` to use a `JList` of `RecordTypePanel`s
+
+For the panel use forms layout with fixed sized for everythiong apart from the
+value field. Change the button label to "Close".
 
 ## Release 2.0 - 2007Q3
 
@@ -340,6 +396,29 @@ Bundles:
 Not too sure how useful this will be in practice, it may make more
 sense to clean up the browserlauncher code and stick with that. An
 alternative would be to move to a JavaHelp based system.
+
+Maybe a help window with a tree on the left and an XHTML display on the right,
+load the tree contents by pointing at a directory (e.g. doc) and looking for
+map.xml files in it. directories map to tree nodes with children, map.xml
+files should be something like:
+
+    <helpset url=".">
+        <page name="introduction" url="index.html"/>
+        <book name="userguide" url="user">
+            <page name="introduction" url="index.html"/>
+            <page name="features" url="features.html"/>
+            <page name="starting" url="starting.html"/>
+            <page name="connections" url="connections.html"/>
+            <page name="filtersearch" url="filtersearch.html"/>
+            <page name="editpublish" url="editpublish.html"/>
+            <page name="importexport" url="importexport.html"/>
+        </book>
+    </helpset>
+
+Use the name attribute as a `ResourceBundle` key for I18N, allow the URLs to
+be processed for I18N as well (e.g. starting.html := starting_fr.html).
+
+Maybe helpset.map and helpset.properties for the file names.
 
 ### Add in Support for Persistent Message Stores.
 

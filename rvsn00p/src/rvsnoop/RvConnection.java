@@ -27,12 +27,14 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.actions.PauseConnection;
+import org.rvsnoop.actions.StartConnection;
+import org.rvsnoop.actions.StopConnection;
 
 import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Elements;
 
-import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIManager;
 
 import com.tibco.tibrv.Tibrv;
@@ -129,19 +131,6 @@ public final class RvConnection implements TibrvMsgCallback {
         }
     }
 
-    private class PauseAction extends AbstractAction {
-        static final long serialVersionUID = 6173501893576290019L;
-        PauseAction() {
-            super("Pause", Icons.RVD_PAUSED);
-        }
-        public void actionPerformed(ActionEvent e) {
-            pause();
-        }
-        public boolean isEnabled() {
-            return getState() == State.STARTED;
-        }
-    }
-
     private class RemoveAction extends AbstractAction {
         static final long serialVersionUID = 6348774322798989737L;
         RemoveAction() {
@@ -152,32 +141,6 @@ public final class RvConnection implements TibrvMsgCallback {
                 stop();
                 Connections.getInstance().remove(RvConnection.this);
             }
-        }
-    }
-
-    private class StartAction extends AbstractAction {
-        static final long serialVersionUID = 705371092853316824L;
-        StartAction() {
-            super("Start", Icons.RVD_STARTED);
-        }
-        public void actionPerformed(ActionEvent e) {
-            start();
-        }
-        public boolean isEnabled() {
-            return getState() != State.STARTED;
-        }
-    }
-
-    private class StopAction extends AbstractAction {
-        static final long serialVersionUID = 7442348970606946704L;
-        StopAction() {
-            super("Stop", Icons.RVD_STOPPED);
-        }
-        public void actionPerformed(ActionEvent e) {
-            stop();
-        }
-        public boolean isEnabled() {
-            return getState() != State.STOPPED;
         }
     }
 
@@ -494,7 +457,7 @@ public final class RvConnection implements TibrvMsgCallback {
      * @return the action.
      */
     public synchronized Action getPauseAction() {
-        if (pauseAction == null) pauseAction = new PauseAction();
+        if (pauseAction == null) pauseAction = new PauseConnection(null, this);
         return pauseAction;
     }
 
@@ -521,7 +484,7 @@ public final class RvConnection implements TibrvMsgCallback {
      * @return the action.
      */
     public synchronized Action getStartAction() {
-        if (startAction == null) startAction = new StartAction();
+        if (startAction == null) startAction = new StartConnection(null, this);
         return startAction;
     }
 
@@ -535,7 +498,7 @@ public final class RvConnection implements TibrvMsgCallback {
      * @return the action.
      */
     public synchronized Action getStopAction() {
-        if (stopAction == null) stopAction = new StopAction();
+        if (stopAction == null) stopAction = new StopConnection(null, this);
         return stopAction;
     }
 
