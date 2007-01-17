@@ -34,9 +34,9 @@ import rvsnoop.ui.UIManager;
 public final class Application {
 
     static { NLSUtils.internationalize(Application.class); }
-    
+
     private static final Log log = LogFactory.getLog(Application.class);
-    
+
     static String ERROR_SHUTDOWN;
 
     private Actions actionFactory;
@@ -165,7 +165,7 @@ public final class Application {
 
     /**
      * Get all of the known record types.
-     * 
+     *
      * @return The record types.
      */
     public synchronized RecordTypes getRecordTypes() {

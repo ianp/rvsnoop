@@ -7,6 +7,7 @@
  */
 package org.rvsnoop.ui;
 
+import java.awt.ComponentOrientation;
 import java.awt.event.KeyEvent;
 
 import javax.swing.Action;
@@ -22,11 +23,9 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.SystemUtils;
-
-import com.jgoodies.forms.builder.ButtonBarBuilder;
-import com.jgoodies.forms.layout.Sizes;
-import com.jgoodies.forms.util.LayoutStyle;
+import org.jdesktop.layout.GroupLayout;
 
 /**
  * A panel component that can be used as a footer panel in a dialog or window.
@@ -36,6 +35,7 @@ import com.jgoodies.forms.util.LayoutStyle;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.7
  */
 public final class FooterPanel extends JPanel {
 // TODO reduce visibility to package default
@@ -44,10 +44,11 @@ public final class FooterPanel extends JPanel {
 
     private final Action ok;
     private final Action cancel;
-    
+
     public FooterPanel(Action ok, Action cancel, Action[] extra) {
         this.ok = ok;
         this.cancel = cancel;
+
         int numButtons = extra != null ? extra.length : 0;
         if (ok != null) { ++numButtons; }
         if (cancel != null) { ++numButtons; }
@@ -59,19 +60,32 @@ public final class FooterPanel extends JPanel {
         }
         final Action leading = SystemUtils.IS_OS_WINDOWS ? ok : cancel;
         final Action trailing = SystemUtils.IS_OS_WINDOWS ? cancel : ok;
-        if (trailing != null) { buttons[--numButtons] = new JButton(ok); }
-        if (leading != null) { buttons[--numButtons] = new JButton(ok); }
-        // The BBR handles component orientation internally.
-        ButtonBarBuilder builder = new ButtonBarBuilder(this);
-        builder.addGlue();
-        builder.addGriddedButtons(buttons);
-        final int top = LayoutStyle.getCurrent().getButtonBarPad().getPixelSize(this);
-        final int left = Sizes.dluX(0).getPixelSize(this);
-        final int bottom = Sizes.dluY(0).getPixelSize(this);
-        int right = Sizes.dluX(0).getPixelSize(this);
-        if (SystemUtils.IS_OS_MAC_OSX) { right += 16; }
+        if (trailing != null) { buttons[--numButtons] = new JButton(trailing); }
+        if (leading != null) { buttons[--numButtons] = new JButton(leading); }
+        if (getComponentOrientation().equals(ComponentOrientation.RIGHT_TO_LEFT)) {
+            ArrayUtils.reverse(buttons);
+        }
+
+        // Layout
+        final GroupLayout layout = new GroupLayout(this);
+        setLayout(layout);
+        layout.setAutocreateGaps(true);
+        // Horizontal group
+        final GroupLayout.SequentialGroup hgp = layout.createSequentialGroup();
+        layout.setHorizontalGroup(hgp);
+        hgp.add(1, 1, Integer.MAX_VALUE);
+        for (int i = 0, imax = buttons.length; i < imax; ++i) {
+            hgp.add(buttons[i]);
+        }
+        // Vertical group
+        final GroupLayout.ParallelGroup vgp = layout.createParallelGroup();
+        layout.setVerticalGroup(vgp);
+        for (int i = 0, imax = buttons.length; i < imax; ++i) {
+            vgp.add(buttons[i]);
+        }
+
         final Border outer = new MatteBorder(1, 0, 0, 0, UIManager.getColor("control"));
-        final Border inner = new EmptyBorder(top, left, bottom, right);
+        final Border inner = new EmptyBorder(8, 8, 8, SystemUtils.IS_OS_MAC_OSX ? 24 : 8);
         setBorder(new CompoundBorder(outer, inner));
     }
 

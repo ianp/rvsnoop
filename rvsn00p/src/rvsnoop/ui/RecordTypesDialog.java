@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.HeadlessException;
@@ -401,7 +402,7 @@ public final class RecordTypesDialog extends JDialog {
      * @throws HeadlessException if the VM is running in headless mode.
      */
     public RecordTypesDialog() {
-        super(/* set the parent frame here */);
+        super((Frame) null, true); // true == modal
         setGlassPane(glass);
         Container contents = getContentPane();
         contents.setLayout(new BorderLayout());
@@ -415,7 +416,6 @@ public final class RecordTypesDialog extends JDialog {
         final FooterPanel footer = new FooterPanel(new OKAction(), null, null);
         contents.add(footer, BorderLayout.SOUTH);
         footer.configureActionMap();
-        setModal(true);
     }
 
     private JTable createContents() {

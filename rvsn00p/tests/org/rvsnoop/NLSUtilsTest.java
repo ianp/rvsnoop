@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link NLSUtils}.
- * 
+ *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
@@ -24,7 +24,7 @@ public class NLSUtilsTest extends TestCase {
 
     /**
      * Test method for {@link org.ianp.util.NLSUtils#findNLSResource(java.lang.String, java.lang.Class)}.
-     * @throws Exception 
+     * @throws Exception
      */
     public final void testFindNLSResource() {
         try {

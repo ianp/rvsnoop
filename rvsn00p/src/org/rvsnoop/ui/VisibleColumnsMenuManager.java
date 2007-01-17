@@ -39,6 +39,7 @@ public final class VisibleColumnsMenuManager implements MenuListener, PopupMenuL
             this.column = column;
             this.format = format;
             setSelected(format.contains(column));
+            addItemListener(this);
         }
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {

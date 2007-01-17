@@ -5,7 +5,7 @@
  * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
  * License:   Apache Software License (Version 2.0)
  */
-package rvsnoop.actions;
+package org.rvsnoop.actions;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -37,7 +37,7 @@ import com.tibco.tibrv.TibrvXml;
  * @version $Revision$, $Date$
  * @since 1.4
  */
-final class Search extends AbstractAction {
+public final class Search extends AbstractAction {
 
     private class Searcher implements Matcher {
         private final boolean fieldData;

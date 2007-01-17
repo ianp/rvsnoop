@@ -7,7 +7,6 @@
  */
 package org.rvsnoop.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -18,10 +17,15 @@ import java.awt.Image;
 import java.awt.Paint;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+
+import org.jdesktop.layout.GroupLayout;
 
 
 /**
@@ -31,28 +35,25 @@ import javax.swing.UIManager;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.7
  */
 public final class HeaderPanel extends JPanel {
 // TODO reduce visibility to package default.
     static final long serialVersionUID = 4415526231958850098L;
 
     private static final Color GRADIENT_END = new Color(0xDD, 0xDD, 0xFF);
-    
-    public static final Image IMAGE_ERROR =
-        ImageFactory.getInstance().getIconImage("error");
-    public static final Image IMAGE_INFORMATION =
-        ImageFactory.getInstance().getIconImage("information");
-    public static final Image IMAGE_WARNING =
-        ImageFactory.getInstance().getIconImage("warning");
-    
+
+//    public static Icon error =
+//        new ImageIcon(ImageFactory.getInstance().getIconImage("error"));
+//    public static Icon information =
+//        new ImageIcon(ImageFactory.getInstance().getIconImage("information"));
+//    public static Icon warning =
+//        new ImageIcon(ImageFactory.getInstance().getIconImage("warning"));
+
     /** The cached gradient. */
     private GradientPaint gradient;
 
-    /** The main icon displayed to the right of the header panel. */
-    private final ImageBorder imageBorder;
-
-    /** The main icon displayed to the right of the header panel. */
-    private final ImageBorder warningBorder;
+    private final JLabel banner = new JLabel();
 
     /** An optional message. */
     private final JTextArea description = new JTextArea();
@@ -60,28 +61,55 @@ public final class HeaderPanel extends JPanel {
     /** The main title text. */
     private final JLabel title = new JLabel();
 
+    private final JLabel warning = new JLabel();
+
     /** Used to determine whether the gradient needs regenerating. */
     private int width;
 
-    public HeaderPanel(String title, String description, Image image) {
-        super(new BorderLayout());
-        imageBorder = new ImageBorder(0, 0, 0, 60, image, ImageBorder.RIGHT);
-        warningBorder = new ImageBorder(2, 40, 0, 0, null, ImageBorder.HIDDEN);
+    public HeaderPanel(String titleText, String descriptionText, Image bannerImage) {
+        final Color controlColour = UIManager.getColor("control");
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIManager.getColor("control")),
-                imageBorder));
+                BorderFactory.createMatteBorder(0, 0, 1, 0, controlColour),
+                new EmptyBorder(4, 4, 4, 4)));
         setOpaque(true);
-        this.title.setText(title);
-        this.title.setOpaque(false);
-        this.title.setFont(this.title.getFont().deriveFont(Font.BOLD));
-        this.title.setBorder(BorderFactory.createEmptyBorder(2, 12, 0, 0));
-        add(this.title, BorderLayout.NORTH);
-        this.description.setText(description);
-        this.description.setOpaque(false);
-        this.description.setBorder(warningBorder);
-        this.description.setEditable(false);
-        add(this.description, BorderLayout.CENTER);
-        setPreferredSize(new Dimension(480, image.getHeight(this) + 24));
+        title.setText(titleText);
+        title.setOpaque(false);
+        title.setFont(title.getFont().deriveFont(Font.BOLD));
+        title.setBorder(BorderFactory.createEmptyBorder());
+        description.setText(descriptionText);
+        description.setOpaque(false);
+        description.setBorder(BorderFactory.createEmptyBorder());
+        description.setEditable(false);
+        description.setLineWrap(true);
+        description.setWrapStyleWord(true);
+        banner.setIcon(new ImageIcon(bannerImage));
+        configureLayout();
+        setPreferredSize(new Dimension(480, bannerImage.getHeight(this) + 24));
+    }
+
+    private void configureLayout() {
+        // Layout
+        GroupLayout layout = new GroupLayout(this);
+        setLayout(layout);
+        layout.setAutocreateGaps(true);
+        // Horizontal group
+        GroupLayout.SequentialGroup hgp = layout.createSequentialGroup();
+        layout.setHorizontalGroup(hgp);
+        hgp.add(layout.createParallelGroup()
+                .add(this.title, 1, GroupLayout.PREFERRED_SIZE, Integer.MAX_VALUE)
+                .add(layout.createSequentialGroup()
+                    .add(warning)
+                    .add(this.description, 1, GroupLayout.PREFERRED_SIZE, Integer.MAX_VALUE)))
+            .add(banner);
+        // Vertical group
+        GroupLayout.ParallelGroup vgp = layout.createParallelGroup();
+        layout.setVerticalGroup(vgp);
+        vgp.add(layout.createSequentialGroup()
+            .add(this.title)
+            .add(layout.createParallelGroup()
+                .add(warning)
+                .add(this.description)))
+            .add(banner);
     }
 
     public void paintComponent(Graphics g) {
@@ -112,10 +140,8 @@ public final class HeaderPanel extends JPanel {
      * @param image The image to set, or <code>null</code> to remove the current
      *     image.
      */
-    public void setDescriptionIcon(Image image) {
-        warningBorder.setImage(image);
-        warningBorder.setImagePosition(
-                image != null ? ImageBorder.LEFT : ImageBorder.HIDDEN);
+    public void setDescriptionIcon(Icon icon) {
+        warning.setIcon(icon);
     }
 
     public void setTitle(String text) {

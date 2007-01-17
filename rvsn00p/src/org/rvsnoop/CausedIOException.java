@@ -5,7 +5,7 @@
  * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
  * License:   Apache Software License (Version 2.0)
  */
-package rvsnoop;
+package org.rvsnoop;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ import java.io.IOException;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-final class CausedIOException extends IOException {
+public final class CausedIOException extends IOException {
 
     static final long serialVersionUID = -4467829647590753023L;
 

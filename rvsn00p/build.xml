@@ -62,6 +62,7 @@
       <pathelement location="${lib.lang}"/>
       <pathelement location="${lib.logging}"/>
       <pathelement location="${lib.looks}"/>
+      <pathelement location="${lib.swinglayout}"/>
       <pathelement location="${lib.xmlenc}"/>
       <pathelement location="${lib.xom}"/>
     </path>
@@ -253,6 +254,7 @@
       <fileset file="${lib.lang}"/>
       <fileset file="${lib.logging}"/>
       <fileset file="${lib.looks}"/>
+      <fileset file="${lib.swinglayout}"/>
       <fileset file="${lib.xmlenc}"/>
       <fileset file="${lib.xom}"/>
       <fileset file="${dir.stage}/src/*.properties"/>

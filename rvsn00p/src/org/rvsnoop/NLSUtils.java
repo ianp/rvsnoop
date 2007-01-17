@@ -55,7 +55,7 @@ public final class NLSUtils {
             return null;
         }
     }
-    
+
     /**
      * Class which sub-classes java.util.Properties and uses the #put method to
      * set field values rather than storing the values in the table.
@@ -204,12 +204,18 @@ public final class NLSUtils {
      * @return The resource, or <code>null</code> if it could not be found.
      */
     public static InputStream findNLSResource(String resourcePath, Class clazz) {
+        if (log.isDebugEnabled()) {
+            log.debug("Loading NLS resource from path: " + resourcePath);
+        }
         final int lastIndex = resourcePath.lastIndexOf(".");
         final String basePath = resourcePath.substring(0, lastIndex);
         final String suffix = resourcePath.substring(lastIndex);
         final String[] variants = buildVariants(basePath, suffix);
         for (int i = 0, imax = variants.length; i < imax; ++i) {
-            final InputStream stream = clazz.getResourceAsStream(variants[i]);
+            if (log.isTraceEnabled()) {
+                log.trace("Trying variant: " + variants[i]);
+            }
+            InputStream stream = clazz.getResourceAsStream(variants[i]);
             if (stream != null) { return stream; }
         }
         return null;

@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
 import org.rvsnoop.actions.DisplayAbout;
+import org.rvsnoop.actions.FilterBySelection;
 import org.rvsnoop.actions.NewRvConnection;
 import org.rvsnoop.actions.ClearLedger;
 import org.rvsnoop.actions.Copy;
@@ -33,11 +34,13 @@ import org.rvsnoop.actions.Delete;
 import org.rvsnoop.actions.EditRecordTypes;
 import org.rvsnoop.actions.Filter;
 import org.rvsnoop.actions.OpenProject;
+import org.rvsnoop.actions.Paste;
 import org.rvsnoop.actions.Quit;
 import org.rvsnoop.actions.Republish;
 import org.rvsnoop.actions.RvSnoopAction;
 import org.rvsnoop.actions.SaveProjectAs;
 import org.rvsnoop.actions.SaveProject;
+import org.rvsnoop.actions.Search;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 import org.rvsnoop.ui.RecordLedgerTable;
 
@@ -100,8 +103,6 @@ public final class Actions {
 
     public static final Action IMPORT_FROM_RECORD_BUNDLE = add(new ImportFromRecordBundle());
 
-    public static final Action PASTE = add(new Paste());
-
     public static final Action PAUSE_ALL = add(new PauseAllConnections());
 
     public static final Action PRUNE_EMPTY_SUBJECTS = add(new PruneEmptySubjects());
@@ -161,10 +162,11 @@ public final class Actions {
         addAction(new Delete(application));
         addAction(new DisplayAbout(application));
         addAction(new EditRecordTypes(application));
-        addAction(new Filter(application, false));
-        addAction(new Filter(application, true));
+        addAction(new Filter(application));
+        addAction(new FilterBySelection(application));
         addAction(new NewRvConnection(application));
         addAction(new OpenProject(application));
+        addAction(new Paste(application));
         addAction(new Republish(application));
         addAction(new SaveProject(application));
         addAction(new SaveProjectAs(application));

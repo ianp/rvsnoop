@@ -40,7 +40,7 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
     private static final long serialVersionUID = -2102299383827763915L;
 
     static { NLSUtils.internationalize(Republish.class); }
-    
+
     private static final Log log = LogFactory.getLog(Republish.class);
 
     public static final String COMMAND = "republish";

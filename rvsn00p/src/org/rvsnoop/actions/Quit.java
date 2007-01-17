@@ -34,7 +34,7 @@ public final class Quit extends RvSnoopAction {
     private static final long serialVersionUID = 4723433926433208758L;
 
     public static final String COMMAND = "quit";
-    static String ACCELERATOR, CONFIRM_QUESTION, CONFIRM_TITLE, MNEMONIC, NAME, 
+    static String ACCELERATOR, CONFIRM_QUESTION, CONFIRM_TITLE, MNEMONIC, NAME,
         TOOLTIP;
 
     public Quit(Application application) {

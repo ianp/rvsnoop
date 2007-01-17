@@ -42,6 +42,7 @@ public final class RecordTypesMenuManager implements MenuListener, PopupMenuList
             this.type = type;
             setSelected(type.isSelected());
             setMnemonic(KeyEvent.VK_0 + index);
+            addItemListener(this);
         }
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {

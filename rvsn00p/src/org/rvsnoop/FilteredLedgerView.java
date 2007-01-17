@@ -12,6 +12,7 @@ import rvsnoop.SubjectHierarchy;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.matchers.CompositeMatcherEditor;
+import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.util.concurrent.Lock;
 
@@ -24,6 +25,19 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  * @since 1.7
  */
 public class FilteredLedgerView extends RecordLedger {
+
+    private final class MatcherHider implements Matcher {
+        public boolean matches(Object item) {
+            if (subjectFilter != null && subjectFilter.equals(item)) {
+                return false;
+            }
+            if (typeFilter != null && typeFilter.equals(item)) {
+                return false;
+            }
+            return true;
+        }
+
+    }
 
     private final CompositeMatcherEditor filters = new CompositeMatcherEditor();
 
@@ -59,6 +73,19 @@ public class FilteredLedgerView extends RecordLedger {
         } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * Return a list of all of the user supplied filters currently in place.
+     * <p>
+     * Note that the list returned by this method is live, that is, changes to
+     * it will be applied to the view immediately. Also, the subject and type
+     * matchers will not be visible in the list.
+     *
+     * @return The user supplied filters.
+     */
+    public EventList getMatchers() {
+        return new FilterList(filters.getMatcherEditors(), new MatcherHider());
     }
 
     /**

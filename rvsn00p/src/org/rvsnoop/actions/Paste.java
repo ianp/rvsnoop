@@ -5,7 +5,7 @@
  * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
  * License:   Apache Software License (Version 2.0)
  */
-package rvsnoop.actions;
+package org.rvsnoop.actions;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -13,21 +13,20 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.text.MessageFormat;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Application;
+import org.rvsnoop.NLSUtils;
 
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
-import rvsnoop.RvConnection;
-import rvsnoop.ui.Icons;
+import rvsnoop.RvConnection.AddRecordTask;
 
 import com.tibco.tibrv.TibrvException;
 
@@ -38,40 +37,32 @@ import com.tibco.tibrv.TibrvException;
  * @version $Revision$, $Date$
  * @since 1.4
  */
-final class Paste extends AbstractAction {
+public final class Paste extends RvSnoopAction {
 
-    private static String ERROR_CLIPBOARD_LOST = "The Rendezvous message data was removed from the clipboard before it could be read.";
+    static { NLSUtils.internationalize(Paste.class); }
 
-    private static String ERROR_IO = "There was an I/O error whilst reading data from the clipboard.";
-
-    private static String ERROR_RV = "There was a Rendezvous error whilst deserializing the messages.";
-
-    private static String INFO_BAD_CLIP_DATA = "The clipboard does not contain Rendezvous message data.";
-
-    private static final String ID = "paste";
+    private static final long serialVersionUID = -8506730607421335573L;
 
     private static final Log log = LogFactory.getLog(Paste.class);
 
-    private static String NAME = "Paste";
+    public static final String COMMAND = "paste";
+    static String ACCELERATOR, MNEMONIC, NAME, TOOLTIP;
+    static String ERROR_CLIPBOARD_LOST, ERROR_IO, ERROR_RV, INFO_BAD_CLIP_DATA;
 
-    private static final long serialVersionUID = -814650863486148247L;
-
-    private static String TOOLTIP = "Paste the contents of the clipboard to the message ledger";
-
-    public Paste() {
-        super(NAME, Icons.PASTE);
-        putValue(Action.ACTION_COMMAND_KEY, ID);
+    public Paste(Application application) {
+        super(NAME, application);
+        putValue(Action.ACTION_COMMAND_KEY, COMMAND);
+        putSmallIconValue(COMMAND);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
-        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_V));
-        final int mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, mask));
+        putMnemonicValue(MNEMONIC);
+        putAcceleratorValue(ACCELERATOR);
     }
 
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard(); 
+        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         final Transferable clipboardData = clipboard.getContents(this);
         if (!clipboardData.isDataFlavorSupported(RecordSelection.BYTES_FLAVOUR)
                 && !clipboardData.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
@@ -80,10 +71,14 @@ final class Paste extends AbstractAction {
         }
         try {
             final Record[] records = RecordSelection.read(clipboardData);
-            for (int i = 0, imax = records.length; i < imax; ++i)
-                SwingUtilities.invokeLater(new RvConnection.AddRecordTask(records[i]));
+            for (int i = 0, imax = records.length; i < imax; ++i) {
+                SwingUtilities.invokeLater(new AddRecordTask(records[i]));
+            }
         } catch (TibrvException e) {
-            if (log.isErrorEnabled()) { log.error(ERROR_RV, e); }
+            if (log.isErrorEnabled()) {
+                log.error(MessageFormat.format(ERROR_RV,
+                        new Object[] { new Integer(e.error) }), e);
+            }
         } catch (IOException e) {
             if (log.isErrorEnabled()) { log.error(ERROR_IO, e); }
         } catch (UnsupportedFlavorException e) {

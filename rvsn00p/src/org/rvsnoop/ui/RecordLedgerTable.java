@@ -288,16 +288,26 @@ public final class RecordLedgerTable extends JTable {
     }
 
     private void configureRenderers() {
-        final StripedCellRenderer striper = new StripedCellRenderer(null);
-        final TableColumnModel columns = getColumnModel();
-        for (int i = 0, imax = columns.getColumnCount(); i < imax; ++i) {
-            final Class columnClass = getColumnClass(i);
-            if (Date.class.isAssignableFrom(columnClass)) {
-                columns.getColumn(i).setCellRenderer(
-                        new StripedCellRenderer(new DateCellRenderer()));
-            } else {
-                columns.getColumn(i).setCellRenderer(striper);
+        try {
+            final StripedCellRenderer striper = new StripedCellRenderer(null);
+            final TableColumnModel columns = getColumnModel();
+            for (int i = 0, imax = columns.getColumnCount(); i < imax; ++i) {
+                final Class columnClass = getColumnClass(i);
+                if (Date.class.isAssignableFrom(columnClass)) {
+                    columns.getColumn(i).setCellRenderer(
+                            new StripedCellRenderer(new DateCellRenderer()));
+                } else {
+                    columns.getColumn(i).setCellRenderer(striper);
+                }
             }
+        } catch (IndexOutOfBoundsException ignored) {
+            // This happens when the table structure is changed, the method
+            // JTable#createDefaultColumnsFromModel() gets called and this first
+            // removes all columns from the model then adds them again.
+            // Unfortunately, while it does this the column model itself is in
+            // an inconsistent state and trying to access it causes this
+            // exception. I'm not sure if this is a bug in Swing or a threading
+            // issue, but ignoring it here seems to produce no errors.
         }
     }
 

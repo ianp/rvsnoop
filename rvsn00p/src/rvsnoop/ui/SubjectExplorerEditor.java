@@ -19,7 +19,6 @@ import java.util.EventObject;
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.EventListenerList;
@@ -30,11 +29,9 @@ import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
 import org.rvsnoop.Application;
-import org.rvsnoop.RecordSubjectMatcher;
 
 import rvsnoop.SubjectElement;
 import rvsnoop.SubjectHierarchy;
-import ca.odell.glazedlists.matchers.Matcher;
 
 /**
  * A custom editor for nodes in the subject explorer tree.
@@ -105,30 +102,6 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         }
     }
 
-    private class SelectRecords extends AbstractAction {
-        private static final long serialVersionUID = -2934261387681391415L;
-        private final boolean descendants;
-        SelectRecords(String name, boolean descendants) {
-            super(name);
-            this.descendants = descendants;
-        }
-        public void actionPerformed(ActionEvent e) {
-            final SubjectElement subject = (SubjectElement) tree.getSelectionPath().getLastPathComponent();
-            final ListSelectionModel model = UIManager.INSTANCE.getMessageLedger().getSelectionModel();
-            try {
-                model.setValueIsAdjusting(true);
-                model.clearSelection();
-                final Matcher matcher = new RecordSubjectMatcher(subject, descendants);
-                final int[] indices = application.getFilteredLedger().findAllIndices(matcher);
-                for (int i = 0, imax = indices.length; i < imax; ++i) {
-                    model.addSelectionInterval(indices[i], indices[i]);
-                }
-            } finally {
-                model.setValueIsAdjusting(false);
-            }
-        }
-    }
-
     private class SubjectSelectionListener implements ActionListener {
         SubjectSelectionListener() {
             super();
@@ -141,7 +114,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
 
     private static final long serialVersionUID = 7957683568277521431L;
 
-    private final Application application;
+//    private final Application application;
 
     private SubjectElement element;
 
@@ -152,16 +125,13 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
     private final JTree tree;
 
     public SubjectExplorerEditor(final Application application, final JTree tree) {
-        this.application = application;
+//        this.application = application;
         this.tree = tree;
         tree.addTreeSelectionListener(this);
         tree.addMouseListener(new PopupMenuListener());
         checkbox.addActionListener(new SubjectSelectionListener());
         popupMenu.add(new Select());
         popupMenu.add(new Deselect());
-        popupMenu.addSeparator();
-        popupMenu.add(new SelectRecords("Select All Records At", false));
-        popupMenu.add(new SelectRecords("Select All Records Under", true));
         popupMenu.addSeparator();
         popupMenu.add(new Expand());
         popupMenu.add(new Collapse());

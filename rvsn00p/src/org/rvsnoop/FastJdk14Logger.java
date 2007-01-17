@@ -12,7 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.logging.Log;
 
 /**
@@ -53,7 +52,7 @@ public final class FastJdk14Logger implements Log, Serializable {
      * @param name Name of the logger to be constructed
      */
     public FastJdk14Logger(String name) {
-        this.name = name != null ? ClassUtils.getShortClassName(name) : "";
+        this.name = name != null ? name : "";
     }
 
     /** Create a new anonymous logger. */

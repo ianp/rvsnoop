@@ -177,9 +177,9 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      * @param column The column to add.
      */
     public void add(ColumnFormat column) {
-        if (!columns.contains(column) && columns.add(column) && model != null) {
-            model.setTableFormat(this);
-        }
+        if (columns.contains(column)) { return; }
+        columns.add(column);
+        if (model != null) { model.setTableFormat(this); }
     }
 
     /**
@@ -243,9 +243,8 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      * @param column The column to remove.
      */
     public void remove(ColumnFormat column) {
-        if (columns.remove(column) && model != null) {
-            model.setTableFormat(this);
-        }
+        columns.remove(column);
+        if (model != null) { model.setTableFormat(this); }
     }
 
     /**

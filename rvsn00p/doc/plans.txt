@@ -251,21 +251,16 @@ filter and applying it to a ledger. Subclasses will be:
 * Filter - applies the filter to the current ledger based on previous search
 * FilterBySelection
 
-Add a package org.rvsnoop.matchers with a collection of matchers and a custom
-compound matcher to hold them all.
+Next steps to complete this task:
 
-    public abstract class RvSnoopMatcher implements Matcher {
-        public Image getImage() {
-            return ImageFactory.getInstance().getBannerImage("defaultMatcher");
-        }
-        public final boolean matches(Object item) {
-            return matches((Record) item);
-        }
-        public abstract boolean matches(Record record);
-        public abstract String getTitle();
-        public abstract String getValue();
-        public abstract void setValue(String value) throws IllegalArgumentException;
-    }
+   * Test FilterBySelection
+   * Write the multi-record selection filter
+   * Write a SearchResultsDialog displaying a live/frozen search list.
+   * Update Search to use the new framework.
+   * Write SearchBySelection based on new Search and FilterBySelection.
+
+Maybe move the populate(...) methods to the AbstractSearchAction class so they
+can be shared by SearchBy... and FilterBy...
 
 ### Prepare All Strings for I18N
 
@@ -289,7 +284,9 @@ records and should be renamed to RecordLedger) and the filtered view
 Change the package to org.rvsnoop, make non-static (add instances to
 StartRvSnooper and UIManager), add test cases and documentation.
 
-7. Re-factor existing code to use new classes.
+1. Finish rewriting the search & filter code.
+2. Refactor the RecentConnections and Connections classes.
+3. Remove this class.
 
 ### (2001-01-07) Refactor the RecentConnections and Connections classes.
 
@@ -336,6 +333,33 @@ windows then it can try to always store some preferences.
 
 For the panel use forms layout with fixed sized for everythiong apart from the
 value field. Change the button label to "Close".
+
+Use cube_blue.png for recordTypeEnabled and recordTypeDisabled images in the
+list. Use a list which supports dragging/ordering directly.
+
+### Add an XMLBuilder class that uses a fluent interface.
+
+This could wrap either XMLenc or XOM. Probably XMLEnc would be better, create
+it with something like:
+
+    public final class XMLBuilder {
+        /**
+         * @param stream The stream to write to.
+         * @param ns The default namespace for the document.
+         * @param namespaces A namespace to prefix mapping for the document.
+         */
+        public XMLBuilder(OutputStream stream, String ns, Map<String,String> namespaces) {
+            
+        }
+        public XMLBuilder attribute(String name, String value) { }
+        public XMLBuilder attribute(String name, String value, String ns) { }
+        public void close() { }
+        public XMLBuilder comment(String text) { }
+        public void dtd(String name, String publicID, String systemID) { }
+        public XMLBuilder endTag() { }
+        public XMLBuilder pcdata(String text) { }
+        public XMLBuilder startTag(String type, String ns) { }
+    }
 
 ## Release 2.0 - 2007Q3
 

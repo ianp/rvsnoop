@@ -35,9 +35,9 @@ import org.rvsnoop.ui.ImageFactory;
  * @version $Revision$, $Date$
  */
 public abstract class RvSnoopAction extends AbstractAction {
-    
+
     static { NLSUtils.internationalize(RvSnoopAction.class); }
-    
+
     private static final Log log = LogFactory.getLog(RvSnoopAction.class);
 
     static String DEBUG_ACCELERATOR;

@@ -19,9 +19,7 @@ import org.rvsnoop.RecordLedger;
  */
 public final class MessageLedger {
 
-    // FIXME:
-    // These are nasty hacks to allow this class to be removed while the new
-    // ledger implementations are used instead.
+    // FIXME remove these two static fields then remove the class
     public static RecordLedger RECORD_LEDGER;
     public static FilteredLedgerView FILTERED_VIEW;
 
