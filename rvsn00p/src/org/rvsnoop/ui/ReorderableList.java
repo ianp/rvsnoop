@@ -12,6 +12,8 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Transparency;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -21,6 +23,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.MatteBorder;
@@ -76,6 +79,31 @@ public final class ReorderableList extends JList {
         }
     }
 
+    private final class ImageGrabTimer implements ActionListener {
+        private final Component component;
+        private final Point point;
+        public ImageGrabTimer(Component component, Point point) {
+            this.component = component;
+            this.point = point;
+        }
+        public void actionPerformed(ActionEvent e) {
+            if (!mouseDown) { return; }
+            dragSource = locationToIndex(point);
+            if (dragSource < 0) { return; }
+            final int w = getFixedCellWidth(), h = getFixedCellHeight();
+            final BufferedImage image = getGraphicsConfiguration().
+                    createCompatibleImage(w, h, Transparency.TRANSLUCENT);
+            Graphics g = image.getGraphics();
+            component.paint(g);
+            g.dispose();
+            SwingUtilities.convertPointToScreen(point, component);
+            SwingUtilities.convertPointFromScreen(point, glasspane);
+            glasspane.setLocation(point);
+            glasspane.setImage(image);
+            glasspane.setVisible(true);
+        }
+    }
+
     private final class ItemImageGrabber extends MouseAdapter {
 
         public ItemImageGrabber() {
@@ -83,24 +111,14 @@ public final class ReorderableList extends JList {
         }
 
         public void mousePressed(MouseEvent e) {
-            // TODO use a timer to delay ~500ms before activating this behaviour
-            final Point point = (Point) e.getPoint().clone();
-            dragSource = locationToIndex(point);
-            if (dragSource < 0) { return; }
+            mouseDown = true;
+            final Point p = (Point) e.getPoint().clone();
             final Component c = e.getComponent();
-            final int w = getFixedCellWidth(), h = getFixedCellHeight();
-            final BufferedImage image = getGraphicsConfiguration().
-                    createCompatibleImage(w, h, Transparency.TRANSLUCENT);
-            Graphics g = image.getGraphics();
-            c.paint(g);
-            g.dispose();
-            SwingUtilities.convertPoint(c, point, glasspane);
-            glasspane.setLocation(point);
-            glasspane.setImage(image);
-            glasspane.setVisible(true);
+            new Timer(DRAG_DELAY_MILLIS, new ImageGrabTimer(c, p)).start();
         }
 
         public void mouseReleased(MouseEvent e) {
+            mouseDown = false;
             if (dragSource < 0) { return; }
             final Point point = (Point) e.getPoint().clone();
             dropTarget = locationToIndex(point);
@@ -128,7 +146,8 @@ public final class ReorderableList extends JList {
             if (point.y > lastBottom) { dropTarget = list.size(); }
 
             final Component c = e.getComponent();
-            SwingUtilities.convertPoint(c, point, glasspane);
+            SwingUtilities.convertPointToScreen(point, c);
+            SwingUtilities.convertPointFromScreen(point, glasspane);
             glasspane.setLocation(point);
             glasspane.repaint();
 
@@ -143,6 +162,8 @@ public final class ReorderableList extends JList {
         new DecoratingBorder(new MatteBorder(0, 0, 2, 0, Color.BLACK));
     private static final DecoratingBorder dropBeforeThisItemBorder =
         new DecoratingBorder(new MatteBorder(2, 0, 0, 0, Color.BLACK));
+
+    private static final int DRAG_DELAY_MILLIS = 500;
 
     /** The source item which will be moved. */
     private int dragSource = -1;
@@ -161,6 +182,8 @@ public final class ReorderableList extends JList {
     private final GhostGlassPane glasspane;
 
     private final EventList list;
+
+    private boolean mouseDown;
 
     /**
      * Create a new <code>ReorederableList</code>.
