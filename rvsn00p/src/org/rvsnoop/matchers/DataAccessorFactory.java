@@ -51,8 +51,24 @@ public final class DataAccessorFactory {
         namesToAccessorsMap.put(DataAccessor.TRACKING_ID, DataAccessor.TrackingId.class);
     }
 
+    public DataAccessor createFieldContentsAccessor() {
+        return new DataAccessor.FieldContents();
+    }
+
+    public DataAccessor createFieldNamesAccessor() {
+        return new DataAccessor.FieldNames();
+    }
+
+    public DataAccessor createReplySubjectAccessor() {
+        return new DataAccessor.ReplySubject();
+    }
+
     public DataAccessor createSendSubjectAccessor() {
         return new DataAccessor.SendSubject();
+    }
+
+    public DataAccessor createTrackingIdAccessor() {
+        return new DataAccessor.TrackingId();
     }
 
     public DataAccessor createFromDisplayName(String name) {

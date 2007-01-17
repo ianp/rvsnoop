@@ -15,13 +15,20 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import org.apache.commons.lang.text.StrBuilder;
 import org.rvsnoop.Application;
 import org.rvsnoop.FilteredLedgerView;
+import org.rvsnoop.matchers.DataAccessorFactory;
+import org.rvsnoop.matchers.PredicateFactory;
+import org.rvsnoop.matchers.RvSnoopMatcherEditor;
 import org.rvsnoop.ui.MatcherEditorListDialog;
+
+import rvsnoop.Record;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.matchers.MatcherEditor;
+import ca.odell.glazedlists.util.concurrent.Lock;
 
 /**
  * Base class for actions which act on filtered ledger views.
@@ -68,13 +75,108 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
         }
     }
 
+    /**
+     * Configure the matchers based on a single record.
+     *
+     * @param record
+     */
+    protected final void configureMatchers(EventList matchers, Record record) {
+        final DataAccessorFactory daf = DataAccessorFactory.getInstance();
+        final PredicateFactory pf = PredicateFactory.getInstance();
+        final Lock lock = matchers.getReadWriteLock().writeLock();
+        lock.lock();
+        try {
+            final String sendSubject = record.getSendSubject();
+            if (sendSubject != null && sendSubject.length() > 0) {
+                matchers.add(new RvSnoopMatcherEditor(
+                        daf.createSendSubjectAccessor(),
+                        pf.createStringStartsWithPredicate(sendSubject, false)));
+            }
+            final String replySubject = record.getReplySubject();
+            if (replySubject != null && replySubject.length() > 0) {
+                matchers.add(new RvSnoopMatcherEditor(
+                        daf.createReplySubjectAccessor(),
+                        pf.createStringStartsWithPredicate(replySubject, false)));
+            }
+            final String trackingId = record.getTrackingId();
+            if (trackingId != null && trackingId.length() > 0) {
+                matchers.add(new RvSnoopMatcherEditor(
+                        daf.createTrackingIdAccessor(),
+                        pf.createStringStartsWithPredicate(trackingId, false)));
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Configure the matchers based on multiple records.
+     *
+     * @param record
+     */
+    protected final void configureMatchers(EventList matchers, Record[] records) {
+        final DataAccessorFactory daf = DataAccessorFactory.getInstance();
+        final PredicateFactory pf = PredicateFactory.getInstance();
+        final String[] strings = new String[records.length];
+        final Lock lock = matchers.getReadWriteLock().writeLock();
+        lock.lock();
+        try {
+            for (int i = 0, imax = records.length; i < imax; ++i) {
+                strings[i] = records[i].getSendSubject();
+            }
+            final String sendSubject = findLongestCommonSubstring(strings);
+            if (sendSubject != null && sendSubject.length() > 0) {
+                matchers.add(new RvSnoopMatcherEditor(
+                        daf.createSendSubjectAccessor(),
+                        pf.createStringStartsWithPredicate(sendSubject, false)));
+            }
+        
+            for (int i = 0, imax = records.length; i < imax; ++i) {
+                strings[i] = records[i].getReplySubject();
+            }
+            final String replySubject = findLongestCommonSubstring(strings);
+            if (replySubject != null && replySubject.length() > 0) {
+                matchers.add(new RvSnoopMatcherEditor(
+                        daf.createReplySubjectAccessor(),
+                        pf.createStringStartsWithPredicate(replySubject, false)));
+            }
+        
+            for (int i = 0, imax = records.length; i < imax; ++i) {
+                strings[i] = records[i].getTrackingId();
+            }
+            final String trackingId = findLongestCommonSubstring(strings);
+            if (trackingId != null && trackingId.length() > 0) {
+                matchers.add(new RvSnoopMatcherEditor(
+                        daf.createTrackingIdAccessor(),
+                        pf.createStringStartsWithPredicate(trackingId, false)));
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private final String findLongestCommonSubstring(String[] strings) {
+        final StrBuilder builder = new StrBuilder();
+        int pos = 0;
+        while (true) {
+            if (pos == strings[0].length()) { return builder.toString(); }
+            char c = strings[0].charAt(pos);
+            for (int i = 0, imax = strings.length; i < imax; ++i) {
+                if (pos == strings[i].length() || c != strings[i].charAt(pos)) {
+                    return builder.toString();
+                }
+            }
+            builder.append(c);
+        }
+    }
+    protected abstract String getDescription();
+    protected abstract Image getImage();
+
+    protected abstract FilteredLedgerView getLedger();
+
     protected EventList getMatcherEditors() {
         return new BasicEventList();
     }
 
-    protected abstract FilteredLedgerView getLedger();
-
     protected abstract String getTitle();
-    protected abstract String getDescription();
-    protected abstract Image getImage();
 }

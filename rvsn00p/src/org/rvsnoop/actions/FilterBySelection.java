@@ -16,9 +16,6 @@ import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
-import org.rvsnoop.matchers.DataAccessorFactory;
-import org.rvsnoop.matchers.PredicateFactory;
-import org.rvsnoop.matchers.RvSnoopMatcherEditor;
 import org.rvsnoop.ui.ImageFactory;
 
 import rvsnoop.Record;
@@ -84,30 +81,6 @@ public final class FilterBySelection extends AbstractSearchAction implements Rec
             configureMatchers(matchers, currentSelection);
         }
         return matchers;
-    }
-
-    /**
-     * Configure the matchers based on a single record.
-     *
-     * @param record
-     */
-    private void configureMatchers(EventList matchers, Record record) {
-        // TODO use more matchers
-        DataAccessorFactory daf = DataAccessorFactory.getInstance();
-        PredicateFactory pf = PredicateFactory.getInstance();
-        new RvSnoopMatcherEditor(
-                daf.createSendSubjectAccessor(),
-                pf.createStringStartsWithPredicate(record.getSendSubject(), false));
-    }
-
-    /**
-     * Configure the matchers based on multiple records.
-     *
-     * @param record
-     */
-    private void configureMatchers(EventList matchers, Record[] records) {
-        // TODO use all of the records instead of just the first
-        configureMatchers(matchers, records[0]);
     }
 
     /* (non-Javadoc)
