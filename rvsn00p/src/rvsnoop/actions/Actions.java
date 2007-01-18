@@ -41,6 +41,7 @@ import org.rvsnoop.actions.RvSnoopAction;
 import org.rvsnoop.actions.SaveProjectAs;
 import org.rvsnoop.actions.SaveProject;
 import org.rvsnoop.actions.Search;
+import org.rvsnoop.actions.SearchBySelection;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 import org.rvsnoop.ui.RecordLedgerTable;
 
@@ -109,10 +110,6 @@ public final class Actions {
 
     public static final Action REPORT_BUG = add(new ReportBug());
 
-    public static final Action SEARCH = add(new Search(Search.SEARCH, "Find...", "Search for text in the messages", KeyEvent.VK_F));
-
-    public static final Action SEARCH_AGAIN = add(new Search(Search.SEARCH_AGAIN, "Find Next", "Repeat the last search", KeyEvent.VK_G));
-
     public static final Action SELECT_ALL_MESSAGES = add(new SelectAllMessages());
 
     public static final Action SHOW_ALL_COLUMNS = add(new ShowAllColumns());
@@ -170,6 +167,8 @@ public final class Actions {
         addAction(new Republish(application));
         addAction(new SaveProject(application));
         addAction(new SaveProjectAs(application));
+        addAction(new Search(application));
+        addAction(new SearchBySelection(application));
         addAction(new Quit(application));
     }
 

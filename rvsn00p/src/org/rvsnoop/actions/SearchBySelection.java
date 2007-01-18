@@ -1,5 +1,5 @@
 /*
- * Class:     FilterBySelection
+ * Class:     SearchBySelection
  * Version:   $Revision$
  * Date:      $Date$
  * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
@@ -14,37 +14,46 @@ import javax.swing.Action;
 import org.rvsnoop.Application;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
+import org.rvsnoop.RecordLedger;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 import org.rvsnoop.ui.ImageFactory;
+import org.rvsnoop.ui.SearchResultsDialog;
 
 import rvsnoop.Record;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 
 /**
- * Filter the messages visible in the ledger.
+ * Start a new live search based on the current selection.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  * @since 1.7
  */
-public final class FilterBySelection extends AbstractSearchAction implements RecordLedgerSelectionListener {
+public final class SearchBySelection extends AbstractSearchAction implements RecordLedgerSelectionListener {
 
-    static { NLSUtils.internationalize(FilterBySelection.class); }
+    static { NLSUtils.internationalize(SearchBySelection.class); }
 
-    private static final long serialVersionUID = -5949027962663244889L;
+    private static final long serialVersionUID = -4624032296697618690L;
 
-    public static final String COMMAND = "filterBySelection";
+    public static final String COMMAND = "searchBySelection";
     static String DESCRIPTION, NAME, TITLE, TOOLTIP;
 
     private transient Record[] currentSelection;
 
-    public FilterBySelection(Application application) {
+    public SearchBySelection(Application application) {
         super(NAME, application);
         putValue(Action.ACTION_COMMAND_KEY, COMMAND);
         putSmallIconValue(COMMAND);
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
+    }
+
+    /* (non-Javadoc)
+     * @see org.rvsnoop.actions.AbstractSearchAction#displayResults(org.rvsnoop.RecordLedger)
+     */
+    protected void displayResults(RecordLedger ledger) {
+        new SearchResultsDialog(application.getFrame().getFrame(), ledger).setVisible(true);
     }
 
     /* (non-Javadoc)

@@ -90,7 +90,7 @@ public final class Application {
      */
     public synchronized FilteredLedgerView getFilteredLedger() {
         if (filteredLedger == null) {
-            filteredLedger = new FilteredLedgerView(getLedger());
+            filteredLedger = FilteredLedgerView.newInstance(getLedger(), false);
         }
         return filteredLedger;
     }
@@ -149,7 +149,7 @@ public final class Application {
         this.project = project;
         // TODO configure the ledger from data in the project file.
         ledger = new InMemoryLedger();
-        filteredLedger = new FilteredLedgerView(ledger);
+        filteredLedger = FilteredLedgerView.newInstance(ledger, false);
     }
 
     /**

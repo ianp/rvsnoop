@@ -20,7 +20,7 @@ public class FilteredLedgerViewTest extends RecordLedgerTest {
      * @see org.rvsnoop.RecordLedgerTest#createRecordLedger()
      */
     protected RecordLedger createRecordLedger() {
-        return new FilteredLedgerView(new InMemoryLedger());
+        return FilteredLedgerView.newInstance(new InMemoryLedger(), false);
     }
 
 }

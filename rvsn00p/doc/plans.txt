@@ -25,6 +25,7 @@ support Java 1.4, RvSnoop 2.0 will be based on the J2SE 5.0 class libraries.
 ### (DONE) Added an HTML formatted report of the JUnit test results.
 ### (DONE) Changed the command parser to use Commons CLI.
 ### (DONE) Update Copyright Notices.
+### (DONE) Move to a Single FilterLedger Action with a Dedicated Dialog.
 
 ### (2001-01-14) Create RecordBundleV1 Class.
 
@@ -233,34 +234,6 @@ Include an option to show date & time vs. only time in the ledger.
 ### Add an Export Dialog (or Wizard)
 
 Have the different export formats available via a combo box.
-
-### Move to a Single FilterLedger Action with a Dedicated Dialog
-
-Have edit filter and filter by selection actions. Filter by
-selection should try to produce a filter matching all selected
-records.
-
-The first time filter is applied it should work like filter by
-selection, afterwards it should edit the current filter.
-
-There should be a single AbstractSearchAction class which handles editing the
-filter and applying it to a ledger. Subclasses will be:
-
-* Search - opens a new 'active search' dialog with a new filtered view in
-* SearchBySelection
-* Filter - applies the filter to the current ledger based on previous search
-* FilterBySelection
-
-Next steps to complete this task:
-
-   * Test FilterBySelection
-   * Write the multi-record selection filter
-   * Write a SearchResultsDialog displaying a live/frozen search list.
-   * Update Search to use the new framework.
-   * Write SearchBySelection based on new Search and FilterBySelection.
-
-Maybe move the populate(...) methods to the AbstractSearchAction class so they
-can be shared by SearchBy... and FilterBy...
 
 ### Prepare All Strings for I18N
 

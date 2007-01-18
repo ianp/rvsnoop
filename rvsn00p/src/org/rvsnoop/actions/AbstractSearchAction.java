@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import org.apache.commons.lang.text.StrBuilder;
 import org.rvsnoop.Application;
 import org.rvsnoop.FilteredLedgerView;
+import org.rvsnoop.RecordLedger;
 import org.rvsnoop.matchers.DataAccessorFactory;
 import org.rvsnoop.matchers.PredicateFactory;
 import org.rvsnoop.matchers.RvSnoopMatcherEditor;
@@ -59,8 +60,6 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
         final EventList newMatchers = dialog.getCopyOfEditors();
         if (newMatchers == null) { return; } // User cancelled dialog.
 
-        // TODO add equals methods to the matcher editors so that this works as
-        // expected. The equals methods will need to use non-final fields.
         final List added = new ArrayList(newMatchers);
         added.removeAll(oldMatchers);
         final List removed = new ArrayList(oldMatchers);
@@ -73,6 +72,8 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
         for (Iterator i = removed.iterator(); i.hasNext(); ) {
             ledger.removeFilter((MatcherEditor) i.next());
         }
+
+        displayResults(ledger);
     }
 
     /**
@@ -108,6 +109,7 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
             lock.unlock();
         }
     }
+
 
     /**
      * Configure the matchers based on multiple records.
@@ -153,6 +155,15 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
         } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * Hook to notify subclasses that the results need displaying.
+     *
+     * @param ledger The results to display.
+     */
+    protected void displayResults(RecordLedger ledger) {
+        // Do nothing by default, assume that the results are already displayed.
     }
 
     private final String findLongestCommonSubstring(String[] strings) {

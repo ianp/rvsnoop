@@ -11,6 +11,7 @@ import rvsnoop.RecordTypes;
 import rvsnoop.SubjectHierarchy;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
+import ca.odell.glazedlists.FreezableList;
 import ca.odell.glazedlists.matchers.CompositeMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
@@ -39,21 +40,30 @@ public class FilteredLedgerView extends RecordLedger {
 
     }
 
+    public static FilteredLedgerView newInstance(RecordLedger ledger, boolean freezable) {
+        if (freezable) {
+            final FreezableList freezableList = new FreezableList(ledger.getEventList());
+            final FilterList filter = new FilterList(freezableList);
+            final FilteredLedgerView view = new FilteredLedgerView(filter);
+            view.freezableList = freezableList;
+            return view;
+        } else {
+            return new FilteredLedgerView(new FilterList(ledger.getEventList()));
+        }
+    }
+
     private final CompositeMatcherEditor filters = new CompositeMatcherEditor();
+
+    private FreezableList freezableList;
 
     private MatcherEditor subjectFilter;
 
     private MatcherEditor typeFilter;
 
-    /**
-     * Create a new <code>FilteredLedgerView</code>.
-     *
-     * @param ledger The base ledger to display records from.
-     * @param feezable Can this view be frozen.
-     */
-    public FilteredLedgerView(RecordLedger ledger) {
-        super(new FilterList(ledger.getEventList()));
-        ((FilterList) getEventList()).setMatcherEditor(filters);
+    /** Create a new <code>FilteredLedgerView</code>. */
+    protected FilteredLedgerView(FilterList list) {
+        super(list);
+        list.setMatcherEditor(filters);
         filters.setMode(CompositeMatcherEditor.AND);
         setFilteringOnSubject(true);
         setFilteringOnType(true);
@@ -107,9 +117,13 @@ public class FilteredLedgerView extends RecordLedger {
     public synchronized boolean isFilteringOnType() {
         return typeFilter != null;
     }
+    
+    public boolean isFreezable() {
+        return freezableList != null && !freezableList.isFrozen();
+    }
 
     public synchronized boolean isFrozen() {
-        return false;
+        return freezableList != null && freezableList.isFrozen();
     }
 
     /**
@@ -174,6 +188,14 @@ public class FilteredLedgerView extends RecordLedger {
             }
         } finally {
             lock.unlock();
+        }
+    }
+
+    public void setFrozen(boolean frozen) {
+        if (frozen) {
+            freezableList.freeze();
+        } else {
+            freezableList.thaw();
         }
     }
 
