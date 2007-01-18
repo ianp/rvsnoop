@@ -13,8 +13,10 @@ import javax.swing.Action;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
+import org.rvsnoop.ui.RecordTypesDialog;
 
-import rvsnoop.ui.RecordTypesDialog;
+import rvsnoop.RecordTypes;
+
 
 /**
  * Display a dialog to allow editing of the record types.
@@ -44,7 +46,10 @@ public final class EditRecordTypes extends RvSnoopAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        final RecordTypesDialog dialog = new RecordTypesDialog();
+        final RecordTypesDialog dialog =
+            new RecordTypesDialog(
+                    application.getFrame().getFrame(),
+                    RecordTypes.getInstance());
         dialog.setModal(true);
         dialog.pack();
         dialog.setVisible(true);

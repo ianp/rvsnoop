@@ -121,15 +121,18 @@ public final class MatcherEditorListDialog extends JDialog {
     static String DEBUG_ADDED, DEBUG_ADDING, TITLE;
 
     private static final Log log = LogFactory.getLog(MatcherEditorListDialog.class);
+
     private static final RvSnoopMatcherEditor PROTOTYPE =
         new RvSnoopMatcherEditor(
                 DataAccessorFactory.getInstance().createSendSubjectAccessor(),
                 PredicateFactory.getInstance().createStringStartsWithPredicate("PROTOTYPE", false));
+
     private static final long serialVersionUID = -642470709671436909L;
 
     static { NLSUtils.internationalize(MatcherEditorListDialog.class); }
 
     private EventList copyOfEditors;
+
     private final JList editorsList;
 
     private final FooterPanel footer;

@@ -48,8 +48,8 @@ public final class XMLBuilder {
         try {
             this.xml = new XMLOutputter(new OutputStreamWriter(stream), "UTF-8");
             xml.setEscaping(true);
-            xml.setIndentation("  ");
             xml.setLineBreak(LineBreak.UNIX);
+            xml.setIndentation("  ");
             xml.setQuotationMark('\'');
             this.namespace = ns != null ? ns : "";
             this.namespaces = new LinkedHashMap(namespaces);
@@ -70,7 +70,7 @@ public final class XMLBuilder {
     }
 
     public XMLBuilder attribute(String name, String value, String ns) throws IOException {
-        return attribute(namespaces.get(ns).toString() + ':' + name, value);
+        return attribute(prefixify(name, ns), value);
     }
 
     public void close() throws IOException {
@@ -116,6 +116,18 @@ public final class XMLBuilder {
         }
     }
 
+    private void namespaceDeclarations() throws IOException {
+        if (namespace.length() > 0) {
+            xml.attribute("xmlns", namespace);
+        }
+        for (Iterator i = namespaces.keySet().iterator(); i.hasNext(); ) {
+            final String nsuri = (String) i.next();
+            if (namespace.equals(nsuri)) { continue; }
+            final String prefix = (String) namespaces.get(nsuri);
+            xml.attribute("xmlns:" + prefix, nsuri);
+        }
+    }
+
     public XMLBuilder pcdata(String text) throws IOException {
         try {
             xml.pcdata(text);
@@ -127,6 +139,11 @@ public final class XMLBuilder {
         }
     }
 
+    private String prefixify(String name, String ns) {
+        if (namespace.equals(ns)) { return name; }
+        return namespaces.get(ns).toString() + ':' + name;
+    }
+
     public XMLBuilder startTag(String type) throws IOException {
         try {
             if (!declared) {
@@ -135,14 +152,7 @@ public final class XMLBuilder {
             }
             xml.startTag(type);
             if (!started) {
-                if (namespace.length() > 0) {
-                    xml.attribute("xmlns", namespace);
-                }
-                for (Iterator i = namespaces.keySet().iterator(); i.hasNext(); ) {
-                    final String nsuri = (String) i.next();
-                    final String prefix = (String) namespaces.get(nsuri);
-                    xml.attribute("xmlns:" + prefix, nsuri);
-                }
+                namespaceDeclarations();
                 started = true;
             }
             return this;
@@ -154,7 +164,7 @@ public final class XMLBuilder {
     }
 
     public XMLBuilder startTag(String type, String ns) throws IOException {
-        return startTag(namespaces.get(ns).toString() + ':' + type);
+        return startTag(prefixify(type, ns));
     }
 
 }

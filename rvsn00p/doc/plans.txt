@@ -28,6 +28,7 @@ support Java 1.4, RvSnoop 2.0 will be based on the J2SE 5.0 class libraries.
 ### (DONE) Move to a Single FilterLedger Action with a Dedicated Dialog.
 ### (DONE) Add an XMLBuilder class that uses a fluent interface.
 ### (DONE) Refactor the RecentConnections and Connections classes.
+### (DONE) Rewrite `RecordTypesDialog` to use a `JList` of `RecordTypePanel`s.
 
 ### (2001-01-14) Create RecordBundleV1 Class.
 
@@ -263,14 +264,6 @@ StartRvSnooper and UIManager), add test cases and documentation.
 2. Refactor the RecentConnections and Connections classes.
 3. Remove this class.
 
-### Refactor the RecordType and RecordTypes classes.
-
-Use the 'active list' pattern like the connections class.
-
-Make the RecordTypes class observe property changes on the type instances and
-use these to constrain and relax the matcher editor when the "selected"
-proprty is changed.
-
 ### (2001-01-07) Rewrite PreferencesManager to use java.util.prefs
 
     Preferences.userRoot().node("org").node("rvsnoop").node("sessionState");
@@ -281,14 +274,6 @@ identifiers instead of column objects (use Iterator#remove()).
 When a new main window is opened it should register itself with the
 preferences manager, the prefs mnager needs to maintain weak refs to the open
 windows then it can try to always store some preferences.
-
-### Rewrite `RecordTypesDialog` to use a `JList` of `RecordTypePanel`s
-
-For the panel use forms layout with fixed sized for everythiong apart from the
-value field. Change the button label to "Close".
-
-Use cube_blue.png for recordTypeEnabled and recordTypeDisabled images in the
-list. Use a list which supports dragging/ordering directly.
 
 ## Release 2.0 - 2007Q3
 

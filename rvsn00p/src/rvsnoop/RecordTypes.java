@@ -133,6 +133,10 @@ public final class RecordTypes {
         }
     }
 
+    public EventList getEventList() {
+        return types;
+    }
+
     public RecordType getFirstMatchingType(Record record) {
         types.getReadWriteLock().readLock().lock();
         try {
