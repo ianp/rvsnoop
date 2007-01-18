@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.rvsnoop.CausedIOException;
+import org.rvsnoop.Connections;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;

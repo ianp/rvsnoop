@@ -14,6 +14,8 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import org.rvsnoop.Connections;
+
 import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -163,7 +165,7 @@ public final class Project extends XMLConfigFile {
     }
 
     public static void storeConnections(Element parent) {
-        final RvConnection[] connections = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] connections = Connections.getInstance().toArray();
         for (int i = 0, imax = connections.length; i < imax; ++i)
             parent.appendChild(connections[i].toXml());
     }

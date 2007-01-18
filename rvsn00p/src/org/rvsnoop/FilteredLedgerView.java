@@ -117,7 +117,7 @@ public class FilteredLedgerView extends RecordLedger {
     public synchronized boolean isFilteringOnType() {
         return typeFilter != null;
     }
-    
+
     public boolean isFreezable() {
         return freezableList != null && !freezableList.isFrozen();
     }

@@ -132,7 +132,7 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
                         daf.createSendSubjectAccessor(),
                         pf.createStringStartsWithPredicate(sendSubject, false)));
             }
-        
+
             for (int i = 0, imax = records.length; i < imax; ++i) {
                 strings[i] = records[i].getReplySubject();
             }
@@ -142,7 +142,7 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
                         daf.createReplySubjectAccessor(),
                         pf.createStringStartsWithPredicate(replySubject, false)));
             }
-        
+
             for (int i = 0, imax = records.length; i < imax; ++i) {
                 strings[i] = records[i].getTrackingId();
             }

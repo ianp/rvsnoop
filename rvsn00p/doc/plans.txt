@@ -26,6 +26,8 @@ support Java 1.4, RvSnoop 2.0 will be based on the J2SE 5.0 class libraries.
 ### (DONE) Changed the command parser to use Commons CLI.
 ### (DONE) Update Copyright Notices.
 ### (DONE) Move to a Single FilterLedger Action with a Dedicated Dialog.
+### (DONE) Add an XMLBuilder class that uses a fluent interface.
+### (DONE) Refactor the RecentConnections and Connections classes.
 
 ### (2001-01-14) Create RecordBundleV1 Class.
 
@@ -261,28 +263,6 @@ StartRvSnooper and UIManager), add test cases and documentation.
 2. Refactor the RecentConnections and Connections classes.
 3. Remove this class.
 
-### (2001-01-07) Refactor the RecentConnections and Connections classes.
-
-There should be a single class, it should have 2 constructors, one
-should take a maxSize parameter, this controls the number of entries
-that are allowed. When called with this constructor the connection
-list is *passive*, that it, it works like RecentConnections (does
-not try to start and/or stop the connections).
-
-The other constructor takes no arguments and works like the current
-Connections class.
-
-Or have a Connections class with an ActiveConnections filter around
-it (similar to the RecordLedger/FilteredLedgerView classes). The class should
-use HAS-A composition instead of IS-A inheritance, like RecordLedger does.
-
-Basically, the import & export functionality needs to be common to
-the 2 classes. NO! RecentConnections is a preference and must be stored as
-such (i.e. property list).
-
-This will also allow passive connections lists to be used in other places
-(e.g. filter lists).
-
 ### Refactor the RecordType and RecordTypes classes.
 
 Use the 'active list' pattern like the connections class.
@@ -309,30 +289,6 @@ value field. Change the button label to "Close".
 
 Use cube_blue.png for recordTypeEnabled and recordTypeDisabled images in the
 list. Use a list which supports dragging/ordering directly.
-
-### Add an XMLBuilder class that uses a fluent interface.
-
-This could wrap either XMLenc or XOM. Probably XMLEnc would be better, create
-it with something like:
-
-    public final class XMLBuilder {
-        /**
-         * @param stream The stream to write to.
-         * @param ns The default namespace for the document.
-         * @param namespaces A namespace to prefix mapping for the document.
-         */
-        public XMLBuilder(OutputStream stream, String ns, Map<String,String> namespaces) {
-            
-        }
-        public XMLBuilder attribute(String name, String value) { }
-        public XMLBuilder attribute(String name, String value, String ns) { }
-        public void close() { }
-        public XMLBuilder comment(String text) { }
-        public void dtd(String name, String publicID, String systemID) { }
-        public XMLBuilder endTag() { }
-        public XMLBuilder pcdata(String text) { }
-        public XMLBuilder startTag(String type, String ns) { }
-    }
 
 ## Release 2.0 - 2007Q3
 

@@ -12,9 +12,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
 import org.rvsnoop.Application;
+import org.rvsnoop.Connections;
 import org.rvsnoop.NLSUtils;
 
-import rvsnoop.Connections;
 import rvsnoop.RecentConnections;
 import rvsnoop.RvConnection;
 import rvsnoop.ui.RvConnectionDialog;

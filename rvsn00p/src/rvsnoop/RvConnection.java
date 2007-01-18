@@ -10,6 +10,7 @@ package rvsnoop;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -27,6 +28,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Connections;
+import org.rvsnoop.XMLBuilder;
 import org.rvsnoop.actions.PauseConnection;
 import org.rvsnoop.actions.StartConnection;
 import org.rvsnoop.actions.StopConnection;
@@ -88,7 +91,7 @@ public final class RvConnection implements TibrvMsgCallback {
         private void invalidateListener(TibrvListener listener) {
             final String listenerSubject = listener.getSubject();
             final List toRemove = new ArrayList();
-            final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+            final RvConnection[] conns = Connections.getInstance().toArray();
             for (int i = 0, imax = conns.length; i < imax; ++i) {
                 final RvConnection conn = conns[i];
                 for (final Iterator j = conn.subjects.keySet().iterator(); j.hasNext();) {
@@ -103,7 +106,7 @@ public final class RvConnection implements TibrvMsgCallback {
         }
 
         private void invalidateTransport(TibrvRvaTransport transport) {
-            final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+            final RvConnection[] conns = Connections.getInstance().toArray();
             for (int i = 0, imax = conns.length; i < imax; ++i) {
                 if (transport.equals(conns[i].transport)) {
                     conns[i].stop();
@@ -263,7 +266,7 @@ public final class RvConnection implements TibrvMsgCallback {
             queueLimitListener = new TibrvListener(queue, new NullCallback(), Tibrv.processTransport(), "_RV.WARN.SYSTEM.QUEUE.LIMIT_EXCEEDED", null);
             queue.setLimitPolicy(TibrvQueue.DISCARD_NEW, 1, 1);
         }
-        final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] conns = Connections.getInstance().toArray();
         for (int i = 0, imax = conns.length; i < imax; ++i) {
             if (conns[i].getState() == State.STARTED)
                 conns[i].pause();
@@ -286,7 +289,7 @@ public final class RvConnection implements TibrvMsgCallback {
                 queueLimitListener = null;
             }
         }
-        final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] conns = Connections.getInstance().toArray();
         for (int i = 0, imax = conns.length; i < imax; ++i) {
             if (conns[i].getState() == State.PAUSED)
                 conns[i].start();
@@ -295,7 +298,7 @@ public final class RvConnection implements TibrvMsgCallback {
 
     public static synchronized void shutdown() {
         if (queue == null) return;
-        final RvConnection[] conns = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] conns = Connections.getInstance().toArray();
         for (int i = 0, imax = conns.length; i < imax; ++i)
             conns[i].stop();
         try {
@@ -607,7 +610,8 @@ public final class RvConnection implements TibrvMsgCallback {
      *
      * @param connection The connection list.
      */
-    protected void setParentList(Connections connection) {
+    public void setParentList(Connections connection) {
+        // FIXME reduce visibility to package
         if (connection == null && state != State.STOPPED)
             throw new IllegalStateException("Connection not stopped!");
         parentList = connection;
@@ -685,6 +689,18 @@ public final class RvConnection implements TibrvMsgCallback {
             element.appendChild(elt);
         }
         return element;
+    }
+
+    public void toXML(XMLBuilder builder) throws IOException {
+        builder.startTag("connection", XML_NS)
+            .attribute("description", description)
+            .attribute("service", service)
+            .attribute("network", network)
+            .attribute("daemon", daemon);
+        for (Iterator i = getSubjects().iterator(); i.hasNext(); ) {
+            builder.startTag("subject").pcdata(i.next().toString()).endTag();
+        }
+        builder.endTag();
     }
 
 }

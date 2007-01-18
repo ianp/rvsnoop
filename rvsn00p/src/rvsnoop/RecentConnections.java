@@ -7,39 +7,30 @@
  */
 package rvsnoop;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Elements;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Connections;
+import org.rvsnoop.XMLBuilder;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
-
-import nu.xom.Builder;
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.Elements;
-import nu.xom.Serializer;
 
 /**
  * Provides access to a list of recently used connections.
@@ -54,53 +45,7 @@ import nu.xom.Serializer;
  */
 public final class RecentConnections implements ListEventListener {
 
-    private class AddRecentConnection extends AbstractAction {
-        private static final long serialVersionUID = -8554698925345247337L;
-        private final RvConnection connection;
-        AddRecentConnection(int index, RvConnection connection) {
-            super(index + " Add " + connection.getDescription());
-            putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_0 + index));
-            this.connection = connection;
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            Connections.getInstance().add(connection);
-            connection.start();
-        }
-
-    }
-
-    /**
-     * A class that can populate a menu with recent connections.
-     */
-    public class MenuManager implements MenuListener {
-        public MenuManager() {
-            super();
-        }
-        public void menuCanceled(MenuEvent e) {
-            ((JMenu) e.getSource()).removeAll();
-        }
-        public void menuDeselected(MenuEvent e) {
-            // Do nothing.
-        }
-        public void menuSelected(MenuEvent e) {
-            final JMenu menu = (JMenu) e.getSource();
-            menu.removeAll();
-            if (connections.size() == 0) {
-                final JMenuItem item = menu.add("No Recent Connections");
-                item.setEnabled(false);
-            } else {
-                int index = 0;
-                for (final Iterator i = connections.iterator(); i.hasNext(); )
-                    menu.add(new AddRecentConnection(index++, (RvConnection) i.next()));
-            }
-        }
-    }
-
     private static final int DEFAULT_MAX_SIZE = 10;
-
-    private static final String XML_ELEMENT = "connections";
-    private static final String XML_NS = "http://rvsnoop.org/ns/connections/1";
 
     public static RecentConnections instance;
 
@@ -215,15 +160,14 @@ public final class RecentConnections implements ListEventListener {
         }
         OutputStream stream = null;
         try {
-            final Element root = new Element(XML_ELEMENT, XML_NS);
-            for (final Iterator i = Connections.getInstance().iterator(); i.hasNext(); )
-                root.appendChild(((RvConnection) i.next()).toXml());
-            stream = new BufferedOutputStream(new FileOutputStream(file));
-            final Serializer ser = new Serializer(stream);
-            ser.setIndent(2);
-            ser.setLineSeparator(IOUtils.LINE_SEPARATOR);
-            ser.write(new Document(root));
-            ser.flush();
+            stream = new FileOutputStream(file);
+            String namespace = Connections.NAMESPACE;
+            Map namespaces = ArrayUtils.toMap(new String[][] {
+                    { Connections.NAMESPACE, "c" },
+                    { RvConnection.XML_NS, "rv" } } );
+            XMLBuilder builder = new XMLBuilder(stream, namespace, namespaces);
+            new Connections(connections, false).toXML(builder);
+            builder.close();
         } finally {
             IOUtils.closeQuietly(stream);
         }

@@ -34,6 +34,14 @@ public final class CausedIOException extends IOException {
         this.cause = cause;
     }
 
+    /**
+     * @param cause
+     */
+    public CausedIOException(Throwable cause) {
+        super("");
+        this.cause = cause;
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Throwable#getCause()
      */

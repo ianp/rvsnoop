@@ -17,11 +17,11 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Connections;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 
-import rvsnoop.Connections;
 import rvsnoop.Record;
 import rvsnoop.RvConnection;
 import rvsnoop.State;
@@ -64,7 +64,7 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
         final String question = MessageFormat.format(QUESTION_CONFIRM,
                 new Object[] { new Integer(currentSelection.length) });
         // FIXME get the connection list from Application
-        final RvConnection[] connections = (RvConnection[]) Connections.getInstance().toArray();
+        final RvConnection[] connections = Connections.getInstance().toArray();
         final String[] connectionNames = new String[connections.length];
         for (int i = 0, imax = connections.length; i < imax; ++i) {
             connectionNames[i] = connections[i].getDescription();

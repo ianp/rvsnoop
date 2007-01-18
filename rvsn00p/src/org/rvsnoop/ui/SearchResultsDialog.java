@@ -70,14 +70,14 @@ public final class SearchResultsDialog extends JDialog {
 
     private static final Image BANNER =
         ImageFactory.getInstance().getBannerImage("searchResults");
-    
+
     static String BUTTON_FREEZE, BUTTON_OK, BUTTON_UNFREEZE;
     static String DIALOG_TITLE, TITLE, DESCRIPTION, TOOLTIP_VISIBLE_COLUMNS;
-    
+
     private final JPopupMenu columnsPopup = new JPopupMenu();
 
     private final FilteredLedgerView results;
-    
+
     public SearchResultsDialog(Frame parent, RecordLedger results) {
         super(parent, DIALOG_TITLE, false); // false == non-modal
         if (results instanceof FilteredLedgerView) {
@@ -100,10 +100,10 @@ public final class SearchResultsDialog extends JDialog {
         });
         colsButton.setBorderPainted(false);
         scrollpane.setCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER, colsButton);
-        
+
         final FreezeAction freeze = new FreezeAction();
         final OKAction ok = new OKAction();
-        
+
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(new HeaderPanel(TITLE, DESCRIPTION, BANNER), BorderLayout.NORTH);
         getContentPane().add(scrollpane, BorderLayout.CENTER);
