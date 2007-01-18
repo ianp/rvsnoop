@@ -42,7 +42,8 @@ public final class SearchResultsDialog extends JDialog {
     private final class FreezeAction extends AbstractAction {
         private static final long serialVersionUID = 2493033730732619900L;
         private boolean freeze = true;
-        public FreezeAction() {
+        FreezeAction() {
+            super(BUTTON_FREEZE);
             setEnabled(false);
         }
         public synchronized void actionPerformed(ActionEvent e) {
@@ -54,6 +55,9 @@ public final class SearchResultsDialog extends JDialog {
 
     private final class OKAction extends AbstractAction {
         private static final long serialVersionUID = 7702235052544107033L;
+        public OKAction() {
+            super(BUTTON_OK);
+        }
         public void actionPerformed(ActionEvent e) {
             setVisible(false);
             dispose();

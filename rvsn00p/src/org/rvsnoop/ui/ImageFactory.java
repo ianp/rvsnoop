@@ -61,7 +61,7 @@ public final class ImageFactory {
         }
         public int hashCode() {
             int result = 1;
-            result = PRIME * result + name != null ? name.hashCode() : 0;
+            result = PRIME * result + (name != null ? name.hashCode() : 0);
             result = PRIME * result + w;
             result = PRIME * result + h;
             return result;
