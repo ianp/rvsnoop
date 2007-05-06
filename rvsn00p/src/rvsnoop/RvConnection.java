@@ -11,10 +11,9 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -22,6 +21,9 @@ import java.util.TreeMap;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
+
+import nu.xom.Element;
+import nu.xom.Elements;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -34,12 +36,6 @@ import org.rvsnoop.actions.PauseConnection;
 import org.rvsnoop.actions.StartConnection;
 import org.rvsnoop.actions.StopConnection;
 
-import nu.xom.Attribute;
-import nu.xom.Element;
-import nu.xom.Elements;
-
-import rvsnoop.ui.UIManager;
-
 import com.tibco.tibrv.Tibrv;
 import com.tibco.tibrv.TibrvDispatcher;
 import com.tibco.tibrv.TibrvErrorCallback;
@@ -50,7 +46,6 @@ import com.tibco.tibrv.TibrvMsg;
 import com.tibco.tibrv.TibrvMsgCallback;
 import com.tibco.tibrv.TibrvNetTransport;
 import com.tibco.tibrv.TibrvQueue;
-import com.tibco.tibrv.TibrvRvaTransport;
 import com.tibco.tibrv.TibrvRvdTransport;
 
 /**
@@ -80,7 +75,6 @@ public final class RvConnection implements TibrvMsgCallback {
         public void run() {
             SubjectHierarchy.INSTANCE.addRecord(record);
             MessageLedger.RECORD_LEDGER.add(record);
-            UIManager.INSTANCE.updateStatusLabel();
         }
     }
 
@@ -88,40 +82,12 @@ public final class RvConnection implements TibrvMsgCallback {
         ErrorCallback() {
             super();
         }
-        private void invalidateListener(TibrvListener listener) {
-            final String listenerSubject = listener.getSubject();
-            final List toRemove = new ArrayList();
-            final RvConnection[] conns = Connections.getInstance().toArray();
-            for (int i = 0, imax = conns.length; i < imax; ++i) {
-                final RvConnection conn = conns[i];
-                for (final Iterator j = conn.subjects.keySet().iterator(); j.hasNext();) {
-                    final String subject = (String) j.next();
-                    if (subject.equals(listenerSubject))
-                        toRemove.add(subject);
-                }
-                for (final Iterator j = toRemove.iterator(); j.hasNext();)
-                    conn.removeSubject((String) j.next());
-                toRemove.clear();
-            }
-        }
-
-        private void invalidateTransport(TibrvRvaTransport transport) {
-            final RvConnection[] conns = Connections.getInstance().toArray();
-            for (int i = 0, imax = conns.length; i < imax; ++i) {
-                if (transport.equals(conns[i].transport)) {
-                    conns[i].stop();
-                    return;
-                }
-            }
-        }
-
         public void onError(Object tibrvObject, int errorCode, String message, Throwable cause) {
-            final String msg = StringUtils.format(ERROR_RV, new Object[] { new Integer(errorCode), message });
-            log.error(msg, cause);
-            if (tibrvObject instanceof TibrvRvaTransport)
-                invalidateTransport((TibrvRvaTransport) tibrvObject);
-            else if (tibrvObject instanceof TibrvListener)
-                invalidateListener((TibrvListener) tibrvObject);
+            if (log.isErrorEnabled()) {
+                if (message == null) { message = ""; }
+                log.error(MessageFormat.format(ERROR_RV, new Object[] { new Integer(errorCode), message }), cause);
+            }
+            // XXX should we pop up an error dialog here?
         }
     }
 
@@ -142,7 +108,9 @@ public final class RvConnection implements TibrvMsgCallback {
         public void actionPerformed(ActionEvent e) {
             synchronized (RvConnection.this) {
                 stop();
-                Connections.getInstance().remove(RvConnection.this);
+                if (parentList != null) {
+                    parentList.remove(RvConnection.this);
+                }
             }
         }
     }
@@ -166,30 +134,29 @@ public final class RvConnection implements TibrvMsgCallback {
     /**
      * Property key for the RV daemon setting of this connection.
      */
-    public static final String PROP_DAEMON = "daemon";
+    public static final String KEY_DAEMON = "daemon";
 
     /**
      * Property key for the description of this connection.
      */
-    public static final String PROP_DESCRIPTION = "description";
+    public static final String KEY_DESCRIPTION = "description";
 
     /**
      * Property key for the RV network setting of this connection.
      */
-    public static final String PROP_NETWORK = "network";
+    public static final String KEY_NETWORK = "network";
 
     /**
      * Property key for the RV service setting of this connection.
      */
-    public static final String PROP_SERVICE = "service";
+    public static final String KEY_SERVICE = "service";
 
     /**
      * Property key for the subjects that this connection subscribes to.
      */
-    public static final String PROP_SUBJECTS = "subjects";
+    public static final String KEY_SUBJECTS = "subjects";
 
     public static final String XML_ELEMENT = "connection";
-    public static final String XML_NS = "http://rvsnoop.org/ns/connection/rv/1";
     private static final String XML_SUBJECT = "subject";
 
     private static TibrvQueue queue;
@@ -226,17 +193,18 @@ public final class RvConnection implements TibrvMsgCallback {
      * @param element The element that represents the connection.
      * @return The connection.
      */
-    public static RvConnection fromXml(Element element) {
+    public static RvConnection fromXML(Element element) {
         Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + '.');
-        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + '.');
-        final String service = element.getAttributeValue(PROP_SERVICE);
-        final String network = element.getAttributeValue(PROP_NETWORK);
-        final String daemon = element.getAttributeValue(PROP_DAEMON);
+        Validate.isTrue(XMLBuilder.NS_RENDEZVOUS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XMLBuilder.NS_RENDEZVOUS + '.');
+        final String service = element.getAttributeValue(KEY_SERVICE);
+        final String network = element.getAttributeValue(KEY_NETWORK);
+        final String daemon = element.getAttributeValue(KEY_DAEMON);
         final RvConnection conn = new RvConnection(service, network, daemon);
-        conn.setDescription(element.getAttributeValue(PROP_DESCRIPTION));
-        final Elements subjects = element.getChildElements(XML_SUBJECT, XML_NS);
-        for (int i = 0, imax = subjects.size(); i < imax; ++i)
+        conn.setDescription(element.getAttributeValue(KEY_DESCRIPTION));
+        final Elements subjects = element.getChildElements(XML_SUBJECT, XMLBuilder.NS_RENDEZVOUS);
+        for (int i = 0, imax = subjects.size(); i < imax; ++i) {
             conn.addSubject(subjects.get(i).getValue());
+        }
         return conn;
     }
 
@@ -266,11 +234,11 @@ public final class RvConnection implements TibrvMsgCallback {
             queueLimitListener = new TibrvListener(queue, new NullCallback(), Tibrv.processTransport(), "_RV.WARN.SYSTEM.QUEUE.LIMIT_EXCEEDED", null);
             queue.setLimitPolicy(TibrvQueue.DISCARD_NEW, 1, 1);
         }
-        final RvConnection[] conns = Connections.getInstance().toArray();
-        for (int i = 0, imax = conns.length; i < imax; ++i) {
-            if (conns[i].getState() == State.STARTED)
-                conns[i].pause();
-        }
+//        final RvConnection[] conns = Connections.getInstance().toArray();
+//        for (int i = 0, imax = conns.length; i < imax; ++i) {
+//            if (conns[i].getState() == State.STARTED)
+//                conns[i].pause();
+//        }
     }
 
     /**
@@ -289,18 +257,15 @@ public final class RvConnection implements TibrvMsgCallback {
                 queueLimitListener = null;
             }
         }
-        final RvConnection[] conns = Connections.getInstance().toArray();
-        for (int i = 0, imax = conns.length; i < imax; ++i) {
-            if (conns[i].getState() == State.PAUSED)
-                conns[i].start();
-        }
+//        final RvConnection[] conns = Connections.getInstance().toArray();
+//        for (int i = 0, imax = conns.length; i < imax; ++i) {
+//            if (conns[i].getState() == State.PAUSED)
+//                conns[i].start();
+//        }
     }
 
     public static synchronized void shutdown() {
         if (queue == null) return;
-        final RvConnection[] conns = Connections.getInstance().toArray();
-        for (int i = 0, imax = conns.length; i < imax; ++i)
-            conns[i].stop();
         try {
             Tibrv.close();
         } catch (TibrvException e) {
@@ -392,10 +357,10 @@ public final class RvConnection implements TibrvMsgCallback {
         Validate.notNull(subject, "Subject cannot be null.");
         subject = subject.trim();
         Validate.isTrue(subject.length() > 0, "Subject cannot be empty.");
-        if (subjects.containsKey(subject)) return;
+        if (subjects.containsKey(subject)) { return; }
         subjects.put(subject, createListener(subject));
         // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
-        changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
+        changeSupport.firePropertyChange(KEY_SUBJECTS, null, null);
     }
 
     private synchronized TibrvListener createListener(String subject) {
@@ -557,7 +522,7 @@ public final class RvConnection implements TibrvMsgCallback {
                 ((TibrvEvent) i.next()).destroy();
         subjects.clear();
         // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
-        changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
+        changeSupport.firePropertyChange(KEY_SUBJECTS, null, null);
     }
 
     /**
@@ -577,7 +542,7 @@ public final class RvConnection implements TibrvMsgCallback {
         changeSupport.removePropertyChangeListener(propertyName, listener);
     }
 
-    private synchronized void removeSubject(String subject) {
+    public synchronized void removeSubject(String subject) {
         if (subject == null) return;
         subject = subject.trim();
         if (subject.length() > 0) {
@@ -585,7 +550,7 @@ public final class RvConnection implements TibrvMsgCallback {
             if (listener != null) listener.destroy();
         }
         // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
-        changeSupport.firePropertyChange(PROP_SUBJECTS, null, null);
+        changeSupport.firePropertyChange(KEY_SUBJECTS, null, null);
     }
 
     public synchronized void setDescription(String description) {
@@ -594,7 +559,7 @@ public final class RvConnection implements TibrvMsgCallback {
                 transport.setDescription(description + DESCRIPTION);
             final String oldDescription = description;
             this.description = description != null ? description : "";
-            changeSupport.firePropertyChange(PROP_DESCRIPTION, oldDescription, this.description);
+            changeSupport.firePropertyChange(KEY_DESCRIPTION, oldDescription, this.description);
         } catch (TibrvException e) {
             log.error("Could not set connection description.", e);
         }
@@ -612,6 +577,8 @@ public final class RvConnection implements TibrvMsgCallback {
      */
     public void setParentList(Connections connection) {
         // FIXME reduce visibility to package
+        // TODO get a reference to the RecordLedger here then use it to remove
+        //      the static MessageLedger.INSTANCE reference in AddRecordTask
         if (connection == null && state != State.STOPPED)
             throw new IllegalStateException("Connection not stopped!");
         parentList = connection;
@@ -660,39 +627,14 @@ public final class RvConnection implements TibrvMsgCallback {
      */
     public String toString() {
         return new ToStringBuilder(this)
-            .append(PROP_DESCRIPTION, description)
-            .append(PROP_SERVICE, service)
-            .append(PROP_NETWORK, network)
-            .append(PROP_DAEMON, daemon).toString();
-    }
-
-    /**
-     * Create an XML fragment that represents this connection.
-     *
-     * @return the XML fragment that represents this connection.
-     */
-    public Element toXml() {
-        final Element element = new Element(XML_ELEMENT, XML_NS);
-        if (description.length() > 0)
-            element.addAttribute(new Attribute(PROP_DESCRIPTION, description));
-        if (!DEFAULT_SERVICE.equals(service))
-            element.addAttribute(new Attribute(PROP_SERVICE, service));
-        if (!DEFAULT_NETWORK.equals(network))
-            element.addAttribute(new Attribute(PROP_NETWORK, network));
-        if (!DEFAULT_DAEMON.equals(daemon))
-            element.addAttribute(new Attribute(PROP_DAEMON, daemon));
-        final Object[] subjects = this.subjects.keySet().toArray();
-        for (int i = 0, imax = subjects.length; i < imax; ++i) {
-            final String subject = (String) subjects[i];
-            final Element elt = new Element(XML_SUBJECT, XML_NS);
-            elt.appendChild(subject);
-            element.appendChild(elt);
-        }
-        return element;
+            .append(KEY_DESCRIPTION, description)
+            .append(KEY_SERVICE, service)
+            .append(KEY_NETWORK, network)
+            .append(KEY_DAEMON, daemon).toString();
     }
 
     public void toXML(XMLBuilder builder) throws IOException {
-        builder.startTag("connection", XML_NS)
+        builder.startTag("connection", XMLBuilder.NS_RENDEZVOUS)
             .attribute("description", description)
             .attribute("service", service)
             .attribute("network", network)

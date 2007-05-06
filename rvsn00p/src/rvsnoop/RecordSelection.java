@@ -138,9 +138,9 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      * @throws IOException If there was an exception thrown when reading from
      *     the transferable.
      */
-    public static Record[] read(Transferable selection) throws UnsupportedFlavorException, IOException, TibrvException {
+    public static Record[] read(Transferable selection, Connections connections) throws UnsupportedFlavorException, IOException, TibrvException {
         if (selection.isDataFlavorSupported(BYTES_FLAVOUR)) {
-            return read(new DataInputStream((ByteArrayInputStream) selection.getTransferData(BYTES_FLAVOUR)));
+            return read(new DataInputStream((ByteArrayInputStream) selection.getTransferData(BYTES_FLAVOUR)), connections);
         } else if (selection.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             final List files = (List) selection.getTransferData(DataFlavor.javaFileListFlavor);
             final Record[] records = new Record[files.size()];
@@ -148,7 +148,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
                 final File file = (File) files.get(i);
                 final FileInputStream fis = new FileInputStream(file);
                 final BufferedInputStream bis = new BufferedInputStream(fis, (int) file.length());
-                records[i] = readRecord(new DataInputStream(bis), true);
+                records[i] = readRecord(new DataInputStream(bis), connections, true);
                 IOUtils.closeQuietly(fis);
             }
             return records;
@@ -164,23 +164,23 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
      * @return The array of records that were unpacked from the input.
      * @throws IOException
      */
-    public static Record[] read(DataInput input) throws IOException {
+    public static Record[] read(DataInput input, Connections connections) throws IOException {
         final byte[] magic = new byte[BIND_RECORD_MAGIC.length];
         input.readFully(magic);
         Record[] records = null;
         if (Arrays.equals(BIND_RECORD_SET_MAGIC, magic)) {
             records = new Record[input.readInt()];
             for (int i = 0, imax = records.length; i < imax; ++i)
-                records[i] = readRecord(input, true);
+                records[i] = readRecord(input, connections, true);
             return records;
         } else if (Arrays.equals(BIND_RECORD_MAGIC, magic)) {
-            return new Record[] { readRecord(input, false) };
+            return new Record[] { readRecord(input, connections, false) };
         } else {
             throw new IOException("Input does not contain a valid record stream.");
         }
     }
 
-    private static Record readRecord(DataInput input, boolean checkMagic) throws IOException {
+    private static Record readRecord(DataInput input, Connections connections, boolean checkMagic) throws IOException {
         if (checkMagic) {
             final byte[] magic = new byte[BIND_RECORD_MAGIC.length];
             input.readFully(magic);
@@ -192,8 +192,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
         final String service = connFlag ? input.readUTF() : null;
         final String network = connFlag ? input.readUTF() : null;
         final String daemon = connFlag ? input.readUTF() : null;
-        final Connections connections = Connections.getInstance();
-        RvConnection connection = connections.get(service, network, daemon);
+        RvConnection connection = connections != null ? connections.get(service, network, daemon) : null;
         if (connection == null) {
             connection = new RvConnection(service, network, daemon);
             connection.setDescription(description);

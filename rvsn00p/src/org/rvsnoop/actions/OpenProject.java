@@ -19,9 +19,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
+import org.rvsnoop.Project;
+import org.rvsnoop.ProjectFileFilter;
 
-import rvsnoop.Project;
-import rvsnoop.ProjectFileFilter;
 import rvsnoop.RvConnection;
 
 import com.tibco.tibrv.TibrvException;
@@ -60,7 +60,7 @@ public final class OpenProject extends RvSnoopAction {
     public void actionPerformed(ActionEvent event) {
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new ProjectFileFilter());
-        final int option = chooser.showOpenDialog(application.getFrame().getFrame());
+        final int option = chooser.showOpenDialog(application.getFrame());
         if (JFileChooser.APPROVE_OPTION != option) { return; }
         File file = chooser.getSelectedFile();
         try {
@@ -69,7 +69,7 @@ public final class OpenProject extends RvSnoopAction {
                 log.info(MessageFormat.format(INFO_LOADING,
                         new Object[] { file.getName() }));
             }
-            Project.setCurrentProject(new Project(file));
+            application.setProject(new Project(file));
             if (log.isInfoEnabled()) {
                 log.info(MessageFormat.format(INFO_LOADED,
                         new Object[] { file.getName() }));

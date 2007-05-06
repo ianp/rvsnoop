@@ -93,7 +93,7 @@ public final class RvConnectionDialog extends JDialog {
      * @param initial The initial parameter values to display, may be <code>null</code>.
      */
     public RvConnectionDialog(RvConnection initial) {
-        super(UIManager.INSTANCE.getFrame(), "Add Connection", true);
+        super(UIManager.INSTANCE, "Add Connection", true);
         buildContentArea(initial != null ? initial : new RvConnection());
         buildButtonArea();
         pack();
@@ -101,7 +101,7 @@ public final class RvConnectionDialog extends JDialog {
         size.width = Math.max(size.width, MAX_WIDTH);
         size.height = Math.max(size.height, MAX_HEIGHT);
         setSize(size);
-        UIUtils.centerWindowOnScreen(this);
+        setLocationRelativeTo(UIManager.INSTANCE);
     }
 
     private void buildButtonArea() {

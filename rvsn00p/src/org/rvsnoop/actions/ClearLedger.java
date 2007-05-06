@@ -15,7 +15,6 @@ import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
 
 import rvsnoop.Record;
-import rvsnoop.SubjectHierarchy;
 import rvsnoop.ui.UIManager;
 
 /**
@@ -47,11 +46,10 @@ public final class ClearLedger extends RvSnoopAction {
      */
     public final void actionPerformed(ActionEvent event) {
         application.getLedger().clear();
-        // FIXME these should all be replaced with listeners on the ledger.
-        SubjectHierarchy.INSTANCE.reset();
-        UIManager.INSTANCE.updateStatusLabel();
-        UIManager.INSTANCE.clearDetails();
+        application.getSubjectHierarchy().reset();
         Record.resetSequence();
+        // FIXME this should be replaced with a listener on the ledger.
+        UIManager.INSTANCE.clearDetails();
     }
 
 }

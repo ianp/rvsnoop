@@ -23,12 +23,12 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
+import org.rvsnoop.Connections;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.RecordLedger;
 
 import rvsnoop.ui.Icons;
-import rvsnoop.ui.TrackingAdjustmentListener;
 import rvsnoop.ui.UIUtils;
 
 /**
@@ -78,7 +78,7 @@ public final class SearchResultsDialog extends JDialog {
 
     private final FilteredLedgerView results;
 
-    public SearchResultsDialog(Frame parent, RecordLedger results) {
+    public SearchResultsDialog(Frame parent, RecordLedger results, Connections connections) {
         super(parent, DIALOG_TITLE, false); // false == non-modal
         if (results instanceof FilteredLedgerView) {
             this.results = (FilteredLedgerView) results;
@@ -86,7 +86,7 @@ public final class SearchResultsDialog extends JDialog {
             this.results = FilteredLedgerView.newInstance(results, true);
         }
 
-        final RecordLedgerTable table = new RecordLedgerTable(results);
+        final RecordLedgerTable table = new RecordLedgerTable(results, connections);
         columnsPopup.addPopupMenuListener(new VisibleColumnsMenuManager(table.getTableFormat()));
         final JScrollPane scrollpane = new JScrollPane(table);
         scrollpane.setBorder(BorderFactory.createEmptyBorder());

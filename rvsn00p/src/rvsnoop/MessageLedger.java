@@ -7,7 +7,6 @@
  */
 package rvsnoop;
 
-import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.RecordLedger;
 
 /**
@@ -21,6 +20,5 @@ public final class MessageLedger {
 
     // FIXME remove these two static fields then remove the class
     public static RecordLedger RECORD_LEDGER;
-    public static FilteredLedgerView FILTERED_VIEW;
 
 }

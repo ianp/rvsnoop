@@ -99,6 +99,16 @@ public class FilteredLedgerView extends RecordLedger {
     }
 
     /**
+     * Is this list filtering on <em>any</em> criteria.
+     *
+     * @return <code>true</code> if any filtering is turned on,
+     *     <code>false</code> otherwise.
+     */
+    public synchronized boolean isFiltering() {
+        return filters.getMatcherEditors().size() > 0;
+    }
+
+    /**
      * Is this view currently filtering records based on the subject hierarchy.
      *
      * @return <code>true</code> if subject filtering is turned on,

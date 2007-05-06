@@ -8,6 +8,7 @@
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 
@@ -17,8 +18,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
+import org.rvsnoop.Project;
 
-import rvsnoop.Project;
 
 /**
  * Save the current project.
@@ -53,20 +54,24 @@ public final class SaveProject extends RvSnoopAction {
      */
     public void actionPerformed(ActionEvent event) {
         final Project project = application.getProject();
-        if (project == null || project.getFile() == null) {
+        if (project == null) {
             application.getAction(SaveProjectAs.COMMAND).actionPerformed(event);
-        } else {
-            try {
-                project.store();
-                if (log.isInfoEnabled()) {
-                    log.info(MessageFormat.format(INFO_SAVED,
-                            new Object[] { project.getFile().getPath() }));
-                }
-            } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(MessageFormat.format(ERROR_SAVING,
-                            new Object[] { project.getFile().getPath() }), e);
-                }
+            return;
+        }
+        final File file = project.getDirectory();
+        if (file == null) {
+            application.getAction(SaveProjectAs.COMMAND).actionPerformed(event);
+            return;
+        }
+        final String path = file.getPath();
+        try {
+            project.store(application);
+            if (log.isInfoEnabled()) {
+                log.info(MessageFormat.format(INFO_SAVED, new Object[] { path }));
+            }
+        } catch (IOException e) {
+            if (log.isErrorEnabled()) {
+                log.error(MessageFormat.format(ERROR_SAVING, new Object[] { path }), e);
             }
         }
     }

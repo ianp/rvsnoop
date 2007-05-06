@@ -11,13 +11,8 @@ import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.text.StrBuilder;
-
-import nu.xom.Attribute;
-import nu.xom.Element;
 
 import ca.odell.glazedlists.matchers.Matcher;
 
@@ -32,53 +27,25 @@ import ca.odell.glazedlists.matchers.Matcher;
 public class RecordType implements Matcher {
 
     /** Key for colour JavaBean property. */
-    public static final String PROP_COLOUR = "colour";
+    public static final String KEY_COLOUR = "colour";
 
     /** Key for id JavaBean property. */
-    public static final String PROP_ID = "id";
+    public static final String KEY_ID = "id";
 
     /** Key for matcherName JavaBean property. */
-    public static final String PROP_MATCHER_NAME = "matcherName";
+    public static final String KEY_MATCHER_NAME = "matcherName";
 
     /** Key for matcherType JavaBean property. */
-    public static final String PROP_MATCHER_TYPE = "matcherType";
+    public static final String KEY_MATCHER_TYPE = "matcherType";
 
     /** Key for matcherValue JavaBean property. */
-    public static final String PROP_MATCHER_VALUE = "matcherValue";
+    public static final String KEY_MATCHER_VALUE = "matcherValue";
 
     /** Key for name JavaBean property. */
-    public static final String PROP_NAME = "name";
+    public static final String KEY_NAME = "name";
 
     /** Key for selected JavaBean property. */
-    public static final String PROP_SELECTED = "selected";
-
-    public static final String XML_ELEMENT = "type";
-    public static final String XML_NS = "http://rvsnoop.org/ns/recordType/1";
-
-    /**
-     * Constructs a new type from information contained in an XML fragment.
-     * <p>
-     * Note that this will add an entry to the types list if the type
-     * represented by the XML fragment is not already present.
-     *
-     * @param element The element that represents the type.
-     * @return The connection.
-     */
-    public static RecordType fromXml(Element element) {
-        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + '.');
-        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + '.');
-        final Element matcherElt = element.getFirstChildElement(RecordMatcher.XML_ELEMENT, RecordType.XML_NS);
-        final RecordMatcher matcher = RecordMatcher.fromXml(matcherElt);
-        final Color colour = Color.decode(element.getAttributeValue(PROP_COLOUR));
-        if (RecordMatcher.DEFAULT_MATCHER.equals(matcher)) {
-            RecordTypes.DEFAULT.setColour(colour);
-            return RecordTypes.DEFAULT;
-        }
-        final String name = element.getAttributeValue(PROP_NAME);
-        final RecordType type = RecordTypes.getInstance().createType(name, colour, matcher);
-        type.setSelected(Boolean.valueOf(element.getAttributeValue(PROP_SELECTED)).booleanValue());
-        return type;
-    }
+    public static final String KEY_SELECTED = "selected";
 
     private Color colour;
 
@@ -120,9 +87,9 @@ public class RecordType implements Matcher {
 
     private String getColourHexString() {
         return new StrBuilder(7).append('#')
-            .append(StringUtils.leftPad(Integer.toHexString(colour.getRed()), 2, '0'))
-            .append(StringUtils.leftPad(Integer.toHexString(colour.getGreen()), 2, '0'))
-            .append(StringUtils.leftPad(Integer.toHexString(colour.getBlue()), 2, '0'))
+            .appendFixedWidthPadLeft(Integer.toHexString(colour.getRed()), 2, '0')
+            .appendFixedWidthPadLeft(Integer.toHexString(colour.getGreen()), 2, '0')
+            .appendFixedWidthPadLeft(Integer.toHexString(colour.getBlue()), 2, '0')
             .toString();
     }
 
@@ -171,21 +138,21 @@ public class RecordType implements Matcher {
         if (colour == null) throw new NullPointerException();
         final Color oldValue = this.colour;
         this.colour = colour;
-        propChange.firePropertyChange(PROP_COLOUR, oldValue, colour);
+        propChange.firePropertyChange(KEY_COLOUR, oldValue, colour);
     }
 
     public void setMatcherName(final String name) {
         if (name == null) throw new NullPointerException();
         final String oldValue = matcher.getName();
         RecordMatcher.createMatcher(name, matcher.getValue());
-        propChange.firePropertyChange(PROP_MATCHER_NAME, oldValue, name);
+        propChange.firePropertyChange(KEY_MATCHER_NAME, oldValue, name);
     }
 
     public void setMatcherValue(final String value) {
         if (value == null) throw new NullPointerException();
         final String oldValue = matcher.getValue();
         matcher.setValue(value);
-        propChange.firePropertyChange(PROP_MATCHER_VALUE, oldValue, value);
+        propChange.firePropertyChange(KEY_MATCHER_VALUE, oldValue, value);
     }
 
     public void setName(final String name) {
@@ -194,36 +161,22 @@ public class RecordType implements Matcher {
         if (RecordTypes.getInstance().isNameInUse(name))
             throw new IllegalArgumentException("Type name already in use: " + name);
         this.name = name;
-        propChange.firePropertyChange(PROP_NAME, oldValue, name);
+        propChange.firePropertyChange(KEY_NAME, oldValue, name);
     }
 
     public void setSelected(final boolean selected) {
         final boolean oldValue = this.selected;
         this.selected = selected;
-        propChange.firePropertyChange(PROP_SELECTED, oldValue, selected);
+        propChange.firePropertyChange(KEY_SELECTED, oldValue, selected);
     }
 
     public String toString() {
         return new ToStringBuilder(this)
-            .append(PROP_NAME, name)
-            .append(PROP_SELECTED, selected)
-            .append(PROP_COLOUR, getColourHexString())
-            .append(PROP_MATCHER_TYPE, matcher.getType())
-            .append(PROP_MATCHER_VALUE, matcher.getValue()).toString();
-    }
-
-    /**
-     * Create an XML fragment that represents this matcher.
-     *
-     * @return the XML fragment that represents this matcher.
-     */
-    public Element toXml() {
-        final Element element = new Element(XML_ELEMENT, XML_NS);
-        element.addAttribute(new Attribute(PROP_NAME, name));
-        element.addAttribute(new Attribute(PROP_SELECTED, Boolean.toString(selected)));
-        element.addAttribute(new Attribute(PROP_COLOUR, getColourHexString()));
-        element.appendChild(matcher.toXml());
-        return element;
+            .append(KEY_NAME, name)
+            .append(KEY_SELECTED, selected)
+            .append(KEY_COLOUR, getColourHexString())
+            .append(KEY_MATCHER_TYPE, matcher.getType())
+            .append(KEY_MATCHER_VALUE, matcher.getValue()).toString();
     }
 
 }

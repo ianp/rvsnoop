@@ -244,4 +244,5 @@ public final class RecordTypes {
     public int size() {
         return types.size();
     }
+
 }

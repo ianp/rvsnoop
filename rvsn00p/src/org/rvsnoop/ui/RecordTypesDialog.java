@@ -10,13 +10,17 @@ package org.rvsnoop.ui;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -41,6 +45,19 @@ public final class RecordTypesDialog extends JDialog {
         }
         public void actionPerformed(ActionEvent e) {
             types.createType();
+        }
+    }
+
+    private final class DoubleClickHandler extends MouseAdapter {
+        // TODO make double click pop up an edit dialog for the type
+        // this needs a dedicated edit dialog writing.
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() != 2) { return; }
+            final Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), typesList);
+            final int index = typesList.locationToIndex(point);
+            final RecordType type = types.getType(index);
+            type.setSelected(!type.isSelected());
+            typesList.repaint(typesList.getCellBounds(index, index));
         }
     }
 
@@ -104,6 +121,7 @@ public final class RecordTypesDialog extends JDialog {
         scrollpane.setBorder(null);
         typesList.setCellRenderer(new RecordTypesListCellRenderer());
         typesList.setPrototypeCellValue(RecordTypes.DEFAULT);
+        typesList.addMouseListener(new DoubleClickHandler());
         AddTypeAction add = new AddTypeAction();
         OKAction ok = new OKAction();
         RemoveTypeAction remove = new RemoveTypeAction();

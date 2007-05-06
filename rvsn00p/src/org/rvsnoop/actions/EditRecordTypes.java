@@ -48,7 +48,7 @@ public final class EditRecordTypes extends RvSnoopAction {
     public void actionPerformed(ActionEvent event) {
         final RecordTypesDialog dialog =
             new RecordTypesDialog(
-                    application.getFrame().getFrame(),
+                    application.getFrame(),
                     RecordTypes.getInstance());
         dialog.setModal(true);
         dialog.pack();

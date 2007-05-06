@@ -66,12 +66,12 @@ public final class SubjectHierarchy extends DefaultTreeModel {
     private static final long serialVersionUID = -3629858078509052804L;
 
     private static final Pattern SPLITTER = Pattern.compile("\\.");
-
+    
     private final SubjectHierarchyMatcherEditor matcherEditor = new SubjectHierarchyMatcherEditor();
 
     private SubjectElement noSubjectElement;
 
-    private SubjectHierarchy() {
+    public SubjectHierarchy() {
         super(new SubjectElement());
     }
 

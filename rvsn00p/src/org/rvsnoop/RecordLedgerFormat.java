@@ -144,6 +144,16 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
             SUBJECT, SIZE_IN_BYTES, TRACKING_ID, MESSAGE
     }));
 
+    public static String displayNameToIdentifier(String displayName) {
+        for (int i = 0, imax = ALL_COLUMNS.size(); i < imax; ++i) {
+            final ColumnFormat column = (ColumnFormat) ALL_COLUMNS.get(i);
+            if (column.getName().equals(displayName)) {
+                return column.identifier;
+            }
+        }
+        return null;
+    }
+
     /**
      * Gets a column format by it's ID.
      *

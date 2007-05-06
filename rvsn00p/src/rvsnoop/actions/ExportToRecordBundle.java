@@ -19,6 +19,8 @@ import java.util.zip.ZipOutputStream;
 import javax.swing.Action;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.rvsnoop.Application;
+import org.rvsnoop.actions.ExportToFile;
 
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
@@ -53,7 +55,7 @@ public final class ExportToRecordBundle extends ExportToFile {
 
     static final long serialVersionUID = 9036056933732494645L;
 
-    private static final String ID = "exportToRecordBundle";
+    public static final String COMMAND = "exportToRecordBundle";
 
     private static String NAME = "Record Bundle";
 
@@ -65,8 +67,8 @@ public final class ExportToRecordBundle extends ExportToFile {
 
     private ZipOutputStream zip;
 
-    public ExportToRecordBundle() {
-        super(ID, NAME, null, new FileFilter());
+    public ExportToRecordBundle(Application application) {
+        super(application, COMMAND, NAME, new FileFilter());
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_B));
     }

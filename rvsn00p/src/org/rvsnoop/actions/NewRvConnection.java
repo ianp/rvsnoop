@@ -12,10 +12,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
 import org.rvsnoop.Application;
-import org.rvsnoop.Connections;
 import org.rvsnoop.NLSUtils;
+import org.rvsnoop.UserPreferences;
 
-import rvsnoop.RecentConnections;
 import rvsnoop.RvConnection;
 import rvsnoop.ui.RvConnectionDialog;
 
@@ -48,13 +47,13 @@ public final class NewRvConnection extends RvSnoopAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        RvConnection conn = RecentConnections.getInstance().getLastConnection();
+        RvConnection conn = UserPreferences.getInstance().getMostRecentConnection();
         final RvConnectionDialog dialog = new RvConnectionDialog(conn);
         dialog.setVisible(true);
         if (dialog.isCancelled()) { return; }
         conn = dialog.getConnection();
         // TODO add a "start connection" checkbox to the dialog
-        if (Connections.getInstance().add(conn)) { conn.start(); }
+        if (application.getConnections().add(conn)) { conn.start(); }
     }
 
 }

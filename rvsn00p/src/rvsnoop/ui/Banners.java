@@ -45,16 +45,6 @@ public final class Banners {
      * Bannder for confirm quit dialog.
      */
     public static final Icon QUIT = Icons.createIcon("/resources/banners/quit.png", ICON_SIZE);
-    /**
-     * Banner for update check dialog.
-     * This image is used when no update is available.
-     */
-    public static final Icon UPDATE_ALREADY = Icons.createIcon("/resources/banners/update_already.png", ICON_SIZE);
-    /**
-     * Banner for update check dialog.
-     * This image is used when a new update is available.
-     */
-    public static final Icon UPDATE_AVAILABLE = Icons.createIcon("/resources/banners/update_available.png", ICON_SIZE);
 
     /**
      * Do not instantiate.

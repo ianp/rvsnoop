@@ -12,6 +12,7 @@ import java.util.Collection;
 
 import rvsnoop.Record;
 import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swing.EventTableModel;
 import ca.odell.glazedlists.util.concurrent.Lock;
@@ -84,6 +85,14 @@ public abstract class RecordLedger {
         } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * @param listChangeListener
+     * @see ca.odell.glazedlists.EventList#addListEventListener(ca.odell.glazedlists.event.ListEventListener)
+     */
+    public void addListEventListener(ListEventListener listChangeListener) {
+        list.addListEventListener(listChangeListener);
     }
 
     /**
@@ -311,6 +320,14 @@ public abstract class RecordLedger {
         } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * @param listChangeListener
+     * @see ca.odell.glazedlists.EventList#removeListEventListener(ca.odell.glazedlists.event.ListEventListener)
+     */
+    public void removeListEventListener(ListEventListener listChangeListener) {
+        list.removeListEventListener(listChangeListener);
     }
 
     /**

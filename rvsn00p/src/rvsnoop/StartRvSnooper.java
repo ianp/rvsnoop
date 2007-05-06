@@ -22,6 +22,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Project;
 
 import rvsnoop.ui.MultiLineToolTipUI;
 import rvsnoop.ui.UIManager;
@@ -51,11 +52,6 @@ public final class StartRvSnooper {
         public void run() {
             // FIXME this is a hack, there should be no static field.
             UIManager.INSTANCE = application.getFrame();
-            MessageLedger.RECORD_LEDGER = application.getLedger();
-            MessageLedger.FILTERED_VIEW = application.getFilteredLedger();
-            // FIXME all of this should go, use event listeners instead.
-            PreferencesManager.INSTANCE.setRecordLedgerTable(UIManager.INSTANCE.getMessageLedger());
-            PreferencesManager.INSTANCE.load();
             UIManager.INSTANCE.setVisible(true);
         }
     }
@@ -65,15 +61,6 @@ public final class StartRvSnooper {
             super();
         }
         public void run() {
-            try {
-                PreferencesManager.INSTANCE.store();
-                RecentConnections.getInstance().store();
-                RecentProjects.INSTANCE.store();
-            } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Error saving session state.", e);
-                }
-            }
             if (log.isInfoEnabled()) {
                 log.info(Version.getAsStringWithName() + " stopped.");
             }

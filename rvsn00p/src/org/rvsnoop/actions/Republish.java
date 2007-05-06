@@ -17,7 +17,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
-import org.rvsnoop.Connections;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
@@ -64,15 +63,14 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
         final String question = MessageFormat.format(QUESTION_CONFIRM,
                 new Object[] { new Integer(currentSelection.length) });
         // FIXME get the connection list from Application
-        final RvConnection[] connections = Connections.getInstance().toArray();
+        final RvConnection[] connections = application.getConnections().toArray();
         final String[] connectionNames = new String[connections.length];
         for (int i = 0, imax = connections.length; i < imax; ++i) {
             connectionNames[i] = connections[i].getDescription();
         }
         final String name = (String) JOptionPane.showInputDialog(
-                UIManager.INSTANCE.getFrame(),
-                question, NAME, JOptionPane.QUESTION_MESSAGE, null,
-                connectionNames, connectionNames[0]);
+                UIManager.INSTANCE, question, NAME, JOptionPane.QUESTION_MESSAGE,
+                null, connectionNames, connectionNames[0]);
         if (name == null) { return; } // User cancelled republishing.
         final RvConnection connection = connections[ArrayUtils.indexOf(connectionNames, name)];
         if (connection.getState() != State.STARTED) { connection.start(); }

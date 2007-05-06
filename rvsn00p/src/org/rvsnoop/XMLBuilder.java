@@ -26,11 +26,21 @@ import org.znerd.xmlenc.XMLOutputter;
  */
 public final class XMLBuilder {
 
+    public static final String NS_CONNECTIONS = "http://rvsnoop.org/ns/connections/1";
+    public static final String NS_MATCHER = "http://rvsnoop.org/ns/matcher/1";
+    public static final String NS_RENDEZVOUS = "http://rvsnoop.org/ns/tibrv/1";
+    public static final String NS_TYPES = "http://rvsnoop.org/ns/types/1";
+
+    public static final String PREFIX_CONNECTIONS = "c";
+    public static final String PREFIX_MATCHER= "m";
+    public static final String PREFIX_RENDEZVOUS = "r";
+    public static final String PREFIX_TYPES = "t";
+
     private boolean declared;
 
     private final String namespace;
 
-    private final Map namespaces;
+    private final Map namespaces = new LinkedHashMap();
 
     private boolean started;
 
@@ -41,7 +51,7 @@ public final class XMLBuilder {
      * @param ns The default namespace for the document.
      * @param namespaces A namespace to prefix mapping for the document.
      */
-    public XMLBuilder(OutputStream stream, String ns, Map namespaces) {
+    public XMLBuilder(OutputStream stream, String ns) {
         if (!(stream instanceof BufferedOutputStream)) {
             stream = new BufferedOutputStream(stream);
         }
@@ -52,7 +62,6 @@ public final class XMLBuilder {
             xml.setIndentation("  ");
             xml.setQuotationMark('\'');
             this.namespace = ns != null ? ns : "";
-            this.namespaces = new LinkedHashMap(namespaces);
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -114,6 +123,12 @@ public final class XMLBuilder {
         } catch (IllegalArgumentException e) {
             throw new CausedIOException(e);
         }
+    }
+    
+    public XMLBuilder namespace(String prefix, String uri) {
+        if (started) { throw new IllegalStateException(); }
+        namespaces.put(prefix, uri);
+        return this;
     }
 
     private void namespaceDeclarations() throws IOException {

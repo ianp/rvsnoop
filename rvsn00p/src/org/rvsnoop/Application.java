@@ -7,6 +7,9 @@
  */
 package org.rvsnoop;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
@@ -14,10 +17,9 @@ import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.actions.RvSnoopAction;
 import org.rvsnoop.ui.RecordLedgerTable;
 
-import rvsnoop.PreferencesManager;
-import rvsnoop.Project;
 import rvsnoop.RecordTypes;
 import rvsnoop.RvConnection;
+import rvsnoop.SubjectHierarchy;
 import rvsnoop.actions.Actions;
 import rvsnoop.ui.UIManager;
 
@@ -33,13 +35,18 @@ import rvsnoop.ui.UIManager;
  */
 public final class Application {
 
-    static { NLSUtils.internationalize(Application.class); }
-
+    /** Key for the 'project' JavaBean property. */
+    public static final String KEY_PROJECT = "project";
+    
     private static final Log log = LogFactory.getLog(Application.class);
+
+    static { NLSUtils.internationalize(Application.class); }
 
     static String ERROR_SHUTDOWN;
 
     private Actions actionFactory;
+
+    private Connections connections;
 
     private FilteredLedgerView filteredLedger;
 
@@ -51,8 +58,29 @@ public final class Application {
     /** The current project. */
     private Project project;
 
-    /** The session state for the application. */
-    private PreferencesManager sessionState;
+    private final PropertyChangeSupport propertyChangeSupport =
+        new PropertyChangeSupport(this);
+    
+    public Application() {
+        UserPreferences.getInstance().listenToChangesFrom(this);
+    }
+
+    /**
+     * @param listener
+     * @see java.beans.PropertyChangeSupport#addPropertyChangeListener(java.beans.PropertyChangeListener)
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * @param propertyName
+     * @param listener
+     * @see java.beans.PropertyChangeSupport#addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+     */
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
+    }
 
     /**
      * Get an action from the applications action factory.
@@ -78,6 +106,16 @@ public final class Application {
     }
 
     /**
+     * Get the connections list for the current project.
+     *
+     * @return The connections list.
+     */
+    public synchronized Connections getConnections() {
+        if (connections == null) { connections = new Connections(null, true); }
+        return connections;
+    }
+
+    /**
      * Get the main filtered ledger view.
      * <p>
      * There is a single shared view used by the main frame of the application
@@ -93,6 +131,17 @@ public final class Application {
             filteredLedger = FilteredLedgerView.newInstance(getLedger(), false);
         }
         return filteredLedger;
+    }
+
+    /**
+     * @return the frame
+     */
+    public synchronized UIManager getFrame() {
+        if (frame == null) {
+            frame = new UIManager(this);
+            getActionFactory().configureListeners();
+        }
+        return frame;
     }
 
     /**
@@ -116,7 +165,7 @@ public final class Application {
      * @return The ledger table.
      */
     public RecordLedgerTable getLedgerTable() {
-        return getFrame().getMessageLedger();
+        return getFrame().getRecordLedger();
     }
 
     /**
@@ -130,6 +179,43 @@ public final class Application {
     }
 
     /**
+     * Get all of the known record types.
+     *
+     * @return The record types.
+     */
+    public synchronized RecordTypes getRecordTypes() {
+        // FIXME this should not use a static instance, they should be loaded from the project.
+        return RecordTypes.getInstance();
+    }
+
+    /**
+     * Get the shared subject hierarchy.
+     *
+     * @return The subject hierarchy.
+     */
+    public synchronized SubjectHierarchy getSubjectHierarchy() {
+        // FIXME this should not use a static instance, they should be loaded from the project.
+        return SubjectHierarchy.INSTANCE;
+    }
+
+    /**
+     * @param listener
+     * @see java.beans.PropertyChangeSupport#removePropertyChangeListener(java.beans.PropertyChangeListener)
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * @param propertyName
+     * @param listener
+     * @see java.beans.PropertyChangeSupport#removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+     */
+    public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
+    }
+
+    /**
      * Set a new current project.
      * <p>
      * This will close and unload the current project if there is one.
@@ -139,6 +225,8 @@ public final class Application {
      *     synchronized (applies to persistent ledgers only).
      */
     public synchronized void setProject(Project project) throws IOException {
+        final Project oldProject = this.project;
+        if (project.equals(oldProject)) { return; }
         // XXX when changing the ledger be sure to copy any listeners across
         //     to the new ledger instance.
         if (this.project != null) {
@@ -150,35 +238,30 @@ public final class Application {
         // TODO configure the ledger from data in the project file.
         ledger = new InMemoryLedger();
         filteredLedger = FilteredLedgerView.newInstance(ledger, false);
-    }
 
-    /**
-     * @return the frame
-     */
-    public synchronized UIManager getFrame() {
-        if (frame == null) {
-            frame = new UIManager(this);
-            getActionFactory().configureListeners();
-        }
-        return frame;
-    }
+        getConnections().clear();
+        project.loadConnections(getConnections());
 
+        getRecordTypes().clear();
+        project.loadRecordTypes(getRecordTypes());
+        
+        propertyChangeSupport.firePropertyChange(KEY_PROJECT, oldProject, project);
+    }
+    
     /**
-     * Get all of the known record types.
+     * Set a project for the application.
+     * <p>
+     * This should only be called if no current project is set. This method will
+     * cause the project to be written to disk.
      *
-     * @return The record types.
+     * @param directory The directory to store the project in.
+     * @throws IOException If there is a problem storing the project.
      */
-    public synchronized RecordTypes getRecordTypes() {
-        // FIXME this should not use a static instance, they should be loaded from the project.
-        return RecordTypes.getInstance();
-    }
-
-    /**
-     * @return the sessionState
-     */
-    public synchronized PreferencesManager getSessionState() {
-        if (sessionState == null) { sessionState = new PreferencesManager(this); }
-        return sessionState;
+    public synchronized void setProject(File directory) throws IOException {
+        if (project != null) { throw new IllegalStateException(); }
+        project = new Project(directory);
+        project.store(this);
+        propertyChangeSupport.firePropertyChange(KEY_PROJECT, null, project);
     }
 
     /**
@@ -186,6 +269,10 @@ public final class Application {
      */
     public void shutdown() {
         try {
+            final RvConnection[] conns = connections.toArray();
+            for (int i = 0, imax = conns.length; i < imax; ++i) {
+                conns[i].stop();
+            }
             RvConnection.shutdown();
             System.exit(0);
         } catch (Exception e) {

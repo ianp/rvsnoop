@@ -10,6 +10,7 @@ package org.rvsnoop;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.Collator;
 import java.util.Collection;
 import java.util.Collections;
@@ -112,17 +113,7 @@ public final class Connections {
         }
     }
 
-    private static Connections instance;
-
     private static final Log log = LogFactory.getLog(Connections.class);
-
-    public static final String NAMESPACE = "http://rvsnoop.org/ns/connections/1";
-
-    // TODO remove this method, access connections via the application object
-    public static synchronized Connections getInstance() {
-        if (instance == null) { instance = new Connections(null, true); }
-        return instance;
-    }
 
     private final ObservableElementList list;
 
@@ -300,13 +291,15 @@ public final class Connections {
         }
     }
 
-    public void toXML(XMLBuilder builder) throws IOException {
-        builder.startTag("connections", NAMESPACE);
+    public void toXML(OutputStream stream) throws IOException {
+        final XMLBuilder builder = new XMLBuilder(stream, XMLBuilder.NS_CONNECTIONS)
+            .namespace(XMLBuilder.PREFIX_RENDEZVOUS, XMLBuilder.NS_RENDEZVOUS)
+            .startTag("connections", XMLBuilder.NS_CONNECTIONS);
         final RvConnection[] connections = toArray();
         for (int i = 0, imax = connections.length; i < imax; ++i) {
             connections[i].toXML(builder);
         }
-        builder.endTag();
+        builder.endTag().close();
     }
 
 }

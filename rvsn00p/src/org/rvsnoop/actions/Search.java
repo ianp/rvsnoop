@@ -51,7 +51,8 @@ public final class Search extends AbstractSearchAction {
      * @see org.rvsnoop.actions.AbstractSearchAction#displayResults(org.rvsnoop.RecordLedger)
      */
     protected void displayResults(RecordLedger ledger) {
-        new SearchResultsDialog(application.getFrame().getFrame(), ledger).setVisible(true);
+        new SearchResultsDialog(application.getFrame(), ledger,
+                application.getConnections()).setVisible(true);
     }
 
     /* (non-Javadoc)

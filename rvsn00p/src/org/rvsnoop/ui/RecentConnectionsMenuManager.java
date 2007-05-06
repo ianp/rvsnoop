@@ -10,6 +10,7 @@ package org.rvsnoop.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.text.MessageFormat;
 import java.util.Iterator;
 
 import javax.swing.JMenu;
@@ -20,7 +21,9 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import org.rvsnoop.Connections;
+import org.rvsnoop.Application;
+import org.rvsnoop.NLSUtils;
+import org.rvsnoop.UserPreferences;
 
 import rvsnoop.RvConnection;
 
@@ -37,19 +40,27 @@ public final class RecentConnectionsMenuManager implements MenuListener, PopupMe
         private static final long serialVersionUID = -6436657697729548579L;
         final RvConnection connection;
         public MenuItem(RvConnection connection, int index) {
-            super(connection.getDescription());
+            super(MessageFormat.format(MENU_TEXT, new Object[] {
+                    new Integer(index), connection.getDescription()
+            }));
             this.connection = connection;
             setMnemonic(KeyEvent.VK_0 + index);
             addActionListener(this);
         }
         public void actionPerformed(ActionEvent e) {
-            Connections.getInstance().add(connection);
+            application.getConnections().add(connection);
             connection.start();
         }
     }
 
-    public RecentConnectionsMenuManager() {
-        super();
+    static { NLSUtils.internationalize(RecentConnectionsMenuManager.class); }
+
+    static String MENU_TEXT, EMPTY_MENU_TEXT;
+
+    private final Application application;
+
+    public RecentConnectionsMenuManager(Application application) {
+        this.application = application;
     }
 
     /* (non-Javadoc)
@@ -72,10 +83,13 @@ public final class RecentConnectionsMenuManager implements MenuListener, PopupMe
     public void menuSelected(MenuEvent e) {
         final JMenu menu = (JMenu) e.getSource();
         menu.removeAll();
-        final Iterator i = Connections.getInstance().iterator();
+        final Iterator i = UserPreferences.getInstance().getRecentConnections().iterator();
         int count = 0;
         while (i.hasNext()) {
             menu.add(new MenuItem((RvConnection) i.next(), ++count));
+        }
+        if (count == 0) {
+            menu.add(new JMenuItem(EMPTY_MENU_TEXT));
         }
     }
 
@@ -99,10 +113,13 @@ public final class RecentConnectionsMenuManager implements MenuListener, PopupMe
     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
         final JPopupMenu menu = (JPopupMenu) e.getSource();
         menu.removeAll();
-        final Iterator i = Connections.getInstance().iterator();
+        final Iterator i = UserPreferences.getInstance().getRecentConnections().iterator();
         int count = 0;
         while (i.hasNext()) {
             menu.add(new MenuItem((RvConnection) i.next(), ++count));
+        }
+        if (count == 0) {
+            menu.add(new JMenuItem(EMPTY_MENU_TEXT));
         }
     }
 

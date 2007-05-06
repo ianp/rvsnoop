@@ -7,25 +7,15 @@
  */
 package rvsnoop.ui;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.Transparency;
-import java.awt.Window;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -48,16 +38,6 @@ public final class UIUtils {
 
     private static String INFORMATION_TITLE = "Information";
 
-    public static void centerWindowOnScreen(final Window window) {
-        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        final Dimension size = window.getSize();
-        size.width = Math.min(size.width, screen.width);
-        size.height = Math.min(size.height, screen.height);
-        window.setSize(size);
-        window.setLocation((screen.width - size.width) / 2,
-                           (screen.height - size.height) / 2);
-    }
-
     public static void configureOKAndCancelButtons(JPanel panel, Action ok, Action cancel) {
         final ActionMap actionMap = panel.getActionMap();
         final InputMap inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -68,33 +48,6 @@ public final class UIUtils {
         if (ok != null) {
             actionMap.put(ok.getValue(Action.ACTION_COMMAND_KEY), ok);
             inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ok.getValue(Action.ACTION_COMMAND_KEY));
-        }
-    }
-
-    /**
-     * Create an icon that is simply a solid block of color.
-     *
-     * @param w The icon width.
-     * @param h The icon height.
-     * @param c The icon color.
-     * @param border Should the icon have a 1 pixel border, pass in <code>null</code> for no border.
-     * @return The new icon, or <code>null</code> if it could not be created.
-     */
-    public static Icon createSolidColorIcon(int w, int h, Color c, Color border) {
-        try {
-            final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-            final BufferedImage image = config.createCompatibleImage(w, h, Transparency.TRANSLUCENT);
-            final Graphics2D g2 = image.createGraphics();
-            g2.setColor(c);
-            g2.fillRect(0, 0, w - 1, h - 1);
-            if (border != null) {
-                g2.setColor(border);
-                g2.drawRect(0, 0, w - 1, h - 1);
-            }
-            g2.dispose();
-            return new ImageIcon(image);
-        } catch (Exception e) {
-            return null;
         }
     }
 
@@ -114,14 +67,6 @@ public final class UIUtils {
         return btn;
     }
 
-    public static GradientPaint paintGradient(Graphics2D g, int w, int h, Color start, Color end, GradientPaint paint) {
-        if (paint == null)
-            paint = new GradientPaint(0, 0, start, 0, h, end);
-        g.setPaint(paint);
-        g.fillRect(0, 0, w, h);
-        return paint;
-    }
-
     public static void showError(String message, Throwable exception) {
         final String title = exception instanceof TibrvException ? "Rendezvous Error" : ERROR_TITLE;
         final String[] m = new String[3];
@@ -129,15 +74,11 @@ public final class UIUtils {
         m[0] = message;
         m[1] = s != null ? s : "";
         m[2] = exception instanceof TibrvException ? "Rendezvous Error Code: " + ((TibrvException) exception).error : "";
-        JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), m, title, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(UIManager.INSTANCE, m, title, JOptionPane.ERROR_MESSAGE);
     }
 
     public static void showInformation(Object message) {
-        JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public static void showInformation(Object message, Icon icon) {
-        JOptionPane.showMessageDialog(UIManager.INSTANCE.getFrame(), message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE, icon);
+        JOptionPane.showMessageDialog(UIManager.INSTANCE, message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**

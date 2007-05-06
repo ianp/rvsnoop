@@ -47,7 +47,7 @@ public final class DisplayAbout extends RvSnoopAction {
     public void actionPerformed(ActionEvent event) {
         // TODO add a real about dialog
         JOptionPane.showMessageDialog(
-            application.getFrame().getFrame(),
+            application.getFrame(),
             new String[] { Version.getAsStringWithName(),
                            " ",
                            "Constructed by Örjan Lundberg (lundberg@home.se)",

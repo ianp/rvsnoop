@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -203,7 +204,7 @@ public final class NLSUtils {
      * @param clazz The context ({@link java.lang.ClassLoader}) to load from.
      * @return The resource, or <code>null</code> if it could not be found.
      */
-    public static InputStream findNLSResource(String resourcePath, Class clazz) {
+    public static URL findNLSResource(String resourcePath, Class clazz) {
         if (log.isDebugEnabled()) {
             log.debug("Loading NLS resource from path: " + resourcePath);
         }
@@ -215,8 +216,8 @@ public final class NLSUtils {
             if (log.isTraceEnabled()) {
                 log.trace("Trying variant: " + variants[i]);
             }
-            InputStream stream = clazz.getResourceAsStream(variants[i]);
-            if (stream != null) { return stream; }
+            URL url = clazz.getResource(variants[i]);
+            if (url != null) { return url; }
         }
         return null;
     }

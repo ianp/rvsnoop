@@ -13,17 +13,17 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.NLSUtils;
@@ -68,13 +68,14 @@ public final class ImageFactory {
         }
     }
 
-    static String DEBUG_LOADING_IMAGE, ERROR_LOADING_IMAGE;
+    static String DEBUG_LOADING_IMAGE, ERROR_LOADING_IMAGE, WARN_SLOW_LOADING_IMAGE;
 
     private static ImageFactory instance;
     private static final Log log = LogFactory.getLog(ImageFactory.class);
 
     public static final int BANNER_SIZE = 48;
     public static final int SMALL_ICON_SIZE = 16;
+    private static final long MAX_LOAD_TIME = 2000;
 
     static { NLSUtils.internationalize(ImageFactory.class); }
 
@@ -150,21 +151,35 @@ public final class ImageFactory {
         SoftReference imageRef = (SoftReference) images.get(key);
         if (imageRef != null) { image = (Image) imageRef.get(); }
         if (image != null) { return image; }
-        if (log.isDebugEnabled()) {
-            log.debug(MessageFormat.format(DEBUG_LOADING_IMAGE,
-                    new Object[] { filename }));
-        }
-        InputStream stream = null;
+        URL url = null;
         try {
-            stream = NLSUtils.findNLSResource(filename, ImageFactory.class);
-            image = ImageIO.read(stream);
+            url = NLSUtils.findNLSResource(filename, ImageFactory.class);
+            if (log.isDebugEnabled()) {
+                log.debug(MessageFormat.format(DEBUG_LOADING_IMAGE,
+                        new Object[] { url }));
+            }
+            final Toolkit toolkit = Toolkit.getDefaultToolkit();
+            image = toolkit.createImage(url);
+            // We need to set a maximum load time here or the app can hang.
+            final long startTime = System.currentTimeMillis();
+            while (!toolkit.prepareImage(image, -1, -1, null)) {
+                if (System.currentTimeMillis() - startTime > MAX_LOAD_TIME) {
+                    if (log.isWarnEnabled()) {
+                        log.warn(MessageFormat.format(WARN_SLOW_LOADING_IMAGE,
+                                new Object[] { url }));
+                    }
+                    return getErrorImage(w, h, gc);
+                }
+            }
             image = scaleImage(image, w, h, gc);
             images.put(new MapKey(filename, w, h), new SoftReference(image));
             return image;
         } catch (Exception e) {
+            if (log.isWarnEnabled()) {
+                log.warn(MessageFormat.format(ERROR_LOADING_IMAGE,
+                        new Object[] { url }));
+            }
             return getErrorImage(w, h, gc);
-        } finally {
-            IOUtils.closeQuietly(stream);
         }
     }
 

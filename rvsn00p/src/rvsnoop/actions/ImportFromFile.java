@@ -53,7 +53,7 @@ public abstract class ImportFromFile extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         final JFileChooser chooser = new JFileChooser();
         if (filter != null) chooser.setFileFilter(filter);
-        if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(UIManager.INSTANCE.getFrame()))
+        if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(UIManager.INSTANCE))
             return;
         final File file = chooser.getSelectedFile();
         importRecords(file);

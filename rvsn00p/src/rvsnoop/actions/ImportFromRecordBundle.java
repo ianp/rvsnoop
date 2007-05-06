@@ -66,7 +66,7 @@ public final class ImportFromRecordBundle extends ImportFromFile {
             while ((count = zip.read(bytes, 0, 1024)) != -1)
                 buffer.write(bytes, 0, count);
             final DataInput in = new DataInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-            final Record[] records = RecordSelection.read(in);
+            final Record[] records = RecordSelection.read(in, null); // FIXME
             for (int i = 0, imax = records.length; i < imax; ++i)
                 SwingUtilities.invokeLater(new RvConnection.AddRecordTask(records[i]));
         }

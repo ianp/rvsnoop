@@ -31,7 +31,6 @@ import javax.swing.tree.TreePath;
 import org.rvsnoop.Application;
 
 import rvsnoop.SubjectElement;
-import rvsnoop.SubjectHierarchy;
 
 /**
  * A custom editor for nodes in the subject explorer tree.
@@ -62,7 +61,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             super("Deselect All");
         }
         public void actionPerformed(ActionEvent event) {
-            SubjectHierarchy.INSTANCE.setAllSelected(element, false);
+            application.getSubjectHierarchy().setAllSelected(element, false);
         }
     }
 
@@ -73,8 +72,9 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
         }
         public void actionPerformed(ActionEvent event) {
             final Enumeration e = element.breadthFirstEnumeration();
-            while (e.hasMoreElements())
+            while (e.hasMoreElements()) {
                 tree.expandPath(new TreePath(((DefaultMutableTreeNode) e.nextElement()).getPath()));
+            }
         }
     }
 
@@ -98,7 +98,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             super("Select All");
         }
         public void actionPerformed(ActionEvent event) {
-            SubjectHierarchy.INSTANCE.setAllSelected(element, true);
+            application.getSubjectHierarchy().setAllSelected(element, true);
         }
     }
 
@@ -107,14 +107,15 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
             super();
         }
         public void actionPerformed(ActionEvent e) {
-            if (element != null)
-                SubjectHierarchy.INSTANCE.setSelected(element, !element.isSelected());
+            if (element != null) {
+                application.getSubjectHierarchy().setSelected(element, !element.isSelected());
+            }
         }
     }
 
     private static final long serialVersionUID = 7957683568277521431L;
 
-//    private final Application application;
+    private final Application application;
 
     private SubjectElement element;
 
@@ -125,7 +126,7 @@ public final class SubjectExplorerEditor extends SubjectExplorerRenderer impleme
     private final JTree tree;
 
     public SubjectExplorerEditor(final Application application, final JTree tree) {
-//        this.application = application;
+        this.application = application;
         this.tree = tree;
         tree.addTreeSelectionListener(this);
         tree.addMouseListener(new PopupMenuListener());

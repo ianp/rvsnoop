@@ -28,10 +28,10 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.LazyTreeNode;
+import org.rvsnoop.RvMessageTreeNode;
 
-import rvsnoop.LazyTreeNode;
 import rvsnoop.Record;
-import rvsnoop.RvMessageTreeNode;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -59,7 +59,7 @@ public final class RvDetailsPanel extends JPanel {
         Constructor aeMsgTreeNodeConstructor = null;
         try {
             Class.forName("com.tibco.sdk.MTree");
-            Class aeMsgTreeNodeClass = Class.forName("rvsnoop.AeMsgTreeNode");
+            Class aeMsgTreeNodeClass = Class.forName("org.rvsnoop.AeMessageTreeNode");
             aeMsgTreeNodeConstructor = aeMsgTreeNodeClass.getConstructor(new Class[] { TibrvMsg.class });
             if (log.isInfoEnabled()) {
                 log.info("SDK found, AE tree view will be enabled.");

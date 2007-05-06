@@ -21,14 +21,18 @@ Add a warning to the release note that this will be the last version to
 support Java 1.4, RvSnoop 2.0 will be based on the J2SE 5.0 class libraries.
 
 ### (DONE) Created separate user and developer guides.
-### (DONE) Changed the logging system to use Commons Logging.
+### (DONE) Rewrote RecordTypesDialog to use a JList instead of JTable.
+### (DONE) Moved to a single FilterLedger action with a dedicated dialog.
+### (DONE) Made projects be directory based.
 ### (DONE) Added an HTML formatted report of the JUnit test results.
-### (DONE) Changed the command parser to use Commons CLI.
-### (DONE) Update Copyright Notices.
-### (DONE) Move to a Single FilterLedger Action with a Dedicated Dialog.
-### (DONE) Add an XMLBuilder class that uses a fluent interface.
-### (DONE) Refactor the RecentConnections and Connections classes.
-### (DONE) Rewrite `RecordTypesDialog` to use a `JList` of `RecordTypePanel`s.
+### (DONE) Changed the logging system to use Commons Logging (1.1).
+### (DONE) Changed the command parser to use Commons CLI (1.0).
+### (DONE) Update Copyright Notices to include 2007.
+### (DONE) Added an XMLBuilder class that uses a fluent interface.
+### (DONE) Refactored the RecentConnections and Connections classes.
+### (DONE) Cleaned up the StatusBar code, refactored to use event listeners.
+### (DONE) Bumped the version of Commons I/O in use (1.3).
+
 
 ### (2001-01-14) Create RecordBundleV1 Class.
 
@@ -94,49 +98,13 @@ markup into clean XHTML 1.0 Frameset).
 
 ### (2001-01-21) Update build.xml to Create Nice Lint4J Reports.
 
-Write ann XSLT 2.0 stylesheet to convert the Lint4J XML report into a bunch of
+Write an XSLT 2.0 stylesheet to convert the Lint4J XML report into a bunch of
 XHTML file. Look at this article for a starter:
 
     http://www-128.ibm.com/developerworks/xml/library/x-tipmultxsl.html
 
 Note that the XML report in Lint4J 0.9.1 reports the wrong version, it claims
 to be created with 0.8.1!
-
-### Make Projects be Directory Based
-
-With an rvsnoop-project.xml file, use the folder name for the
-project name, add an rvsnoop-project.xml file for project metadata;
-this should include record types and connections, in future it
-should also store probes and any other project artifacts. There
-should also be a subjects.xml file with the subject hierarchy in it.
-Later we may want to add an undo-history.xml file with the undo
-history in it.
-
-An alternative approach would be to use multiple small files with
-different types of data in each?
-
-rvsnoop-project.xml
-connections.xml
-types.xml
-subjects.xml
-
-In either case, we need to have a migrator for the RSP file format.
-This should create a new directory with the same name (sans the .rsp
-extension), then migrate the contents of the rsp file to the various
-project files.
-
-Subfolders in the project could include...
-
-* messages
-
-  For all of the message bodies and meta data, message bodies have a
-  '.msg' extension, metadata files have .meta extension. Note: if
-  timestamps are going to be stored as longs we will need to add
-  timezone information to the project file.
-
-* index
-
-  For the lucene index files
 
 ### (2001-01-14) Add ConnectionList and MessageLedger Selection Events
 
@@ -162,20 +130,17 @@ if the valueIsAdjusting property is set on the original list.
         public int[] getSelectedIndices() { /* cteate lazily? */ }
     }
 
-### (2001-01-14) Clean Up the StatusBar Code
-
-The status bar should listen for change events and update itself. Also, it
-could be made more RvSnoop specific, at the moment it's some fairly generic
-code that was copy/pasted from another project.
-
 ### Add A Real ErrorDialog
 
 This should show a helpful message and have the following options:
 
 * Quit - call Application.shutdown()
 * Send Report - email a report using Java Mail
-* Show Details - should show the stack trace in a tree
 * Continue (OK)
+
+With a tab for the details. Probably should be lazily loaded into a tree.
+Maybe create the scrollpane first and then set the viewport when the tab is
+selected.
 
 ### Sniff Opaques for Serialized Java Data
 
@@ -188,6 +153,8 @@ primitive values. Probably just include viewing in this version.
 Use CRC32 or similar, hash on opening and save hash. If the hash is
 different when we go to write the file pop a dialog asking for
 confirmation.
+
+Only on projects!
 
 ### Add String Flavour Support to RecordSelection
 
@@ -228,6 +195,8 @@ If there is a 'facade' of JavaBeans over the underlying preferences
 classes then it becomes easy to use binding & validation to present
 a user interface.
 
+Look at the Beans Binding (JSR-295) stuff.
+
 Include an option to show date & time vs. only time in the ledger.
 
 * Create a panel to allow configuration of fonts & colours.
@@ -236,7 +205,13 @@ Include an option to show date & time vs. only time in the ledger.
 
 ### Add an Export Dialog (or Wizard)
 
-Have the different export formats available via a combo box.
+Have the different export formats available via a combo box. This will replace
+all of the various export actions. The same thing should be done for importing
+as well.
+
+It would be good to add import formats for RvScript, RvTest, and RVCM Ledgers.
+
+RVCM ledgers may prove to be a PITA!
 
 ### Prepare All Strings for I18N
 
@@ -266,14 +241,15 @@ StartRvSnooper and UIManager), add test cases and documentation.
 
 ### (2001-01-07) Rewrite PreferencesManager to use java.util.prefs
 
-    Preferences.userRoot().node("org").node("rvsnoop").node("sessionState");
+Find a way of storing width. Fix bugs in DividerLoc store. Make hierarchical
+like the RVCM-LE prefs class.
 
-Add a field to ColumnFormat for width. Make add/remove methods take
-identifiers instead of column objects (use Iterator#remove()).
+### Add a Show/Hide connection list action.
 
-When a new main window is opened it should register itself with the
-preferences manager, the prefs mnager needs to maintain weak refs to the open
-windows then it can try to always store some preferences.
+### Add a Copy Connection action to the context menu.
+
+This will need to show a warning to the user that they must change at least
+one transport parameter.
 
 ## Release 2.0 - 2007Q3
 

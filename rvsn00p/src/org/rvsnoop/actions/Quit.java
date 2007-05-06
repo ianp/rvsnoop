@@ -50,7 +50,7 @@ public final class Quit extends RvSnoopAction {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event) {
-        final JFrame frame = application.getFrame().getFrame();
+        final JFrame frame = application.getFrame();
         final Image banner = ImageFactory.getInstance().getBannerImage(COMMAND);
         int option = JOptionPane.showConfirmDialog(frame,
                 CONFIRM_QUESTION, CONFIRM_TITLE, JOptionPane.YES_NO_OPTION,

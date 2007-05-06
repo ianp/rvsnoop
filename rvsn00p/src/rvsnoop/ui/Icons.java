@@ -55,7 +55,6 @@ public final class Icons {
 
     private static final Log log = LogFactory.getLog(Icons.class);
 
-    public static final Image APPLICATION = createImage("/resources/icons/rvsnoop.png", ICON_SIZE);
     public static final Icon ABOUT = new ImageIcon(getSmallImage("about"));
     public static final Icon ADD_CONNECTION = createIcon("/resources/icons/add_connection.png", ICON_SIZE);
     public static final Icon BUG = createIcon("/resources/icons/bug.png", ICON_SIZE);
@@ -74,13 +73,9 @@ public final class Icons {
     public static final Icon QUIT = createIcon("/resources/icons/quit.png", ICON_SIZE);
     public static final Icon REPUBLISH = createIcon("/resources/icons/republish.png", ICON_SIZE);
     public static final Icon RESUME = createIcon("/resources/icons/resume.png", ICON_SIZE);
-    public static final Icon RV_MESSAGE = createIcon("/resources/icons/rv_message.png", ICON_SIZE); //$NON-NLS-1$
-    public static final Icon RV_FIELD = createIcon("/resources/icons/rv_field.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon SEARCH = createIcon("/resources/icons/search.png", ICON_SIZE);
     public static final Icon SEARCH_AGAIN = createIcon("/resources/icons/search_again.png", ICON_SIZE);
-    public static final Icon SELECT_ALL_MESSAGES = createIcon("/resources/icons/select_all.png", ICON_SIZE);
     public static final Icon SUBSCRIBE_UPDATES = createIcon("/resources/icons/subscribe_updates.png", ICON_SIZE);
-    public static final Icon TRACKING = createIcon("/resources/icons/tracking.png", ICON_SIZE);
     public static final Icon WEB = createIcon("/resources/icons/web.png", ICON_SIZE);
     public static final Icon XML_ATTRIBUTE = createIcon("/resources/icons/xml_attribute.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon XML_ELEMENT = createIcon("/resources/icons/xml_element.png", ICON_SIZE); //$NON-NLS-1$

@@ -77,7 +77,7 @@ public abstract class RecordLedgerTest extends TestCase {
             while ((count = zip.read(bytes, 0, 1024)) != -1)
                 buffer.write(bytes, 0, count);
             final DataInput in = new DataInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-            recordList.addAll(Arrays.asList(RecordSelection.read(in)));
+            recordList.addAll(Arrays.asList(RecordSelection.read(in, null)));
         }
         records = (Record[]) recordList.toArray(new Record[recordList.size()]);
         assertEquals(10, records.length);

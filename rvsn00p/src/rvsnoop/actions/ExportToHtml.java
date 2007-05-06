@@ -17,6 +17,8 @@ import java.util.Locale;
 import javax.swing.Action;
 import javax.swing.filechooser.FileFilter;
 
+import org.rvsnoop.Application;
+import org.rvsnoop.actions.ExportToFile;
 import org.znerd.xmlenc.XMLOutputter;
 
 import rvsnoop.Marshaller;
@@ -32,7 +34,7 @@ import rvsnoop.Version;
  * @version $Revision$, $Date$
  * @since 1.5
  */
-final class ExportToHtml extends ExportToFile {
+public final class ExportToHtml extends ExportToFile {
 
     private static class HTMLFileFilter extends FileFilter {
         HTMLFileFilter() {
@@ -47,7 +49,7 @@ final class ExportToHtml extends ExportToFile {
         }
     }
 
-    private static final String ID = "exportToHtml";
+    public static final String COMMAND = "exportToHtml";
 
     private static String NAME = "HTML Report";
 
@@ -57,8 +59,8 @@ final class ExportToHtml extends ExportToFile {
 
     private XMLOutputter out;
 
-    public ExportToHtml() {
-        super(ID, NAME, null, new HTMLFileFilter());
+    public ExportToHtml(Application application) {
+        super(application, COMMAND, NAME, new HTMLFileFilter());
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_H));
     }

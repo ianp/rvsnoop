@@ -24,6 +24,7 @@ import javax.swing.KeyStroke;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.actions.CheckForUpdates;
 import org.rvsnoop.actions.DisplayAbout;
 import org.rvsnoop.actions.FilterBySelection;
 import org.rvsnoop.actions.NewRvConnection;
@@ -35,6 +36,7 @@ import org.rvsnoop.actions.EditRecordTypes;
 import org.rvsnoop.actions.Filter;
 import org.rvsnoop.actions.OpenProject;
 import org.rvsnoop.actions.Paste;
+import org.rvsnoop.actions.PruneEmptySubjects;
 import org.rvsnoop.actions.Quit;
 import org.rvsnoop.actions.Republish;
 import org.rvsnoop.actions.RvSnoopAction;
@@ -42,6 +44,8 @@ import org.rvsnoop.actions.SaveProjectAs;
 import org.rvsnoop.actions.SaveProject;
 import org.rvsnoop.actions.Search;
 import org.rvsnoop.actions.SearchBySelection;
+import org.rvsnoop.actions.SelectAllRecords;
+import org.rvsnoop.actions.ShowAllColumns;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 import org.rvsnoop.ui.RecordLedgerTable;
 
@@ -86,19 +90,9 @@ public final class Actions {
 
     public static final Action CHANGE_TABLE_FONT = add(new ChangeTableFont());
 
-    public static final Action CHECK_FOR_UPDATES = add(new CheckForUpdates());
-
     public static final Action DISPLAY_HOME_PAGE = add(new DisplayHomePage());
 
     public static final Action DISPLAY_LICENSE = add(new DisplayLicense());
-
-    public static final Action EXPORT_TO_HTML = add(new ExportToHtml());
-
-    public static final Action EXPORT_TO_RECORD_BUNDLE = add(new ExportToRecordBundle());
-
-    public static final Action EXPORT_TO_RVSCRIPT = add(new ExportToRvScript());
-
-    public static final Action EXPORT_TO_RVTEST = add(new ExportToRvTest());
 
     public static final Action HELP = add(new Help());
 
@@ -106,13 +100,7 @@ public final class Actions {
 
     public static final Action PAUSE_ALL = add(new PauseAllConnections());
 
-    public static final Action PRUNE_EMPTY_SUBJECTS = add(new PruneEmptySubjects());
-
     public static final Action REPORT_BUG = add(new ReportBug());
-
-    public static final Action SELECT_ALL_MESSAGES = add(new SelectAllMessages());
-
-    public static final Action SHOW_ALL_COLUMNS = add(new ShowAllColumns());
 
     public static final Action SUBSCRIBE_TO_UPDATES = add(new SubscribeToUpdates());
 
@@ -153,22 +141,30 @@ public final class Actions {
 
     public Actions(Application application) {
         this.application = application;
+        addAction(new CheckForUpdates(application));
         addAction(new ClearLedger(application));
         addAction(new Copy(application));
         addAction(new Cut(application));
         addAction(new Delete(application));
         addAction(new DisplayAbout(application));
         addAction(new EditRecordTypes(application));
+        addAction(new ExportToHtml(application));
+        addAction(new ExportToRecordBundle(application));
+        addAction(new ExportToRvScript(application));
+        addAction(new ExportToRvTest(application));
         addAction(new Filter(application));
         addAction(new FilterBySelection(application));
         addAction(new NewRvConnection(application));
         addAction(new OpenProject(application));
         addAction(new Paste(application));
+        addAction(new PruneEmptySubjects(application));
         addAction(new Republish(application));
         addAction(new SaveProject(application));
         addAction(new SaveProjectAs(application));
         addAction(new Search(application));
         addAction(new SearchBySelection(application));
+        addAction(new SelectAllRecords(application));
+        addAction(new ShowAllColumns(application));
         addAction(new Quit(application));
     }
 

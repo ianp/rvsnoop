@@ -34,6 +34,7 @@ import javax.swing.table.TableColumnModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Connections;
 import org.rvsnoop.RecordLedger;
 import org.rvsnoop.RecordLedgerFormat;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
@@ -212,7 +213,7 @@ public final class RecordLedgerTable extends JTable {
             if (!RecordLedgerTable.this.equals(source)) { return; }
             if (action != MOVE) return;
             try {
-                getRecordLedger().removeAll(Arrays.asList(RecordSelection.read(data)));
+                getRecordLedger().removeAll(Arrays.asList(RecordSelection.read(data, connections)));
             } catch (UnsupportedFlavorException e) {
                 UIUtils.showError(ERROR_REMOVING_RECORDS, e);
             } catch (IOException e) {
@@ -235,7 +236,7 @@ public final class RecordLedgerTable extends JTable {
         public boolean importData(JComponent target, Transferable data) {
             if (!RecordLedgerTable.this.equals(target)) { return false; }
             try {
-                getRecordLedger().addAll(Arrays.asList(RecordSelection.read(data)));
+                getRecordLedger().addAll(Arrays.asList(RecordSelection.read(data, connections)));
                 return true;
             } catch (Exception e) {
                 return false;
@@ -244,11 +245,14 @@ public final class RecordLedgerTable extends JTable {
     }
 
     static final long serialVersionUID = 7601999759173563496L;
+    
+    private final Connections connections;
 
     private final RecordLedger ledger;
 
-    public RecordLedgerTable(RecordLedger ledger) {
+    public RecordLedgerTable(RecordLedger ledger, Connections connections) {
         super(ledger.createTableModel());
+        this.connections = connections;
         this.ledger = ledger;
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder());

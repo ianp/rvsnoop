@@ -20,7 +20,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.rvsnoop.Application;
-import org.rvsnoop.Connections;
 import org.rvsnoop.actions.NewRvConnection;
 
 import rvsnoop.RvConnection;
@@ -68,8 +67,8 @@ public final class ConnectionList extends JList {
      *
      * @param connections The connections to display in the list.
      */
-    public ConnectionList(Application application, Connections connections) {
-        super(Connections.getInstance().createListModel());
+    public ConnectionList(Application application) {
+        super(application.getConnections().createListModel());
         this.application = application;
         setBorder(BorderFactory.createEmptyBorder());
         final ConnectionListCellRenderer renderer =
@@ -108,7 +107,7 @@ public final class ConnectionList extends JList {
         final JMenu recent = new JMenu("Recent Connections");
         recent.setIcon(new ImageIcon(
                 ImageFactory.getInstance().getIconImage(NewRvConnection.COMMAND)));
-        recent.addMenuListener(new RecentConnectionsMenuManager());
+        recent.addMenuListener(new RecentConnectionsMenuManager(application));
         popupMenu.add(recent);
         popupMenu.show(this, x, y);
     }

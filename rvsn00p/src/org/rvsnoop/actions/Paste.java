@@ -70,7 +70,7 @@ public final class Paste extends RvSnoopAction {
             return;
         }
         try {
-            final Record[] records = RecordSelection.read(clipboardData);
+            final Record[] records = RecordSelection.read(clipboardData, application.getConnections());
             for (int i = 0, imax = records.length; i < imax; ++i) {
                 SwingUtilities.invokeLater(new AddRecordTask(records[i]));
             }

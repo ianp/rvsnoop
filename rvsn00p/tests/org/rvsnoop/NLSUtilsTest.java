@@ -28,7 +28,7 @@ public class NLSUtilsTest extends TestCase {
      */
     public final void testFindNLSResource() {
         try {
-            InputStream stream = NLSUtils.findNLSResource("/org/rvsnoop/NLSUtilsSample.txt", NLSUtilsTest.class);
+            InputStream stream = NLSUtils.findNLSResource("/org/rvsnoop/NLSUtilsSample.txt", NLSUtilsTest.class).openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             String line = reader.readLine();
             assertEquals("This is sample text for the NLSUtils test cases.", line);

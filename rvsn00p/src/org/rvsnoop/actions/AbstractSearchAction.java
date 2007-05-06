@@ -52,7 +52,7 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
      */
     public final void actionPerformed(ActionEvent e) {
         final EventList oldMatchers = getMatcherEditors();
-        final JFrame frame = application.getFrame().getFrame();
+        final JFrame frame = application.getFrame();
         final MatcherEditorListDialog dialog = new MatcherEditorListDialog(
                 frame, getTitle(), getDescription(), getImage(), oldMatchers);
 

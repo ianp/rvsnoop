@@ -19,10 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
-
-import rvsnoop.Project;
-import rvsnoop.ProjectFileFilter;
-import rvsnoop.ui.UIManager;
+import org.rvsnoop.ProjectFileFilter;
 
 /**
  * Save the current project in a new file.
@@ -58,12 +55,12 @@ public final class SaveProjectAs extends RvSnoopAction {
     public void actionPerformed(ActionEvent event) {
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new ProjectFileFilter());
-        final int option = chooser.showSaveDialog(UIManager.INSTANCE.getFrame());
+        final int option = chooser.showSaveDialog(application.getFrame());
         if (JFileChooser.APPROVE_OPTION != option) { return; }
         File file = chooser.getSelectedFile();
         try {
             file = file.getCanonicalFile();
-            new Project(file).store();
+            application.setProject(file);
             if (log.isInfoEnabled()) {
                 log.info(MessageFormat.format(INFO_SAVED,
                         new Object[] { file.getPath() }));

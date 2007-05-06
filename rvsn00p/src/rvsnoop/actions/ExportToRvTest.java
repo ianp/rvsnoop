@@ -14,6 +14,9 @@ import java.util.Locale;
 import javax.swing.Action;
 import javax.swing.filechooser.FileFilter;
 
+import org.rvsnoop.Application;
+import org.rvsnoop.actions.ExportToFile;
+
 import rvsnoop.Marshaller;
 import rvsnoop.Record;
 
@@ -24,7 +27,7 @@ import rvsnoop.Record;
  * @version $Revision$, $Date$
  * @since 1.5
  */
-final class ExportToRvTest extends ExportToFile {
+public final class ExportToRvTest extends ExportToFile {
     private static class RvTestMessagesFileFilter extends FileFilter {
         RvTestMessagesFileFilter() {
             super();
@@ -38,7 +41,7 @@ final class ExportToRvTest extends ExportToFile {
         }
     }
 
-    private static final String ID = "exportToRvTest";
+    public static final String COMMAND = "exportToRvTest";
 
     private static String NAME = "RvTest Messages File";
 
@@ -48,8 +51,8 @@ final class ExportToRvTest extends ExportToFile {
 
     private final Marshaller.Implementation marshaller = Marshaller.getImplementation(Marshaller.IMPL_RVTEST);
 
-    public ExportToRvTest() {
-        super(ID, NAME, null, new RvTestMessagesFileFilter());
+    public ExportToRvTest(Application application) {
+        super(application, COMMAND, NAME, new RvTestMessagesFileFilter());
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_T));
         setEnabled(marshaller != null);
