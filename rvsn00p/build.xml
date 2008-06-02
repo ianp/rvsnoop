@@ -1,240 +1,159 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Build file tested with Ant version 1.6.5. -->
+<!-- Build file tested with Ant version 1.7.0. -->
 <!-- $Id$ -->
-<project name="rvsnoop" default="printusage" basedir=".">
-  <description>A TIBCO Rendezvous message viewing utility.</description>
+<project name="rvsnoop" default="dist" basedir=".">
+  
+  <description>
+      A TIBCO Rendezvous message viewing utility.
+  </description>
+  
+  <property name="version" value="1.6.2"/>
+  <tstamp/>
+  <tstamp><format property="tstamp.date" pattern="yyyy-MM-dd HH:mm:ss"/></tstamp>
 
-  <!-- Display a short help message and exit. -->
-  <target name="printusage">
-    <echo>Use "ant -projecthelp" to get a list of build targets.         </echo>
-    <echo>                                                               </echo>
-    <echo>Copy build.properties to local.properties and configure your   </echo>
-    <echo>build environment. This will prevent your changes from being   </echo>
-    <echo>overwritten when you synchronize your working folder.          </echo>
-    <echo>                                                               </echo>
-    <echo>You will need to add the JUnit JAR to your CLASSPATH in order  </echo>
-    <echo>to run the unit tests (and thus to build a distribution).      </echo>
-  </target>
+  <target name="init">
+    <property file="build.properties"/>
 
-  <!-- Set the timestamps and read the properties file. -->
-  <target name="settimestamp">
-    <tstamp/>
-    <tstamp><format property="build.date" pattern="yyyy-MM-dd HH:mm:ss"/></tstamp>
-    <tstamp><format property="build.year" pattern="yyyy"/></tstamp>
-    <echo>Timestamp for build set to: ${build.date}</echo>
-    <property file="local.properties"/>
-  </target>
-
-  <!-- Get the build version. -->
-  <target name="setbuildversion" unless="skip.setbuildversion" depends="settimestamp">
-    <exec executable="${svnversion}" spawn="false" dir="." output="build.number" failifexecutionfails="false">
-      <arg line="."/>
-    </exec>
-    <replaceregexp file="build.number" match="([0-9]+).*" replace="build.svnversion=\1" />
-    <property file="build.number" />
-    <delete file="build.number" />
-  </target>
-
-  <!-- Configure the properties and filtersets. -->
-  <target name="setproperties" depends="setbuildversion">
-    <property name="version.major" value="1"/>
-    <property name="version.minor" value="6"/>
-    <property name="version.patch" value="1"/>
-    <property name="version.alpha" value="false"/>
-    <property name="version.beta"  value="false"/>
-    <property name="version" value="${version.major}.${version.minor}.${version.patch}"/>
-    <property name="dir.stage"     value="stage"/>
+    <!-- Override this to change the location of the build. -->
     <property name="dir.build"     value="build"/>
-    <property name="dir.dist"      value="dist/rvsnoop-${version}"/>
-    <!-- Import environment variables as properties, prefixed with "env". -->
-    <property environment="env"/>
-    <path id="path.class">
-      <!-- Define our class path first. -->
-      <pathelement location="${tibco.rv}/lib/tibrvj.jar"/>
-      <pathelement location="${tibco.sdk}/lib/TIBCOrt.jar"/>
-      <pathelement location="${tibco.rvscript}"/>
-      <pathelement location="${tibco.rvtest}"/>
-      <pathelement location="${lib.binding}"/>
-      <pathelement location="${lib.cli}"/>
-      <pathelement location="${lib.forms}"/>
-      <pathelement location="${lib.glazed}"/>
-      <pathelement location="${lib.io}"/>
-      <pathelement location="${lib.lang}"/>
-      <pathelement location="${lib.logging}"/>
-      <pathelement location="${lib.looks}"/>
-      <pathelement location="${lib.swinglayout}"/>
-      <pathelement location="${lib.wizard}"/>
-      <pathelement location="${lib.xmlenc}"/>
-      <pathelement location="${lib.xom}"/>
+
+    <!-- Override these to control the build. -->
+    <property name="javac.debug" value="true"/>
+    <property name="javac.optimize" value="true"/>
+    <property name="javac.deprecation" value="false"/>
+    <property name="javadoc.offline" value="false"/>
+
+    <!-- If you are building with a non-Sun JDK you may need to change this. -->
+    <property name="lib.java" value="${java.home}/lib/rt.jar"/>
+
+    <!-- Override these to change the locations of the dependencies. -->
+    <property name="lib.rvscript" value="/opt/tibco/rvscript-1.35/rvscript.jar"/>
+    <property name="lib.rvtest" value="/opt/tibco/rvtest-1.0b3/lib/rvtest-1.0-beta-3.jar"/>
+    <property name="lib.tibrv" value="/opt/tibco/tibrv/lib/tibrvj.jar"/>
+    <property name="lib.tibsdk" value="/opt/tibco/tra/5.5/lib/TIBCOrt.jar"/>
+
+    <!-- These are only used to run the analytics target. -->
+    <property name="lib.findbugs" value="${user.home}/Library/Java/findbugs-1.3.0"/>
+    <property name="lib.pmd" value="${user.home}/Library/Java/pmd-4.1rc1"/>
+
+    <fileset id="include.classpath" dir="lib">
+      <include name="*.jar"/>
+      <exclude name="junit*"/>
+    </fileset>
+
+    <path id="compile.classpath">
+      <fileset refid="include.classpath"/>
+      <path location="${lib.tibrv}"/>
+      <path location="${lib.tibsdk}"/>
+      <path location="${lib.rvscript}"/>
+      <path location="${lib.rvtest}"/>
     </path>
-    <condition property="build.number" value="${build.svnversion}" else="0">
-      <isset property="build.svnversion"/>
-    </condition>
-    <echo>Build number set to ${build.number}.</echo>
+
+    <path id="test.classpath">
+      <path refid="compile.classpath"/>
+      <path location="lib/junit-4.4.jar"/>
+      <path location="${dir.build}/classes/main"/>
+      <path location="${dir.build}/classes/test"/>
+    </path>
+
+    <fileset id="test.data" dir="src/test">
+      <include name="**/*.properties"/>
+      <include name="**/*.rbz"/>
+      <include name="**/*.txt"/>
+    </fileset>
+
     <filterset id="filters">
-      <filter token="version.major" value="${version.major}"/>
-      <filter token="version.minor" value="${version.minor}"/>
-      <filter token="version.patch" value="${version.patch}"/>
-      <filter token="version.alpha" value="${version.alpha}"/>
-      <filter token="version.beta"  value="${version.beta}"/>
       <filter token="version"       value="${version}"/>
       <filter token="java.vendor"   value="${java.vendor}"/>
       <filter token="java.version"  value="${java.version}"/>
       <filter token="os.name"       value="${os.name}"/>
       <filter token="os.version"    value="${os.version}"/>
       <filter token="os.arch"       value="${os.arch}"/>
-      <filter token="build.number"  value="${build.number}"/>
-      <filter token="build.date"    value="${build.date}"/>
+      <filter token="tstamp.date"   value="${build.date}"/>
       <filter token="suffix"        value="${file.suffix}"/>
-      <filter token="year"          value="${build.year}"/>
     </filterset>
+
+    <mkdir dir="${dir.build}/classes/main/META-INF"/>
+    <mkdir dir="${dir.build}/classes/test"/>
+    <mkdir dir="${dir.build}/doc/user"/>
+    <mkdir dir="${dir.build}/doc/developer/test"/>
+    <mkdir dir="${dir.build}/dist/bin"/>
+    <mkdir dir="${dir.build}/dist/doc"/>
+    <mkdir dir="${dir.build}/dist/lib"/>
+    <mkdir dir="${dir.build}/dist/src"/>
   </target>
 
-  <target name="stage" depends="setproperties"
-          description="Prepare the files for the build.">
-    <mkdir dir="${dir.stage}/bin"/>
-    <mkdir dir="${dir.stage}/doc/developer"/>
-    <mkdir dir="${dir.stage}/src"/>
-    <mkdir dir="${dir.stage}/tests"/>
-    <mkdir dir="${dir.stage}/www"/>
-    <echo>Moving all files to staging area: ${dir.stage}</echo>
-    <copy todir="${dir.stage}" file="version.xml" encoding="UTF-8">
-      <filterset refid="filters"/>
-    </copy>
-    <copy todir="${dir.stage}/bin" encoding="UTF-8">
-      <filterset refid="filters"/>
-      <fileset dir="bin" includes="*.cmd, *.sh"/>
-    </copy>
-    <copy todir="${dir.stage}/bin">
-      <fileset dir="bin" includes="*.ico"/>
-    </copy>
-    <chmod dir="${dir.stage}/bin" includes="*.sh" perm="750"/>
-    <copy todir="${dir.stage}/src" encoding="UTF-8">
-      <filterset refid="filters"/>
-      <fileset dir="src" includes="**/*.java, **/*.properties"/>
-    </copy>
-    <copy todir="${dir.stage}/src">
-      <fileset dir="src" includes="**/*.png"/>
-    </copy>
-    <copy todir="${dir.stage}/tests" encoding="UTF-8">
-      <filterset refid="filters"/>
-      <fileset dir="tests" includes="**/*.java, **/*.properties, **/*.txt"/>
-    </copy>
-    <copy todir="${dir.stage}/tests">
-      <fileset dir="tests" includes="**/*.rbz"/>
-    </copy>
-    <copy todir="${dir.stage}/doc" encoding="UTF-8">
-      <filterset refid="filters"/>
-      <fileset dir="doc" includes="**/*.html, **/*.css"/>
-    </copy>
-    <copy todir="${dir.stage}/doc">
-      <fileset dir="doc" includes="**/*.png"/>
-    </copy>
-    <copy todir="${dir.stage}/www" encoding="UTF-8">
-      <filterset refid="filters"/>
-      <fileset dir="www" includes="*.html, *.css"/>
-    </copy>
-    <copy todir="${dir.stage}/www">
-      <fileset dir="www" includes="**/*.png, **/*.gif"/>
-    </copy>
-  </target>
-
-  <target name="compile" depends="stage"
-          description="Compile all of the Java class files (including tests).">
-    <echo>Compiling application.</echo>
-    <mkdir dir="${dir.build}/classes/main"/>
-    <javac srcdir="${dir.stage}/src" destdir="${dir.build}/classes/main" includes="**/*.java"
+  <target name="compile" depends="init"
+          description="Compile all of the Java class files (excluding tests).">
+    <javac srcdir="src/main" destdir="${dir.build}/classes/main" includes="**/*.java"
            debug="${javac.debug}" optimize="${javac.optimize}" encoding="UTF-8"
-           deprecation="${javac.deprecation}" source="1.4" target="1.4">
-      <classpath refid="path.class"/>
+           deprecation="${javac.deprecation}" source="1.5" target="1.5">
+      <classpath refid="compile.classpath"/>
     </javac>
-    <echo>Compiling unit tests.</echo>
-    <mkdir dir="${dir.build}/classes/tests"/>
-    <javac srcdir="${dir.stage}/tests" destdir="${dir.build}/classes/tests" includes="**/*.java"
-           debug="${javac.debug}" optimize="${javac.optimize}" encoding="UTF-8"
-           deprecation="${javac.deprecation}" source="1.4" target="1.4">
-      <classpath>
-        <path refid="path.class"/>
-        <pathelement location="${dir.build}/classes/main"/>
-        <pathelement location="${lib.junit}"/>
-      </classpath>
-    </javac>
+    <propertyfile comment="Build Information" file="${dir.build}/classes/main/META-INF/build.properties">
+      <entry key="build.version" value="${version}"/>
+      <entry key="build.date" value="${tstamp.date}"/>
+      <entry key="build.java.vendor" value="${java.vendor}"/>
+      <entry key="build.java.version" value="${java.version}"/>
+      <entry key="build.os.name" value="${os.name}"/>
+      <entry key="build.os.arch" value="${os.arch}"/>
+      <entry key="build.os.version" value="${os.version}"/>
+    </propertyfile>
   </target>
 
-  <target name="genjavadoc" depends="stage" unless="skip.genjavadoc"
-          description="Compile all of the Java API documentation.">
-    <mkdir dir="${dir.build}/doc/api"/>
-    <javadoc destdir="${dir.build}/doc/api" version="true" author="true"
-             use="true" source="1.4" access="${javadoc.access}"
-             windowtitle="RvSnoop ${version} API Documentation">
-      <doctitle><![CDATA[<h1>RvSnoop ${version}</h1>]]></doctitle>
-      <bottom><![CDATA[Copyright © 2002-${year} <a href="http://ianp.org/">Ian Phillips</a> and Örjan Lundberg.]]></bottom>
-      <packageset dir="${dir.stage}/src" defaultexcludes="true" includes="**"/>
-      <link href="http://java.sun.com/j2se/1.4.2/docs/api" offline="${javadoc.offline}"/>
-      <link href="http://www.xom.nu/apidocs" offline="${javadoc.offline}"/>
-      <classpath refid="path.class"/>
-    </javadoc>
-  </target>
-
-  <target name="runtests" depends="compile"
-          description="Run the unit tests.">
-    <mkdir dir="${dir.build}/doc/developer/tests"/>
+  <target name="test" depends="compile"
+          description="Compile and run the unit tests.">
+    <javac srcdir="src/test" destdir="${dir.build}/classes/test" includes="**/*.java"
+           debug="true" optimize="false" encoding="UTF-8"
+           deprecation="${javac.deprecation}" source="1.5" target="1.5">
+      <classpath refid="test.classpath"/>
+    </javac>
+    <copy todir="${dir.build}/classes/test">
+        <fileset refid="test.data"/>
+    </copy>
     <junit printsummary="true" haltonerror="true" fork="true" forkmode="perBatch">
-      <classpath>
-        <path refid="path.class"/>
-        <pathelement location="${dir.build}/classes/main"/>
-        <pathelement location="${dir.build}/classes/tests"/>
-        <!-- This is needed to access the test data. -->
-        <pathelement location="${dir.stage}/tests"/>
-      </classpath>
+      <classpath refid="test.classpath"/>
       <formatter type="xml"/>
-      <batchtest todir="${dir.build}/doc/developer/tests">
-        <fileset dir="${dir.build}/classes/tests">
+      <batchtest todir="${dir.build}/doc/developer/test">
+        <fileset dir="${dir.build}/classes/test">
           <include name="**/*Test.class"/>
-          <!-- The are all abstract an will cause the tests to fail if run. -->
+          <!-- Exclude all of the abstract classes. -->
           <exclude name="org/rvsnoop/RecordLedgerTest.class"/>
         </fileset>
       </batchtest>
     </junit>
-    <echo>Generating report from test results.</echo>
-    <junitreport todir="${dir.build}/doc/developer/tests">
-      <!-- This fileset includes just the individual tests. -->
-      <fileset dir="${dir.build}/doc/developer/tests">
+    <junitreport todir="${dir.build}/doc/developer/test">
+      <!-- Just the individual tests. -->
+      <fileset dir="${dir.build}/doc/developer/test">
         <include name="TEST-*.xml"/>
       </fileset>
-      <report todir="${dir.build}/doc/developer/tests"/>
+      <report todir="${dir.build}/doc/developer/test"/>
     </junitreport>
     <delete>
-      <!-- This fileset includes both the individual and aggregated tests. -->
-      <fileset dir="${dir.build}/doc/developer/tests">
+      <!-- Both individual and aggregated tests. -->
+      <fileset dir="${dir.build}/doc/developer/test">
         <include name="TEST*.xml"/>
       </fileset>
     </delete>
   </target>
 
-  <target name="dist" depends="runtests, analyze, genjavadoc"
-          description="Package all files required for a binary distribution.">
-    <echo>Preparing the distribution file layout.</echo>
-    <mkdir dir="${dir.dist}/bin"/>
-    <mkdir dir="${dir.dist}/doc"/>
-    <mkdir dir="${dir.dist}/lib"/>
-    <mkdir dir="${dir.dist}/src"/>
-    <echo>Copying in the version file.</echo>
-    <copy file="${dir.stage}/version.xml" todir="${dir.dist}"/>
-    <echo>Copying in the launcher scripts.</echo>
-    <copy todir="${dir.dist}/bin">
-      <fileset dir="${dir.stage}/bin" includes="*"/>
-    </copy>
-    <chmod dir="${dir.dist}/bin" includes="*.sh" perm="750"/>
-    <echo>Copying in the documentation.</echo>
-    <copy todir="${dir.dist}/doc">
-      <fileset dir="${dir.build}/doc"/>
-    </copy>
-    <copy todir="${dir.dist}/doc">
-      <fileset dir="${dir.stage}/doc" includes="**/*"/>
-    </copy>
-    <echo>Copying in the runtime libraries.</echo>
-    <jar jarfile="${dir.dist}/lib/rvsnoop.jar" compress="false"
+  <target name="javadoc" depends="init"
+          description="Compile all of the Java API documentation.">
+    <mkdir dir="${dir.build}/doc/api"/>
+    <javadoc destdir="${dir.build}/doc/api" version="true" author="true"
+             use="true" source="1.5" access="protected"
+             windowtitle="RvSnoop ${version} API Documentation">
+      <doctitle><![CDATA[<h1>RvSnoop ${version}</h1>]]></doctitle>
+      <bottom><![CDATA[Copyright © 2002-2007 <a href="http://ianp.org/">Ian Phillips</a> and Örjan Lundberg.]]></bottom>
+      <packageset dir="src/main" defaultexcludes="true" includes="**"/>
+      <link href="http://java.sun.com/j2se/1.4.2/docs/api" offline="${javadoc.offline}"/>
+      <link href="http://www.xom.nu/apidocs" offline="${javadoc.offline}"/>
+      <classpath refid="compile.classpath"/>
+    </javadoc>
+  </target>
+
+  <target name="jar" depends="test">
+    <jar jarfile="${dir.build}/dist/lib/rvsnoop-${version}.jar" compress="false"
          manifestencoding="UTF-8" index="true">
       <manifest>
         <attribute name="Implementation-Title" value="RvSnoop"/>
@@ -243,105 +162,81 @@
         <attribute name="Implementation-URL" value="http://rvsnoop.org/"/>
       </manifest>
       <fileset dir="${dir.build}/classes/main" includes="**/*.class"/>
-      <fileset dir="${dir.stage}/src" includes="**/*.png"/>
-      <fileset dir="${dir.stage}/src" includes="**/*.properties" excludes="commons-logging.properties"/>
+      <fileset dir="src/resources" includes="**/*.png"/>
+      <fileset dir="src/main" includes="**/*.properties" excludes="commons-logging.properties"/>
     </jar>
-    <copy todir="${dir.dist}/lib">
-      <fileset file="${lib.binding}"/>
-      <fileset file="${lib.cli}"/>
-      <fileset file="${lib.forms}"/>
-      <fileset file="${lib.glazed}"/>
-      <fileset file="${lib.io}"/>
-      <fileset file="${lib.lang}"/>
-      <fileset file="${lib.logging}"/>
-      <fileset file="${lib.looks}"/>
-      <fileset file="${lib.swinglayout}"/>
-      <fileset file="${lib.wizard}"/>
-      <fileset file="${lib.xmlenc}"/>
-      <fileset file="${lib.xom}"/>
-      <fileset file="${dir.stage}/src/*.properties"/>
+  </target>
+
+  <target name="analyze" depends="compile"
+          description="Analyze the code base and generate reports.">
+
+    <echo>Analyzing with PMD...</echo>
+    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+      <classpath>
+        <fileset dir="${lib.pmd}/lib" includes="*.jar"/>
+      </classpath>
+    </taskdef>
+    <pmd shortFilenames="true" encoding="UTF-8">
+      <ruleset>etc/rvsnoop.pmd</ruleset>
+      <formatter type="html" toFile="${dir.build}/doc/developer/pmd-report.html"
+                 linkPrefix="file://../../src/main/"/>
+      <fileset dir="src/main" includes="**/*.java"/>
+    </pmd>
+    
+    <echo>Analyzing with FindBugs...</echo>
+    <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
+      <classpath>
+        <fileset dir="${lib.findbugs}/lib" includes="*.jar"/>
+      </classpath>
+    </taskdef>
+    <findbugs home="${lib.findbugs}" output="html" jvmargs="-Xmx256m"
+              outputFile="${dir.build}/doc/developer/fb-report.html">
+      <auxClasspath>
+        <path refid="compile.classpath"/>
+      </auxClasspath>
+      <sourcePath path="src/main"/>
+      <class location="${dir.build}/classes/main"/>
+    </findbugs>
+
+  </target>
+
+  <target name="dist" depends="jar, analyze"
+          description="Package all files required for a distribution.">
+    <copy todir="${dir.build}/dist/bin" encoding="utf-8">
+      <fileset dir="bin" includes="*"/>
     </copy>
-    <echo>Copying in the source code.</echo>
-    <copy todir="${dir.dist}/src">
-      <fileset dir="${dir.stage}/src" includes="**/*.java, **/*.properties"/>
+    <chmod dir="${dir.build}/dist/bin" includes="*.sh" perm="750"/>
+    <copy todir="${dir.build}/dist/doc">
+      <fileset dir="${dir.build}/doc"/>
+      <fileset dir="doc">
+          <include name="**/*.html"/>
+          <include name="**/*.css"/>
+          <include name="**/*.png"/>
+      </fileset>
     </copy>
-    <echo>Packaging the distributable.</echo>
-    <tar destfile="rvsnoop-${version}.tgz" compression="gzip">
-      <tarfileset dir="${dir.dist}/.." mode="440" dirmode="550">
-        <include name="**/*.*"/>
-        <include name="rvsnoop-${version}/${file.version}"/>
-        <exclude name="rvsnoop-${version}/bin/*.sh"/>
+    <copy todir="${dir.build}/dist/lib">
+      <fileset refid="include.classpath"/>
+      <fileset file="src/main/commons-logging.properties"/>
+      <!-- No need to copy rvsnoop.jar as it is added by the jar target. -->
+    </copy>
+    <zip destfile="${dir.build}/dist/src/rvsnoop-${version}-src.zip">
+      <zipfileset dir="src/main" includes="**/*.java, **/*.properties"/>
+    </zip>
+    <echo>Creating the tarred and gzipped distributable.</echo>
+    <tar destfile="${dir.build}/rvsnoop-${version}.tgz" compression="gzip">
+      <tarfileset dir="${dir.build}/dist" mode="750" dirmode="550" prefix="rvsnoop-${version}">
+        <include name="bin/*.sh"/>
       </tarfileset>
-      <tarfileset dir="${dir.dist}/.." mode="750" dirmode="550">
-        <include name="rvsnoop-${version}/bin/*.sh"/>
+      <tarfileset dir="${dir.build}/dist" mode="440" dirmode="550" prefix="rvsnoop-${version}">
+        <include name="**/*.*"/>
+        <exclude name="bin/*.sh"/>
       </tarfileset>
     </tar>
   </target>
 
-  <target name="release" depends="dist"
-          description="Upload the files to SourceForge ready for releasing.">
-    <input addproperty="release.email">Enter the email address to use for anonymous FTP:</input>
-    <ftp server="upload.sourceforge.net" userid="anonymous" binary="true" password="${release.email}">
-      <fileset file="rvsnoop-${version}.tgz"/>
-    </ftp>
-    <echo>Now do the SourceForge file release</echo>
-    <echo>Then run "ant releasewww" to upload the new site version.</echo>
-  </target>
-
-  <target name="releasewww" depends="stage"
-          description="Publish the files to the web server.">
-    <input addproperty="ssh.user">Enter your SSH username:</input>
-    <input addproperty="ssh.pass">Enter your SSH password:</input>
-    <scp todir="${ssh.user}@rvsnoop.org:/users/home/iphillips/domains/rvsnoop.org/web/public"
-      password="${ssh.pass}" trust="false">
-        <fileset dir="${dir.stage}/www" include="**/*"/>
-        <fileset dir="${dir.stage}" include="version.xml"/>
-    </scp>
-  </target>
-
-  <target name="analyze" depends="compile" unless="skip.analyze"
-          description="Analyze the code base and generate reports.">
-    <taskdef name="pmd" classpath="${lib.pmd}"
-             classname="net.sourceforge.pmd.ant.PMDTask"/>
-    <taskdef name="lint4j" classpath="${lib.lint4j}"
-             classname="com.jutils.lint4j.ant.Lint4jAntTask"/>
-    <taskdef name="findbugs" classpath="${lib.findbugs}/lib/findbugs-ant.jar"
-             classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
-    <property name="findbugs.home" value="${lib.findbugs}"/>
-    <echo>Analyzing with PMD.</echo>
-    <pmd shortFilenames="true" encoding="UTF-8">
-      <ruleset>rvsnoop.pmd</ruleset>
-      <formatter type="html" toFile="${dir.build}/doc/developer/pmdreport.html"
-                 linkPrefix="file://../../src/"/>
-      <fileset dir="${dir.stage}/src" includes="**/*.java"/>
-    </pmd>
-    <echo>Analyzing with Lint4J.</echo>
-    <lint4j sourcepath="${dir.stage}/src" level="4"
-            packages="org.rvsnoop,rvsnoop,rvsnoop.actions,rvsnoop.ui">
-      <classpath refid="path.class"/>
-      <formatters>
-        <formatter toFile="${dir.build}/doc/developer/lint4jreport.xml" type="xml"/>
-      </formatters>
-    </lint4j>
-    <echo>Analyzing with FindBugs.</echo>
-    <!-- There is a bug in the Ant task, will be resolved in FB 1.1.3 ...
-    <findbugs home="${lib.findbugs}" output="html"
-              outputFile="${dir.build}/doc/developer/fbreport.html">
-      <auxClasspath>
-        <path refid="path.class"/>
-      </auxClasspath>
-      <sourcePath path="${dir.stage}/src"/>
-      <class location="${dir.build}/classes/main"/>
-    </findbugs>
-    -->
-  </target>
-
-  <target name="clean" depends="setproperties"
+  <target name="clean" depends="init"
           description="Remove all of the generated files.">
-    <delete dir="${dir.build}/"/>
-    <delete dir="${dir.dist}/"/>
-    <delete dir="${dir.stage}/"/>
-    <delete file="rvsnoop-${version}.tgz"/>
+    <delete dir="${dir.build}"/>
   </target>
 
 </project>

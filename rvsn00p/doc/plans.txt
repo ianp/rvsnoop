@@ -74,37 +74,10 @@ How to get this if no getComment() method on ZipInputStream ? May have to bin
 that method, but still write the header for the benefit of other tools. Maybe
 look at TrueZIP library to see if they read comments?
 
-### (2001-01-14) Rename Actions to ActionFactory.
-
-Rename Actions to ActionFactory, make all actions public and have their action
-commands as static fields (called COMMAND).
-
-Look at gui-commands for some ideas about how to use the action factory to
-create components. Maybe something like:
-
-    public JButton createButton(String command, boolean toolbar) { }
-    public JMenuItem createMenuItem(String command) { }
-
-Add a method to UIUtils to create menus:
-
-    public JMenu createMenu(String name, KeyStroke accel, int mnemonic, String iconName) { }
-
-Move UIUtils#createSmallButton to UIManager
-
 ### (2001-01-21) Update build.xml to use betterdocs.
 
 Changed genjavadoc target to use betterdoc tool from XOM (converts nasty Sun
 markup into clean XHTML 1.0 Frameset).
-
-### (2001-01-21) Update build.xml to Create Nice Lint4J Reports.
-
-Write an XSLT 2.0 stylesheet to convert the Lint4J XML report into a bunch of
-XHTML file. Look at this article for a starter:
-
-    http://www-128.ibm.com/developerworks/xml/library/x-tipmultxsl.html
-
-Note that the XML report in Lint4J 0.9.1 reports the wrong version, it claims
-to be created with 0.8.1!
 
 ### (2001-01-14) Add ConnectionList and MessageLedger Selection Events
 
@@ -491,13 +464,6 @@ Use styled text to provide highlighting for elements, etc. nShould
 there be preferences to display XML inline in the details view?
 Should it be a context action to view in a new window? Or a
 double-click action on XML document fields?
-
-### Write a Custom Look & Feel
-
-Base this on PlasticXP, use the gradient caching stuff from
-Mustang's Synth L&F. This is really a *lot* of work, but maybe some
-features could be written independently and used as stand alone UI
-delegates?
 
 ### Draw Custom Icons
 
