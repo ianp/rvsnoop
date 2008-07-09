@@ -38,27 +38,29 @@ public final class SubjectHierarchy extends DefaultTreeModel {
      */
     public static final String NO_SUBJECT_LABEL = "[No Subject!]";
 
-    private static class SubjectHierarchyMatcherEditor extends AbstractMatcherEditor {
+    private static class SubjectHierarchyMatcherEditor extends AbstractMatcherEditor<Record> {
         SubjectHierarchyMatcherEditor() {
             super();
         }
         @Override
-        public Matcher getMatcher() {
-            return new Matcher() {
-                public boolean matches(Object item) {
-                    SubjectElement elt = ((Record) item).getSubject();
+        public Matcher<Record> getMatcher() {
+            return new Matcher<Record>() {
+                public boolean matches(Record item) {
+                    SubjectElement elt = item.getSubject();
                     if (!elt.isSelected()) return false;
-                    while ((elt = ((SubjectElement) elt.getParent())) != null)
+                    while ((elt = ((SubjectElement) elt.getParent())) != null) {
                         if (!elt.isSelected()) return false;
+                    }
                     return true;
                 }
             };
         }
         void update(boolean selected) {
-            if (selected)
+            if (selected) {
                 fireRelaxed(getMatcher());
-            else
+            } else {
                 fireConstrained(getMatcher());
+            }
         }
     }
 
@@ -86,7 +88,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
             nodeChanged(nodes[i]);
     }
 
-    public MatcherEditor getMatcherEditor() {
+    public MatcherEditor<Record> getMatcherEditor() {
         return matcherEditor;
     }
 
@@ -174,7 +176,8 @@ public final class SubjectHierarchy extends DefaultTreeModel {
     /**
      * Resets all counters and error flags in the hierarchy.
      */
-    public void reset() {
+    @SuppressWarnings("unchecked")
+	public void reset() {
         final Enumeration nodes = ((DefaultMutableTreeNode) getRoot()).depthFirstEnumeration();
         while (nodes.hasMoreElements()) {
             final SubjectElement current = (SubjectElement) nodes.nextElement();
@@ -189,7 +192,8 @@ public final class SubjectHierarchy extends DefaultTreeModel {
      * @param node The root of the subtree to set.
      * @param selected The new selection value.
      */
-    public void setAllSelected(SubjectElement node, boolean selected) {
+    @SuppressWarnings("unchecked")
+	public void setAllSelected(SubjectElement node, boolean selected) {
         final Enumeration descendants = node.depthFirstEnumeration();
         while (descendants.hasMoreElements())
             updateElement((SubjectElement) descendants.nextElement(), selected);

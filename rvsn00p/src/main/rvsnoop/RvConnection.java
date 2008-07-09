@@ -13,7 +13,6 @@ import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -311,7 +310,7 @@ public final class RvConnection implements TibrvMsgCallback {
      * <p>
      * The map values are the RV Listeners, which may be <code>null</code>.
      */
-    private final Map subjects = new TreeMap();
+    private final Map<String, TibrvListener> subjects = new TreeMap<String, TibrvListener>();
 
     private TibrvNetTransport transport;
 
@@ -476,7 +475,7 @@ public final class RvConnection implements TibrvMsgCallback {
      *
      * @return A sorted (natural order) set of subjects. Elements may be cast to {@link String}.
      */
-    public Set getSubjects() {
+    public Set<String> getSubjects() {
          return Collections.unmodifiableSet(subjects.keySet());
     }
 
@@ -518,12 +517,13 @@ public final class RvConnection implements TibrvMsgCallback {
         transport.send(record.getMessage());
     }
 
-    public synchronized void removeAllSubbjects() {
-        if (state != State.STOPPED)
-            for (final Iterator i = subjects.values().iterator(); i.hasNext(); )
-                ((TibrvEvent) i.next()).destroy();
+    public synchronized void removeAllSubjects() {
+        if (state != State.STOPPED) {
+        	for (TibrvEvent event : subjects.values()) {
+        		event.destroy();
+        	}
+        }
         subjects.clear();
-        // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
         changeSupport.firePropertyChange(KEY_SUBJECTS, null, null);
     }
 
@@ -597,8 +597,7 @@ public final class RvConnection implements TibrvMsgCallback {
             state = State.STARTED;
             try {
                 createTransport();
-                for (final Iterator i = subjects.keySet().iterator(); i.hasNext(); ) {
-                    final String subject = (String) i.next();
+                for (String subject : subjects.keySet()) {
                     subjects.put(subject, createListener(subject));
                 }
                 log.info("Started connection: " + description);
@@ -613,8 +612,9 @@ public final class RvConnection implements TibrvMsgCallback {
     public synchronized void stop() {
         if (state == State.STOPPED) return;
         log.info("Stopping connection: " + description);
-        for (final Iterator i = subjects.values().iterator(); i.hasNext(); )
-            ((TibrvEvent) i.next()).destroy();
+    	for (TibrvEvent event : subjects.values()) {
+    		event.destroy();
+    	}
         subjects.values().clear();
         transport.destroy();
         transport = null;
@@ -642,8 +642,8 @@ public final class RvConnection implements TibrvMsgCallback {
             .attribute("service", service)
             .attribute("network", network)
             .attribute("daemon", daemon);
-        for (Iterator i = getSubjects().iterator(); i.hasNext(); ) {
-            builder.startTag("subject").pcdata(i.next().toString()).endTag();
+        for (String subject : getSubjects()) {
+            builder.startTag("subject").pcdata(subject).endTag();
         }
         builder.endTag();
     }

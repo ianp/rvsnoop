@@ -52,23 +52,21 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  */
 public final class Connections {
 
-    private static class DescriptionComparator implements Comparator {
+    private static class DescriptionComparator implements Comparator<RvConnection> {
         private final Collator collator = Collator.getInstance();
 
         public DescriptionComparator() {
             super();
         }
 
-        public int compare(Object o1, Object o2) {
-            final String d1 = ((RvConnection) o1).getDescription();
-            final String d2 = ((RvConnection) o2).getDescription();
-            return collator.compare(d1, d2);
+        public int compare(RvConnection o1, RvConnection o2) {
+            return collator.compare(o1.getDescription(), o2.getDescription());
         }
     }
 
-    private static class Observer implements ObservableElementList.Connector,
+    private static class Observer implements ObservableElementList.Connector<RvConnection>,
             PropertyChangeListener {
-        private ObservableElementList list;
+        private ObservableElementList<RvConnection> list;
 
         Observer() {
             super();
@@ -79,8 +77,8 @@ public final class Connections {
          *
          * @see ca.odell.glazedlists.ObservableElementList.Connector#installListener(java.lang.Object)
          */
-        public EventListener installListener(Object element) {
-            ((RvConnection) element).addPropertyChangeListener(this);
+        public EventListener installListener(RvConnection element) {
+            element.addPropertyChangeListener(this);
             return this;
         }
 
@@ -89,8 +87,8 @@ public final class Connections {
          *
          * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
          */
-        public void propertyChange(PropertyChangeEvent evt) {
-            list.elementChanged(evt.getSource());
+        public void propertyChange(PropertyChangeEvent event) {
+            list.elementChanged((RvConnection) event.getSource());
         }
 
         /*
@@ -98,7 +96,7 @@ public final class Connections {
          *
          * @see ca.odell.glazedlists.ObservableElementList.Connector#setObservableElementList(ca.odell.glazedlists.ObservableElementList)
          */
-        public void setObservableElementList(ObservableElementList list) {
+        public void setObservableElementList(ObservableElementList<RvConnection> list) {
             this.list = list;
         }
 
@@ -108,21 +106,21 @@ public final class Connections {
          * @see ca.odell.glazedlists.ObservableElementList.Connector#uninstallListener(java.lang.Object,
          *      java.util.EventListener)
          */
-        public void uninstallListener(Object element, EventListener listener) {
-            ((RvConnection) element).removePropertyChangeListener(this);
+        public void uninstallListener(RvConnection element, EventListener listener) {
+            element.removePropertyChangeListener(this);
         }
     }
 
     private static final Log log = LogFactory.getLog(Connections.class);
 
-    private final ObservableElementList list;
+    private final ObservableElementList<RvConnection> list;
 
     private final boolean ownsConnections;
 
-    public Connections(Collection connections, boolean ownsConnections) {
-        if (connections == null) { connections = Collections.EMPTY_LIST; }
-        this.list = new ObservableElementList(
-                new SortedList(
+    public Connections(Collection<RvConnection> connections, boolean ownsConnections) {
+        if (connections == null) { connections = Collections.emptyList(); }
+        this.list = new ObservableElementList<RvConnection>(
+                new SortedList<RvConnection>(
                         GlazedLists.eventList(connections),
                         new DescriptionComparator()),
                 new Observer());
@@ -164,7 +162,7 @@ public final class Connections {
      * @param listChangeListener
      * @see ca.odell.glazedlists.EventList#addListEventListener(ca.odell.glazedlists.event.ListEventListener)
      */
-    public void addListEventListener(ListEventListener listChangeListener) {
+    public void addListEventListener(ListEventListener<RvConnection> listChangeListener) {
         list.addListEventListener(listChangeListener);
     }
 
@@ -192,7 +190,7 @@ public final class Connections {
     }
 
     public ListModel createListModel() {
-        return new EventListModel(list);
+        return new EventListModel<RvConnection>(list);
     }
 
     /**
@@ -208,8 +206,7 @@ public final class Connections {
         final Lock lock = list.getReadWriteLock().readLock();
         lock.lock();
         try {
-            for (final Iterator i = list.iterator(); i.hasNext();) {
-                final RvConnection c = (RvConnection) i.next();
+        	for (RvConnection c : list) {
                 if (c.getService().equals(service)
                         && c.getDaemon().equals(daemon)
                         && c.getNetwork().equals(network))
@@ -225,7 +222,7 @@ public final class Connections {
      * @return An iterator over all of the connections.
      * @see java.util.List#iterator()
      */
-    public Iterator iterator() {
+    public Iterator<RvConnection> iterator() {
         return list.iterator();
     }
 
@@ -258,7 +255,7 @@ public final class Connections {
      * @param listChangeListener
      * @see ca.odell.glazedlists.EventList#removeListEventListener(ca.odell.glazedlists.event.ListEventListener)
      */
-    public void removeListEventListener(ListEventListener listChangeListener) {
+    public void removeListEventListener(ListEventListener<RvConnection> listChangeListener) {
         list.removeListEventListener(listChangeListener);
     }
 
