@@ -31,36 +31,36 @@ import rvsnoop.Record;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public abstract class DataAccessor {
+public abstract class DataAccessor<T> {
 
-    static final class FieldContents extends DataAccessor {
+    static final class FieldContents extends DataAccessor<String> {
         public static final String IDENTIFIER = "fieldContents";
         public FieldContents() {
             super(FIELD_CONTENTS, IDENTIFIER);
         }
         @Override
-        public Iterator getDataElement(Record record) {
+        public Iterator<String> getDataElement(Record record) {
             return new FieldContentsIterator(TibrvUtils.depthFirstFieldIterator(record.getMessage()));
         }
     }
 
-    private static final class FieldContentsIterator implements Iterator {
-        private final Iterator iterator;
-        FieldContentsIterator(Iterator iterator) {
+    private static final class FieldContentsIterator implements Iterator<String> {
+        private final Iterator<TibrvMsgField> iterator;
+        FieldContentsIterator(Iterator<TibrvMsgField> iterator) {
             this.iterator = iterator;
         }
         public boolean hasNext() {
             return iterator.hasNext();
         }
-        public Object next() {
-            TibrvMsgField field = (TibrvMsgField) iterator.next();
+        public String next() {
+            TibrvMsgField field = iterator.next();
             if (field.type == TibrvMsg.STRING) {
-                return field.data;
+                return (String) field.data;
             } else if (field.type == TibrvMsg.XML) {
                 try {
                     return new String(((TibrvXml) field.data).getBytes(), "UTF-8");
                 } catch (UnsupportedEncodingException e) {
-                    // Never happens, UTF-8 is always supported in a Java VM.
+                	throw new Error("The VM doesn't support UTF-8!");
                 }
             }
             return "";
@@ -70,67 +70,67 @@ public abstract class DataAccessor {
         }
     }
 
-    static final class FieldNames extends DataAccessor {
+    static final class FieldNames extends DataAccessor<String> {
         public static final String IDENTIFIER = "fieldNames";
         public FieldNames() {
             super(FIELD_NAMES, IDENTIFIER);
         }
         @Override
-        public Iterator getDataElement(Record record) {
+        public Iterator<String> getDataElement(Record record) {
             return new FieldNamesIterator(TibrvUtils.depthFirstFieldIterator(record.getMessage()));
         }
     }
 
-    private static final class FieldNamesIterator implements Iterator {
-        private final Iterator iterator;
-        FieldNamesIterator(Iterator iterator) {
+    private static final class FieldNamesIterator implements Iterator<String> {
+        private final Iterator<TibrvMsgField> iterator;
+        FieldNamesIterator(Iterator<TibrvMsgField> iterator) {
             this.iterator = iterator;
         }
         public boolean hasNext() {
             return iterator.hasNext();
         }
-        public Object next() {
-            return ((TibrvMsgField) iterator.next()).name;
+        public String next() {
+            return iterator.next().name;
         }
         public void remove() {
             iterator.remove();
         }
     }
 
-    static final class ReplySubject extends DataAccessor {
+    static final class ReplySubject extends DataAccessor<String> {
         public static final String IDENTIFIER = "replySubject";
-        private final SingleElementIterator iterator = new SingleElementIterator();
+        private final SingleElementIterator<String> iterator = new SingleElementIterator<String>();
         public ReplySubject() {
             super(REPLY_SUBJECT, IDENTIFIER);
         }
         @Override
-        public Iterator getDataElement(Record record) {
+        public Iterator<String> getDataElement(Record record) {
             iterator.element = record.getReplySubject();
             return iterator;
         }
     }
 
-    static final class SendSubject extends DataAccessor {
+    static final class SendSubject extends DataAccessor<String> {
         public static final String IDENTIFIER = "sendSubject";
-        private final SingleElementIterator iterator = new SingleElementIterator();
+        private final SingleElementIterator<String> iterator = new SingleElementIterator<String>();
         public SendSubject() {
             super(SEND_SUBJECT, IDENTIFIER);
         }
         @Override
-        public Iterator getDataElement(Record record) {
+        public Iterator<String> getDataElement(Record record) {
             iterator.element = record.getSendSubject();
             return iterator;
         }
     }
 
-    private static final class SingleElementIterator implements Iterator {
-        Object element;
+    private static final class SingleElementIterator<T> implements Iterator<T> {
+        T element;
         public boolean hasNext() {
             return element != null;
         }
-        public Object next() {
-            if (element == null) throw new NoSuchElementException();
-            Object next = element;
+        public T next() {
+            if (element == null) { throw new NoSuchElementException(); }
+            T next = element;
             element = null;
             return next;
         }
@@ -139,14 +139,14 @@ public abstract class DataAccessor {
         }
     }
 
-    static final class TrackingId extends DataAccessor {
+    static final class TrackingId extends DataAccessor<String> {
         public static final String IDENTIFIER = "trackingId";
-        private final SingleElementIterator iterator = new SingleElementIterator();
+        private final SingleElementIterator<String> iterator = new SingleElementIterator<String>();
         public TrackingId() {
             super(TRACKING_ID, IDENTIFIER);
         }
         @Override
-        public Iterator getDataElement(Record record) {
+        public Iterator<String> getDataElement(Record record) {
             iterator.element = record.getTrackingId();
             return iterator;
         }
@@ -169,7 +169,8 @@ public abstract class DataAccessor {
     /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public boolean equals(Object obj) {
         if (this == obj) { return true; }
         if (obj == null) { return false; }
@@ -185,7 +186,7 @@ public abstract class DataAccessor {
      * @param record The record to extract data from.
      * @return The data elements.
      */
-    public abstract Iterator getDataElement(Record record);
+    public abstract Iterator<T> getDataElement(Record record);
 
     /**
      * Get a string describing the data this class accesses which is suitable

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -98,8 +97,8 @@ public final class UserPreferences {
         public void columnSelectionChanged(ListSelectionEvent e) { /* NO-OP */ }
     }
 
-    private final class RecentConnectionsListener implements ListEventListener {
-        public void listChanged(ListEvent changes) {
+    private final class RecentConnectionsListener implements ListEventListener<RvConnection> {
+        public void listChanged(ListEvent<RvConnection> changes) {
             updateRecentConnectionsList(changes);
         }
     }
@@ -150,11 +149,11 @@ public final class UserPreferences {
     private Preferences preferences =
         Preferences.userRoot().node("org").node("rvsnoop").node("sessionState");
 
-    private final LinkedList recentConnections = new LinkedList();
+    private final LinkedList<RvConnection> recentConnections = new LinkedList<RvConnection>();
 
     private final File recentConnectionsFile;
 
-    private final LinkedList recentProjects = new LinkedList();
+    private final LinkedList<File> recentProjects = new LinkedList<File>();
 
     private UserPreferences() {
         String path = null;
@@ -203,8 +202,8 @@ public final class UserPreferences {
         return preferences.get(KEY_LAST_EXPORT_LOCATION, SystemUtils.USER_DIR);
     }
 
-    public List getLedgerColumns() {
-        final List columns = new ArrayList(RecordLedgerFormat.ALL_COLUMNS.size());
+    public List<ColumnFormat> getLedgerColumns() {
+        final List<ColumnFormat> columns = new ArrayList<ColumnFormat>(RecordLedgerFormat.ALL_COLUMNS.size());
         final Preferences node = preferences.node(KEY_LEDGER_COLUMNS);
         try {
             final String[] keys = node.keys();
@@ -242,13 +241,11 @@ public final class UserPreferences {
         return preferences.getInt(KEY_NUM_RECENT_PROJECTS, 10);
     }
 
-    // List<RvConnection>
-    public List getRecentConnections() {
+    public List<RvConnection> getRecentConnections() {
         return Collections.unmodifiableList(recentConnections);
     }
 
-    // List<File>
-    public List getRecentProjects() {
+    public List<File> getRecentProjects() {
         return Collections.unmodifiableList(recentProjects);
     }
 
@@ -301,14 +298,14 @@ public final class UserPreferences {
         preferences.put(KEY_LAST_EXPORT_LOCATION, path);
     }
 
-    private void setLedgerColumns(final TableColumnModel model) {
+    @SuppressWarnings("unchecked")
+	private void setLedgerColumns(final TableColumnModel model) {
         final List columns = new ArrayList(model.getColumnCount());
         for (Enumeration e = model.getColumns(); e.hasMoreElements(); ) {
             columns.add(((TableColumn) e.nextElement()).getHeaderValue());
         }
         final Preferences node = preferences.node(KEY_LEDGER_COLUMNS);
-        for (Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator(); i.hasNext(); ) {
-            final ColumnFormat column = (ColumnFormat) i.next();
+        for (ColumnFormat column : RecordLedgerFormat.ALL_COLUMNS) {
             node.putBoolean(column.getIdentifier(), columns.contains(column.getName()));
         }
     }
@@ -340,15 +337,15 @@ public final class UserPreferences {
         preferences.put(KEY_LEDGER_FONT, builder.toString());
     }
 
-    private void updateRecentConnectionsList(ListEvent changes) {
-        final EventList list = changes.getSourceList();
+    private void updateRecentConnectionsList(ListEvent<RvConnection> changes) {
+        final EventList<RvConnection> list = changes.getSourceList();
         final Lock lock = list.getReadWriteLock().readLock();
         lock.lock();
         try {
             final int max = getNumberOfRecentConnections();
             while (changes.next()) {
                 if (changes.getType() == ListEvent.INSERT) {
-                    final Object o = list.get(changes.getIndex());
+                    final RvConnection o = list.get(changes.getIndex());
                     recentConnections.remove(o);
                     recentConnections.add(0, o);
                     if (recentConnections.size() > max) {
@@ -374,7 +371,7 @@ public final class UserPreferences {
     }
 
     private void updateRecentProjectsList(Project newProject) {
-        final String path = newProject.getDirectory().getPath();
+        final File path = newProject.getDirectory();
         final int max = getNumberOfRecentProjects();
         recentProjects.remove(path);
         recentProjects.add(0, path);

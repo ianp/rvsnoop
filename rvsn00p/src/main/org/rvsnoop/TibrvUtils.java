@@ -32,7 +32,7 @@ public final class TibrvUtils {
      * @param message The message to traverse.
      * @return The iterator.
      */
-    public static Iterator depthFirstFieldIterator(TibrvMsg message) {
+    public static Iterator<TibrvMsgField> depthFirstFieldIterator(TibrvMsg message) {
         return new DepthFirstFieldIterator(message);
     }
 
@@ -51,8 +51,8 @@ final class StackElement {
 }
 
 /** Traverse the fields in a message in depth first order. */
-final class DepthFirstFieldIterator implements Iterator {
-    private final List stack = new ArrayList(1);
+final class DepthFirstFieldIterator implements Iterator<TibrvMsgField> {
+    private final List<StackElement> stack = new ArrayList<StackElement>(1);
     private boolean hasNext;
     private TibrvMsg message;
     private int numFields;
@@ -65,7 +65,7 @@ final class DepthFirstFieldIterator implements Iterator {
     public boolean hasNext() {
         return hasNext;
     }
-    public Object next() {
+    public TibrvMsgField next() {
         if (!hasNext) { throw new NoSuchElementException(); }
         try {
             final TibrvMsgField next = message.getField(position++);

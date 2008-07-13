@@ -34,9 +34,9 @@ public final class DataAccessorFactory {
         return instance;
     }
 
-    private final Map identifiersToAccessorsMap = new LinkedHashMap();
+    private final Map<String, Class<? extends DataAccessor<?>>> identifiersToAccessorsMap = new LinkedHashMap<String, Class<? extends DataAccessor<?>>>();
 
-    private final Map namesToAccessorsMap = new LinkedHashMap();
+    private final Map<String, Class<? extends DataAccessor<?>>> namesToAccessorsMap = new LinkedHashMap<String, Class<? extends DataAccessor<?>>>();
 
     private DataAccessorFactory() {
         identifiersToAccessorsMap.put(DataAccessor.FieldContents.IDENTIFIER, DataAccessor.FieldContents.class);
@@ -51,43 +51,43 @@ public final class DataAccessorFactory {
         namesToAccessorsMap.put(DataAccessor.TRACKING_ID, DataAccessor.TrackingId.class);
     }
 
-    public DataAccessor createFieldContentsAccessor() {
+    public DataAccessor<String> createFieldContentsAccessor() {
         return new DataAccessor.FieldContents();
     }
 
-    public DataAccessor createFieldNamesAccessor() {
+    public DataAccessor<String> createFieldNamesAccessor() {
         return new DataAccessor.FieldNames();
     }
 
-    public DataAccessor createReplySubjectAccessor() {
+    public DataAccessor<String> createReplySubjectAccessor() {
         return new DataAccessor.ReplySubject();
     }
 
-    public DataAccessor createSendSubjectAccessor() {
+    public DataAccessor<String> createSendSubjectAccessor() {
         return new DataAccessor.SendSubject();
     }
 
-    public DataAccessor createTrackingIdAccessor() {
+    public DataAccessor<String> createTrackingIdAccessor() {
         return new DataAccessor.TrackingId();
     }
 
-    public DataAccessor createFromDisplayName(String name) {
+    public DataAccessor<?> createFromDisplayName(String name) {
         return createFromString(namesToAccessorsMap, name, ERROR_BAD_NAME);
     }
 
-    public DataAccessor createFromIdentifier(String identifier) {
+    public DataAccessor<?> createFromIdentifier(String identifier) {
         return createFromString(identifiersToAccessorsMap, identifier, ERROR_BAD_IDENTIFIER);
     }
 
-    private DataAccessor createFromString(Map map, String string, String errorMessage) {
+    private DataAccessor<?> createFromString(Map<String, Class<? extends DataAccessor<?>>> map, String string, String errorMessage) {
         Validate.notNull(string);
-        Class clazz = (Class) map.get(string);
+        Class<? extends DataAccessor<?>> clazz = map.get(string);
         if (clazz == null) {
             throw new IllegalArgumentException(
                     MessageFormat.format(errorMessage, new Object[] { string }));
         }
         try {
-            return (DataAccessor) clazz.newInstance();
+            return clazz.newInstance();
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
@@ -96,8 +96,8 @@ public final class DataAccessorFactory {
     }
 
     public String[] getDisplayNames() {
-        final Set names = namesToAccessorsMap.keySet();
-        return (String[]) names.toArray(new String[names.size()]);
+        final Set<String> names = namesToAccessorsMap.keySet();
+        return names.toArray(new String[names.size()]);
     }
 
 }

@@ -33,9 +33,10 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
+@SuppressWarnings("unchecked")
 public final class NLSUtils {
 
-    private static final class PriviledgedFieldSetter implements PrivilegedAction {
+	private static final class PriviledgedFieldSetter implements PrivilegedAction {
         private final Field field;
         private final Object value;
         private PriviledgedFieldSetter(Field field, Object value) {

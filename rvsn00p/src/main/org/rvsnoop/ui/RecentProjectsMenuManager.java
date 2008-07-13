@@ -88,10 +88,10 @@ public final class RecentProjectsMenuManager implements MenuListener, PopupMenuL
     public void menuSelected(MenuEvent e) {
         final JMenu menu = (JMenu) e.getSource();
         menu.removeAll();
-        final Iterator i = UserPreferences.getInstance().getRecentProjects().iterator();
+        final Iterator<File> i = UserPreferences.getInstance().getRecentProjects().iterator();
         int count = 0;
         while (i.hasNext()) {
-            menu.add(new MenuItem((File) i.next(), ++count));
+            menu.add(new MenuItem(i.next(), ++count));
         }
         if (count == 0) {
             menu.add(new JMenuItem(EMPTY_MENU_TEXT));
@@ -118,10 +118,10 @@ public final class RecentProjectsMenuManager implements MenuListener, PopupMenuL
     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
         final JPopupMenu menu = (JPopupMenu) e.getSource();
         menu.removeAll();
-        final Iterator i = UserPreferences.getInstance().getRecentProjects().iterator();
+        final Iterator<File> i = UserPreferences.getInstance().getRecentProjects().iterator();
         int count = 0;
         while (i.hasNext()) {
-            menu.add(new MenuItem((File) i.next(), ++count));
+            menu.add(new MenuItem(i.next(), ++count));
         }
         if (count == 0) {
             menu.add(new JMenuItem(EMPTY_MENU_TEXT));
