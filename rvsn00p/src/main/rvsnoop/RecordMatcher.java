@@ -31,10 +31,10 @@ import ca.odell.glazedlists.matchers.Matcher;
  * @version $Revision$, $Date$
  * @since 1.5
  */
-public abstract class RecordMatcher implements Matcher {
+public abstract class RecordMatcher implements Matcher<Record> {
 
-    private static final Map matchersById = new HashMap();
-    private static final Map matchersByName = new HashMap();
+    private static final Map<String, Class<RecordMatcher>> matchersById = new HashMap<String, Class<RecordMatcher>>();
+    private static final Map<String, Class<RecordMatcher>> matchersByName = new HashMap<String, Class<RecordMatcher>>();
 
     public static final class EverythingMatcher extends RecordMatcher {
         public static final String ID = "Everything";
@@ -42,7 +42,7 @@ public abstract class RecordMatcher implements Matcher {
         public EverythingMatcher() {
             super(ID, NAME, "");
         }
-        public boolean matches(Object item) {
+        public boolean matches(Record item) {
             return true;
         }
     }
@@ -53,8 +53,8 @@ public abstract class RecordMatcher implements Matcher {
         public SendSubjectContains(String value) {
             super(ID, NAME, value);
         }
-        public boolean matches(Object item) {
-            return ((Record) item).getSendSubject().indexOf(getValue()) >= 0;
+        public boolean matches(Record item) {
+            return item.getSendSubject().indexOf(getValue()) >= 0;
         }
     }
 
@@ -64,8 +64,8 @@ public abstract class RecordMatcher implements Matcher {
         public SendSubjectStartsWith(String value) {
             super(ID, NAME, value);
         }
-        public boolean matches(Object item) {
-            return ((Record) item).getSendSubject().startsWith(getValue());
+        public boolean matches(Record item) {
+            return item.getSendSubject().startsWith(getValue());
         }
     }
 
@@ -104,11 +104,11 @@ public abstract class RecordMatcher implements Matcher {
      * @return The new matcher instance.
      */
     public static RecordMatcher createMatcher(String typeOrName, String value) {
-        Class clazz = (Class) matchersById.get(typeOrName);
-        if (clazz == null) clazz = (Class) matchersByName.get(typeOrName);
+    	Class<RecordMatcher> clazz = matchersById.get(typeOrName);
+        if (clazz == null) clazz = matchersByName.get(typeOrName);
         if (clazz == null) throw new IllegalArgumentException("No matcher named " + typeOrName + '.');
         try {
-            final Constructor ctor = clazz.getConstructor(new Class[] { String.class });
+            final Constructor<RecordMatcher> ctor = clazz.getConstructor(new Class[] { String.class });
             return (RecordMatcher) ctor.newInstance(new Object[] { value });
         } catch (Exception e) {
             if (log.isErrorEnabled())
@@ -125,7 +125,7 @@ public abstract class RecordMatcher implements Matcher {
      * @return The names of all known record matchers.
      */
     public static String[] getMatcherNames() {
-        final Set nameSet = matchersByName.keySet();
+        final Set<String> nameSet = matchersByName.keySet();
         final String[] names = (String[]) nameSet.toArray(new String[nameSet.size()]);
         Arrays.sort(names, Collator.getInstance());
         return names;
@@ -144,8 +144,8 @@ public abstract class RecordMatcher implements Matcher {
         this.type = type;
         this.name = name;
         this.value = value;
-        matchersById.put(type, getClass());
-        matchersByName.put(name, getClass());
+        matchersById.put(type, RecordMatcher.class);
+        matchersByName.put(name, RecordMatcher.class);
     }
 
     /**

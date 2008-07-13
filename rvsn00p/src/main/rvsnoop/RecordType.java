@@ -24,7 +24,7 @@ import ca.odell.glazedlists.matchers.Matcher;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public class RecordType implements Matcher {
+public class RecordType implements Matcher<Record> {
 
     /** Key for colour JavaBean property. */
     public static final String KEY_COLOUR = "colour";
@@ -113,7 +113,7 @@ public class RecordType implements Matcher {
         return selected;
     }
 
-    public boolean matches(Object item) {
+    public boolean matches(Record item) {
         return matcher.matches(item);
     }
 

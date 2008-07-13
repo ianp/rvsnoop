@@ -28,14 +28,15 @@ import ca.odell.glazedlists.swing.EventTableModel;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
  */
-public final class RecordLedgerFormat implements AdvancedTableFormat {
+public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
 
-    private static final class ComparableComparator implements Comparator {
+    @SuppressWarnings("unchecked")
+	private static final class ComparableComparator implements Comparator<Comparable> {
         ComparableComparator() {
             super();
         }
-        public int compare(Object o1, Object o2) {
-            return ((Comparable) o1).compareTo(o2);
+        public int compare(Comparable o1, Comparable o2) {
+            return o1.compareTo(o2);
         }
     }
 
@@ -46,23 +47,23 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      * @version $Revision$, $Date$
      */
     public abstract static class ColumnFormat {
-        private final Class clazz;
-        private final Comparator comparator;
+        private final Class<?> clazz;
+        private final Comparator<?> comparator;
         private final String identifier;
         private final String name;
-        ColumnFormat(String id, String name, Class clazz) {
+        ColumnFormat(String id, String name, Class<?> clazz) {
             this(id, name, clazz, Collator.getInstance());
         }
-        ColumnFormat(String id, String name, Class clazz, Comparator comparator) {
+        ColumnFormat(String id, String name, Class<?> clazz, Comparator<?> comparator) {
             this.clazz = clazz;
             this.comparator = comparator;
             this.identifier = id;
             this.name = name;
         }
-        public Class getClazz() {
+        public Class<?> getClazz() {
             return clazz;
         }
-        public Comparator getComparator() {
+        public Comparator<?> getComparator() {
             return comparator;
         }
         public final String getIdentifier() {
@@ -146,7 +147,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         }
     };
 
-    public static final List ALL_COLUMNS = Collections.unmodifiableList(
+    public static final List<ColumnFormat> ALL_COLUMNS = Collections.unmodifiableList(
         Arrays.asList(new ColumnFormat[] {
             CONNECTION, TIMESTAMP, SEQUENCE_NO, TYPE,
             SUBJECT, SIZE_IN_BYTES, TRACKING_ID, MESSAGE
@@ -176,9 +177,9 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
         return null;
     }
 
-    private final List columns = new ArrayList(ALL_COLUMNS);
+    private final List<ColumnFormat> columns = new ArrayList<ColumnFormat>(ALL_COLUMNS);
 
-    private EventTableModel model;
+    private EventTableModel<Record> model;
 
     /**
      * Create a new <code>RecordLedgerFormat</code>.
@@ -214,14 +215,14 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
     /* (non-Javadoc)
      * @see ca.odell.glazedlists.gui.AdvancedTableFormat#getColumnClass(int)
      */
-    public Class getColumnClass(int column) {
+    public Class<?> getColumnClass(int column) {
         return ((ColumnFormat) columns.get(column)).getClazz();
     }
 
     /* (non-Javadoc)
      * @see ca.odell.glazedlists.gui.AdvancedTableFormat#getColumnComparator(int)
      */
-    public Comparator getColumnComparator(int column) {
+    public Comparator<?> getColumnComparator(int column) {
         return ((ColumnFormat) columns.get(column)).getComparator();
     }
 
@@ -244,15 +245,15 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      *
      * @return A <em>read-only</em> list containing the columns.
      */
-    public List getColumns() {
+    public List<ColumnFormat> getColumns() {
         return Collections.unmodifiableList(columns);
     }
 
     /* (non-Javadoc)
      * @see ca.odell.glazedlists.gui.TableFormat#getColumnValue(java.lang.Object, int)
      */
-    public Object getColumnValue(Object record, int index) {
-        return ((ColumnFormat) columns.get(index)).getValue((Record) record);
+    public Object getColumnValue(Record record, int index) {
+        return ((ColumnFormat) columns.get(index)).getValue(record);
     }
 
     /**
@@ -270,7 +271,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      *
      * @param columns The columns to set.
      */
-    public void setColumns(List columns) {
+    public void setColumns(List<ColumnFormat> columns) {
         columns.clear();
         columns.addAll(columns);
         if (model != null) { model.setTableFormat(this); }
@@ -284,7 +285,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat {
      *
      * @param model
      */
-    void setModel(EventTableModel model) {
+    void setModel(EventTableModel<Record> model) {
         this.model = model;
     }
 

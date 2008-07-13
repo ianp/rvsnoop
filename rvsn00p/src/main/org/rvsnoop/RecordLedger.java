@@ -38,14 +38,14 @@ public abstract class RecordLedger {
     /**
      * The underlying event list used by this ledger.
      */
-    private final EventList list;
+    private final EventList<Record> list;
 
     /**
      * Create a new record ledger.
      *
      * @param list The list to use as the record store.
      */
-    protected RecordLedger(final EventList list) {
+    protected RecordLedger(final EventList<Record> list) {
         this.list = list;
     }
 
@@ -77,7 +77,7 @@ public abstract class RecordLedger {
      * @param records The records to add.
      * @see java.util.Collection#addAll(Collection)
      */
-    public final void addAll(Collection records) {
+    public final void addAll(Collection<Record> records) {
         final Lock lock = list.getReadWriteLock().writeLock();
         lock.lock();
         try {
@@ -91,7 +91,7 @@ public abstract class RecordLedger {
      * @param listChangeListener
      * @see ca.odell.glazedlists.EventList#addListEventListener(ca.odell.glazedlists.event.ListEventListener)
      */
-    public void addListEventListener(ListEventListener listChangeListener) {
+    public void addListEventListener(ListEventListener<Record> listChangeListener) {
         list.addListEventListener(listChangeListener);
     }
 
@@ -142,9 +142,9 @@ public abstract class RecordLedger {
      *
      * @return A new table model.
      */
-    public final EventTableModel createTableModel() {
+    public final EventTableModel<Record> createTableModel() {
         final RecordLedgerFormat format = new RecordLedgerFormat();
-        final EventTableModel model = new EventTableModel(list, format);
+        final EventTableModel<Record> model = new EventTableModel<Record>(list, format);
         format.setModel(model);
         return model;
     }
@@ -159,7 +159,7 @@ public abstract class RecordLedger {
      * @return The found record, or <code>null</code> if none meet the selection
      *     criterion.
      */
-    public final Record find(Matcher criteria, int startIndex) {
+    public final Record find(Matcher<Record> criteria, int startIndex) {
         final Lock lock = list.getReadWriteLock().readLock();
         lock.lock();
         try {
@@ -185,7 +185,7 @@ public abstract class RecordLedger {
      * @param criteria How to match records.
      * @return The indices of the matching records.
      */
-    public final int[] findAllIndices(Matcher criteria) {
+    public final int[] findAllIndices(Matcher<Record> criteria) {
         final Lock lock = list.getReadWriteLock().readLock();
         lock.lock();
         final int[] temp = new int[list.size()];
@@ -213,7 +213,7 @@ public abstract class RecordLedger {
      * @return The index of the found record, or -1 if none meet the selection
      *     criterion.
      */
-    public final int findIndex(Matcher criteria, int startIndex) {
+    public final int findIndex(Matcher<Record> criteria, int startIndex) {
         final Lock lock = list.getReadWriteLock().readLock();
         lock.lock();
         try {
@@ -280,7 +280,7 @@ public abstract class RecordLedger {
      *
      * @return The wrapped list.
      */
-    EventList getEventList() {
+    EventList<Record> getEventList() {
         return list;
     }
 
@@ -312,7 +312,7 @@ public abstract class RecordLedger {
      * @param records The records to remove.
      * @see java.util.Collection#removeAll(Collection)
      */
-    public final void removeAll(Collection records) {
+    public final void removeAll(Collection<Record> records) {
         final Lock lock = list.getReadWriteLock().writeLock();
         lock.lock();
         try {
@@ -326,7 +326,7 @@ public abstract class RecordLedger {
      * @param listChangeListener
      * @see ca.odell.glazedlists.EventList#removeListEventListener(ca.odell.glazedlists.event.ListEventListener)
      */
-    public void removeListEventListener(ListEventListener listChangeListener) {
+    public void removeListEventListener(ListEventListener<Record> listChangeListener) {
         list.removeListEventListener(listChangeListener);
     }
 
