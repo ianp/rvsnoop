@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
 import org.rvsnoop.Project;
 import org.rvsnoop.ui.MainFrame;
+import org.rvsnoop.ui.RvSnoopApplication;
 
 import rvsnoop.ui.MultiLineToolTipUI;
 
@@ -52,7 +53,6 @@ public final class StartRvSnooper {
         public void run() {
             // FIXME this is a hack, there should be no static field.
             MainFrame.INSTANCE = application.getFrame();
-            MainFrame.INSTANCE.setVisible(true);
         }
     }
 
@@ -101,7 +101,7 @@ public final class StartRvSnooper {
      *
      * @param args The command line arguments.
      */
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws Exception {
         if (log.isInfoEnabled()) {
             log.info(Version.getAsStringWithName() + " started.");
         }
@@ -111,10 +111,10 @@ public final class StartRvSnooper {
                 "Java 1.4.2 or later is required to run " + Version.getAsStringWithName(),
                 "Please rerun using a supported Java version."
             };
-            JOptionPane.showMessageDialog(null, message, "Error!",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.ERROR_MESSAGE);
         }
         final Application application = new Application();
+        SwingUtilities.invokeAndWait(new CreateAndShowTask(application));
         final Options options = new Options();
         options.addOption("h", "help", false, "Display a short help message then exit.");
         options.addOption("p", "project", true, "Load a project file on startup.");
@@ -128,7 +128,7 @@ public final class StartRvSnooper {
             new HelpFormatter().printHelp("rvsnoop", options);
             System.exit(-1);
         }
-        SwingUtilities.invokeLater(new CreateAndShowTask(application));
+        org.jdesktop.application.Application.launch(RvSnoopApplication.class, args);
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookTask(), "shutdownHook"));
     }
 

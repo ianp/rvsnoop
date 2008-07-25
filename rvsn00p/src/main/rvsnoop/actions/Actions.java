@@ -24,8 +24,6 @@ import javax.swing.KeyStroke;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
-import org.rvsnoop.actions.CheckForUpdates;
-import org.rvsnoop.actions.DisplayAbout;
 import org.rvsnoop.actions.FilterBySelection;
 import org.rvsnoop.actions.NewRvConnection;
 import org.rvsnoop.actions.ClearLedger;
@@ -37,7 +35,6 @@ import org.rvsnoop.actions.Filter;
 import org.rvsnoop.actions.OpenProject;
 import org.rvsnoop.actions.Paste;
 import org.rvsnoop.actions.PruneEmptySubjects;
-import org.rvsnoop.actions.Quit;
 import org.rvsnoop.actions.Republish;
 import org.rvsnoop.actions.RvSnoopAction;
 import org.rvsnoop.actions.SaveProjectAs;
@@ -91,17 +88,11 @@ public final class Actions {
 
     public static final Action DISPLAY_HOME_PAGE = add(new DisplayHomePage());
 
-    public static final Action DISPLAY_LICENSE = add(new DisplayLicense());
-
-    public static final Action HELP = add(new Help());
-
     public static final Action IMPORT_FROM_RECORD_BUNDLE = add(new ImportFromRecordBundle());
 
     public static final Action PAUSE_ALL = add(new PauseAllConnections());
 
     public static final Action REPORT_BUG = add(new ReportBug());
-
-    public static final Action SUBSCRIBE_TO_UPDATES = add(new SubscribeToUpdates());
 
     private static Action add(Action action) {
         final String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
@@ -141,12 +132,10 @@ public final class Actions {
 
     public Actions(Application application) {
         this.application = application;
-        addAction(new CheckForUpdates(application));
         addAction(new ClearLedger(application));
         addAction(new Copy(application));
         addAction(new Cut(application));
         addAction(new Delete(application));
-        addAction(new DisplayAbout(application));
         addAction(new EditRecordTypes(application));
         addAction(new ExportToHtml(application));
         addAction(new ExportToRecordBundle(application));
@@ -165,7 +154,6 @@ public final class Actions {
         addAction(new SearchBySelection(application));
         addAction(new SelectAllRecords(application));
         addAction(new ShowAllColumns(application));
-        addAction(new Quit(application));
     }
 
     public void addAction(RvSnoopAction action) {

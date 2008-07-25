@@ -156,7 +156,7 @@ public final class Project {
         final File file = new File(projectDirectory, "Connections.xml");
         final OutputStream stream = new FileOutputStream(file);
         try {
-            connections.toXML(stream);
+            Connections.toXML(connections.toArray(), stream);
         } finally {
             IOUtils.closeQuietly(stream);
         }

@@ -18,6 +18,7 @@ import org.rvsnoop.actions.RvSnoopAction;
 import org.rvsnoop.ui.MainFrame;
 import org.rvsnoop.ui.RecordLedgerTable;
 
+import rvsnoop.MessageLedger;
 import rvsnoop.RecordTypes;
 import rvsnoop.RvConnection;
 import rvsnoop.SubjectHierarchy;
@@ -155,6 +156,7 @@ public final class Application {
     public synchronized RecordLedger getLedger() {
         if (ledger == null) {
             ledger = new InMemoryLedger();
+            MessageLedger.RECORD_LEDGER = ledger;
         }
         return ledger;
     }
@@ -232,11 +234,13 @@ public final class Application {
         if (this.project != null) {
             ledger.syncronize();
             ledger = null;
+            MessageLedger.RECORD_LEDGER = null;
             filteredLedger = null;
         }
         this.project = project;
         // TODO configure the ledger from data in the project file.
         ledger = new InMemoryLedger();
+        MessageLedger.RECORD_LEDGER = ledger;
         filteredLedger = FilteredLedgerView.newInstance(ledger, false);
 
         getConnections().clear();

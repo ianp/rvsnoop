@@ -360,7 +360,7 @@ public final class UserPreferences {
         FileOutputStream stream = null;
         try {
             stream = new FileOutputStream(recentConnectionsFile);
-            new Connections(recentConnections, false).toXML(stream);
+            Connections.toXML(recentConnections.toArray(new RvConnection[0]), stream);
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
                 log.error(ERROR_STORING_CONNECTIONS, e);

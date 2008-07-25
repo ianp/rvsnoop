@@ -288,11 +288,10 @@ public final class Connections {
         }
     }
 
-    public void toXML(OutputStream stream) throws IOException {
+    public static void toXML(RvConnection[] connections, OutputStream stream) throws IOException {
         final XMLBuilder builder = new XMLBuilder(stream, XMLBuilder.NS_CONNECTIONS)
             .namespace(XMLBuilder.PREFIX_RENDEZVOUS, XMLBuilder.NS_RENDEZVOUS)
             .startTag("connections", XMLBuilder.NS_CONNECTIONS);
-        final RvConnection[] connections = toArray();
         for (int i = 0, imax = connections.length; i < imax; ++i) {
             connections[i].toXML(builder);
         }

@@ -33,8 +33,8 @@
     <property name="lib.tibsdk" value="/opt/tibco/tra/5.5/lib/TIBCOrt.jar"/>
 
     <!-- These are only used to run the analytics target. -->
-    <property name="lib.findbugs" value="${user.home}/Library/Java/findbugs-1.3.0"/>
-    <property name="lib.pmd" value="${user.home}/Library/Java/pmd-4.1rc1"/>
+    <property name="lib.findbugs" value="${user.home}/Library/Java/findbugs-1.3.4"/>
+    <property name="lib.pmd" value="${user.home}/Library/Java/pmd-4.2.2"/>
 
     <fileset id="include.classpath" dir="lib">
       <include name="*.jar"/>

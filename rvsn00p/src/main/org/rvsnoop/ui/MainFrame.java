@@ -13,8 +13,6 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -33,27 +31,22 @@ import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
-import javax.swing.MenuElement;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.ToolTipManager;
-import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreeNode;
 
-import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
 import org.rvsnoop.RecordLedger;
 import org.rvsnoop.UserPreferences;
-import org.rvsnoop.actions.CheckForUpdates;
 import org.rvsnoop.actions.ClearLedger;
 import org.rvsnoop.actions.Copy;
 import org.rvsnoop.actions.Cut;
 import org.rvsnoop.actions.Delete;
-import org.rvsnoop.actions.DisplayAbout;
 import org.rvsnoop.actions.EditRecordTypes;
 import org.rvsnoop.actions.Filter;
 import org.rvsnoop.actions.FilterBySelection;
@@ -61,7 +54,6 @@ import org.rvsnoop.actions.NewRvConnection;
 import org.rvsnoop.actions.OpenProject;
 import org.rvsnoop.actions.Paste;
 import org.rvsnoop.actions.PruneEmptySubjects;
-import org.rvsnoop.actions.Quit;
 import org.rvsnoop.actions.Republish;
 import org.rvsnoop.actions.SaveProject;
 import org.rvsnoop.actions.SaveProjectAs;
@@ -81,7 +73,6 @@ import org.rvsnoop.ui.VisibleColumnsMenuManager;
 
 import rvsnoop.Record;
 import rvsnoop.TreeModelAdapter;
-import rvsnoop.Version;
 import rvsnoop.actions.Actions;
 import rvsnoop.actions.ExportToHtml;
 import rvsnoop.actions.ExportToRecordBundle;
@@ -145,16 +136,6 @@ public final class MainFrame extends JFrame {
 
     }
 
-    private final class WindowCloseListener extends WindowAdapter {
-        WindowCloseListener() {
-            super();
-        }
-        @Override
-        public void windowClosing(WindowEvent e) {
-            application.shutdown();
-        }
-    }
-
     private static final long serialVersionUID = 4315311340452405694L;
 
     private static final String TOOLTIP_VISIBLE_COLUMNS = "Show or hide individual table columns";
@@ -183,7 +164,7 @@ public final class MainFrame extends JFrame {
     private final StatusBar statusBar;
 
     public MainFrame(final Application application) {
-        super(Version.getAsStringWithName());
+        setName("mainFrame");
         this.application = application;
         final UserPreferences state = UserPreferences.getInstance();
         statusBar = new StatusBar(application);
@@ -197,8 +178,6 @@ public final class MainFrame extends JFrame {
         messageLedgerSplitter = createMessageLedgerSplitter(messageLedgerScroller, detailsPanel);
         subjectExplorerSplitter = createSubjectExplorerSplitter(subjectExplorerScroller, messageLedgerSplitter);
         connectionListSplitter = createConnectionListSplitter(connectionListScroller, subjectExplorerSplitter);
-        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        setIconImage(ImageFactory.getInstance().getIconImage("rvsnoop"));
         final Actions factory = application.getActionFactory();
         setJMenuBar(createMenuBar(messageLedger, factory));
         getContentPane().add(connectionListSplitter, BorderLayout.CENTER);
@@ -233,7 +212,6 @@ public final class MainFrame extends JFrame {
                 messageLedgerSelectionModel.addListSelectionListener((ListSelectionListener) action);
             }
         }
-        addWindowListener(new WindowCloseListener());
         UserPreferences.getInstance().addPreferenceChangeListener(new FontChangeListener());
     }
 
@@ -305,23 +283,9 @@ public final class MainFrame extends JFrame {
         connRecent.setIcon(Icons.ADD_CONNECTION);
         connRecent.addMenuListener(new RecentConnectionsMenuManager(application));
         file.add(connRecent);
-        file.addSeparator();
-        file.add(factory.getAction(Quit.COMMAND));
+//        file.addSeparator();
+//        file.add(factory.getAction(Quit.COMMAND));
         return file;
-    }
-
-    private JMenu createHelpMenu(final Actions factory) {
-        final JMenu help = new JMenu("Help");
-        help.setMnemonic('h');
-        help.add(Actions.HELP);
-        help.add(Actions.DISPLAY_HOME_PAGE);
-        help.add(Actions.REPORT_BUG);
-        help.add(factory.getAction(CheckForUpdates.COMMAND));
-        help.add(Actions.SUBSCRIBE_TO_UPDATES);
-        help.addSeparator();
-        help.add(Actions.DISPLAY_LICENSE);
-        help.add(factory.getAction(DisplayAbout.COMMAND));
-        return help;
     }
 
     private JMenuBar createMenuBar(RecordLedgerTable table, Actions factory) {
@@ -330,10 +294,6 @@ public final class MainFrame extends JFrame {
         bar.add(createEditMenu(factory));
         bar.add(createViewMenu(factory, table));
         bar.add(createConfigureMenu());
-        bar.add(createHelpMenu(factory));
-        // Mac OS X screen menu bars do not normally show icons.
-        if (SystemUtils.IS_OS_MAC_OSX)
-            removeIconsFromMenuElements(bar);
         return bar;
     }
 
@@ -464,15 +424,6 @@ public final class MainFrame extends JFrame {
 
     public JTree getSubjectExplorer() {
         return subjectExplorer;
-    }
-
-    private void removeIconsFromMenuElements(MenuElement elt) {
-        if (elt instanceof AbstractButton)
-            ((AbstractButton) elt).setIcon(null);
-        final MenuElement[] elts = elt.getSubElements();
-        for (int i = 0, imax = elts.length; i < imax; ++i) {
-            removeIconsFromMenuElements(elts[i]);
-        }
     }
 
 }

@@ -40,6 +40,7 @@ public final class XMLBuilder {
 
     private final String namespace;
 
+    // URIs -> prefixes
     private final Map namespaces = new LinkedHashMap();
 
     private boolean started;
@@ -127,7 +128,7 @@ public final class XMLBuilder {
     
     public XMLBuilder namespace(String prefix, String uri) {
         if (started) { throw new IllegalStateException(); }
-        namespaces.put(prefix, uri);
+        namespaces.put(uri, prefix);
         return this;
     }
 

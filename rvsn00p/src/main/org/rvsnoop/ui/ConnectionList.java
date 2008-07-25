@@ -75,6 +75,7 @@ public final class ConnectionList extends JList {
         final ConnectionListCellRenderer renderer =
             new ConnectionListCellRenderer(hidingDefaultValues);
         final PopupListener popupListener = new PopupListener();
+        addMouseListener(popupListener);
         renderer.addMouseListener(popupListener);
         popupMenu.addPopupMenuListener(popupListener);
         setCellRenderer(renderer);
