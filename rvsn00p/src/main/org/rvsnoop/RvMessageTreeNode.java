@@ -7,12 +7,16 @@
  */
 package org.rvsnoop;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.tree.TreeNode;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,21 +55,21 @@ public final class RvMessageTreeNode extends LazyTreeNode {
     }
 
     @Override
-    protected List createChildren() {
+    protected List<TreeNode> createChildren() {
         final int numFields = message.getNumFields();
-        final List children = new ArrayList(numFields);
+        if (numFields == 0) { return Collections.emptyList(); }
+        final ArrayList<TreeNode> children = newArrayList();
         for (int i = 0; i < numFields; ++i) {
             try {
                 children.add(new RvFieldTreeNode(this, message.getFieldByIndex(i)));
             } catch (TibrvException e) {
                 if (log.isErrorEnabled()) {
-                    log.error(MessageFormat.format(ERROR_FIELD, new Object[] {
-                            new Integer(e.error)
-                    }), e);
+                    log.error(MessageFormat.format(ERROR_FIELD, e.error), e);
                 }
                 break;
             }
         }
+        children.trimToSize();
         return children;
     }
 

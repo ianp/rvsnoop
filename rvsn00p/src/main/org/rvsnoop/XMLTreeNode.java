@@ -7,13 +7,14 @@
  */
 package org.rvsnoop;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.tree.TreeNode;
-
 
 import nu.xom.Attribute;
 import nu.xom.Comment;
@@ -43,13 +44,15 @@ final class XMLTreeNode extends LazyTreeNode {
     }
 
     @Override
-    protected List createChildren() {
+    protected List<TreeNode> createChildren() {
         final ParentNode pn = (ParentNode) node;
         final int numChildren = pn.getChildCount();
-        if (numChildren == 0) return Collections.EMPTY_LIST;
-        final List children = new ArrayList(numChildren);
-        for (int i = 0; i < numChildren; ++i)
+        if (numChildren == 0) { return Collections.emptyList(); }
+        final ArrayList<TreeNode> children = newArrayList();
+        for (int i = 0; i < numChildren; ++i) {
             children.add(new XMLTreeNode(this, pn.getChild(i)));
+        }
+        children.trimToSize();
         return children;
     }
 

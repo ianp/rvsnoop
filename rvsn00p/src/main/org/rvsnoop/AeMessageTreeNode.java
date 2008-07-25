@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.tree.TreeNode;
 
 import org.rvsnoop.ui.ImageFactory;
 
@@ -43,7 +44,7 @@ public final class AeMessageTreeNode extends LazyTreeNode {
 
     static String AERV, RV, XMLJMS, XMLRV, UNKNOWN, TRACKING, DATA;
 
-    private final List children = new ArrayList(2);
+    private final List<TreeNode> children = new ArrayList<TreeNode>(2);
 
     private final String text;
 
@@ -72,7 +73,7 @@ public final class AeMessageTreeNode extends LazyTreeNode {
      * @see rvsnoop.LazyTreeNode#createChildren()
      */
     @Override
-    protected List createChildren() {
+    protected List<TreeNode> createChildren() {
         return children;
     }
 

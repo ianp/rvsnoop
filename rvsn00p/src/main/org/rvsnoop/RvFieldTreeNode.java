@@ -7,6 +7,8 @@
  */
 package org.rvsnoop;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -174,45 +176,44 @@ public final class RvFieldTreeNode extends LazyTreeNode {
     }
 
     @Override
-    protected List createChildren() {
-        List children = null;
+    protected List<TreeNode> createChildren() {
         if (field.type == TibrvMsg.XML) {
             final InputStream stream = new ByteArrayInputStream(((TibrvXml) field.data).getBytes());
-            children = createChildrenFromXML(new InputStreamReader(stream));
+            return createChildrenFromXML(new InputStreamReader(stream));
         } else if (field.type == TibrvMsg.STRING && ((String) field.data).startsWith("<?xml ")) {
-            children = createChildrenFromXML(new StringReader((String) field.data));
+            return createChildrenFromXML(new StringReader((String) field.data));
         } else if (field.type == TibrvMsg.MSG) {
             final TibrvMsg msg = (TibrvMsg) field.data;
             final int numChildren = msg.getNumFields();
-            children = new ArrayList(numChildren);
+            ArrayList<TreeNode> children = newArrayList();
             try {
-                for (int i = 0; i < numChildren; ++i)
+                for (int i = 0; i < numChildren; ++i) {
                     children.add(new RvFieldTreeNode(this, msg.getFieldByIndex(i)));
+                }
             } catch (TibrvException e) {
                 if (log.isErrorEnabled()) {
-                    log.error(MessageFormat.format(ERROR_FIELD, new Object[] {
-                            new Integer(e.error)
-                    }), e);
+                    log.error(MessageFormat.format(ERROR_FIELD, e.error), e);
                 }
             }
+            children.trimToSize();
+            return children;
         }
-        return children != null ? children : Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    private List createChildrenFromXML(final Reader reader) {
-        List children = null;
+    private List<TreeNode> createChildrenFromXML(final Reader reader) {
+        final ArrayList<TreeNode> children = newArrayList();
         final Builder builder = new Builder(false, new InterningTrimmingNodeFactory());
         try {
             final Document doc = builder.build(reader).getDocument();
             final int numChildren = doc.getChildCount();
-            children = new ArrayList(numChildren);
-            for (int i = 0; i < numChildren; ++i)
+            for (int i = 0; i < numChildren; ++i) {
                 children.add(new XMLTreeNode(this, doc.getChild(i)));
+            }
         } catch (ParsingException e) {
             if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_XML_PARSE, new Object[] {
-                        new Integer(e.getLineNumber()), new Integer(e.getColumnNumber())
-                }), e);
+                log.error(MessageFormat.format(ERROR_XML_PARSE,
+                        e.getLineNumber(), e.getColumnNumber()), e);
             }
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
@@ -221,6 +222,7 @@ public final class RvFieldTreeNode extends LazyTreeNode {
         } finally {
             IOUtils.closeQuietly(reader);
         }
+        children.trimToSize();
         return children;
     }
 

@@ -50,7 +50,7 @@ public abstract class LazyTreeNode implements TreeNode {
 
     }
 
-    private List children;
+    private List<TreeNode> children;
 
     private final TreeNode parent;
 
@@ -65,9 +65,8 @@ public abstract class LazyTreeNode implements TreeNode {
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeNode#children()
      */
-    public final Enumeration children() {
-        if (children == null)
-            children = getAllowsChildren() ? createChildren() : Collections.EMPTY_LIST;
+    public final Enumeration<TreeNode> children() {
+        ensureChildrenCreated();
         return Collections.enumeration(children);
     }
 
@@ -76,7 +75,17 @@ public abstract class LazyTreeNode implements TreeNode {
      *
      * @return A list of tree nodes.
      */
-    protected abstract List createChildren();
+    protected abstract List<TreeNode> createChildren();
+
+    private void ensureChildrenCreated() {
+        if (children == null) {
+            if (getAllowsChildren()) {
+                children = createChildren();
+            } else {
+                children = Collections.emptyList();
+            }
+        }
+    }
 
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeNode#getAllowsChildren()
@@ -87,8 +96,7 @@ public abstract class LazyTreeNode implements TreeNode {
      * @see javax.swing.tree.TreeNode#getChildAt(int)
      */
     public final TreeNode getChildAt(int childIndex) {
-        if (children == null)
-            children = getAllowsChildren() ? createChildren() : Collections.EMPTY_LIST;
+        ensureChildrenCreated();
         return (TreeNode) children.get(childIndex);
     }
 
@@ -96,8 +104,7 @@ public abstract class LazyTreeNode implements TreeNode {
      * @see javax.swing.tree.TreeNode#getChildCount()
      */
     public final int getChildCount() {
-        if (children == null)
-            children = getAllowsChildren() ? createChildren() : Collections.EMPTY_LIST;
+        ensureChildrenCreated();
         return children.size();
     }
 
@@ -114,8 +121,7 @@ public abstract class LazyTreeNode implements TreeNode {
      * @see javax.swing.tree.TreeNode#getIndex(javax.swing.tree.TreeNode)
      */
     public final int getIndex(TreeNode node) {
-        if (children == null)
-            children = getAllowsChildren() ? createChildren() : Collections.EMPTY_LIST;
+        ensureChildrenCreated();
         return children.indexOf(node);
     }
 
