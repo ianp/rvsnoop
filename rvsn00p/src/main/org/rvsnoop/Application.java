@@ -15,13 +15,13 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.actions.RvSnoopAction;
+import org.rvsnoop.ui.MainFrame;
 import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.RecordTypes;
 import rvsnoop.RvConnection;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.actions.Actions;
-import rvsnoop.ui.UIManager;
 
 /**
  * The main application class.
@@ -51,7 +51,7 @@ public final class Application {
     private FilteredLedgerView filteredLedger;
 
     /** The main application frame. */
-    private UIManager frame;
+    private MainFrame frame;
 
     private RecordLedger ledger;
 
@@ -136,9 +136,9 @@ public final class Application {
     /**
      * @return the frame
      */
-    public synchronized UIManager getFrame() {
+    public synchronized MainFrame getFrame() {
         if (frame == null) {
-            frame = new UIManager(this);
+            frame = new MainFrame(this);
             getActionFactory().configureListeners();
         }
         return frame;

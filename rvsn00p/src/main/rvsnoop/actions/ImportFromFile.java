@@ -23,8 +23,7 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import rvsnoop.ui.UIManager;
+import org.rvsnoop.ui.MainFrame;
 
 /**
  * An abstract class that handles the basics of importing messages to the ledger.
@@ -53,7 +52,7 @@ public abstract class ImportFromFile extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         final JFileChooser chooser = new JFileChooser();
         if (filter != null) chooser.setFileFilter(filter);
-        if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(UIManager.INSTANCE))
+        if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(MainFrame.INSTANCE))
             return;
         final File file = chooser.getSelectedFile();
         importRecords(file);

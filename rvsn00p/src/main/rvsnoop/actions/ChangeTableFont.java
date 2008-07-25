@@ -14,10 +14,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import org.rvsnoop.UserPreferences;
+import org.rvsnoop.ui.MainFrame;
 
 import rvsnoop.ui.FontChooser;
 import rvsnoop.ui.Icons;
-import rvsnoop.ui.UIManager;
 
 /**
  * Change the font used to display text in the message ledger.
@@ -49,7 +49,7 @@ final class ChangeTableFont extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         final FontChooser chooser = new FontChooser();
         chooser.setSelectedFont(UserPreferences.getInstance().getLedgerFont());
-        if (chooser.showDialog(UIManager.INSTANCE) == FontChooser.OK_OPTION) {
+        if (chooser.showDialog(MainFrame.INSTANCE) == FontChooser.OK_OPTION) {
             final Font font = chooser.getSelectedFont();
             UserPreferences.getInstance().setLedgerFont(font);
         }

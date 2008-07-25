@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
+import org.rvsnoop.ui.MainFrame;
+
 import com.tibco.tibrv.TibrvException;
 
 /**
@@ -74,11 +76,11 @@ public final class UIUtils {
         m[0] = message;
         m[1] = s != null ? s : "";
         m[2] = exception instanceof TibrvException ? "Rendezvous Error Code: " + ((TibrvException) exception).error : "";
-        JOptionPane.showMessageDialog(UIManager.INSTANCE, m, title, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(MainFrame.INSTANCE, m, title, JOptionPane.ERROR_MESSAGE);
     }
 
     public static void showInformation(Object message) {
-        JOptionPane.showMessageDialog(UIManager.INSTANCE, message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(MainFrame.INSTANCE, message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**

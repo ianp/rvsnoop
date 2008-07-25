@@ -20,11 +20,11 @@ import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
+import org.rvsnoop.ui.MainFrame;
 
 import rvsnoop.Record;
 import rvsnoop.RvConnection;
 import rvsnoop.State;
-import rvsnoop.ui.UIManager;
 import rvsnoop.ui.UIUtils;
 
 /**
@@ -70,7 +70,7 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
             connectionNames[i] = connections[i].getDescription();
         }
         final String name = (String) JOptionPane.showInputDialog(
-                UIManager.INSTANCE, question, NAME, JOptionPane.QUESTION_MESSAGE,
+                MainFrame.INSTANCE, question, NAME, JOptionPane.QUESTION_MESSAGE,
                 null, connectionNames, connectionNames[0]);
         if (name == null) { return; } // User cancelled republishing.
         final RvConnection connection = connections[ArrayUtils.indexOf(connectionNames, name)];

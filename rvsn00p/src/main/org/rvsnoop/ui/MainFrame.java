@@ -5,7 +5,7 @@
  * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
  * License:   Apache Software License (Version 2.0)
  */
-package rvsnoop.ui;
+package org.rvsnoop.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,7 +15,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Iterator;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -88,6 +87,11 @@ import rvsnoop.actions.ExportToHtml;
 import rvsnoop.actions.ExportToRecordBundle;
 import rvsnoop.actions.ExportToRvScript;
 import rvsnoop.actions.ExportToRvTest;
+import rvsnoop.ui.Icons;
+import rvsnoop.ui.RvDetailsPanel;
+import rvsnoop.ui.SubjectExplorerEditor;
+import rvsnoop.ui.SubjectExplorerRenderer;
+import rvsnoop.ui.UIUtils;
 
 /**
  * The single user interface class for the application.
@@ -98,7 +102,7 @@ import rvsnoop.actions.ExportToRvTest;
  */
 // Class provides a static instance instead of a factory method.
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/17/06 7:58 PM
-public final class UIManager extends JFrame {
+public final class MainFrame extends JFrame {
 
     private final class MessageLedgerListener implements ListSelectionListener {
         MessageLedgerListener() {
@@ -155,10 +159,10 @@ public final class UIManager extends JFrame {
 
     private static final String TOOLTIP_VISIBLE_COLUMNS = "Show or hide individual table columns";
 
-    private static final Log log = LogFactory.getLog(UIManager.class);
+    private static final Log log = LogFactory.getLog(MainFrame.class);
 
     // FIXME: Remove this field.
-    public static UIManager INSTANCE;
+    public static MainFrame INSTANCE;
 
     private final Application application;
 
@@ -178,7 +182,7 @@ public final class UIManager extends JFrame {
 
     private final StatusBar statusBar;
 
-    public UIManager(final Application application) {
+    public MainFrame(final Application application) {
         super(Version.getAsStringWithName());
         this.application = application;
         final UserPreferences state = UserPreferences.getInstance();
@@ -224,10 +228,10 @@ public final class UIManager extends JFrame {
     private void connectListeners() {
         final ListSelectionModel messageLedgerSelectionModel = messageLedger.getSelectionModel();
         messageLedgerSelectionModel.addListSelectionListener(new MessageLedgerListener());
-        for (final Iterator i = Actions.getActions().iterator(); i.hasNext(); ) {
-            final Object action = i.next();
-            if (action instanceof ListSelectionListener)
+        for (Object action : Actions.getActions()) {
+            if (action instanceof ListSelectionListener) {
                 messageLedgerSelectionModel.addListSelectionListener((ListSelectionListener) action);
+            }
         }
         addWindowListener(new WindowCloseListener());
         UserPreferences.getInstance().addPreferenceChangeListener(new FontChangeListener());

@@ -14,8 +14,7 @@ import javax.swing.Action;
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.RecordLedgerFormat;
-
-import rvsnoop.ui.UIManager;
+import org.rvsnoop.ui.MainFrame;
 
 /**
  * Show all columns in the message ledger.
@@ -47,7 +46,7 @@ public final class ShowAllColumns extends RvSnoopAction {
      */
     @Override
     public void actionPerformed(ActionEvent event) {
-        UIManager.INSTANCE.getRecordLedger().getTableFormat().setColumns(RecordLedgerFormat.ALL_COLUMNS);
+        MainFrame.INSTANCE.getRecordLedger().getTableFormat().setColumns(RecordLedgerFormat.ALL_COLUMNS);
     }
 
 }

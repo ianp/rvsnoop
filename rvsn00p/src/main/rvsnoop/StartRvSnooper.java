@@ -23,9 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
 import org.rvsnoop.Project;
+import org.rvsnoop.ui.MainFrame;
 
 import rvsnoop.ui.MultiLineToolTipUI;
-import rvsnoop.ui.UIManager;
 
 /**
  * Starts an instance of RvSnoop.
@@ -51,8 +51,8 @@ public final class StartRvSnooper {
 
         public void run() {
             // FIXME this is a hack, there should be no static field.
-            UIManager.INSTANCE = application.getFrame();
-            UIManager.INSTANCE.setVisible(true);
+            MainFrame.INSTANCE = application.getFrame();
+            MainFrame.INSTANCE.setVisible(true);
         }
     }
 

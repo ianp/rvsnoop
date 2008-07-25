@@ -13,9 +13,9 @@ import javax.swing.Action;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
+import org.rvsnoop.ui.MainFrame;
 
 import rvsnoop.Record;
-import rvsnoop.ui.UIManager;
 
 /**
  * Clear the contents of the record ledger.
@@ -50,7 +50,7 @@ public final class ClearLedger extends RvSnoopAction {
         application.getSubjectHierarchy().reset();
         Record.resetSequence();
         // FIXME this should be replaced with a listener on the ledger.
-        UIManager.INSTANCE.clearDetails();
+        MainFrame.INSTANCE.clearDetails();
     }
 
 }

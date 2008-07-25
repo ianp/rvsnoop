@@ -15,8 +15,7 @@ import javax.swing.ListSelectionModel;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
-
-import rvsnoop.ui.UIManager;
+import org.rvsnoop.ui.MainFrame;
 
 /**
  * Select all records in the visible ledger.
@@ -48,7 +47,7 @@ public final class SelectAllRecords extends RvSnoopAction {
      */
     @Override
     public void actionPerformed(ActionEvent event) {
-        final JTable ledger = UIManager.INSTANCE.getRecordLedger();
+        final JTable ledger = MainFrame.INSTANCE.getRecordLedger();
         final ListSelectionModel selectionModel = ledger.getSelectionModel();
         selectionModel.setSelectionInterval(0, ledger.getRowCount() - 1);
     }
