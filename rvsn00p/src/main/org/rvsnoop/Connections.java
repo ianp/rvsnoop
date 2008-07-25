@@ -115,16 +115,13 @@ public final class Connections {
 
     private final ObservableElementList<RvConnection> list;
 
-    private final boolean ownsConnections;
-
-    public Connections(Collection<RvConnection> connections, boolean ownsConnections) {
+    public Connections(Collection<RvConnection> connections) {
         if (connections == null) { connections = Collections.emptyList(); }
         this.list = new ObservableElementList<RvConnection>(
                 new SortedList<RvConnection>(
                         GlazedLists.eventList(connections),
                         new DescriptionComparator()),
                 new Observer());
-        this.ownsConnections = ownsConnections;
     }
 
     /**
@@ -150,7 +147,7 @@ public final class Connections {
             if (log.isInfoEnabled()) {
                 log.info("Adding connection: " + connection);
             }
-            if (ownsConnections) { connection.setParentList(this); }
+            connection.setParentList(this);
             list.add(connection);
             return true;
         } finally {
@@ -178,10 +175,8 @@ public final class Connections {
                 if (log.isInfoEnabled()) {
                     log.info("Removing connection: " + connection);
                 }
-                if (ownsConnections) {
-                    connection.stop();
-                    connection.setParentList(null);
-                }
+                connection.stop();
+                connection.setParentList(null);
                 list.remove(0);
             }
         } finally {
@@ -240,10 +235,8 @@ public final class Connections {
             if (log.isInfoEnabled()) {
                 log.info("Removing connection: " + connection);
             }
-            if (ownsConnections) {
-                connection.stop();
-                connection.setParentList(null);
-            }
+            connection.stop();
+            connection.setParentList(null);
             list.remove(connection);
             return true;
         } finally {

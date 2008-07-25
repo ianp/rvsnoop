@@ -39,6 +39,6 @@ rem Add the default classpath if present.
 if "no%CLASSPATH%" neq "no" set CP=%CP%;%CLASSPATH%
 
 rem Change the "start javaw" on the next line to "java" to see a console log of any errors.
-start javaw -Xmx128m -Drvsnoop.home=%RVSNOOP_HOME% -Dfile.encoding=UTF-8 -Djava.util.logging.config.file=%RVSNOOP_HOME%\lib\commons-logging.properties -classpath "%CP%" rvsnoop.StartRvSnooper %*
+start javaw -Xmx128m -Drvsnoop.home=%RVSNOOP_HOME% -Dfile.encoding=UTF-8 -Djava.util.logging.config.file=%RVSNOOP_HOME%\lib\commons-logging.properties -classpath "%CP%" org.rvsnoop.ui.RvSnoopApplication %*
 
 endlocal

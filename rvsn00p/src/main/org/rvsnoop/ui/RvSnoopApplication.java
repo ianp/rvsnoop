@@ -11,6 +11,7 @@ package org.rvsnoop.ui;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.EventObject;
 
 import javax.swing.JFrame;
@@ -18,8 +19,14 @@ import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.cli2.CommandLine;
+import org.apache.commons.cli2.Group;
+import org.apache.commons.cli2.Option;
+import org.apache.commons.cli2.builder.DefaultOptionBuilder;
+import org.apache.commons.cli2.builder.GroupBuilder;
+import org.apache.commons.cli2.commandline.Parser;
+import org.apache.commons.cli2.util.HelpFormatter;
+import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ApplicationActionMap;
 import org.jdesktop.application.ApplicationContext;
@@ -27,22 +34,39 @@ import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Task.BlockingScope;
 import org.rvsnoop.Application;
+import org.rvsnoop.Connections;
+import org.rvsnoop.Logger;
+import org.rvsnoop.Project;
 
 import rvsnoop.BrowserLauncher;
+import rvsnoop.RvConnection;
+import rvsnoop.Version;
+import rvsnoop.ui.MultiLineToolTipUI;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 
 /**
  * The main UI class for RvSnoop.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision$, $Date$
+ * @since 1.7
  */
 public final class RvSnoopApplication extends SingleFrameApplication {
     
-    private static final Log logger = LogFactory.getLog(RvSnoopApplication.class);
+    private static final Logger logger = new Logger();
+
+    /**
+     * The application entry point.
+     *
+     * @param args The command line arguments.
+     */
+    public static void main(final String[] args) throws Exception {
+        org.jdesktop.application.Application.launch(RvSnoopApplication.class, args);
+    }
 
     private Injector injector;
     
@@ -82,9 +106,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         try {
             BrowserLauncher.openURL("http://sourceforge.net/tracker/?group_id=63447");
         } catch (Exception e) {
-            if (logger.isErrorEnabled()) {
-                logger.error(getContext().getResourceMap().getString("displayBugsPage.error.browser"), e);
-            }
+            logger.error(getContext().getResourceMap(), "displayBugsPage.error.browser", e);
         }
     }
 
@@ -97,9 +119,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
                 ? "" : "file://";
             BrowserLauncher.openURL(prefix + help.getAbsolutePath());
         } catch (Exception e) {
-            if (logger.isErrorEnabled()) {
-                logger.error(getContext().getResourceMap().getString("displayHelp.error.browser"), e);
-            }
+            logger.error(getContext().getResourceMap(), "displayHelp.error.browser", e);
         }
     }
 
@@ -113,9 +133,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         try {
             BrowserLauncher.openURL("http://rvsn00p.sourceforge.net");
         } catch (Exception e) {
-            if (logger.isErrorEnabled()) {
-                logger.error(getContext().getResourceMap().getString("displayHomePage.error.browser"), e);
-            }
+            logger.error(getContext().getResourceMap(), "displayHomePage.error.browser", e);
         }
     }
 
@@ -124,10 +142,70 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         displayDocPage("license.html");
     }
 
+    private void ensureJavaVersionIsValid() {
+        if (!SystemUtils.isJavaVersionAtLeast(150)) {
+            Object message = new String[] {
+                    "Java 1.5 or later is required to run " + Version.getAsStringWithName(),
+                    "Please rerun using a supported Java version."
+            };
+            JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.ERROR_MESSAGE);
+            System.exit(-1);
+        }
+    }
+
     @Override
     protected void initialize(String[] args) {
+        ensureJavaVersionIsValid();
+        ResourceMap resourceMap = getContext().getResourceMap();
+        logger.info(resourceMap, "info.appStarted");
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookTask(), "shutdownHook"));
+        MultiLineToolTipUI.configure();
+
+        Option helpOption = new DefaultOptionBuilder()
+                .withShortName("h").withLongName("help")
+                .withDescription(resourceMap.getString("CLI.helpDescription")).create();
+        Option projectOption = new DefaultOptionBuilder()
+                .withShortName("p").withLongName("project")
+                .withDescription(resourceMap.getString("CLI.projectDescription")).create();
+        CommandLine line = parseCommandLine(args, helpOption, projectOption);
+        
         injector = Guice.createInjector(new GuiModule());
         injector.injectMembers(this);
+
+        Project project = loadProjectIfValid(projectOption, line);
+        if (project != null) {
+            try {
+                injector.getInstance(Application.class).setProject(project);
+            } catch (IOException e) {
+                logger.error(getContext().getResourceMap(), "CLI.error.readingProject");
+            }
+        }
+    }
+
+    private CommandLine parseCommandLine(String[] args, Option helpOption, Option projectOption) {
+        Group group = new GroupBuilder().withOption(helpOption).withOption(projectOption).create();
+        Parser parser = new Parser();
+        parser.setGroup(group);
+        parser.setHelpOption(helpOption);
+        parser.setHelpFormatter(new HelpFormatter());
+        CommandLine line = parser.parseAndHelp(args);
+        if (line.hasOption(helpOption)) { System.exit(0); }
+        return line;
+    }
+
+    private Project loadProjectIfValid(Option project, CommandLine line) {
+        if (!line.hasOption(project)) { return null; }
+        String filename = line.getValue(project).toString();
+        if (filename == null || filename.length() == 0) {
+            logger.warn(getContext().getResourceMap(), "CLI.warn.noProject");
+            return null;
+        }
+        File file = new File(filename);
+        if (!file.canRead()) {
+            logger.error(getContext().getResourceMap(), "CLI.error.unreadableProject", filename);
+            return null;
+        }
+        return new Project(file);
     }
 
     /* (non-Javadoc)
@@ -135,6 +213,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
      */
     @Override
     protected void startup() {
+        MainFrame.INSTANCE = injector.getInstance(Application.class).getFrame();
         setMainFrame(MainFrame.INSTANCE);
         
         final JFrame frame = getMainFrame();
@@ -164,7 +243,8 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
         @Override
         protected void configure() {
-            bind(Application.class).toInstance(new Application());
+            bind(Connections.class).toInstance(new Connections(null));
+            bind(Application.class).to(Application.Impl.class).in(Scopes.SINGLETON);
             bind(ApplicationContext.class).toInstance(getContext());
         }
         
@@ -183,7 +263,26 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         }
 
         public void willExit(EventObject event) {
-            injector.getInstance(Application.class).shutdown();
+            try {
+                final RvConnection[] conns = injector.getInstance(Connections.class).toArray();
+                for (int i = 0, imax = conns.length; i < imax; ++i) {
+                    conns[i].stop();
+                }
+                RvConnection.shutdown();
+                System.exit(0);
+            } catch (Exception e) {
+                logger.error(getContext().getResourceMap(), "error.shutdown", e);
+                System.exit(1);
+            }
+        }
+    }
+
+    private class ShutdownHookTask implements Runnable {
+        ShutdownHookTask() {
+            super();
+        }
+        public void run() {
+            logger.info(getContext().getResourceMap(), "info.appStopped");
         }
     }
 
