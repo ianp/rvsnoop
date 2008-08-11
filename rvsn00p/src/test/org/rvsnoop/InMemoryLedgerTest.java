@@ -7,8 +7,6 @@
  */
 package org.rvsnoop;
 
-import org.bushe.swing.event.EventBus;
-
 /**
  * Unit tests for the {@link InMemoryLedger} class.
  *
@@ -22,7 +20,7 @@ public class InMemoryLedgerTest extends RecordLedgerTest {
      */
     @Override
     protected RecordLedger createRecordLedger() {
-        return new InMemoryLedger(EventBus.getGlobalEventService());
+        return new InMemoryLedger();
     }
 
 }

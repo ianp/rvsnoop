@@ -15,18 +15,19 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EventListener;
+import java.util.EventObject;
 import java.util.Iterator;
 
 import javax.swing.ListModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bushe.swing.event.EventBus;
 
 import rvsnoop.RvConnection;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.swing.EventListModel;
 import ca.odell.glazedlists.util.concurrent.Lock;
 
@@ -49,7 +50,7 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  *          2007) $
  * @since 1.6
  */
-public abstract class Connections {
+public final class Connections {
 
     private static final Log log = LogFactory.getLog(Connections.class);
 
@@ -98,18 +99,11 @@ public abstract class Connections {
             }
             connection.setParentList(this);
             list.add(connection);
+            EventBus.publish(new AddedEvent(connection));
             return true;
         } finally {
             lock.unlock();
         }
-    }
-
-    /**
-     * @param listChangeListener
-     * @see ca.odell.glazedlists.EventList#addListEventListener(ca.odell.glazedlists.event.ListEventListener)
-     */
-    public void addListEventListener(ListEventListener<RvConnection> listChangeListener) {
-        list.addListEventListener(listChangeListener);
     }
 
     /**
@@ -187,18 +181,11 @@ public abstract class Connections {
             connection.stop();
             connection.setParentList(null);
             list.remove(connection);
+            EventBus.publish(new RemovedEvent(connection));
             return true;
         } finally {
             lock.unlock();
         }
-    }
-
-    /**
-     * @param listChangeListener
-     * @see ca.odell.glazedlists.EventList#removeListEventListener(ca.odell.glazedlists.event.ListEventListener)
-     */
-    public void removeListEventListener(ListEventListener<RvConnection> listChangeListener) {
-        list.removeListEventListener(listChangeListener);
     }
 
     /**
@@ -230,6 +217,28 @@ public abstract class Connections {
         }
     }
 
+    public final class AddedEvent extends EventObject {
+
+        static final long serialVersionUID = -1027536693959206731L;
+        
+        private final RvConnection connection;
+
+        public AddedEvent(RvConnection connection) {
+            super(Connections.this);
+            this.connection = connection;
+        }
+        
+        public RvConnection getConnection() {
+            return connection;
+        }
+        
+        @Override
+        public Connections getSource() {
+            return (Connections) super.getSource();
+        }
+        
+    }
+    
     private static class DescriptionComparator implements Comparator<RvConnection> {
         private final Collator collator = Collator.getInstance();
 
@@ -240,9 +249,6 @@ public abstract class Connections {
         public int compare(RvConnection o1, RvConnection o2) {
             return collator.compare(o1.getDescription(), o2.getDescription());
         }
-    }
-
-    public static final class Impl extends Connections {
     }
 
     private static class Observer implements ObservableElementList.Connector<RvConnection>,
@@ -291,4 +297,27 @@ public abstract class Connections {
             element.removePropertyChangeListener(this);
         }
     }
+
+    public final class RemovedEvent extends EventObject {
+
+        private static final long serialVersionUID = -5382677785401677911L;
+
+        private final RvConnection connection;
+
+        public RemovedEvent(RvConnection connection) {
+            super(Connections.this);
+            this.connection = connection;
+        }
+        
+        public RvConnection getConnection() {
+            return connection;
+        }
+        
+        @Override
+        public Connections getSource() {
+            return (Connections) super.getSource();
+        }
+        
+    }
+
 }

@@ -35,14 +35,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bushe.swing.event.EventBus;
+import org.bushe.swing.event.EventSubscriber;
 import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
 import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.RvConnection;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.event.ListEvent;
-import ca.odell.glazedlists.event.ListEventListener;
-import ca.odell.glazedlists.util.concurrent.Lock;
 
 /**
  * Handles the storage and retrival of the session state.
@@ -66,12 +64,6 @@ public final class UserPreferences {
             setLedgerColumns((TableColumnModel) e.getSource());
         }
         public void columnSelectionChanged(ListSelectionEvent e) { /* NO-OP */ }
-    }
-
-    private final class RecentConnectionsListener implements ListEventListener<RvConnection> {
-        public void listChanged(ListEvent<RvConnection> changes) {
-            updateRecentConnectionsList(changes);
-        }
     }
 
     private final class RecentProjectsListener implements PropertyChangeListener {
@@ -99,7 +91,7 @@ public final class UserPreferences {
         return instance;
     }
 
-    private Preferences preferences =
+    private final Preferences preferences =
         Preferences.userRoot().node("org").node("rvsnoop").node("sessionState");
 
     private final LinkedList<RvConnection> recentConnections = new LinkedList<RvConnection>();
@@ -131,6 +123,12 @@ public final class UserPreferences {
             final String project = node.get(Integer.toString(i), null);
             if (project != null) { recentProjects.add(new File(project)); }
         }
+        EventBus.subscribe(Connections.AddedEvent.class, new EventSubscriber<Connections.AddedEvent>() {
+            public void onEvent(Connections.AddedEvent event) {
+                updateRecentConnectionsList(event.getConnection());
+            }
+        });
+
     }
 
     /**
@@ -165,7 +163,7 @@ public final class UserPreferences {
 
     public RvConnection getMostRecentConnection() {
         try {
-            return (RvConnection) recentConnections.get(0);
+            return recentConnections.get(0);
         } catch (Exception e) {
             return null;
         }
@@ -188,7 +186,6 @@ public final class UserPreferences {
     }
 
     public void listenToChangesFrom(Application application) {
-        application.getConnections().addListEventListener(new RecentConnectionsListener());
         application.addPropertyChangeListener(Application.KEY_PROJECT, new RecentProjectsListener());
     }
 
@@ -224,25 +221,7 @@ public final class UserPreferences {
         preferences.putInt(KEY_NUM_RECENT_CONNECTIONS, number);
     }
 
-    private void updateRecentConnectionsList(ListEvent<RvConnection> changes) {
-        final EventList<RvConnection> list = changes.getSourceList();
-        final Lock lock = list.getReadWriteLock().readLock();
-        lock.lock();
-        try {
-            final int max = getNumberOfRecentConnections();
-            while (changes.next()) {
-                if (changes.getType() == ListEvent.INSERT) {
-                    final RvConnection o = list.get(changes.getIndex());
-                    recentConnections.remove(o);
-                    recentConnections.add(0, o);
-                    if (recentConnections.size() > max) {
-                        recentConnections.removeLast();
-                    }
-                }
-            }
-        } finally {
-            lock.unlock();
-        }
+    public void store() {
         if (recentConnectionsFile == null) { return; }
         FileOutputStream stream = null;
         try {
@@ -257,6 +236,15 @@ public final class UserPreferences {
         }
     }
 
+    private void updateRecentConnectionsList(RvConnection connection) {
+        final int max = getNumberOfRecentConnections();
+        recentConnections.remove(connection);
+        recentConnections.add(0, connection);
+        if (recentConnections.size() > max) {
+            recentConnections.removeLast();
+        }
+    }
+
     private void updateRecentProjectsList(Project newProject) {
         final File path = newProject.getDirectory();
         final int max = getNumberOfRecentProjects();
@@ -267,7 +255,7 @@ public final class UserPreferences {
         }
         final Preferences node = preferences.node(KEY_RECENT_PROJECTS);
         for (int i = 0, imax = recentProjects.size(); i < imax; ++i) {
-            node.put(Integer.toString(i), ((File) recentProjects.get(i)).getPath());
+            node.put(Integer.toString(i), (recentProjects.get(i)).getPath());
         }
     }
 

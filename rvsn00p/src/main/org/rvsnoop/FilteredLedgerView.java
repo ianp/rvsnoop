@@ -7,8 +7,6 @@
  */
 package org.rvsnoop;
 
-import org.bushe.swing.event.EventService;
-
 import rvsnoop.RecordTypes;
 import rvsnoop.SubjectHierarchy;
 import ca.odell.glazedlists.EventList;
@@ -46,11 +44,11 @@ public class FilteredLedgerView extends RecordLedger {
         if (freezable) {
             final FreezableList freezableList = new FreezableList(ledger.getEventList());
             final FilterList filter = new FilterList(freezableList);
-            final FilteredLedgerView view = new FilteredLedgerView(filter, ledger.getEventService());
+            final FilteredLedgerView view = new FilteredLedgerView(filter);
             view.freezableList = freezableList;
             return view;
         } else {
-            return new FilteredLedgerView(ledger);
+            return new FilteredLedgerView(new FilterList(ledger.getEventList()));
         }
     }
 
@@ -63,18 +61,14 @@ public class FilteredLedgerView extends RecordLedger {
     private MatcherEditor typeFilter;
 
     /** Create a new <code>FilteredLedgerView</code>. */
-    protected FilteredLedgerView(FilterList list, EventService eventService) {
-        super(list, eventService);
+    protected FilteredLedgerView(FilterList list) {
+        super(list);
         list.setMatcherEditor(filters);
         filters.setMode(CompositeMatcherEditor.AND);
         setFilteringOnSubject(true);
         setFilteringOnType(true);
     }
 
-    protected FilteredLedgerView(RecordLedger ledger) {
-        this(new FilterList(ledger.getEventList()), ledger.getEventService());
-    }
-    
     /**
      * Add an arbitrary filter to this view.
      *

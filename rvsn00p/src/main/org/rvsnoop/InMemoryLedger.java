@@ -7,8 +7,6 @@
  */
 package org.rvsnoop;
 
-import org.bushe.swing.event.EventService;
-
 import rvsnoop.Record;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -25,8 +23,8 @@ public final class InMemoryLedger extends RecordLedger {
     /**
      * Create a new in memory ledger instance.
      */
-    public InMemoryLedger(EventService eventService) {
-        super(new BasicEventList<Record>(), eventService);
+    public InMemoryLedger() {
+        super(new BasicEventList<Record>());
     }
 
 }

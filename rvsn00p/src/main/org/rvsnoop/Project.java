@@ -235,12 +235,12 @@ public final class Project {
         }
     }
 
-    public static final class LoadedEvent extends EventObject {
+    public final class LoadedEvent extends EventObject {
 
         static final long serialVersionUID = 5175118314515685867L;
 
-        public LoadedEvent(Project source) {
-            super(source);
+        public LoadedEvent() {
+            super(Project.this);
         }
 
         @Override

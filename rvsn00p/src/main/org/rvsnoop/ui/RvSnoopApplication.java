@@ -8,6 +8,7 @@
 
 package org.rvsnoop.ui;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -27,8 +28,6 @@ import org.apache.commons.cli2.builder.GroupBuilder;
 import org.apache.commons.cli2.commandline.Parser;
 import org.apache.commons.cli2.util.HelpFormatter;
 import org.apache.commons.lang.SystemUtils;
-import org.bushe.swing.event.EventService;
-import org.bushe.swing.event.SwingEventService;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ApplicationActionMap;
 import org.jdesktop.application.ApplicationContext;
@@ -39,11 +38,13 @@ import org.rvsnoop.Application;
 import org.rvsnoop.Connections;
 import org.rvsnoop.Logger;
 import org.rvsnoop.Project;
+import org.rvsnoop.UserPreferences;
 
 import rvsnoop.BrowserLauncher;
 import rvsnoop.RvConnection;
 import rvsnoop.ui.MultiLineToolTipUI;
 
+import com.apple.eawt.ApplicationEvent;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -57,7 +58,7 @@ import com.google.inject.Scopes;
  * @since 1.7
  */
 public final class RvSnoopApplication extends SingleFrameApplication {
-    
+
     private static final Logger logger = new Logger();
 
     /**
@@ -70,7 +71,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     }
 
     private Injector injector;
-    
+
     @Action(block=BlockingScope.ACTION)
     public CheckForUpdatesTask checkForUpdates() {
         return new CheckForUpdatesTask(this);
@@ -101,7 +102,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
                 resourceMap.getString("displayAbout.info.title"),
                 JOptionPane.PLAIN_MESSAGE);
     }
-    
+
     @Action
     public void displayBugsPage() {
         try {
@@ -171,7 +172,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
                 .withShortName("p").withLongName("project")
                 .withDescription(resourceMap.getString("CLI.projectDescription")).create();
         CommandLine line = parseCommandLine(args, helpOption, projectOption);
-        
+
         injector = Guice.createInjector(new GuiModule());
         injector.injectMembers(this);
 
@@ -218,7 +219,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     protected void startup() {
         MainFrame.INSTANCE = injector.getInstance(Application.class).getFrame();
         setMainFrame(MainFrame.INSTANCE);
-        
+
         final JFrame frame = getMainFrame();
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new FrameClosingListener());
@@ -228,9 +229,13 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         JMenu fileMenu = frame.getJMenuBar().getMenu(0);
         fileMenu.addSeparator();
         fileMenu.add(actionMap.get("quit"));
-        
+
         frame.getJMenuBar().add(createHelpMenu());
         getContext().getResourceMap().injectComponents(frame);
+
+        if (SystemUtils.IS_OS_MAC_OSX) {
+            new MacHandlersInstaller().installHandlers();
+        }
 
         show(frame);
     }
@@ -241,17 +246,16 @@ public final class RvSnoopApplication extends SingleFrameApplication {
             exit(event);
         }
     }
-    
+
     private class GuiModule extends AbstractModule {
 
         @Override
         protected void configure() {
-            bind(EventService.class).to(SwingEventService.class).in(Scopes.SINGLETON);
-            bind(Connections.class).to(Connections.Impl.class).in(Scopes.SINGLETON);
+            bind(Connections.class).toInstance(new Connections());
             bind(Application.class).to(Application.Impl.class).in(Scopes.SINGLETON);
             bind(ApplicationContext.class).toInstance(getContext());
         }
-        
+
     }
 
     private class MaybeExit implements ExitListener {
@@ -263,7 +267,13 @@ public final class RvSnoopApplication extends SingleFrameApplication {
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     resourceMap.getIcon("banners.exit"));
-            return option == JOptionPane.YES_OPTION;
+            if (option == JOptionPane.YES_OPTION) {
+                // FIXME: this shouldn't be necessary
+                UserPreferences.getInstance().store();
+                return true;
+            } else {
+                return false;
+            }
         }
 
         public void willExit(EventObject event) {
@@ -278,6 +288,30 @@ public final class RvSnoopApplication extends SingleFrameApplication {
                 logger.error(getContext().getResourceMap(), "error.shutdown", e);
                 System.exit(1);
             }
+        }
+    }
+
+    private final class MacHandlersInstaller {
+        public void installHandlers() {
+            com.apple.eawt.Application.getApplication().addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
+
+                @Override
+                public void handleAbout(ApplicationEvent event) {
+                    getContext().getActionMap().get("displayAbout").actionPerformed(
+                            new ActionEvent(event.getSource(), ActionEvent.ACTION_PERFORMED, "displayAbout"));
+                }
+
+                @Override
+                public void handlePreferences(ApplicationEvent event) {
+                    // TODO display the preferences dialog once we have one.
+                }
+
+                @Override
+                public void handleQuit(ApplicationEvent event) {
+                    event.setHandled(false);
+                    exit();
+                }
+            });
         }
     }
 

@@ -11,7 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
-import org.bushe.swing.event.EventService;
+import org.bushe.swing.event.EventBus;
 import org.jdesktop.application.AbstractBean;
 import org.rvsnoop.actions.RvSnoopAction;
 import org.rvsnoop.ui.MainFrame;
@@ -176,8 +176,6 @@ public interface Application {
 
         private final Connections connections;
 
-        private final EventService eventService;
-        
         private FilteredLedgerView filteredLedger;
 
         /** The main application frame. */
@@ -189,9 +187,8 @@ public interface Application {
         private Project project;
 
         @Inject
-        public Impl(Connections connections, EventService eventService) {
+        public Impl(Connections connections) {
             this.connections = connections;
-            this.eventService = eventService;
             UserPreferences.getInstance().listenToChangesFrom(this);
         }
 
@@ -225,7 +222,7 @@ public interface Application {
 
         public synchronized RecordLedger getLedger() {
             if (ledger == null) {
-                ledger = new InMemoryLedger(eventService);
+                ledger = new InMemoryLedger();
                 MessageLedger.RECORD_LEDGER = ledger;
             }
             return ledger;
@@ -262,7 +259,7 @@ public interface Application {
             }
             this.project = project;
             // TODO configure the ledger from data in the project file.
-            ledger = new InMemoryLedger(eventService);
+            ledger = new InMemoryLedger();
             MessageLedger.RECORD_LEDGER = ledger;
             filteredLedger = FilteredLedgerView.newInstance(ledger, false);
 
@@ -273,14 +270,14 @@ public interface Application {
             project.loadRecordTypes(getRecordTypes());
 
             firePropertyChange(KEY_PROJECT, oldProject, project);
-            eventService.publish(new Project.LoadedEvent(project));
+            EventBus.publish(project.new LoadedEvent());
         }
 
         public synchronized void setProject(File directory) throws IOException {
             project = new Project(directory);
             project.store(this);
             firePropertyChange(KEY_PROJECT, null, project);
-            eventService.publish(new Project.LoadedEvent(project));
+            EventBus.publish(project.new LoadedEvent());
         }
     }
 

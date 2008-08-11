@@ -70,7 +70,7 @@ public abstract class RecordLedgerTest extends TestCase {
     // hack. Do the same for RecordStream (or refactor RecordSelection).
     @Override
     public void setUp() throws IOException {
-        connections = new Connections.Impl();
+        connections = new Connections();
         ledger = createRecordLedger();
         final InputStream stream =
             new BufferedInputStream(ClassLoader.getSystemResource(TEST_DATA).openStream());

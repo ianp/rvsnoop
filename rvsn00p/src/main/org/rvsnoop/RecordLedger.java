@@ -10,8 +10,6 @@ package org.rvsnoop;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.bushe.swing.event.EventService;
-
 import rvsnoop.Record;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEventListener;
@@ -37,8 +35,6 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  */
 public abstract class RecordLedger {
 
-    private final EventService eventService;
-
     /**
      * The underlying event list used by this ledger.
      */
@@ -49,9 +45,8 @@ public abstract class RecordLedger {
      *
      * @param list The list to use as the record store.
      */
-    protected RecordLedger(final EventList<Record> list, EventService eventService) {
+    protected RecordLedger(final EventList<Record> list) {
         this.list = list;
-        this.eventService = eventService;
     }
 
     /**
@@ -289,10 +284,6 @@ public abstract class RecordLedger {
         return list;
     }
 
-    EventService getEventService() {
-        return eventService;
-    }
-    
     /**
      * Remove a single record from the ledger.
      * <p>
