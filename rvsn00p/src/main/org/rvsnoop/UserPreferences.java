@@ -7,14 +7,6 @@
  */
 package org.rvsnoop;
 
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.HierarchyBoundsListener;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -25,14 +17,12 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -43,7 +33,6 @@ import javax.swing.table.TableColumnModel;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.text.StrBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
@@ -66,24 +55,6 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  * @version $Revision$, $Date$
  */
 public final class UserPreferences {
-
-    private final class DividerLocationListener implements HierarchyBoundsListener {
-        public void ancestorMoved(HierarchyEvent e) {
-            final Component c = e.getChanged();
-            if (c instanceof JSplitPane) { setDividerLocation((JSplitPane) c); }
-        }
-        public void ancestorResized(HierarchyEvent e) {
-            final Component c = e.getChanged();
-            if (c instanceof JSplitPane) { setDividerLocation((JSplitPane) c); }
-        }
-    }
-
-    private final class FontChangeListener implements PropertyChangeListener {
-        public void propertyChange(PropertyChangeEvent event) {
-            if (!"font".equals(event.getPropertyName())) { return; }
-            setLedgerFont((Font) event.getNewValue());
-        }
-    }
 
     private final class LedgerColumnsListener implements TableColumnModelListener {
         public void columnAdded(TableColumnModelEvent e) {
@@ -109,35 +80,17 @@ public final class UserPreferences {
         }
     }
 
-    private final class WindowBoundsListener extends WindowAdapter implements HierarchyBoundsListener {
-        public void ancestorMoved(HierarchyEvent e) {
-            final Component component = e.getChanged();
-            if (component instanceof Window) { setWindowBounds((Window) component); }
-        }
-        public void ancestorResized(HierarchyEvent e) {
-            final Component component = e.getChanged();
-            if (component instanceof Window) { setWindowBounds((Window) component); }
-        }
-        @Override
-        public void windowClosed(WindowEvent e) {
-            setWindowBounds(e.getWindow());
-        }
-    }
-
     private static final Log log = LogFactory.getLog(UserPreferences.class);
 
     private static UserPreferences instance;
 
     static String ERROR_CREATING_DIR, ERROR_STORING_CONNECTIONS;
 
-    private static final String KEY_DIVIDER_LOCATION = "DividerLocation";
     private static final String KEY_LAST_EXPORT_LOCATION = "LASTExportLocation";
     private static final String KEY_LEDGER_COLUMNS = "ledgerColumns";
-    public  static final String KEY_LEDGER_FONT = "ledgerFont";
     private static final String KEY_NUM_RECENT_CONNECTIONS = "numberOfRecentConnections";
     private static final String KEY_NUM_RECENT_PROJECTS = "numberOfRecentProjects";
     private static final String KEY_RECENT_PROJECTS = "recentProjects";
-    private static final String KEY_WINDOW_BOUNDS = "windowBounds";
 
     static { NLSUtils.internationalize(UserPreferences.class); }
 
@@ -188,16 +141,6 @@ public final class UserPreferences {
         preferences.addPreferenceChangeListener(pcl);
     }
 
-    /**
-     * Return the divider location for a named {@link JSplitPane}.
-     *
-     * @param name The name of the split pane to get the location for.
-     * @return The location, or <code>-1</code> if no location was stored.
-     */
-    public int getDividerLocation(String name) {
-        return preferences.getInt(name + KEY_DIVIDER_LOCATION, -1);
-    }
-
     public String getLastExportLocation() {
         return preferences.get(KEY_LAST_EXPORT_LOCATION, SystemUtils.USER_DIR);
     }
@@ -218,11 +161,6 @@ public final class UserPreferences {
             columns.remove(RecordLedgerFormat.MESSAGE);
         }
         return columns;
-    }
-
-    public Font getLedgerFont() {
-        final Font font = Font.decode(preferences.get(KEY_LEDGER_FONT, ""));
-        return font != null ? font : UIManager.getFont("Table.font");
     }
 
     public RvConnection getMostRecentConnection() {
@@ -249,35 +187,13 @@ public final class UserPreferences {
         return Collections.unmodifiableList(recentProjects);
     }
 
-    public Rectangle getWindowBounds() {
-        try {
-            final String bounds = preferences.get(KEY_WINDOW_BOUNDS, "100,100,800,600");
-            final StringTokenizer stok = new StringTokenizer(bounds, ",");
-            final int x = Integer.parseInt(stok.nextToken());
-            final int y = Integer.parseInt(stok.nextToken());
-            final int w = Integer.parseInt(stok.nextToken());
-            final int h = Integer.parseInt(stok.nextToken());
-            return new Rectangle(x, y, w, h);
-        } catch (Exception e) {
-            return new Rectangle(100, 100, 800, 600);
-        }
-    }
-
     public void listenToChangesFrom(Application application) {
         application.getConnections().addListEventListener(new RecentConnectionsListener());
         application.addPropertyChangeListener(Application.KEY_PROJECT, new RecentProjectsListener());
     }
 
     public void listenToChangesFrom(JFrame frame, RecordLedgerTable table, JSplitPane[] splits) {
-        frame.addPropertyChangeListener("font", new FontChangeListener());
-        final WindowBoundsListener wbl = new WindowBoundsListener();
-        frame.addHierarchyBoundsListener(wbl);
-        frame.addWindowListener(wbl);
         table.getColumnModel().addColumnModelListener(new LedgerColumnsListener());
-        final DividerLocationListener dll = new DividerLocationListener();
-        for (int i = 0, imax = splits.length; i < imax; ++i) {
-            splits[i].addHierarchyBoundsListener(dll);
-        }
     }
 
     /**
@@ -286,12 +202,6 @@ public final class UserPreferences {
      */
     public void removePreferenceChangeListener(PreferenceChangeListener pcl) {
         preferences.removePreferenceChangeListener(pcl);
-    }
-
-    private void setDividerLocation(final JSplitPane splitpane) {
-        final String name = splitpane.getName();
-        final int location = splitpane.getDividerLocation();
-        preferences.putInt(name + KEY_DIVIDER_LOCATION, location);
     }
 
     public void getLastExportLocation(String path) {
@@ -310,31 +220,8 @@ public final class UserPreferences {
         }
     }
 
-    public void setLedgerFont(final Font font) {
-        if (font == null) { return; }
-        final StrBuilder builder = new StrBuilder();
-        builder.append(font.getFamily()).append('-');
-        if (font.isPlain()) {
-            builder.append("PLAIN");
-        } else {
-            if (font.isBold()) { builder.append("BOLD"); }
-            if (font.isItalic()) { builder.append("ITALIC"); }
-        }
-        builder.append('-').append(Integer.toString(font.getSize()));
-        preferences.put(KEY_LEDGER_FONT, builder.toString());
-    }
-
     public void setNumberOfRecentConnections(int number) {
         preferences.putInt(KEY_NUM_RECENT_CONNECTIONS, number);
-    }
-
-    private void setWindowBounds(Window window) {
-        final StrBuilder builder = new StrBuilder();
-        builder.append(Integer.toString(window.getX())).append(',');
-        builder.append(Integer.toString(window.getY())).append(',');
-        builder.append(Integer.toString(window.getWidth())).append(',');
-        builder.append(Integer.toString(window.getHeight()));
-        preferences.put(KEY_LEDGER_FONT, builder.toString());
     }
 
     private void updateRecentConnectionsList(ListEvent<RvConnection> changes) {

@@ -12,8 +12,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.Collator;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EventListener;
 import java.util.Iterator;
@@ -50,76 +49,26 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  *          2007) $
  * @since 1.6
  */
-public final class Connections {
-
-    private static class DescriptionComparator implements Comparator<RvConnection> {
-        private final Collator collator = Collator.getInstance();
-
-        public DescriptionComparator() {
-            super();
-        }
-
-        public int compare(RvConnection o1, RvConnection o2) {
-            return collator.compare(o1.getDescription(), o2.getDescription());
-        }
-    }
-
-    private static class Observer implements ObservableElementList.Connector<RvConnection>,
-            PropertyChangeListener {
-        private ObservableElementList<RvConnection> list;
-
-        Observer() {
-            super();
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see ca.odell.glazedlists.ObservableElementList.Connector#installListener(java.lang.Object)
-         */
-        public EventListener installListener(RvConnection element) {
-            element.addPropertyChangeListener(this);
-            return this;
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-         */
-        public void propertyChange(PropertyChangeEvent event) {
-            list.elementChanged((RvConnection) event.getSource());
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see ca.odell.glazedlists.ObservableElementList.Connector#setObservableElementList(ca.odell.glazedlists.ObservableElementList)
-         */
-        public void setObservableElementList(ObservableElementList<RvConnection> list) {
-            this.list = list;
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see ca.odell.glazedlists.ObservableElementList.Connector#uninstallListener(java.lang.Object,
-         *      java.util.EventListener)
-         */
-        public void uninstallListener(RvConnection element, EventListener listener) {
-            element.removePropertyChangeListener(this);
-        }
-    }
+public abstract class Connections {
 
     private static final Log log = LogFactory.getLog(Connections.class);
 
+    public static void toXML(RvConnection[] connections, OutputStream stream) throws IOException {
+        final XMLBuilder builder = new XMLBuilder(stream, XMLBuilder.NS_CONNECTIONS)
+            .namespace(XMLBuilder.PREFIX_RENDEZVOUS, XMLBuilder.NS_RENDEZVOUS)
+            .startTag("connections", XMLBuilder.NS_CONNECTIONS);
+        for (int i = 0, imax = connections.length; i < imax; ++i) {
+            connections[i].toXML(builder);
+        }
+        builder.endTag().close();
+    }
+
     private final ObservableElementList<RvConnection> list;
 
-    public Connections(Collection<RvConnection> connections) {
-        if (connections == null) { connections = Collections.emptyList(); }
+    public Connections() {
         this.list = new ObservableElementList<RvConnection>(
                 new SortedList<RvConnection>(
-                        GlazedLists.eventList(connections),
+                        GlazedLists.eventList(new ArrayList<RvConnection>()),
                         new DescriptionComparator()),
                 new Observer());
     }
@@ -281,14 +230,65 @@ public final class Connections {
         }
     }
 
-    public static void toXML(RvConnection[] connections, OutputStream stream) throws IOException {
-        final XMLBuilder builder = new XMLBuilder(stream, XMLBuilder.NS_CONNECTIONS)
-            .namespace(XMLBuilder.PREFIX_RENDEZVOUS, XMLBuilder.NS_RENDEZVOUS)
-            .startTag("connections", XMLBuilder.NS_CONNECTIONS);
-        for (int i = 0, imax = connections.length; i < imax; ++i) {
-            connections[i].toXML(builder);
+    private static class DescriptionComparator implements Comparator<RvConnection> {
+        private final Collator collator = Collator.getInstance();
+
+        public DescriptionComparator() {
+            super();
         }
-        builder.endTag().close();
+
+        public int compare(RvConnection o1, RvConnection o2) {
+            return collator.compare(o1.getDescription(), o2.getDescription());
+        }
     }
 
+    public static final class Impl extends Connections {
+    }
+
+    private static class Observer implements ObservableElementList.Connector<RvConnection>,
+            PropertyChangeListener {
+        private ObservableElementList<RvConnection> list;
+
+        Observer() {
+            super();
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see ca.odell.glazedlists.ObservableElementList.Connector#installListener(java.lang.Object)
+         */
+        public EventListener installListener(RvConnection element) {
+            element.addPropertyChangeListener(this);
+            return this;
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+         */
+        public void propertyChange(PropertyChangeEvent event) {
+            list.elementChanged((RvConnection) event.getSource());
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see ca.odell.glazedlists.ObservableElementList.Connector#setObservableElementList(ca.odell.glazedlists.ObservableElementList)
+         */
+        public void setObservableElementList(ObservableElementList<RvConnection> list) {
+            this.list = list;
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see ca.odell.glazedlists.ObservableElementList.Connector#uninstallListener(java.lang.Object,
+         *      java.util.EventListener)
+         */
+        public void uninstallListener(RvConnection element, EventListener listener) {
+            element.removePropertyChangeListener(this);
+        }
+    }
 }

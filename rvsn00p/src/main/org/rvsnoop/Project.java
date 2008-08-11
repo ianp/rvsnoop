@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.EventObject;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -232,6 +233,21 @@ public final class Project {
         } finally {
             IOUtils.closeQuietly(stream);
         }
+    }
+
+    public static final class LoadedEvent extends EventObject {
+
+        static final long serialVersionUID = 5175118314515685867L;
+
+        public LoadedEvent(Project source) {
+            super(source);
+        }
+
+        @Override
+        public Project getSource() {
+            return (Project) super.getSource();
+        }
+
     }
 
 }

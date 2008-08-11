@@ -13,8 +13,6 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -61,15 +59,6 @@ import org.rvsnoop.actions.Search;
 import org.rvsnoop.actions.SearchBySelection;
 import org.rvsnoop.actions.SelectAllRecords;
 import org.rvsnoop.actions.ShowAllColumns;
-import org.rvsnoop.ui.ConnectionList;
-import org.rvsnoop.ui.ImageFactory;
-import org.rvsnoop.ui.RecentConnectionsMenuManager;
-import org.rvsnoop.ui.RecentProjectsMenuManager;
-import org.rvsnoop.ui.RecordLedgerTable;
-import org.rvsnoop.ui.RecordTypesMenuManager;
-import org.rvsnoop.ui.StatusBar;
-import org.rvsnoop.ui.TrackingAdjustmentListener;
-import org.rvsnoop.ui.VisibleColumnsMenuManager;
 
 import rvsnoop.Record;
 import rvsnoop.TreeModelAdapter;
@@ -123,19 +112,6 @@ public final class MainFrame extends JFrame {
         }
     }
 
-    private final class FontChangeListener implements PreferenceChangeListener {
-        public void preferenceChange(PreferenceChangeEvent event) {
-            if (UserPreferences.KEY_LEDGER_FONT.equals(event.getKey())) {
-                final Font font = UserPreferences.getInstance().getLedgerFont();
-                messageLedger.setFont(font);
-                // Without this the default rowNumber height is about 1-million-billion pixels...
-                final int rowHeight = messageLedger.getFontMetrics(font).getHeight() + 2;
-                messageLedger.setRowHeight(rowHeight);
-            }
-        }
-
-    }
-
     private static final long serialVersionUID = 4315311340452405694L;
 
     private static final String TOOLTIP_VISIBLE_COLUMNS = "Show or hide individual table columns";
@@ -171,7 +147,6 @@ public final class MainFrame extends JFrame {
         subjectExplorer = createSubjectExplorer();
         connectionList = new ConnectionList(application);
         messageLedger = createMessageLedger(application.getFilteredLedger());
-        messageLedger.setFont(state.getLedgerFont());
         connectionListScroller = createConnectionListScroller(connectionList);
         subjectExplorerScroller = createSubjectExplorerScroller(subjectExplorer);
         messageLedgerScroller = createMessageLedgerScroller(messageLedger);
@@ -184,24 +159,14 @@ public final class MainFrame extends JFrame {
         getContentPane().add(createToolBar(factory), BorderLayout.NORTH);
         getContentPane().add(statusBar, BorderLayout.SOUTH);
         pack();
-        setBounds(state.getWindowBounds());
 
         connectListeners();
-        configureDividerLocation(connectionListSplitter, "connectionList", state);
-        configureDividerLocation(messageLedgerSplitter, "recordLedger", state);
-        configureDividerLocation(subjectExplorerSplitter, "subjectExplorer", state);
         state.listenToChangesFrom(this, messageLedger, new JSplitPane[] {
                 connectionListSplitter, messageLedgerSplitter, subjectExplorerSplitter });
     }
 
     public void clearDetails() {
         detailsPanel.setMessage(null);
-    }
-
-    private void configureDividerLocation(JSplitPane pane, String name, UserPreferences state) {
-        pane.setName(name);
-        final int location = state.getDividerLocation(name);
-        if (location > 0) { pane.setDividerLocation(location); }
     }
 
     private void connectListeners() {
@@ -212,14 +177,6 @@ public final class MainFrame extends JFrame {
                 messageLedgerSelectionModel.addListSelectionListener((ListSelectionListener) action);
             }
         }
-        UserPreferences.getInstance().addPreferenceChangeListener(new FontChangeListener());
-    }
-
-    private JMenu createConfigureMenu() {
-        final JMenu configure = new JMenu("Configure");
-        configure.setMnemonic('c');
-        configure.add(Actions.CHANGE_TABLE_FONT);
-        return configure;
     }
 
     private JScrollPane createConnectionListScroller(JList listenerList) {
@@ -293,7 +250,6 @@ public final class MainFrame extends JFrame {
         bar.add(createFileMenu(factory));
         bar.add(createEditMenu(factory));
         bar.add(createViewMenu(factory, table));
-        bar.add(createConfigureMenu());
         return bar;
     }
 

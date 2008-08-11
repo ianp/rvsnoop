@@ -7,6 +7,8 @@
  */
 package org.rvsnoop;
 
+import org.bushe.swing.event.EventBus;
+
 
 /**
  * Unit tests for the {@link FilteredLedgerView} class.
@@ -21,7 +23,7 @@ public class FilteredLedgerViewTest extends RecordLedgerTest {
      */
     @Override
     protected RecordLedger createRecordLedger() {
-        return FilteredLedgerView.newInstance(new InMemoryLedger(), false);
+        return FilteredLedgerView.newInstance(new InMemoryLedger(EventBus.getGlobalEventService()), false);
     }
 
 }

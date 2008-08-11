@@ -84,8 +84,6 @@ public final class Actions {
 
     private static final Log log = LogFactory.getLog(Actions.class);
 
-    public static final Action CHANGE_TABLE_FONT = add(new ChangeTableFont());
-
     public static final Action DISPLAY_HOME_PAGE = add(new DisplayHomePage());
 
     public static final Action IMPORT_FROM_RECORD_BUNDLE = add(new ImportFromRecordBundle());

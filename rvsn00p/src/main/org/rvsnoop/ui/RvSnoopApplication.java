@@ -27,6 +27,8 @@ import org.apache.commons.cli2.builder.GroupBuilder;
 import org.apache.commons.cli2.commandline.Parser;
 import org.apache.commons.cli2.util.HelpFormatter;
 import org.apache.commons.lang.SystemUtils;
+import org.bushe.swing.event.EventService;
+import org.bushe.swing.event.SwingEventService;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ApplicationActionMap;
 import org.jdesktop.application.ApplicationContext;
@@ -40,7 +42,6 @@ import org.rvsnoop.Project;
 
 import rvsnoop.BrowserLauncher;
 import rvsnoop.RvConnection;
-import rvsnoop.Version;
 import rvsnoop.ui.MultiLineToolTipUI;
 
 import com.google.inject.AbstractModule;
@@ -144,11 +145,13 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
     private void ensureJavaVersionIsValid() {
         if (!SystemUtils.isJavaVersionAtLeast(150)) {
+            ResourceMap resourceMap = getContext().getResourceMap();
             Object message = new String[] {
-                    "Java 1.5 or later is required to run " + Version.getAsStringWithName(),
-                    "Please rerun using a supported Java version."
+                    resourceMap.getString("CLI.error.javaVersion[0]"),
+                    resourceMap.getString("CLI.error.javaVersion[1]")
             };
-            JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.ERROR_MESSAGE);
+            String title = resourceMap.getString("CLI.error.javaVersion.title");
+            JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
             System.exit(-1);
         }
     }
@@ -243,7 +246,8 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
         @Override
         protected void configure() {
-            bind(Connections.class).toInstance(new Connections(null));
+            bind(EventService.class).to(SwingEventService.class).in(Scopes.SINGLETON);
+            bind(Connections.class).to(Connections.Impl.class).in(Scopes.SINGLETON);
             bind(Application.class).to(Application.Impl.class).in(Scopes.SINGLETON);
             bind(ApplicationContext.class).toInstance(getContext());
         }
