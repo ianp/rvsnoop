@@ -59,6 +59,22 @@ import com.google.inject.Scopes;
  */
 public final class RvSnoopApplication extends SingleFrameApplication {
 
+    static {
+        // Set up the log directory so that it may be used in log4j.properties.
+        final String home = System.getProperty("user.home");
+        final String fileSep = System.getProperty("file.separator");
+        if (SystemUtils.IS_OS_WINDOWS) {
+            System.setProperty("rvsnoop.logDir",
+                    home + "/Application Data/Logs/RvSnoop".replace("/", fileSep));
+        } else if (SystemUtils.IS_OS_MAC_OSX) {
+            System.setProperty("rvsnoop.logDir",
+                    home + "/Library/Logs/RvSnoop".replace("/", fileSep));
+        } else {
+            System.setProperty("rvsnoop.logDir",
+                    home + "/.rvsnoop".replace("/", fileSep));
+        }
+    }
+
     private static final Logger logger = new Logger();
 
     /**
@@ -268,7 +284,9 @@ public final class RvSnoopApplication extends SingleFrameApplication {
                     JOptionPane.QUESTION_MESSAGE,
                     resourceMap.getIcon("banners.exit"));
             if (option == JOptionPane.YES_OPTION) {
-                // FIXME: this shouldn't be necessary
+                // FIXME: this shouldn't be necessary:
+                // change this class to ExitHandler and make sure all reosurces are
+                // saved as necessary. Inject this class.
                 UserPreferences.getInstance().store();
                 return true;
             } else {
