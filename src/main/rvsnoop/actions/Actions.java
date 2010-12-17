@@ -137,8 +137,6 @@ public final class Actions {
         addAction(new EditRecordTypes(application));
         addAction(new ExportToHtml(application));
         addAction(new ExportToRecordBundle(application));
-        addAction(new ExportToRvScript(application));
-        addAction(new ExportToRvTest(application));
         addAction(new Filter(application));
         addAction(new FilterBySelection(application));
         addAction(new NewRvConnection(application));

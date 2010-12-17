@@ -65,8 +65,6 @@ import rvsnoop.TreeModelAdapter;
 import rvsnoop.actions.Actions;
 import rvsnoop.actions.ExportToHtml;
 import rvsnoop.actions.ExportToRecordBundle;
-import rvsnoop.actions.ExportToRvScript;
-import rvsnoop.actions.ExportToRvTest;
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.RvDetailsPanel;
 import rvsnoop.ui.SubjectExplorerEditor;
@@ -227,8 +225,6 @@ public final class MainFrame extends JFrame {
         fileExport.setIcon(Icons.EXPORT);
         fileExport.add(factory.getAction(ExportToHtml.COMMAND));
         fileExport.add(factory.getAction(ExportToRecordBundle.COMMAND));
-        fileExport.add(factory.getAction(ExportToRvScript.COMMAND));
-        fileExport.add(factory.getAction(ExportToRvTest.COMMAND));
         file.add(fileExport);
         final JMenu fileImport = new JMenu("Import From");
         fileExport.setIcon(Icons.IMPORT);

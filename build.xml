@@ -27,10 +27,8 @@
     <property name="lib.java" value="${java.home}/lib/rt.jar"/>
 
     <!-- Override these to change the locations of the dependencies. -->
-    <property name="lib.rvscript" value="/opt/tibco/rvscript-1.35/rvscript.jar"/>
-    <property name="lib.rvtest" value="/opt/tibco/rvtest-1.0b3/lib/rvtest-1.0-beta-3.jar"/>
-    <property name="lib.tibrv" value="/opt/tibco/tibrv/lib/tibrvj.jar"/>
-    <property name="lib.tibsdk" value="/opt/tibco/tra/5.5/lib/TIBCOrt.jar"/>
+    <property name="lib.tibrv" value="/opt/tibco/tibrv/8.2/lib/tibrvj.jar"/>
+    <property name="lib.tibsdk" value="/opt/tibco/tra/5.6/lib/TIBCOrt.jar"/>
 
     <!-- These are only used to run the analytics target. -->
     <property name="lib.findbugs" value="${user.home}/Library/Java/findbugs-1.3.4"/>
@@ -45,8 +43,6 @@
       <fileset refid="include.classpath"/>
       <path location="${lib.tibrv}"/>
       <path location="${lib.tibsdk}"/>
-      <path location="${lib.rvscript}"/>
-      <path location="${lib.rvtest}"/>
     </path>
 
     <path id="test.classpath">

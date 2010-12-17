@@ -46,9 +46,7 @@ public abstract class ExportFormat {
         if (formats.size() == 0) {
             final String[] classes = {
                     "org.rvsnoop.io.HTMLExportFormat",
-                    "org.rvsnoop.io.RecordBundleExportFormat",
-                    "org.rvsnoop.io.RvScriptExportFormat",
-                    "org.rvsnoop.io.RvTestExportFormat"
+                    "org.rvsnoop.io.RecordBundleExportFormat"
             };
             for (int i = 0, imax = classes.length; i < imax; ++i) {
                 try {

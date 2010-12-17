@@ -10,9 +10,6 @@ package rvsnoop;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.reuters.msgtest.MsgTestException;
-import com.reuters.msgtest.XMLConverter;
-import com.tibco.rvscript.tibrvXmlConvert;
 import com.tibco.sdk.MTree;
 import com.tibco.tibrv.TibrvMsg;
 
@@ -95,78 +92,14 @@ public final class Marshaller {
 
     }
 
-    /**
-     * Marshaller implementation that uses RvScript to do the work.
-     *
-     * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
-     * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
-     * @version $Revision$, $Date$
-     */
-    static final class RvScriptImpl extends Marshaller.Implementation {
-
-        private final tibrvXmlConvert converter = new tibrvXmlConvert();
-
-        RvScriptImpl() {
-            super("RvScript");
-        }
-
-        @Override
-        public String marshal(String name, TibrvMsg message) {
-            return converter.rvmsgToXml(message,name);
-        }
-
-        @Override
-        public TibrvMsg unmarshal(String string) {
-            return converter.xmlToRvmsg(string);
-        }
-
-    }
-
-    /**
-     * Marshaller implementation that uses RvTest to do the work.
-     * <p>
-     * The XML String is rather verbose because it works with either plain
-     * Rendezvous or SDK-style Active enterprise messages.
-     *
-     * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
-     * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
-     * @version $Revision$, $Date$
-     * @since 1.2.6
-     */
-    static final class RvTestImpl extends Marshaller.Implementation {
-
-        private final XMLConverter converter = new XMLConverter();
-
-        RvTestImpl() {
-            super("RvTest");
-        }
-
-        @Override
-        public String marshal(String name, TibrvMsg message) {
-            try {
-                return converter.createXML(message).toString();
-            } catch (MsgTestException e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Unable to marshal message.", e);
-                }
-                return "";
-            }
-        }
-
-    }
-
     public static final String IMPL_MTREE = "rvsnoop.Marshaller$MTreeImpl";
     public static final String IMPL_RVMSG = "rvsnoop.Marshaller$RvMsgImpl";
-    public static final String IMPL_RVSCRIPT = "rvsnoop.Marshaller$RvScriptImpl";
-    public static final String IMPL_RVTEST = "rvsnoop.Marshaller$RvTestImpl";
 
     private static final Implementation implementation;
 
     private static final Log log = LogFactory.getLog(Marshaller.class);
 
-    private static final String[] PREFERRED = {
-        IMPL_RVTEST, IMPL_RVSCRIPT, IMPL_MTREE, IMPL_RVMSG
-    };
+    private static final String[] PREFERRED = { IMPL_MTREE, IMPL_RVMSG };
 
     public static Implementation getImplementation(String className) {
         try {
