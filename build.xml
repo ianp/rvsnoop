@@ -158,7 +158,7 @@
         <attribute name="Implementation-URL" value="http://rvsnoop.org/"/>
       </manifest>
       <fileset dir="${dir.build}/classes/main" includes="**/*.class"/>
-      <fileset dir="src" includes="resources/**/*.png"/>
+      <fileset dir="src/resources" includes="resources/**/*.png"/>
       <fileset dir="src/main" includes="**/*.properties" excludes="commons-logging.properties"/>
     </jar>
   </target>
