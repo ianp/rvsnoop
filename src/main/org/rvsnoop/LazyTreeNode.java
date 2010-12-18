@@ -1,10 +1,5 @@
-/*
- * Class:     LazyTreeNode
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.awt.Component;
@@ -22,10 +17,6 @@ import javax.swing.tree.TreeNode;
  * A {@link TreeNode} that lazily created it's children.
  * <p>
  * This class also supports providing icons and text as suitable for use in a renderer.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.5
  */
 public abstract class LazyTreeNode implements TreeNode {
 
@@ -34,9 +25,7 @@ public abstract class LazyTreeNode implements TreeNode {
         public Renderer() {
             super();
         }
-        /* (non-Javadoc)
-         * @see javax.swing.tree.DefaultTreeCellRenderer#getTreeCellRendererComponent(javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int, boolean)
-         */
+
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             if (!(value instanceof LazyTreeNode)) return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
@@ -62,9 +51,6 @@ public abstract class LazyTreeNode implements TreeNode {
         this.parent = parent;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#children()
-     */
     public final Enumeration<TreeNode> children() {
         ensureChildrenCreated();
         return Collections.enumeration(children);
@@ -87,22 +73,13 @@ public abstract class LazyTreeNode implements TreeNode {
         }
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getAllowsChildren()
-     */
     public abstract boolean getAllowsChildren();
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getChildAt(int)
-     */
     public final TreeNode getChildAt(int childIndex) {
         ensureChildrenCreated();
-        return (TreeNode) children.get(childIndex);
+        return children.get(childIndex);
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getChildCount()
-     */
     public final int getChildCount() {
         ensureChildrenCreated();
         return children.size();
@@ -117,17 +94,11 @@ public abstract class LazyTreeNode implements TreeNode {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getIndex(javax.swing.tree.TreeNode)
-     */
     public final int getIndex(TreeNode node) {
         ensureChildrenCreated();
         return children.indexOf(node);
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getParent()
-     */
     public final TreeNode getParent() {
         return parent;
     }
@@ -148,10 +119,8 @@ public abstract class LazyTreeNode implements TreeNode {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#isLeaf()
-     */
     public final boolean isLeaf() {
         return !getAllowsChildren();
     }
+
 }

@@ -1,10 +1,5 @@
-/*
- * Class:     RecordLedgerFormat
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.text.Collator;
@@ -152,7 +147,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
 
     public static String displayNameToIdentifier(String displayName) {
         for (int i = 0, imax = ALL_COLUMNS.size(); i < imax; ++i) {
-            final ColumnFormat column = (ColumnFormat) ALL_COLUMNS.get(i);
+            final ColumnFormat column = ALL_COLUMNS.get(i);
             if (column.getName().equals(displayName)) {
                 return column.identifier;
             }
@@ -168,7 +163,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
      */
     public static ColumnFormat getColumn(String id) {
         for (int i = 0, imax = ALL_COLUMNS.size(); i < imax; ++i) {
-            final ColumnFormat column = (ColumnFormat) ALL_COLUMNS.get(i);
+            final ColumnFormat column = ALL_COLUMNS.get(i);
             if (column.getIdentifier().equals(id)) { return column; }
         }
         return null;
@@ -209,32 +204,20 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
         return columns.contains(column);
     }
 
-    /* (non-Javadoc)
-     * @see ca.odell.glazedlists.gui.AdvancedTableFormat#getColumnClass(int)
-     */
     public Class<?> getColumnClass(int column) {
-        return ((ColumnFormat) columns.get(column)).getClazz();
+        return columns.get(column).getClazz();
     }
 
-    /* (non-Javadoc)
-     * @see ca.odell.glazedlists.gui.AdvancedTableFormat#getColumnComparator(int)
-     */
     public Comparator<?> getColumnComparator(int column) {
-        return ((ColumnFormat) columns.get(column)).getComparator();
+        return columns.get(column).getComparator();
     }
 
-    /* (non-Javadoc)
-     * @see ca.odell.glazedlists.gui.TableFormat#getColumnCount()
-     */
     public int getColumnCount() {
         return columns.size();
     }
 
-    /* (non-Javadoc)
-     * @see ca.odell.glazedlists.gui.TableFormat#getColumnName(int)
-     */
     public String getColumnName(int index) {
-        return ((ColumnFormat) columns.get(index)).getName();
+        return columns.get(index).getName();
     }
 
     /**
@@ -246,11 +229,8 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
         return Collections.unmodifiableList(columns);
     }
 
-    /* (non-Javadoc)
-     * @see ca.odell.glazedlists.gui.TableFormat#getColumnValue(java.lang.Object, int)
-     */
     public Object getColumnValue(Record record, int index) {
-        return ((ColumnFormat) columns.get(index)).getValue(record);
+        return columns.get(index).getValue(record);
     }
 
     /**
@@ -280,7 +260,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
      * If a model has been set it will be automatically notified whenever a
      * column is added to or removed from this format.
      *
-     * @param model
+     * @param model the model to set.
      */
     void setModel(EventTableModel<Record> model) {
         this.model = model;

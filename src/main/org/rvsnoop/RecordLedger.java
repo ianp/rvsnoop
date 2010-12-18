@@ -1,10 +1,5 @@
-/*
- * Class:     RecordLedger
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.io.IOException;
@@ -88,7 +83,7 @@ public abstract class RecordLedger {
     }
 
     /**
-     * @param listChangeListener
+     * @param listChangeListener the listener to add.
      * @see ca.odell.glazedlists.EventList#addListEventListener(ca.odell.glazedlists.event.ListEventListener)
      */
     public void addListEventListener(ListEventListener<Record> listChangeListener) {
@@ -164,11 +159,11 @@ public abstract class RecordLedger {
         lock.lock();
         try {
             for (int i = startIndex, imax = list.size(); i < imax; ++i) {
-                final Record record = (Record) list.get(i);
+                final Record record = list.get(i);
                 if (criteria.matches(record)) return record;
             }
             for (int i = 0; i < startIndex; ++i) {
-                final Record record = (Record) list.get(i);
+                final Record record = list.get(i);
                 if (criteria.matches(record)) return record;
             }
         } finally {
@@ -192,7 +187,7 @@ public abstract class RecordLedger {
         try {
             int pos = 0;
             for (int i = 0, imax = list.size(); i < imax; ++i) {
-                final Record record = (Record) list.get(i);
+                final Record record = list.get(i);
                 if (criteria.matches(record)) { temp[pos++] = i; }
             }
             final int[] indices = new int[pos];
@@ -218,11 +213,11 @@ public abstract class RecordLedger {
         lock.lock();
         try {
             for (int i = startIndex, imax = list.size(); i < imax; ++i) {
-                final Record record = (Record) list.get(i);
+                final Record record = list.get(i);
                 if (criteria.matches(record)) return i;
             }
             for (int i = 0; i < startIndex; ++i) {
-                final Record record = (Record) list.get(i);
+                final Record record = list.get(i);
                 if (criteria.matches(record)) return i;
             }
         } finally {
@@ -238,13 +233,12 @@ public abstract class RecordLedger {
      *
      * @param index The index of the record to retrieve.
      * @return The record.
-     * @see java.util.Collection#getAll(int)
      */
     public final Record get(int index) {
         final Lock lock = list.getReadWriteLock().readLock();
         lock.lock();
         try {
-            return (Record) list.get(index);
+            return list.get(index);
         } finally {
             lock.unlock();
         }
@@ -264,7 +258,7 @@ public abstract class RecordLedger {
         lock.lock();
         try {
             for (int i = 0, imax = indices.length; i < imax; ++i) {
-                records[i] = (Record) list.get(indices[i]);
+                records[i] = list.get(indices[i]);
             }
         } finally {
             lock.unlock();
@@ -323,7 +317,7 @@ public abstract class RecordLedger {
     }
 
     /**
-     * @param listChangeListener
+     * @param listChangeListener the listener to remove.
      * @see ca.odell.glazedlists.EventList#removeListEventListener(ca.odell.glazedlists.event.ListEventListener)
      */
     public void removeListEventListener(ListEventListener<Record> listChangeListener) {

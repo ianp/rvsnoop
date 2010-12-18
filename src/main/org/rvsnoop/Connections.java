@@ -1,10 +1,5 @@
-/*
- * Class:     Connections
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.beans.PropertyChangeEvent;
@@ -44,11 +39,6 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  * This class wraps a sorted event list to which calls are delegated, the
  * wrapper methods handle ensuring no duplicates are added to the list and also
  * all synchronization using the Glazed Lists locking idiom.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date: 2007-01-08 08:07:22 +0000 (Mon, 08 Jan
- *          2007) $
- * @since 1.6
  */
 public final class Connections {
 
@@ -106,15 +96,12 @@ public final class Connections {
         }
     }
 
-    /**
-     * @see java.util.List#clear()
-     */
     public void clear() {
         final Lock lock = list.getReadWriteLock().writeLock();
         lock.lock();
         try {
             while (list.size() > 0) {
-                final RvConnection connection = (RvConnection) list.get(0);
+                final RvConnection connection = list.get(0);
                 if (log.isInfoEnabled()) {
                     log.info("Removing connection: " + connection);
                 }
@@ -211,7 +198,7 @@ public final class Connections {
         final Lock lock = list.getReadWriteLock().readLock();
         lock.lock();
         try {
-            return (RvConnection[]) list.toArray(new RvConnection[list.size()]);
+            return list.toArray(new RvConnection[list.size()]);
         } finally {
             lock.unlock();
         }
@@ -259,40 +246,19 @@ public final class Connections {
             super();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ca.odell.glazedlists.ObservableElementList.Connector#installListener(java.lang.Object)
-         */
         public EventListener installListener(RvConnection element) {
             element.addPropertyChangeListener(this);
             return this;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-         */
         public void propertyChange(PropertyChangeEvent event) {
             list.elementChanged((RvConnection) event.getSource());
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ca.odell.glazedlists.ObservableElementList.Connector#setObservableElementList(ca.odell.glazedlists.ObservableElementList)
-         */
         public void setObservableElementList(ObservableElementList<RvConnection> list) {
             this.list = list;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ca.odell.glazedlists.ObservableElementList.Connector#uninstallListener(java.lang.Object,
-         *      java.util.EventListener)
-         */
         public void uninstallListener(RvConnection element, EventListener listener) {
             element.removePropertyChangeListener(this);
         }

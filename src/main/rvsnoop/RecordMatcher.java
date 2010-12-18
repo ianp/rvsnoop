@@ -1,10 +1,5 @@
-/*
- * Class:     RecordMatcher
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
 
 import java.text.Collator;
@@ -26,10 +21,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * A matcher for records.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.5
  */
 public abstract class RecordMatcher implements Matcher<Record> {
 
@@ -125,7 +116,7 @@ public abstract class RecordMatcher implements Matcher<Record> {
      */
     public static String[] getMatcherNames() {
         final Set<String> nameSet = matchersByName.keySet();
-        final String[] names = (String[]) nameSet.toArray(new String[nameSet.size()]);
+        final String[] names = nameSet.toArray(new String[nameSet.size()]);
         Arrays.sort(names, Collator.getInstance());
         return names;
     }

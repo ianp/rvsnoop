@@ -1,10 +1,5 @@
-/*
- * Class:     TibrvUtils
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.util.ArrayList;
@@ -77,7 +72,7 @@ final class DepthFirstFieldIterator implements Iterator<TibrvMsgField> {
             }
             if (position == numFields) {
                 if (stack.size() > 0) {
-                    StackElement elt = (StackElement) stack.remove(stack.size() - 1);
+                    StackElement elt = stack.remove(stack.size() - 1);
                     message = elt.message;
                     position = elt.position;
                     numFields = message.getNumFields();

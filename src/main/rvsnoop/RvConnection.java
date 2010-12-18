@@ -1,10 +1,5 @@
-/*
- * Class:     RvConnection
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
 
 import java.awt.event.ActionEvent;
@@ -58,10 +53,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * to generate their hash codes) and these cannot be altered after object
  * creation. All other properties may be changes freely at any time. For RV
  * connections the immutable properties are service, network, and daemon.
- *
- * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class RvConnection implements TibrvMsgCallback {
 
@@ -547,7 +538,7 @@ public final class RvConnection implements TibrvMsgCallback {
         if (subject == null) return;
         subject = subject.trim();
         if (subject.length() > 0) {
-            final TibrvListener listener = (TibrvListener) subjects.remove(subject);
+            final TibrvListener listener = subjects.remove(subject);
             if (listener != null) listener.destroy();
         }
         // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
@@ -558,9 +549,8 @@ public final class RvConnection implements TibrvMsgCallback {
         try {
             if (transport != null)
                 transport.setDescription(description + DESCRIPTION);
-            final String oldDescription = description;
             this.description = description != null ? description : "";
-            changeSupport.firePropertyChange(KEY_DESCRIPTION, oldDescription, this.description);
+            changeSupport.firePropertyChange(KEY_DESCRIPTION, description, this.description);
         } catch (TibrvException e) {
             log.error("Could not set connection description.", e);
         }
