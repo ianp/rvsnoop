@@ -31,7 +31,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import com.google.common.io.Files;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bushe.swing.event.EventBus;
@@ -104,11 +103,11 @@ public final class UserPreferences {
     private UserPreferences() {
         String path;
         if (SystemUtils.IS_OS_WINDOWS) {
-            path = SystemUtils.USER_HOME + "/Application Data/RvSnoop";
-        } else if (SystemUtils.IS_OS_MAC_OSX) {
-            path = SystemUtils.USER_HOME + "/Library/Application Support/RvSnoop";
+            path = System.getProperty("user.home") + "/Application Data/RvSnoop";
+        } else if (SystemUtils.IS_OS_MAC) {
+            path = System.getProperty("user.home") + "/Library/Application Support/RvSnoop";
         } else {
-            path = SystemUtils.USER_HOME + "/.rvsnoop";
+            path = System.getProperty("user.home") + "/.rvsnoop";
         }
         final File recentConnectionsDir = new File(path);
         File f = null;
@@ -141,7 +140,7 @@ public final class UserPreferences {
     }
 
     public String getLastExportLocation() {
-        return preferences.get(KEY_LAST_EXPORT_LOCATION, SystemUtils.USER_DIR);
+        return preferences.get(KEY_LAST_EXPORT_LOCATION, System.getProperty("user.dir"));
     }
 
     public List<ColumnFormat> getLedgerColumns() {

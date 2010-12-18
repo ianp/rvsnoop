@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 
-import org.apache.commons.lang.text.StrBuilder;
 import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.GroupLayout.SequentialGroup;
 
@@ -136,7 +135,7 @@ public final class ConnectionListCellRenderer extends JPanel implements ListCell
     }
 
     private String getToolTipText(final RvConnection connection) {
-        final StrBuilder builder = new StrBuilder();
+        final StringBuilder builder = new StringBuilder();
         for (String s : connection.getSubjects()) {
             builder.append(s).append('\n');
         }

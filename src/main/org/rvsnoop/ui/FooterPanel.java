@@ -9,6 +9,8 @@ package org.rvsnoop.ui;
 
 import java.awt.ComponentOrientation;
 import java.awt.event.KeyEvent;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -23,9 +25,10 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.layout.GroupLayout;
+import org.rvsnoop.SystemUtils;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * A panel component that can be used as a footer panel in a dialog or window.
@@ -52,18 +55,18 @@ public final class FooterPanel extends JPanel {
         int numButtons = extra != null ? extra.length : 0;
         if (ok != null) { ++numButtons; }
         if (cancel != null) { ++numButtons; }
-        final JButton[] buttons = new JButton[numButtons];
+        List<JButton> buttons = newArrayList();
         if (extra != null) {
             for (int i = 0, imax = extra.length; i < imax; ++i) {
-                buttons[i] = new JButton(extra[i]);
+                buttons.add(i, new JButton(extra[i]));
             }
         }
         final Action leading = SystemUtils.IS_OS_WINDOWS ? ok : cancel;
         final Action trailing = SystemUtils.IS_OS_WINDOWS ? cancel : ok;
-        if (trailing != null) { buttons[--numButtons] = new JButton(trailing); }
-        if (leading != null) { buttons[--numButtons] = new JButton(leading); }
+        if (trailing != null) { buttons.add(--numButtons, new JButton(trailing)); }
+        if (leading != null)  { buttons.add(--numButtons, new JButton(leading));  }
         if (getComponentOrientation().equals(ComponentOrientation.RIGHT_TO_LEFT)) {
-            ArrayUtils.reverse(buttons);
+            Collections.reverse(buttons);
         }
 
         // Layout
@@ -74,18 +77,18 @@ public final class FooterPanel extends JPanel {
         final GroupLayout.SequentialGroup hgp = layout.createSequentialGroup();
         layout.setHorizontalGroup(hgp);
         hgp.add(1, 1, Integer.MAX_VALUE);
-        for (int i = 0, imax = buttons.length; i < imax; ++i) {
-            hgp.add(buttons[i]);
+        for (int i = 0, imax = buttons.size(); i < imax; ++i) {
+            hgp.add(buttons.get(i));
         }
         // Vertical group
         final GroupLayout.ParallelGroup vgp = layout.createParallelGroup();
         layout.setVerticalGroup(vgp);
-        for (int i = 0, imax = buttons.length; i < imax; ++i) {
-            vgp.add(buttons[i]);
+        for (int i = 0, imax = buttons.size(); i < imax; ++i) {
+            vgp.add(buttons.get(i));
         }
 
         final Border outer = new MatteBorder(1, 0, 0, 0, UIManager.getColor("control"));
-        final Border inner = new EmptyBorder(8, 8, 8, SystemUtils.IS_OS_MAC_OSX ? 24 : 8);
+        final Border inner = new EmptyBorder(8, 8, 8, SystemUtils.IS_OS_MAC ? 24 : 8);
         setBorder(new CompoundBorder(outer, inner));
     }
 

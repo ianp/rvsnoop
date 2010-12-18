@@ -21,9 +21,9 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JTextField;
 
-import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.layout.GroupLayout;
 import org.rvsnoop.NLSUtils;
+import org.rvsnoop.SystemUtils;
 import org.rvsnoop.matchers.DataAccessor;
 import org.rvsnoop.matchers.DataAccessorFactory;
 import org.rvsnoop.matchers.Predicate;
@@ -118,12 +118,8 @@ public final class MatcherEditorDialog extends JDialog {
     }
 
     private void configureComponentsAndLayout(Window parent) {
-        final JButton leading = new JButton(SystemUtils.IS_OS_WINDOWS
-                ? (Action) new OKAction()
-                : (Action) new CancelAction());
-        final JButton trailing = new JButton(SystemUtils.IS_OS_WINDOWS
-                ? (Action) new CancelAction()
-                : (Action) new OKAction());
+        final JButton leading = new JButton(SystemUtils.IS_OS_WINDOWS ? new OKAction() : new CancelAction());
+        final JButton trailing = new JButton(SystemUtils.IS_OS_WINDOWS ? new CancelAction() : new OKAction());
         predicateArgument.setColumns(20);
         // Layout
         final Container contents = getContentPane();

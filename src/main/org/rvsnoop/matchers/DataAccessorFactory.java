@@ -12,8 +12,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
 import org.rvsnoop.NLSUtils;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A factory for creating data accessors.
@@ -80,8 +81,7 @@ public final class DataAccessorFactory {
     }
 
     private DataAccessor<?> createFromString(Map<String, Class<? extends DataAccessor<?>>> map, String string, String errorMessage) {
-        Validate.notNull(string);
-        Class<? extends DataAccessor<?>> clazz = map.get(string);
+        Class<? extends DataAccessor<?>> clazz = map.get(checkNotNull(string));
         if (clazz == null) {
             throw new IllegalArgumentException(
                     MessageFormat.format(errorMessage, string));

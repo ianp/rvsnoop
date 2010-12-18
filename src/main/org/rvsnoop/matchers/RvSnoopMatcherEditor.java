@@ -7,11 +7,12 @@
  */
 package org.rvsnoop.matchers;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
+import com.google.common.base.Objects;
+import com.google.inject.internal.ToStringBuilder;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Base class for all of the matcher editors used in the application.
@@ -77,11 +78,10 @@ public final class RvSnoopMatcherEditor extends AbstractMatcherEditor {
     /**
      * Set the record data that this matcher should search in.
      *
-     * @param value The data to search in.
      * @throws IllegalArgumentException If the argument is <code>null</code>.
      */
     public final void setDataAccessor(DataAccessor dataAccessor) {
-        Validate.notNull(dataAccessor);
+        checkNotNull(dataAccessor);
         if (this.dataAccessor.equals(dataAccessor)) { return; }
         this.dataAccessor = dataAccessor;
         currentMatcher = new RvSnoopMatcher(dataAccessor, predicate);
@@ -91,13 +91,12 @@ public final class RvSnoopMatcherEditor extends AbstractMatcherEditor {
     /**
      * Set the value that this matcher should match.
      *
-     * @param value The value to match.
      * @throws IllegalArgumentException If the argument is <code>null</code>.
      */
     public final void setPredicate(Predicate predicate) {
         // TODO add more specific methods that alter the current predicate and
         //      fire constrained/relaxed events
-        Validate.notNull(predicate);
+        checkNotNull(predicate);
         if (this.predicate == predicate) { return; }
         this.predicate = predicate;
         currentMatcher = new RvSnoopMatcher(dataAccessor, predicate);
@@ -106,9 +105,9 @@ public final class RvSnoopMatcherEditor extends AbstractMatcherEditor {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("dataAccessor", dataAccessor)
-                .append("predicate", predicate).toString();
+        return Objects.toStringHelper(this)
+                .add("dataAccessor", dataAccessor)
+                .add("predicate", predicate).toString();
     }
 
 }

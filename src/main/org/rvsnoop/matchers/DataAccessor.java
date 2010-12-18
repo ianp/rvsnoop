@@ -11,8 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import com.google.common.base.Objects;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.TibrvUtils;
 
@@ -21,6 +20,8 @@ import com.tibco.tibrv.TibrvMsgField;
 import com.tibco.tibrv.TibrvXml;
 
 import rvsnoop.Record;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * An base for classes capable of extracting data from records.
@@ -160,8 +161,8 @@ public abstract class DataAccessor<T> {
     private final String identifier;
 
     protected DataAccessor(String displayName, String identifier) {
-        Validate.notNull(displayName);
-        Validate.notNull(identifier);
+        checkNotNull(displayName);
+        checkNotNull(identifier);
         this.displayName = displayName;
         this.identifier = identifier;
     }
@@ -218,8 +219,7 @@ public abstract class DataAccessor<T> {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("identifier", identifier).toString();
+        return Objects.toStringHelper(this).add("identifier", identifier).toString();
     }
 
 }

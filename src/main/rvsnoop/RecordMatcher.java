@@ -7,22 +7,22 @@
  */
 package rvsnoop;
 
-import java.lang.reflect.Constructor;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Objects;
 import nu.xom.Attribute;
 import nu.xom.Element;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ca.odell.glazedlists.matchers.Matcher;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * A matcher for records.
@@ -76,8 +76,8 @@ public abstract class RecordMatcher implements Matcher<Record> {
      * @return The connection.
      */
     public static RecordMatcher fromXml(Element element) {
-        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + '.');
-        Validate.isTrue(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XML_NS + '.');
+        checkArgument(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be %s.", XML_ELEMENT);
+        checkArgument(XML_NS.equals(element.getNamespaceURI()), "The element must be in the namespace %s.", XML_NS);
         final String type = element.getAttributeValue(PROP_TYPE);
         final String value = element.getAttributeValue(PROP_VALUE);
         return createMatcher(type, value);
@@ -177,9 +177,9 @@ public abstract class RecordMatcher implements Matcher<Record> {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-            .append(PROP_TYPE, type)
-            .append(PROP_VALUE, value).toString();
+        return Objects.toStringHelper(this)
+                .add(PROP_TYPE, type)
+                .add(PROP_VALUE, value).toString();
     }
 
     /**

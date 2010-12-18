@@ -10,11 +10,12 @@ package org.rvsnoop.matchers;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import com.google.common.base.Objects;
 import org.rvsnoop.NLSUtils;
 
 import ca.odell.glazedlists.matchers.Matcher;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
@@ -136,13 +137,10 @@ public abstract class Predicate implements Matcher {
     protected final boolean ignoringCase;
 
     private Predicate(String displayName, String identifier, String argument, boolean ignoringCase) {
-        Validate.notNull(argument);
-        Validate.notNull(displayName);
-        Validate.notNull(identifier);
-        this.argument = argument;
-        this.displayName = displayName;
-        this.identifier = identifier;
-        this.ignoringCase = ignoringCase;
+        this.argument = checkNotNull(argument);
+        this.displayName = checkNotNull(displayName);
+        this.identifier = checkNotNull(identifier);
+        this.ignoringCase = checkNotNull(ignoringCase);
     }
 
     /* (non-Javadoc)
@@ -191,10 +189,10 @@ public abstract class Predicate implements Matcher {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("identifier", identifier)
-                .append("argument", argument)
-                .append("ignoringCase", ignoringCase).toString();
+        return Objects.toStringHelper(this)
+                .add("identifier", identifier)
+                .add("argument", argument)
+                .add("ignoringCase", ignoringCase).toString();
     }
 
 }

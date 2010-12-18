@@ -7,7 +7,7 @@
  */
 package rvsnoop;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import com.google.common.base.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -61,7 +61,6 @@ public final class Record {
      * @param send The send subject of the message.
      * @param reply The reply subject of the message.
      * @param timestamp The time the message was received.
-     * @throws TibrvException
      */
     public Record(RvConnection connection, TibrvMsg message, String send, String reply, long timestamp) {
         super();
@@ -116,9 +115,7 @@ public final class Record {
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) return true;
-        return obj instanceof Record
-            && sequenceNumber == ((Record) obj).sequenceNumber;
+        return obj == this || obj instanceof Record && sequenceNumber == ((Record) obj).sequenceNumber;
     }
 
     /**
@@ -239,11 +236,11 @@ public final class Record {
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-            .append("sequenceNumber", sequenceNumber)
-            .append("timestamp", timestamp)
-            .append("connection", connection != null ? connection.getDescription() : "null")
-            .append("subject", subject.getUserObjectPath()).toString();
+        return Objects.toStringHelper(this)
+                .add("sequenceNumber", sequenceNumber)
+                .add("timestamp", timestamp)
+                .add("connection", connection != null ? connection.getDescription() : "null")
+                .add("subject", subject.getUserObjectPath()).toString();
     }
 
 }

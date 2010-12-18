@@ -13,7 +13,6 @@ import java.text.MessageFormat;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
@@ -45,6 +44,20 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
     public static final String COMMAND = "republish";
     static String ACCELERATOR, ERROR_PUBLISHING, MNEMONIC, NAME, TOOLTIP, QUESTION_CONFIRM;
 
+    public static int indexOf(Object[] array, Object objectToFind) {
+        if (array == null) { return -1; }
+        if (objectToFind == null) {
+            for (int i = 0; i < array.length; i++) {
+                if (array[i] == null) { return i; }
+            }
+        } else {
+            for (int i = 0; i < array.length; i++) {
+                if (objectToFind.equals(array[i])) { return i; }
+            }
+        }
+        return -1;
+    }
+
     private transient Record[] currentSelection;
 
     public Republish(Application application) {
@@ -72,7 +85,7 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
                 MainFrame.INSTANCE, question, NAME, JOptionPane.QUESTION_MESSAGE,
                 null, connectionNames, connectionNames[0]);
         if (name == null) { return; } // User cancelled republishing.
-        final RvConnection connection = connections[ArrayUtils.indexOf(connectionNames, name)];
+        final RvConnection connection = connections[indexOf(connectionNames, name)];
         if (connection.getState() != State.STARTED) { connection.start(); }
         for (int i = 0, imax = currentSelection.length; i < imax; ++i) {
             final Record record = currentSelection[i];

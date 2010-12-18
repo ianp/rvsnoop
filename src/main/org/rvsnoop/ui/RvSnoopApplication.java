@@ -27,7 +27,6 @@ import org.apache.commons.cli2.builder.DefaultOptionBuilder;
 import org.apache.commons.cli2.builder.GroupBuilder;
 import org.apache.commons.cli2.commandline.Parser;
 import org.apache.commons.cli2.util.HelpFormatter;
-import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ApplicationActionMap;
 import org.jdesktop.application.ApplicationContext;
@@ -38,6 +37,7 @@ import org.rvsnoop.Application;
 import org.rvsnoop.Connections;
 import org.rvsnoop.Logger;
 import org.rvsnoop.Project;
+import org.rvsnoop.SystemUtils;
 import org.rvsnoop.UserPreferences;
 
 import rvsnoop.BrowserLauncher;
@@ -66,7 +66,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         if (SystemUtils.IS_OS_WINDOWS) {
             System.setProperty("rvsnoop.logDir",
                     home + "/Application Data/Logs/RvSnoop".replace("/", fileSep));
-        } else if (SystemUtils.IS_OS_MAC_OSX) {
+        } else if (SystemUtils.IS_OS_MAC) {
             System.setProperty("rvsnoop.logDir",
                     home + "/Library/Logs/RvSnoop".replace("/", fileSep));
         } else {
@@ -161,7 +161,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     }
 
     private void ensureJavaVersionIsValid() {
-        if (!SystemUtils.isJavaVersionAtLeast(150)) {
+        if (!SystemUtils.isJavaVersionAtLeast(1,5)) {
             ResourceMap resourceMap = getContext().getResourceMap();
             Object message = new String[] {
                     resourceMap.getString("CLI.error.javaVersion[0]"),
@@ -249,7 +249,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         frame.getJMenuBar().add(createHelpMenu());
         getContext().getResourceMap().injectComponents(frame);
 
-        if (SystemUtils.IS_OS_MAC_OSX) {
+        if (SystemUtils.IS_OS_MAC) {
             new MacHandlersInstaller().installHandlers();
         }
 

@@ -32,8 +32,6 @@ import java.util.logging.StreamHandler;
 import java.util.zip.GZIPOutputStream;
 
 import com.google.common.io.ByteStreams;
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.SystemUtils;
 
 import static com.google.common.io.Closeables.closeQuietly;
 
@@ -173,11 +171,11 @@ public class FastFileHandler extends StreamHandler {
     static {
         String path;
         if (SystemUtils.IS_OS_WINDOWS) {
-            path = SystemUtils.USER_HOME + "/Application Data/Logs/RvSnoop";
-        } else if (SystemUtils.IS_OS_MAC_OSX) {
-            path = SystemUtils.USER_HOME + "/Library/Logs/RvSnoop";
+            path = System.getProperty("user.home") + "/Application Data/Logs/RvSnoop";
+        } else if (SystemUtils.IS_OS_MAC) {
+            path = System.getProperty("user.home") + "/Library/Logs/RvSnoop";
         } else {
-            path = SystemUtils.USER_HOME + "/.rvsnoop";
+            path = System.getProperty("user.home") + "/.rvsnoop";
         }
         logDirectory = new File(path);
         if (!logDirectory.isDirectory() && !logDirectory.mkdirs()) {
@@ -238,7 +236,7 @@ public class FastFileHandler extends StreamHandler {
     private void initCompressOldFiles(final LogManager manager, final String cname) {
         try {
             String s = manager.getProperty(cname + ".compressOldFiles");
-            compressOldFiles = BooleanUtils.toBoolean(s);
+            compressOldFiles = Boolean.parseBoolean(s);
         } catch (Exception e) {
             // Do not compress by default.
         }

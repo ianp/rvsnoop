@@ -9,13 +9,11 @@ package org.rvsnoop;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Calendar;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
-
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.text.StrBuilder;
 
 /**
  * A simple formatter that is both faster and less memory intensive than the
@@ -26,39 +24,15 @@ import org.apache.commons.lang.text.StrBuilder;
  */
 public final class FastFormatter extends Formatter {
 
-    private static class StrBuilderWriter extends Writer {
-        private final StrBuilder builder;
-        StrBuilderWriter(StrBuilder builder) {
-            this.builder = builder;
-            lock = builder;
+    private static Appendable padLeft(int value, int width, Appendable appendable) throws IOException {
+        String s = Integer.toString(value);
+        for (int i = s.length(); i < width; ++i) {
+            appendable.append('0');
         }
-        @Override
-        public void close() throws IOException { /* NO-OP */ }
-        @Override
-        public void flush() throws IOException { /* NO-OP */ }
-        @Override
-        public void write(char[] cbuf, int off, int len) throws IOException {
-            builder.append(cbuf, off, len);
-        }
-        @Override
-        public void write(char[] cbuf) throws IOException {
-            builder.append(cbuf);
-        }
-        @Override
-        public void write(int c) throws IOException {
-            builder.append(c);
-        }
-        @Override
-        public void write(String str, int off, int len) throws IOException {
-            builder.append(str, off, len);
-        }
-        @Override
-        public void write(String str) throws IOException {
-            builder.append(str);
-        }
+        return appendable.append(s);
     }
 
-    private final StrBuilder builder = new StrBuilder();
+    private final StringWriter writer = new StringWriter();
     private final Calendar calendar = Calendar.getInstance();
 
     /* (non-Javadoc)
@@ -66,29 +40,33 @@ public final class FastFormatter extends Formatter {
      */
     @Override
     public synchronized String format(LogRecord record) {
-        calendar.setTimeInMillis(record.getMillis());
-        builder.append(SystemUtils.LINE_SEPARATOR)
-            .append(calendar.get(Calendar.YEAR)).append('-')
-            .appendFixedWidthPadLeft(calendar.get(Calendar.MONTH), 2, '0').append('-')
-            .appendFixedWidthPadLeft(calendar.get(Calendar.DAY_OF_MONTH), 2, '0').append(' ')
-            .appendFixedWidthPadLeft(calendar.get(Calendar.HOUR_OF_DAY), 2, '0').append(':')
-            .appendFixedWidthPadLeft(calendar.get(Calendar.MINUTE), 2, '0').append(':')
-            .appendFixedWidthPadLeft(calendar.get(Calendar.SECOND), 2, '0').append(',')
-            .appendFixedWidthPadLeft(calendar.get(Calendar.MILLISECOND), 3, '0').append(' ');
-        builder.append(record.getLevel().getName()).append(' ');
-        final String logger = record.getLoggerName();
-        builder.append(logger != null ? logger : "unknown_logger").append(' ');
-        final String message = record.getMessage();
-        if (message != null) { builder.append(message); }
-        final Throwable thrown = record.getThrown();
-        if (thrown != null) {
-            builder.appendNewLine();
-            // Use an auto-flushing writer that appends directly to the builder,
-            // so no need to worry about cleaning up or catching IOExceptions.
-            thrown.printStackTrace(new PrintWriter(new StrBuilderWriter(builder), true));
+        try {
+            calendar.setTimeInMillis(record.getMillis());
+            writer.append(SystemUtils.LINE_SEPARATOR);
+            padLeft(calendar.get(Calendar.YEAR), 4, writer).append('-');
+            padLeft(calendar.get(Calendar.MONTH), 2, writer).append('-');
+            padLeft(calendar.get(Calendar.DAY_OF_MONTH), 2, writer).append(' ');
+            padLeft(calendar.get(Calendar.HOUR_OF_DAY), 2, writer).append(':');
+            padLeft(calendar.get(Calendar.MINUTE), 2, writer).append(':');
+            padLeft(calendar.get(Calendar.SECOND), 2, writer).append(',');
+            padLeft(calendar.get(Calendar.MILLISECOND), 3, writer).append(' ');
+            writer.append(record.getLevel().getName()).append(' ');
+            final String logger = record.getLoggerName();
+            writer.append(logger != null ? logger : "unknown_logger").append(' ');
+            final String message = record.getMessage();
+            if (message != null) { writer.append(message); }
+            final Throwable thrown = record.getThrown();
+            if (thrown != null) {
+                writer.append(SystemUtils.LINE_SEPARATOR);
+                // Use an auto-flushing writer that appends directly to the builder,
+                // so no need to worry about cleaning up or catching IOExceptions.
+                thrown.printStackTrace(new PrintWriter(writer, true));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        final String formatted = builder.toString();
-        builder.setLength(0);
+        final String formatted = writer.toString();
+        writer.getBuffer().setLength(0);
         return formatted;
     }
 

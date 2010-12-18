@@ -7,11 +7,11 @@
  */
 package rvsnoop;
 
+import com.google.common.base.Joiner;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
-
-import org.apache.commons.lang.text.StrBuilder;
 
 /**
  * An element in a Rendezvous subject hierarchy.
@@ -220,12 +220,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
      * @return The subject string.
      */
     public String toDisplayString() {
-        final StrBuilder builder = new StrBuilder();
-        for (int i = 1, imax = userObjectPath.length; i < imax; ++i) {
-            builder.append(userObjectPath[i]).append('.');
-        }
-        builder.setLength(builder.length() - 1);
-        return builder.toString();
+        return Joiner.on('.').join(userObjectPath);
     }
 
 }

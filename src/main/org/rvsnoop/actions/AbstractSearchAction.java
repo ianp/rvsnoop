@@ -7,15 +7,12 @@
  */
 package org.rvsnoop.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.*;
 
-import org.apache.commons.lang.text.StrBuilder;
 import org.rvsnoop.Application;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.RecordLedger;
@@ -165,8 +162,8 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
         // Do nothing by default, assume that the results are already displayed.
     }
 
-    private final String findLongestCommonSubstring(String[] strings) {
-        final StrBuilder builder = new StrBuilder();
+    private String findLongestCommonSubstring(String[] strings) {
+        final StringBuilder builder = new StringBuilder();
         int pos = 0;
         while (true) {
             if (pos == strings[0].length()) { return builder.toString(); }

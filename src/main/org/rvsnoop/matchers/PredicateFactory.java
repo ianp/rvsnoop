@@ -12,8 +12,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
 import org.rvsnoop.NLSUtils;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A factory for creating data accessors.
@@ -66,8 +67,7 @@ public final class PredicateFactory {
     }
 
     private Predicate createFromString(Map map, String string, String value, boolean ignoreCase, String errorMessage) {
-        Validate.notNull(string);
-        Class clazz = (Class) map.get(string);
+        Class clazz = (Class) map.get(checkNotNull(string));
         if (clazz == null) {
             throw new IllegalArgumentException(
                     MessageFormat.format(errorMessage, string));

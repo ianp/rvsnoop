@@ -17,6 +17,7 @@ import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.font.FontRenderContext;
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 import javax.swing.BorderFactory;
@@ -27,13 +28,12 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.text.StrBuilder;
 import org.jdesktop.layout.GroupLayout;
 import org.rvsnoop.Application;
 
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
+import org.rvsnoop.SystemUtils;
 
 /**
  * A status bar capable of displaying notifications to the user.
@@ -84,7 +84,7 @@ public final class StatusBar extends JPanel {
 
     private int countAll, countFiltered;
 
-    private final StrBuilder countBuilder = new StrBuilder("0/0");
+    private final StringBuilder countBuilder = new StringBuilder("0/0");
 
     private final JLabel encoding = new JLabel();
 
@@ -106,10 +106,10 @@ public final class StatusBar extends JPanel {
         count.setOpaque(false);
         count.setBorder(new MatteBorder(0, 1, 0, 1, Color.GRAY));
         encoding.setIcon(new ImageIcon("/resources/icons/statusBarEncoding.png"));
-        encoding.setText(SystemUtils.FILE_ENCODING);
+        encoding.setText(Charset.defaultCharset().displayName());
         encoding.setToolTipText(Locale.getDefault().getDisplayName());
         encoding.setOpaque(false);
-        if (SystemUtils.IS_OS_MAC_OSX) {
+        if (SystemUtils.IS_OS_MAC) {
             // Leave engough room for the grow box.
             encoding.setBorder(new EmptyBorder(0, 0, 0, 18));
         }

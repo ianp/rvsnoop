@@ -20,8 +20,8 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import org.apache.commons.lang.SystemUtils;
 import org.rvsnoop.Application;
+import org.rvsnoop.SystemUtils;
 import org.rvsnoop.actions.EditRecordTypes;
 
 import rvsnoop.RecordType;
@@ -88,7 +88,7 @@ public final class RecordTypesMenuManager implements MenuListener, PopupMenuList
         menu.addSeparator();
         final JMenuItem item =
             menu.add(application.getAction(EditRecordTypes.COMMAND));
-        if (SystemUtils.IS_OS_MAC_OSX) { item.setIcon(null); }
+        if (SystemUtils.IS_OS_MAC) { item.setIcon(null); }
     }
 
     /* (non-Javadoc)
@@ -118,7 +118,7 @@ public final class RecordTypesMenuManager implements MenuListener, PopupMenuList
         menu.addSeparator();
         final JMenuItem item =
             menu.add(application.getAction(EditRecordTypes.COMMAND));
-        if (SystemUtils.IS_OS_MAC_OSX) { item.setIcon(null); }
+        if (SystemUtils.IS_OS_MAC) { item.setIcon(null); }
     }
 
 }

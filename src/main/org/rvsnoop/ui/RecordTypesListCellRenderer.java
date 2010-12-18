@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 
-import org.apache.commons.lang.text.StrBuilder;
 import org.jdesktop.layout.GroupLayout;
 
 import rvsnoop.RecordType;
@@ -40,7 +39,7 @@ public final class RecordTypesListCellRenderer extends JPanel implements ListCel
     private static final Icon BANNER_SELECTED =
             new ImageIcon("/resources/banners/recordTypeSelected.png");
 
-    private final StrBuilder builder = new StrBuilder();
+    private final StringBuilder builder = new StringBuilder();
 
     private final JLabel imageLabel = new DefaultListCellRenderer();
     private final JLabel titleLabel = new DefaultListCellRenderer();

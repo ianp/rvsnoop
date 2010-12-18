@@ -21,12 +21,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
+import com.google.common.base.Objects;
 import nu.xom.Element;
 import nu.xom.Elements;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Connections;
@@ -46,6 +44,9 @@ import com.tibco.tibrv.TibrvMsgCallback;
 import com.tibco.tibrv.TibrvNetTransport;
 import com.tibco.tibrv.TibrvQueue;
 import com.tibco.tibrv.TibrvRvdTransport;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Describes the set of parameters that an RV transport requires.
@@ -193,8 +194,8 @@ public final class RvConnection implements TibrvMsgCallback {
      * @return The connection.
      */
     public static RvConnection fromXML(Element element) {
-        Validate.isTrue(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be " + XML_ELEMENT + '.');
-        Validate.isTrue(XMLBuilder.NS_RENDEZVOUS.equals(element.getNamespaceURI()), "The element must be in the namespace " + XMLBuilder.NS_RENDEZVOUS + '.');
+        checkArgument(XML_ELEMENT.equals(element.getLocalName()), "The element’s localname must be %s.", XML_ELEMENT);
+        checkArgument(XMLBuilder.NS_RENDEZVOUS.equals(element.getNamespaceURI()), "The element must be in the namespace %s.", XMLBuilder.NS_RENDEZVOUS);
         final String service = element.getAttributeValue(KEY_SERVICE);
         final String network = element.getAttributeValue(KEY_NETWORK);
         final String daemon = element.getAttributeValue(KEY_DAEMON);
@@ -353,9 +354,9 @@ public final class RvConnection implements TibrvMsgCallback {
     }
 
     public synchronized void addSubject(String subject) {
-        Validate.notNull(subject, "Subject cannot be null.");
+        checkNotNull(subject, "Subject cannot be null.");
         subject = subject.trim();
-        Validate.isTrue(subject.length() > 0, "Subject cannot be empty.");
+        checkArgument(subject.length() > 0, "Subject cannot be empty.");
         if (subjects.containsKey(subject)) { return; }
         subjects.put(subject, createListener(subject));
         // TODO: Update this to use fireIndexedPropertyChange in SE 5.0.
@@ -487,9 +488,7 @@ public final class RvConnection implements TibrvMsgCallback {
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = new HashCodeBuilder()
-                .append(network).append(service).append(daemon)
-                .toHashCode();
+            hashCode = Objects.hashCode(network, service, daemon);
         }
         return hashCode;
     }
@@ -629,11 +628,11 @@ public final class RvConnection implements TibrvMsgCallback {
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-            .append(KEY_DESCRIPTION, description)
-            .append(KEY_SERVICE, service)
-            .append(KEY_NETWORK, network)
-            .append(KEY_DAEMON, daemon).toString();
+        return Objects.toStringHelper(this)
+                .add(KEY_DESCRIPTION, description)
+                .add(KEY_SERVICE, service)
+                .add(KEY_NETWORK, network)
+                .add(KEY_DAEMON, daemon).toString();
     }
 
     public void toXML(XMLBuilder builder) throws IOException {

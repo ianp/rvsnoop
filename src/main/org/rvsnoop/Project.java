@@ -29,9 +29,6 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.text.StrBuilder;
-
 import rvsnoop.RecordMatcher;
 import rvsnoop.RecordType;
 import rvsnoop.RecordTypes;
@@ -53,11 +50,7 @@ public final class Project {
     private static final String NAMESPACE = "http://rvsnoop.org/ns/rvsnoop/1";
 
     private static String colourToHexString(Color c) {
-        return new StrBuilder(7).append('#')
-            .appendFixedWidthPadLeft(Integer.toHexString(c.getRed()), 2, '0')
-            .appendFixedWidthPadLeft(Integer.toHexString(c.getGreen()), 2, '0')
-            .appendFixedWidthPadLeft(Integer.toHexString(c.getBlue()), 2, '0')
-            .toString();
+        return String.format("#%02X%02X%02X" ,c.getRed(), c.getGreen(), c.getBlue());
     }
 
     private final File projectDirectory;
@@ -91,7 +84,7 @@ public final class Project {
             final String name = element.getAttributeValue(RecordType.KEY_NAME);
             final String selected = element.getAttributeValue(RecordType.KEY_SELECTED);
             final RecordType type = types.createType(name, colour, matcher);
-            type.setSelected(BooleanUtils.toBoolean(selected));
+            type.setSelected(Boolean.parseBoolean(selected));
         }
     }
 
@@ -112,9 +105,9 @@ public final class Project {
 
     private void loadSubject(Element xmlElt, SubjectElement parent, SubjectHierarchy hierarchy, JTree tree) {
         final String name = xmlElt.getAttributeValue("name");
-        final boolean selected = BooleanUtils.toBoolean(xmlElt.getAttributeValue("selected"));
+        final boolean selected = Boolean.parseBoolean(xmlElt.getAttributeValue("selected"));
         final SubjectElement child = hierarchy.getSubjectElement(parent, name, selected);
-        if (BooleanUtils.toBoolean(xmlElt.getAttributeValue("expanded"))) {
+        if (Boolean.parseBoolean(xmlElt.getAttributeValue("expanded"))) {
             tree.expandPath(new TreePath(child.getPath()));
         }
         final Elements xmlElts = xmlElt.getChildElements();

@@ -21,7 +21,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -242,7 +241,7 @@ public final class NLSUtils {
     public static void internationalize(final String resourcePath, Class clazz) {
         long start = log.isTraceEnabled() ? System.currentTimeMillis() : 0;
         if (log.isDebugEnabled()) {
-            log.debug("Loading NLS bundle for " + ClassUtils.getShortClassName(clazz) + " from " + resourcePath); //$NON-NLS-1$ //$NON-NLS-2$
+            log.debug("Loading NLS bundle for " + clazz.getSimpleName() + " from " + resourcePath); //$NON-NLS-1$ //$NON-NLS-2$
         }
         Field[] fields = clazz.getDeclaredFields();
         // Strip out compiler generated synthetic fields

@@ -11,10 +11,8 @@ import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.text.StrBuilder;
-
 import ca.odell.glazedlists.matchers.Matcher;
+import com.google.common.base.Objects;
 
 /**
  * RvSnoop allows the user to classify records based on fairly arbitrary criteria.
@@ -86,11 +84,7 @@ public class RecordType implements Matcher<Record> {
     }
 
     private String getColourHexString() {
-        return new StrBuilder(7).append('#')
-            .appendFixedWidthPadLeft(Integer.toHexString(colour.getRed()), 2, '0')
-            .appendFixedWidthPadLeft(Integer.toHexString(colour.getGreen()), 2, '0')
-            .appendFixedWidthPadLeft(Integer.toHexString(colour.getBlue()), 2, '0')
-            .toString();
+        return String.format("#%02X%02X%02X", colour.getRed(), colour.getGreen(), colour.getBlue());
     }
 
     public RecordMatcher getMatcher() {
@@ -172,12 +166,12 @@ public class RecordType implements Matcher<Record> {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-            .append(KEY_NAME, name)
-            .append(KEY_SELECTED, selected)
-            .append(KEY_COLOUR, getColourHexString())
-            .append(KEY_MATCHER_TYPE, matcher.getType())
-            .append(KEY_MATCHER_VALUE, matcher.getValue()).toString();
+        return Objects.toStringHelper(this)
+                .add(KEY_NAME, name)
+                .add(KEY_SELECTED, selected)
+                .add(KEY_COLOUR, getColourHexString())
+                .add(KEY_MATCHER_TYPE, matcher.getType())
+                .add(KEY_MATCHER_VALUE, matcher.getValue()).toString();
     }
 
 }
