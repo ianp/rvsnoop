@@ -26,7 +26,6 @@ import org.apache.commons.cli2.util.HelpFormatter;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ApplicationActionMap;
 import org.jdesktop.application.ApplicationContext;
-import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Task.BlockingScope;
 import org.rvsnoop.Application;
@@ -47,11 +46,7 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 
 /**
- * The main UI class for RvSnoop.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.7
+ * The application antry point.
  */
 public final class RvSnoopApplication extends SingleFrameApplication {
 
@@ -71,7 +66,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         }
     }
 
-    private static final Logger logger = new Logger();
+    private static final Logger logger = Logger.getLogger();
 
     /**
      * The application entry point.
@@ -83,6 +78,10 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     }
 
     private Injector injector;
+
+    private String getString(String key) {
+        return getContext().getResourceMap().getString(key);
+    }
 
     @Action(block=BlockingScope.ACTION)
     public CheckForUpdatesTask checkForUpdates() {
@@ -107,11 +106,9 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
     @Action
     public void displayAbout() {
-        ResourceMap resourceMap = getContext().getResourceMap();
-        JOptionPane.showMessageDialog(
-                getMainFrame(),
-                resourceMap.getString("displayAbout.info.message"),
-                resourceMap.getString("displayAbout.info.title"),
+        JOptionPane.showMessageDialog(getMainFrame(),
+                getString("displayAbout.info.message"),
+                getString("displayAbout.info.title"),
                 JOptionPane.PLAIN_MESSAGE);
     }
 
@@ -120,7 +117,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         try {
             BrowserLauncher.openURL("http://sourceforge.net/tracker/?group_id=63447");
         } catch (Exception e) {
-            logger.error(getContext().getResourceMap(), "displayBugsPage.error.browser", e);
+            logger.error(e, getString("displayBugsPage.error.browser"));
         }
     }
 
@@ -129,11 +126,10 @@ public final class RvSnoopApplication extends SingleFrameApplication {
             final File home = new File(System.getProperty("rvsnoop.home"));
             final File docs = new File(home, "doc");
             final File help = new File(docs, filename);
-            final String prefix = System.getProperty("os.name").startsWith("Win")
-                ? "" : "file://";
+            final String prefix = System.getProperty("os.name").startsWith("Win") ? "" : "file://";
             BrowserLauncher.openURL(prefix + help.getAbsolutePath());
         } catch (Exception e) {
-            logger.error(getContext().getResourceMap(), "displayHelp.error.browser", e);
+            logger.error(e, getString("displayHelp.error.browser"));
         }
     }
 
@@ -147,7 +143,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         try {
             BrowserLauncher.openURL("http://rvsn00p.sourceforge.net");
         } catch (Exception e) {
-            logger.error(getContext().getResourceMap(), "displayHomePage.error.browser", e);
+            logger.error(e, getString("displayHomePage.error.browser"));
         }
     }
 
@@ -158,12 +154,8 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
     private void ensureJavaVersionIsValid() {
         if (!SystemUtils.isJavaVersionAtLeast(1,5)) {
-            ResourceMap resourceMap = getContext().getResourceMap();
-            Object message = new String[] {
-                    resourceMap.getString("CLI.error.javaVersion[0]"),
-                    resourceMap.getString("CLI.error.javaVersion[1]")
-            };
-            String title = resourceMap.getString("CLI.error.javaVersion.title");
+            String[] message = { getString("CLI.error.javaVersion[0]"), getString("CLI.error.javaVersion[1]") };
+            String title = getString("CLI.error.javaVersion.title");
             JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
             System.exit(-1);
         }
@@ -190,17 +182,16 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     protected void initialize(String[] args) {
         ensureJavaVersionIsValid();
         configureLookAndFeel();
-        ResourceMap resourceMap = getContext().getResourceMap();
-        logger.info(resourceMap, "info.appStarted");
+        logger.info(getString("info.appStarted"));
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookTask(), "shutdownHook"));
         MultiLineToolTipUI.configure();
 
         Option helpOption = new DefaultOptionBuilder()
                 .withShortName("h").withLongName("help")
-                .withDescription(resourceMap.getString("CLI.helpDescription")).create();
+                .withDescription(getString("CLI.helpDescription")).create();
         Option projectOption = new DefaultOptionBuilder()
                 .withShortName("p").withLongName("project")
-                .withDescription(resourceMap.getString("CLI.projectDescription")).create();
+                .withDescription(getString("CLI.projectDescription")).create();
         CommandLine line = parseCommandLine(args, helpOption, projectOption);
 
         injector = Guice.createInjector(new GuiModule());
@@ -211,7 +202,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
             try {
                 injector.getInstance(Application.class).setProject(project);
             } catch (IOException e) {
-                logger.error(getContext().getResourceMap(), "CLI.error.readingProject");
+                logger.error(e, getString("CLI.error.readingProject"));
             }
         }
     }
@@ -231,20 +222,17 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         if (!line.hasOption(project)) { return null; }
         String filename = line.getValue(project).toString();
         if (filename == null || filename.length() == 0) {
-            logger.warn(getContext().getResourceMap(), "CLI.warn.noProject");
+            logger.warn(getString("CLI.warn.noProject"));
             return null;
         }
         File file = new File(filename);
         if (!file.canRead()) {
-            logger.error(getContext().getResourceMap(), "CLI.error.unreadableProject", filename);
+            logger.error(getString("CLI.error.unreadableProject"), filename);
             return null;
         }
         return new Project(file);
     }
 
-    /* (non-Javadoc)
-     * @see org.jdesktop.application.Application#startup()
-     */
     @Override
     protected void startup() {
         MainFrame.INSTANCE = injector.getInstance(Application.class).getFrame();
@@ -290,13 +278,12 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
     private class MaybeExit implements ExitListener {
         public boolean canExit(EventObject event) {
-            ResourceMap resourceMap = getContext().getResourceMap();
             int option = JOptionPane.showConfirmDialog(getMainFrame(),
-                    resourceMap.getString("quit.dialog.message"),
-                    resourceMap.getString("quit.dialog.title"),
+                    getString("quit.dialog.message"),
+                    getString("quit.dialog.title"),
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
-                    resourceMap.getIcon("banners.exit"));
+                    getContext().getResourceMap().getIcon("banners.exit"));
             if (option == JOptionPane.YES_OPTION) {
                 // FIXME: this shouldn't be necessary:
                 // change this class to ExitHandler and make sure all reosurces are
@@ -317,7 +304,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
                 RvConnection.shutdown();
                 System.exit(0);
             } catch (Exception e) {
-                logger.error(getContext().getResourceMap(), "error.shutdown", e);
+                logger.error(e, getString("error.shutdown"));
                 System.exit(1);
             }
         }
@@ -352,7 +339,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
             super();
         }
         public void run() {
-            logger.info(getContext().getResourceMap(), "info.appStopped");
+            logger.info(getString("info.appStopped"));
         }
     }
 
