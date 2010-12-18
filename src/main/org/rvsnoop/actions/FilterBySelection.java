@@ -9,14 +9,13 @@ package org.rvsnoop.actions;
 
 import java.awt.Image;
 
-import javax.swing.Action;
+import javax.swing.*;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
-import org.rvsnoop.ui.ImageFactory;
 
 import rvsnoop.Record;
 import ca.odell.glazedlists.BasicEventList;
@@ -60,7 +59,7 @@ public final class FilterBySelection extends AbstractSearchAction implements Rec
      */
     @Override
     protected Image getImage() {
-        return ImageFactory.getInstance().getBannerImage(COMMAND);
+        return new ImageIcon("/resources/banners/filterBySelection.png").getImage();
     }
 
     /* (non-Javadoc)

@@ -138,8 +138,7 @@ public final class HeaderPanel extends JPanel {
      * For convenience there are three standard icons provided with this class
      * to represent information, warning, and error messages.
      *
-     * @param image The image to set, or <code>null</code> to remove the current
-     *     image.
+     * @param icon the icon to set, or {@code null} to remove the current icon.
      */
     public void setDescriptionIcon(Icon icon) {
         warning.setIcon(icon);

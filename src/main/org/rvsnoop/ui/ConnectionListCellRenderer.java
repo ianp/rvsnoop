@@ -39,12 +39,11 @@ public final class ConnectionListCellRenderer extends JPanel implements ListCell
 
     private static final long serialVersionUID = 4673460542680039876L;
 
-    private static final Icon PAUSED =
-        new ImageIcon(ImageFactory.getInstance().getIconImage("connectionPaused"));
-    private static final Icon STARTED =
-        new ImageIcon(ImageFactory.getInstance().getIconImage("connectionStarted"));
-    private static final Icon STOPPED =
-        new ImageIcon(ImageFactory.getInstance().getIconImage("connectionStopped"));
+    private  static final int ICON_INDENT = 32;
+
+    private static final Icon PAUSED = new ImageIcon("/resources/icons/connectionPaused.png");
+    private static final Icon STARTED = new ImageIcon("/resources/icons/connectionStarted.png");
+    private static final Icon STOPPED = new ImageIcon("/resources/icons/connectionStopped.png");
 
     private final JLabel daemonLabel = new DefaultListCellRenderer();
 
@@ -82,13 +81,12 @@ public final class ConnectionListCellRenderer extends JPanel implements ListCell
         setLayout(layout);
         layout.setAutocreateGaps(true);
         layout.setHonorsVisibility(true);
-        final int indent = ImageFactory.SMALL_ICON_SIZE * 2;
         // Horizontal group
         GroupLayout.ParallelGroup hgp = layout.createParallelGroup();
         layout.setHorizontalGroup(hgp);
         hgp.add(nameLabel)
             .add(layout.createSequentialGroup()
-                .addContainerGap(indent, indent )
+                .addContainerGap(ICON_INDENT, ICON_INDENT)
                 .add(layout.createParallelGroup()
                     .add(serviceLabel)
                     .add(networkLabel)

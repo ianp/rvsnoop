@@ -7,7 +7,6 @@
  */
 package org.rvsnoop.actions;
 
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -22,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
-import org.rvsnoop.ui.ImageFactory;
 
 /**
  * An action in RvSnoop.
@@ -109,8 +107,7 @@ public abstract class RvSnoopAction extends AbstractAction {
      */
     protected final void putSmallIconValue(String icon) {
         try {
-            final Image image = ImageFactory.getInstance().getIconImage(icon);
-            putValue(Action.SMALL_ICON, new ImageIcon(image));
+            putValue(Action.SMALL_ICON, new ImageIcon(getClass().getResource("/resources/icons/" + icon + ".png")));
         } catch (Exception e) {
             // Do not set an icon then.
         }

@@ -9,12 +9,11 @@ package org.rvsnoop.actions;
 
 import java.awt.Image;
 
-import javax.swing.Action;
+import javax.swing.*;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
-import org.rvsnoop.ui.ImageFactory;
 
 import ca.odell.glazedlists.EventList;
 
@@ -56,7 +55,7 @@ public final class Filter extends AbstractSearchAction {
      */
     @Override
     protected Image getImage() {
-        return ImageFactory.getInstance().getBannerImage(COMMAND);
+        return new ImageIcon("/resources/banners/filter.png").getImage();
     }
 
     /* (non-Javadoc)

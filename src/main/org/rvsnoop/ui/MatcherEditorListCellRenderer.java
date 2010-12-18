@@ -35,8 +35,7 @@ public final class MatcherEditorListCellRenderer extends JPanel implements ListC
 
     private static final long serialVersionUID = 2729659498349769958L;
 
-    private static final Icon BANNER_ICON =
-        new ImageIcon(ImageFactory.getInstance().getBannerImage("defaultMatcherEditor"));
+    private static final Icon BANNER_ICON = new ImageIcon("/resources/banners/defaultMatcherEditor.png");
 
     private final JLabel imageLabel = new DefaultListCellRenderer();
     private final JLabel titleLabel = new DefaultListCellRenderer();

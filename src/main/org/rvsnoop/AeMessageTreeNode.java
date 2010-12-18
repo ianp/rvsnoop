@@ -15,8 +15,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.tree.TreeNode;
 
-import org.rvsnoop.ui.ImageFactory;
-
 import com.tibco.sdk.MMessageFormat;
 import com.tibco.sdk.MTree;
 import com.tibco.tibrv.TibrvException;
@@ -36,9 +34,9 @@ import com.tibco.tibrv.TibrvMsg;
  */
 public final class AeMessageTreeNode extends LazyTreeNode {
 
-    private static final Icon messageIcon = new ImageIcon(ImageFactory.getInstance().getIconImage("rvMessage"));
-    private static final Icon payloadIcon = new ImageIcon(ImageFactory.getInstance().getIconImage("payload"));
-    private static final Icon trackingIcon = new ImageIcon(ImageFactory.getInstance().getIconImage("tracking"));
+    private static final Icon messageIcon = new ImageIcon("/resources/icons/rvMessage.png");
+    private static final Icon payloadIcon = new ImageIcon("/resources/icons/payload.png");
+    private static final Icon trackingIcon = new ImageIcon("/resources/icons/tracking.png");
 
     static { NLSUtils.internationalize(AeMessageTreeNode.class); }
 

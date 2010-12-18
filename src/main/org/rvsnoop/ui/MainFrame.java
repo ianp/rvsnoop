@@ -45,7 +45,6 @@ import org.rvsnoop.actions.ClearLedger;
 import org.rvsnoop.actions.Copy;
 import org.rvsnoop.actions.Cut;
 import org.rvsnoop.actions.Delete;
-import org.rvsnoop.actions.EditRecordTypes;
 import org.rvsnoop.actions.Filter;
 import org.rvsnoop.actions.FilterBySelection;
 import org.rvsnoop.actions.NewRvConnection;
@@ -210,12 +209,11 @@ public final class MainFrame extends JFrame {
     }
 
     private JMenu createFileMenu(final Actions factory) {
-        final ImageFactory images = ImageFactory.getInstance();
         final JMenu file = new JMenu("File");
         file.setMnemonic('f');
         file.add(factory.getAction(OpenProject.COMMAND));
         final JMenu fileRecent = new JMenu("Recent Projects");
-        fileRecent.setIcon(new ImageIcon(images.getIconImage(OpenProject.COMMAND)));
+        fileRecent.setIcon(new ImageIcon("/resources/icons/open.png"));
         fileRecent.addMenuListener(new RecentProjectsMenuManager(application));
         file.add(fileRecent);
         file.addSeparator();
@@ -334,7 +332,6 @@ public final class MainFrame extends JFrame {
     }
 
     private JMenu createViewMenu(final Actions factory, final RecordLedgerTable table) {
-        final ImageFactory images = ImageFactory.getInstance();
         final JMenu view = new JMenu("View");
         view.setMnemonic('v');
         view.add(factory.getAction(SelectAllRecords.COMMAND));
@@ -348,7 +345,7 @@ public final class MainFrame extends JFrame {
         viewColumns.addMenuListener(new VisibleColumnsMenuManager(table.getTableFormat()));
         view.add(viewColumns);
         final JMenu viewTypes = new JMenu("Types");
-        viewTypes.setIcon(new ImageIcon(images.getIconImage(EditRecordTypes.COMMAND)));
+        viewTypes.setIcon(new ImageIcon("/resources/icons/editRecordTypes.png"));
         viewTypes.addMenuListener(new RecordTypesMenuManager(application));
         view.add(viewTypes);
         return view;

@@ -32,7 +32,6 @@ import nu.xom.ParsingException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.rvsnoop.ui.ImageFactory;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvIPAddr;
@@ -50,8 +49,8 @@ import com.tibco.tibrv.TibrvXml;
  */
 public final class RvFieldTreeNode extends LazyTreeNode {
 
-    private static final Icon defaultIcon = new ImageIcon(ImageFactory.getInstance().getIconImage("rvField"));
-    private static final Icon messageIcon = new ImageIcon(ImageFactory.getInstance().getIconImage("rvMessage"));
+    private static final Icon defaultIcon = new ImageIcon("/resources/icons/rvField.png");
+    private static final Icon messageIcon = new ImageIcon("/resources/icons/rvMessage.png");
 
     static String ENCRYPTED, F32ARRAY, F64ARRAY, I8ARRAY, I16ARRAY, I32ARRAY, I64ARRAY;
     static String U8ARRAY, U16ARRAY, U32ARRAY, U64ARRAY, IPADDR32, IPPORT16;

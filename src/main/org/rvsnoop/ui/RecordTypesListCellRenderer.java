@@ -36,9 +36,9 @@ public final class RecordTypesListCellRenderer extends JPanel implements ListCel
     private static final long serialVersionUID = -7242365820031903080L;
 
     private static final Icon BANNER_DESELECTED =
-        new ImageIcon(ImageFactory.getInstance().getBannerImage("recordTypeDeselected"));
+        new ImageIcon("/resources/banners/recordTypeDeselected.png");
     private static final Icon BANNER_SELECTED =
-        new ImageIcon(ImageFactory.getInstance().getBannerImage("recordTypeSelected"));
+            new ImageIcon("/resources/banners/recordTypeSelected.png");
 
     private final StrBuilder builder = new StrBuilder();
 

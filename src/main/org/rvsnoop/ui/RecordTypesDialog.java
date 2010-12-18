@@ -15,12 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JDialog;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -91,7 +86,7 @@ public final class RecordTypesDialog extends JDialog {
 
     private static final long serialVersionUID = -2564241831430080435L;
 
-    private static final Image BANNER = ImageFactory.getInstance().getBannerImage("editRecordTypes");
+    private static final Image BANNER = new ImageIcon("/resources/banners/editRecordTypes.png").getImage();
 
     static String DIALOG_TITLE, TITLE, DESCRIPTION;
     static String BUTTON_ADD, BUTTON_OK, BUTTON_REMOVE;

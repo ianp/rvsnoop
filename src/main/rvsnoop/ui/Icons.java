@@ -80,7 +80,7 @@ public final class Icons {
     public static final Icon XML_ATTRIBUTE = createIcon("/resources/icons/xml_attribute.png", ICON_SIZE); //$NON-NLS-1$
     public static final Icon XML_ELEMENT = createIcon("/resources/icons/xml_element.png", ICON_SIZE); //$NON-NLS-1$
 
-    static Icon createIcon(String filename, int size) {
+    public static Icon createIcon(String filename, int size) {
         return new ImageIcon(createImage(filename, size));
     }
 
@@ -88,19 +88,19 @@ public final class Icons {
         if (log.isDebugEnabled()) {
             log.debug("Loading image from " + filename);
         }
-        final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-        final BufferedImage image = config.createCompatibleImage(size, size, Transparency.TRANSLUCENT);
-        final Graphics2D gg = image.createGraphics();
-        try {
-            final URL url = Icons.class.getResource(filename);
-            final Image i = Toolkit.getDefaultToolkit().getImage(url);
-            gg.drawImage(i, 0, 0, new ErrorReporter(filename));
-        } catch (Exception e) {
-            gg.setColor(Color.RED);
-            gg.fillRect(0, 0, size - 1, size - 1);
-        }
-        gg.dispose();
-        return image;
+        return new ImageIcon(filename).getImage();
+//        final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+//        final BufferedImage image = config.createCompatibleImage(size, size, Transparency.TRANSLUCENT);
+//        final Graphics2D gg = image.createGraphics();
+//        try {
+//            final URL url = Icons.class.getResource(filename);
+//            final Image i = Toolkit.getDefaultToolkit().getImage(url);
+//            gg.drawImage(i, 0, 0, new ErrorReporter(filename));
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        gg.dispose();
+//        return image;
     }
 
     public static Image getLargeImage(String name) {

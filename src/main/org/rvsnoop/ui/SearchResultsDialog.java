@@ -14,14 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 
 import org.rvsnoop.Connections;
 import org.rvsnoop.FilteredLedgerView;
@@ -68,8 +61,7 @@ public final class SearchResultsDialog extends JDialog {
 
     private static final long serialVersionUID = 5216848181389646587L;
 
-    private static final Image BANNER =
-        ImageFactory.getInstance().getBannerImage("searchResults");
+    private static final Image BANNER = new ImageIcon("/resources/banners/searchResults.png").getImage();
 
     static String BUTTON_FREEZE, BUTTON_OK, BUTTON_UNFREEZE;
     static String DIALOG_TITLE, TITLE, DESCRIPTION, TOOLTIP_VISIBLE_COLUMNS;

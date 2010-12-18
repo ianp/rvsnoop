@@ -9,13 +9,12 @@ package org.rvsnoop.actions;
 
 import java.awt.Image;
 
-import javax.swing.Action;
+import javax.swing.*;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.RecordLedger;
-import org.rvsnoop.ui.ImageFactory;
 import org.rvsnoop.ui.SearchResultsDialog;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -69,7 +68,7 @@ public final class Search extends AbstractSearchAction {
      */
     @Override
     protected Image getImage() {
-        return ImageFactory.getInstance().getBannerImage(COMMAND);
+        return new ImageIcon("/resources/banners/search.png").getImage();
     }
 
     /* (non-Javadoc)

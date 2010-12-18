@@ -13,7 +13,6 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -75,9 +74,6 @@ public final class StatusBar extends JPanel {
     private static final Color bgEnd = new Color(0xE0, 0xE0, 0xE0);
     private static final Color bgStart = Color.WHITE;
 
-    private static final String COUNT_ICON = "/resources/icons/statusBarCount.png";
-    private static final String ENCODING_ICON = "/resources/icons/statusBarEncoding.png";
-
     private static final int MESSAGE_DISPLAY_MILLIS = 5000;
 
     private static final long serialVersionUID = -8192322965748166492L;
@@ -106,12 +102,10 @@ public final class StatusBar extends JPanel {
     public StatusBar(Application application) {
         super();
         setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
-        final ImageFactory images = ImageFactory.getInstance();
-        final GraphicsConfiguration gc = getGraphicsConfiguration();
-        count.setIcon(new ImageIcon(images.getImage(COUNT_ICON, 14, 14, gc)));
+        count.setIcon(new ImageIcon("/resources/icons/statusBarCount.png"));
         count.setOpaque(false);
         count.setBorder(new MatteBorder(0, 1, 0, 1, Color.GRAY));
-        encoding.setIcon(new ImageIcon(images.getImage(ENCODING_ICON, 14, 14, gc)));
+        encoding.setIcon(new ImageIcon("/resources/icons/statusBarEncoding.png"));
         encoding.setText(SystemUtils.FILE_ENCODING);
         encoding.setToolTipText(Locale.getDefault().getDisplayName());
         encoding.setOpaque(false);

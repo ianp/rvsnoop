@@ -20,7 +20,6 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.rvsnoop.ui.ImageFactory;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
@@ -36,7 +35,7 @@ import com.tibco.tibrv.TibrvMsg;
  */
 public final class RvMessageTreeNode extends LazyTreeNode {
 
-    private static final Icon icon = new ImageIcon(ImageFactory.getInstance().getIconImage("rvMessage"));
+    private static final Icon icon = new ImageIcon("/resources/icons/rvMessage.png");
 
     private static final Log log = LogFactory.getLog(RvMessageTreeNode.class);
 

@@ -65,8 +65,6 @@ public final class ConnectionList extends JList {
 
     /**
      * Create a new <code>ConnectionList</code>.
-     *
-     * @param connections The connections to display in the list.
      */
     public ConnectionList(Application application) {
         super(application.getConnections().createListModel());
@@ -107,8 +105,7 @@ public final class ConnectionList extends JList {
         popupMenu.addSeparator();
         popupMenu.add(application.getAction(NewRvConnection.COMMAND));
         final JMenu recent = new JMenu("Recent Connections");
-        recent.setIcon(new ImageIcon(
-                ImageFactory.getInstance().getIconImage(NewRvConnection.COMMAND)));
+        recent.setIcon(new ImageIcon("/resources/icons/newRvConnection.png"));
         recent.addMenuListener(new RecentConnectionsMenuManager(application));
         popupMenu.add(recent);
         popupMenu.show(this, x, y);
