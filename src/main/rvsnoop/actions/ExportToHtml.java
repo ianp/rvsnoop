@@ -1,15 +1,11 @@
-/*
- * Class:     ExportToHtml
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.actions;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -27,7 +23,6 @@ import org.rvsnoop.io.StreamSerializer;
 import rvsnoop.Marshaller;
 import rvsnoop.Record;
 import rvsnoop.RecordTypes;
-import rvsnoop.StringUtils;
 import rvsnoop.Version;
 
 /**
@@ -76,9 +71,7 @@ public final class ExportToHtml extends ExportToFile {
     private static final Element PRE_ELT = new Element("pre", NSURI);
     private static final Element H1_ELT = new Element("h1", NSURI);
 
-    static {
-
-    }
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("HH:mm:ss.SSS");
 
     private StreamSerializer serializer;
 
@@ -139,7 +132,7 @@ public final class ExportToHtml extends ExportToFile {
     @Override
     protected void writeRecord(Record record, int index) throws IOException {
         serializer.writeStartTag(TR_ELT);
-        writeTagged(TD_ELT, StringUtils.format(new Date(record.getTimestamp())));
+        writeTagged(TD_ELT, DATE_FORMATTER.format(new Date(record.getTimestamp())));
         writeTagged(TD_ELT, Long.toString(record.getSequenceNumber()));
         writeTagged(TD_ELT, RecordTypes.getInstance().getFirstMatchingType(record).getName());
         writeTagged(TD_ELT, record.getSendSubject());

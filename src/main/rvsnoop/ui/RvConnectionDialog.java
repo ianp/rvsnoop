@@ -1,10 +1,5 @@
-/*
- * Class:     RvConnectionDialog
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.ui;
 
 import java.awt.BorderLayout;
@@ -19,10 +14,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.google.common.base.Splitter;
 import org.rvsnoop.ui.MainFrame;
 
 import rvsnoop.RvConnection;
-import rvsnoop.StringUtils;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
@@ -75,6 +70,8 @@ public final class RvConnectionDialog extends JDialog {
     private static final int MAX_WIDTH = 160;
 
     private static final long serialVersionUID = 8834430809279507334L;
+
+    private final Splitter splitter = Splitter.on("\n").omitEmptyStrings().trimResults();
 
     private final JTextField daemon  = new JTextField(10);
 
@@ -149,9 +146,9 @@ public final class RvConnectionDialog extends JDialog {
     public RvConnection getConnection() {
         final RvConnection conn = new RvConnection(service.getText(), network.getText(), daemon.getText());
         conn.setDescription(description.getText());
-        final String[] s = StringUtils.split(subject.getText());
-        for (int i = 0, imax = s.length; i < imax; ++i)
-            conn.addSubject(s[i]);
+        for (String s : splitter.split(subject.getText())) {
+            conn.addSubject(s);
+        }
         return conn;
     }
 

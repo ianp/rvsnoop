@@ -115,8 +115,6 @@ public final class RvConnection implements TibrvMsgCallback {
 
     private static String ERROR_RV = "An internal Rendezvous error has been encountered, the error code is {0} and the reson given is: {1}.";
 
-    private static String ERROR_RV_OPEN = "The RV libraries could not be loaded and started because: {0}. The Rendezvous error code that was reported was: {1}.";
-
     private static final Logger logger = Logger.getLogger();
 
     /**
@@ -162,7 +160,9 @@ public final class RvConnection implements TibrvMsgCallback {
             new TibrvDispatcher(Tibrv.defaultQueue());
             new TibrvDispatcher(queue);
         } catch (TibrvException e) {
-            String msg = StringUtils.format(ERROR_RV_OPEN, e.getLocalizedMessage(), e.error);
+            String msg = String.format(
+                    "The RV libraries could not be loaded and started because: %s. The Rendezvous error code that was reported was: %s.",
+                    e.getLocalizedMessage(), e.error);
             logger.error(e, msg);
             try {
                 // try to clean up.

@@ -1,10 +1,5 @@
-/*
- * Class:     MultiLineToolTipUI
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.ui;
 
 import java.awt.Dimension;
@@ -19,7 +14,8 @@ import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.ToolTipUI;
 
-import rvsnoop.StringUtils;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
 public final class MultiLineToolTipUI extends ToolTipUI {
 
@@ -36,6 +32,8 @@ public final class MultiLineToolTipUI extends ToolTipUI {
     public static ComponentUI createUI(JComponent c) {
         return INSTANCE;
     }
+
+    private final Splitter splitter = Splitter.on("\n").omitEmptyStrings().trimResults();
 
     private MultiLineToolTipUI() {
         super();
@@ -54,7 +52,7 @@ public final class MultiLineToolTipUI extends ToolTipUI {
     @Override
     public Dimension getPreferredSize(JComponent c) {
         int w = 0, h = 0;
-        final String[] lines = StringUtils.split(((JToolTip) c).getTipText());
+        final String[] lines = Iterables.toArray(splitter.split(((JToolTip) c).getTipText()), String.class);
         if (lines.length > 0) {
             final Font font = c.getFont();
             final FontMetrics fontMetrics = c.getFontMetrics(font);
@@ -80,7 +78,7 @@ public final class MultiLineToolTipUI extends ToolTipUI {
         g.fillRect(0, 0, w, h);
         g.setColor(c.getForeground());
         g.drawRect(0, 0, w, h);
-        final String[] lines = StringUtils.split(((JToolTip) c).getTipText());
+        final String[] lines = Iterables.toArray(splitter.split(((JToolTip) c).getTipText()), String.class);
         if (lines.length > 0) {
             final Font font = c.getFont();
             final FontMetrics fontMetrics = c.getFontMetrics(font);
