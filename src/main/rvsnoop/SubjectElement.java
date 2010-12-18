@@ -117,7 +117,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
     public TreeNode[] getPath() {
         if (path == null) path = super.getPath();
         // Don't expose the internal array!
-        return (TreeNode[]) path.clone();
+        return path.clone();
     }
 
     /**
@@ -133,7 +133,7 @@ public final class SubjectElement extends DefaultMutableTreeNode {
     @Override
     public Object[] getUserObjectPath() {
         // Don't expose the internal array.
-        return (Object[]) userObjectPath.clone();
+        return userObjectPath.clone();
     }
 
     @Override
