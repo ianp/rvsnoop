@@ -1,25 +1,18 @@
-/*
- * Class:     RvSnoopAction
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
-import java.text.MessageFormat;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Logger;
 import org.rvsnoop.NLSUtils;
 
 /**
@@ -28,15 +21,12 @@ import org.rvsnoop.NLSUtils;
  * RvSnoop actions have a reference to the application instance that they are
  * running in. This is to allow multiple application instances (i.e. multiple
  * frames) to be run in a single JVM.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public abstract class RvSnoopAction extends AbstractAction {
 
     static { NLSUtils.internationalize(RvSnoopAction.class); }
 
-    private static final Log log = LogFactory.getLog(RvSnoopAction.class);
+    private static final Logger logger = Logger.getLogger();
 
     static String DEBUG_ACCELERATOR;
     protected static final int SHORTCUT_MASK =
@@ -77,9 +67,7 @@ public abstract class RvSnoopAction extends AbstractAction {
                     + (shift ? InputEvent.SHIFT_MASK : 0)
                     + (alt ? InputEvent.ALT_MASK : 0);
             final KeyStroke stroke = KeyStroke.getKeyStroke(accel, mask);
-            if (log.isDebugEnabled()) {
-                log.debug(MessageFormat.format(DEBUG_ACCELERATOR, getValue(ACTION_COMMAND_KEY), stroke));
-            }
+            logger.debug(DEBUG_ACCELERATOR, getValue(ACTION_COMMAND_KEY), stroke);
             putValue(Action.ACCELERATOR_KEY, stroke);
         } catch (NumberFormatException e) {
             // Do not set an accelerator key then.

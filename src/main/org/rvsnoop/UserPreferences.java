@@ -1,10 +1,5 @@
-/*
- * Class:     PreferencesManager
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.beans.PropertyChangeEvent;
@@ -31,8 +26,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import com.google.common.io.Files;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventSubscriber;
 import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
@@ -47,10 +40,6 @@ import static com.google.common.io.Closeables.closeQuietly;
  * <p>
  * This class only handles global application state, there are also projects
  * which handle storing connection details and so on.
- *
- * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class UserPreferences {
 
@@ -72,7 +61,7 @@ public final class UserPreferences {
         }
     }
 
-    private static final Log log = LogFactory.getLog(UserPreferences.class);
+    private static final Logger logger = Logger.getLogger();
 
     private static UserPreferences instance;
 
@@ -115,7 +104,7 @@ public final class UserPreferences {
             f = new File(recentConnectionsDir, "Recent Connections.xml");
             Files.createParentDirs(f);
         } catch (IOException e) {
-            if (log.isErrorEnabled()) { log.error(ERROR_CREATING_DIR, e); }
+            logger.error(e, ERROR_CREATING_DIR);
         }
         recentConnectionsFile = f;
         final Preferences node = preferences.node(KEY_RECENT_PROJECTS);
@@ -228,9 +217,7 @@ public final class UserPreferences {
             stream = new FileOutputStream(recentConnectionsFile);
             Connections.toXML(recentConnections.toArray(new RvConnection[0]), stream);
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(ERROR_STORING_CONNECTIONS, e);
-            }
+            logger.error(e, ERROR_STORING_CONNECTIONS);
         } finally {
             closeQuietly(stream);
         }

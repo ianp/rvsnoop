@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
 
 import java.beans.PropertyChangeEvent;
@@ -15,8 +16,6 @@ import java.util.Iterator;
 
 import javax.swing.ListModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bushe.swing.event.EventBus;
 
 import rvsnoop.RvConnection;
@@ -42,7 +41,7 @@ import ca.odell.glazedlists.util.concurrent.Lock;
  */
 public final class Connections {
 
-    private static final Log log = LogFactory.getLog(Connections.class);
+    private static final Logger logger = Logger.getLogger();
 
     public static void toXML(RvConnection[] connections, OutputStream stream) throws IOException {
         final XMLBuilder builder = new XMLBuilder(stream, XMLBuilder.NS_CONNECTIONS)
@@ -78,15 +77,10 @@ public final class Connections {
         lock.lock();
         try {
             if (list.contains(connection)) {
-                if (log.isInfoEnabled()) {
-                    log.info("Ignoring attempt to add duplicate connection: "
-                            + connection);
-                }
+                logger.info("Ignoring attempt to add duplicate connection: %s", connection);
                 return false;
             }
-            if (log.isInfoEnabled()) {
-                log.info("Adding connection: " + connection);
-            }
+            logger.info("Adding connection: %s", connection);
             connection.setParentList(this);
             list.add(connection);
             EventBus.publish(new AddedEvent(connection));
@@ -102,9 +96,7 @@ public final class Connections {
         try {
             while (list.size() > 0) {
                 final RvConnection connection = list.get(0);
-                if (log.isInfoEnabled()) {
-                    log.info("Removing connection: " + connection);
-                }
+                logger.info("Removing connection: %s", connection);
                 connection.stop();
                 connection.setParentList(null);
                 list.remove(0);
@@ -124,17 +116,14 @@ public final class Connections {
      * @param service The Rendezvous service parameter.
      * @param network The Rendezvous network parameter.
      * @param daemon The Rendezvous daemon parameter.
-     * @return The existing connection, or <code>null</code> if it does not
-     *         exist.
+     * @return The existing connection, or <code>null</code> if it does not exist.
      */
     public RvConnection get(String service, String network, String daemon) {
         final Lock lock = list.getReadWriteLock().readLock();
         lock.lock();
         try {
         	for (RvConnection c : list) {
-                if (c.getService().equals(service)
-                        && c.getDaemon().equals(daemon)
-                        && c.getNetwork().equals(network))
+                if (c.getService().equals(service) && c.getDaemon().equals(daemon) && c.getNetwork().equals(network))
                     return c;
             }
             return null;
@@ -162,9 +151,7 @@ public final class Connections {
         lock.lock();
         try {
             if (!list.contains(connection)) { return false; }
-            if (log.isInfoEnabled()) {
-                log.info("Removing connection: " + connection);
-            }
+            logger.info("Removing connection: %s", connection);
             connection.stop();
             connection.setParentList(null);
             list.remove(connection);

@@ -1,10 +1,5 @@
-/*
- * Class:     Paste
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.Toolkit;
@@ -14,14 +9,12 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.text.MessageFormat;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Logger;
 import org.rvsnoop.NLSUtils;
 
 import rvsnoop.Record;
@@ -32,10 +25,6 @@ import com.tibco.tibrv.TibrvException;
 
 /**
  * Paste the contents of the system clipboard to the message ledger.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.4
  */
 public final class Paste extends RvSnoopAction {
 
@@ -43,7 +32,7 @@ public final class Paste extends RvSnoopAction {
 
     private static final long serialVersionUID = -8506730607421335573L;
 
-    private static final Log log = LogFactory.getLog(Paste.class);
+    private static final Logger logger = Logger.getLogger();
 
     public static final String COMMAND = "paste";
     static String ACCELERATOR, MNEMONIC, NAME, TOOLTIP;
@@ -67,7 +56,7 @@ public final class Paste extends RvSnoopAction {
         final Transferable clipboardData = clipboard.getContents(this);
         if (!clipboardData.isDataFlavorSupported(RecordSelection.BYTES_FLAVOUR)
                 && !clipboardData.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-            if (log.isWarnEnabled()) { log.warn(INFO_BAD_CLIP_DATA); }
+            logger.warn(INFO_BAD_CLIP_DATA);
             return;
         }
         try {
@@ -76,13 +65,11 @@ public final class Paste extends RvSnoopAction {
                 SwingUtilities.invokeLater(new AddRecordTask(records[i]));
             }
         } catch (TibrvException e) {
-            if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_RV, e.error), e);
-            }
+            logger.error(e, ERROR_RV, e.error);
         } catch (IOException e) {
-            if (log.isErrorEnabled()) { log.error(ERROR_IO, e); }
+            logger.error(e, ERROR_IO);
         } catch (UnsupportedFlavorException e) {
-            if (log.isErrorEnabled()) { log.error(ERROR_CLIPBOARD_LOST, e); }
+            logger.error(e, ERROR_CLIPBOARD_LOST);
         }
     }
 

@@ -1,10 +1,5 @@
-/*
- * Class:     UIManager
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import java.awt.BorderLayout;
@@ -36,9 +31,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreeNode;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Logger;
 import org.rvsnoop.RecordLedger;
 import org.rvsnoop.UserPreferences;
 import org.rvsnoop.actions.ClearLedger;
@@ -71,10 +65,6 @@ import rvsnoop.ui.UIUtils;
 
 /**
  * The single user interface class for the application.
- *
- * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 // Class provides a static instance instead of a factory method.
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/17/06 7:58 PM
@@ -112,7 +102,7 @@ public final class MainFrame extends JFrame {
 
     private static final String TOOLTIP_VISIBLE_COLUMNS = "Show or hide individual table columns";
 
-    private static final Log log = LogFactory.getLog(MainFrame.class);
+    private static final Logger logger = Logger.getLogger();
 
     // FIXME: Remove this field.
     public static MainFrame INSTANCE;
@@ -363,9 +353,7 @@ public final class MainFrame extends JFrame {
             final int index = messageLedger.getSelectedRow();
             return index >= 0 ? application.getFilteredLedger().get(index) : null;
         } catch (IndexOutOfBoundsException e) {
-            if (log.isErrorEnabled()) {
-                log.error("Failed to get selected record from ledger.", e);
-            }
+            logger.error(e, "Failed to get selected record from ledger.");
             return null;
         }
     }

@@ -1,10 +1,5 @@
-/*
- * Class:     DisplayHomePage
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -14,17 +9,11 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import org.rvsnoop.Logger;
 import rvsnoop.BrowserLauncher;
 
 /**
  * Display the RvSnoop home page in a browser.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.4
  */
 final class DisplayHomePage extends AbstractAction {
 
@@ -32,7 +21,7 @@ final class DisplayHomePage extends AbstractAction {
 
     private static final String ID = "displayHomePage";
 
-    private static final Log log = LogFactory.getLog(DisplayHomePage.class);
+    private static final Logger logger = Logger.getLogger();
 
     private static String NAME = "Show Web Site";
 
@@ -47,14 +36,11 @@ final class DisplayHomePage extends AbstractAction {
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     public void actionPerformed(ActionEvent event) {
         try {
             BrowserLauncher.openURL("http://rvsn00p.sourceforge.net");
         } catch (Exception e) {
-            if (log.isErrorEnabled()) { log.error(ERROR_BROWSER, e); }
+            logger.error(e, ERROR_BROWSER);
         }
     }
 

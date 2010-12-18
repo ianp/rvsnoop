@@ -1,12 +1,12 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -20,9 +20,8 @@ import com.google.common.base.Objects;
 import nu.xom.Element;
 import nu.xom.Elements;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Connections;
+import org.rvsnoop.Logger;
 import org.rvsnoop.XMLBuilder;
 import org.rvsnoop.actions.PauseConnection;
 import org.rvsnoop.actions.StartConnection;
@@ -74,10 +73,8 @@ public final class RvConnection implements TibrvMsgCallback {
             super();
         }
         public void onError(Object tibrvObject, int errorCode, String message, Throwable cause) {
-            if (log.isErrorEnabled()) {
-                if (message == null) { message = ""; }
-                log.error(MessageFormat.format(ERROR_RV, errorCode, message), cause);
-            }
+            if (message == null) { message = ""; }
+            logger.error(cause, ERROR_RV, errorCode, message);
             // XXX should we pop up an error dialog here?
         }
     }
@@ -120,7 +117,7 @@ public final class RvConnection implements TibrvMsgCallback {
 
     private static String ERROR_RV_OPEN = "The RV libraries could not be loaded and started because: {0}. The Rendezvous error code that was reported was: {1}.";
 
-    private static final Log log = LogFactory.getLog(RvConnection.class);
+    private static final Logger logger = Logger.getLogger();
 
     /**
      * Property key for the RV daemon setting of this connection.
@@ -165,8 +162,8 @@ public final class RvConnection implements TibrvMsgCallback {
             new TibrvDispatcher(Tibrv.defaultQueue());
             new TibrvDispatcher(queue);
         } catch (TibrvException e) {
-            final String msg = StringUtils.format(ERROR_RV_OPEN, new Object[] { e.getLocalizedMessage(), e.error});
-            log.error(msg, e);
+            String msg = StringUtils.format(ERROR_RV_OPEN, e.getLocalizedMessage(), e.error);
+            logger.error(e, msg);
             try {
                 // try to clean up.
                 queue.destroy();
@@ -260,7 +257,7 @@ public final class RvConnection implements TibrvMsgCallback {
         try {
             Tibrv.close();
         } catch (TibrvException e) {
-            log.error("There was a problem closing the Rendezvous library.", e);
+            logger.error(e, "There was a problem closing the Rendezvous library.");
         }
         queue = null;
     }
@@ -358,14 +355,10 @@ public final class RvConnection implements TibrvMsgCallback {
         if (state == State.STOPPED) return null;
         try {
             ensureInitialized();
-            if (log.isDebugEnabled()) {
-                log.debug("Creating listener for ‘" + description + "’ on subject ‘" + subject + "’.");
-            }
+            logger.debug("Creating listener for ‘%s’ on subject ‘%s’.", description, subject);
             return new TibrvListener(queue, this, transport, subject, this);
         } catch (TibrvException e) {
-            if (log.isErrorEnabled()) {
-                log.error("Could not create Rendezvous connection.", e);
-            }
+            logger.error(e, "Could not create Rendezvous connection.");
             return null;
         }
     }
@@ -376,9 +369,6 @@ public final class RvConnection implements TibrvMsgCallback {
         transport.setDescription(description + DESCRIPTION);
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
@@ -495,10 +485,10 @@ public final class RvConnection implements TibrvMsgCallback {
     public synchronized void pause() {
         if (state != State.STARTED)
             throw new IllegalStateException("Connection must be started before it can be paused.");
-        log.info("Pausing connection: " + description);
+        logger.info("Pausing connection: %s", description);
         final State oldState = state;
         state = State.PAUSED;
-        log.info("Paused connection: " + description);
+        logger.info("Paused connection: %s", description);
         changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
     }
 
@@ -517,10 +507,6 @@ public final class RvConnection implements TibrvMsgCallback {
         changeSupport.firePropertyChange(KEY_SUBJECTS, null, null);
     }
 
-    /**
-     * @param listener
-     * @see java.beans.PropertyChangeSupport#removePropertyChangeListener(java.beans.PropertyChangeListener)
-     */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
     }
@@ -552,7 +538,7 @@ public final class RvConnection implements TibrvMsgCallback {
             this.description = description != null ? description : "";
             changeSupport.firePropertyChange(KEY_DESCRIPTION, description, this.description);
         } catch (TibrvException e) {
-            log.error("Could not set connection description.", e);
+            logger.error(e, "Could not set connection description.");
         }
     }
 
@@ -578,7 +564,7 @@ public final class RvConnection implements TibrvMsgCallback {
     public synchronized void start() {
         if (parentList == null) throw new IllegalStateException("Not added to a connection list!");
         if (state == State.STARTED) throw new IllegalStateException("Cannot start if already started.");
-        log.info("Starting connection: " + description);
+        logger.info("Starting connection: %s", description);
         final State oldState = state;
         if (state == State.PAUSED) {
             state = State.STARTED;
@@ -589,10 +575,10 @@ public final class RvConnection implements TibrvMsgCallback {
                 for (String subject : subjects.keySet()) {
                     subjects.put(subject, createListener(subject));
                 }
-                log.info("Started connection: " + description);
+                logger.info("Started connection: %s", description);
             } catch (TibrvException e) {
                 state = State.STOPPED;
-                log.error("The connection named " + description + " could not be started.", e);
+                logger.error(e, "The connection named %s could not be started.", description);
             }
         }
         changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
@@ -600,7 +586,7 @@ public final class RvConnection implements TibrvMsgCallback {
 
     public synchronized void stop() {
         if (state == State.STOPPED) return;
-        log.info("Stopping connection: " + description);
+        logger.info("Stopping connection: %s", description);
     	for (TibrvEvent event : subjects.values()) {
     		event.destroy();
     	}
@@ -609,13 +595,10 @@ public final class RvConnection implements TibrvMsgCallback {
         transport = null;
         final State oldState = state;
         state = State.STOPPED;
-        log.info("Stopped connection: " + description);
+        logger.info("Stopped connection: %s", description);
         changeSupport.firePropertyChange(State.PROP_STATE, oldState, state);
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

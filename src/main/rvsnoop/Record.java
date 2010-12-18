@@ -1,32 +1,22 @@
-/*
- * Class:     Record
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
 
 import com.google.common.base.Objects;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
 import com.tibco.tibrv.TibrvMsgField;
+import org.rvsnoop.Logger;
 
 /**
  * A record encapsulates the details of a single Rendezvous message.
  * <p>
  * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
- *
- * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class Record {
 
-    private static final Log log = LogFactory.getLog(Record.class);
+    private static final Logger logger = Logger.getLogger();
 
     private static long nextSequenceNumber;
 
@@ -70,16 +60,13 @@ public final class Record {
             if (send != null && send.length() > 0) message.setSendSubject(send);
             if (reply != null && reply.length() > 0) message.setReplySubject(reply);
         } catch (TibrvException e) {
-            if (log.isErrorEnabled())
-                log.error("Could not set subject on message.",e);
+            logger.error(e, "Could not set subject on message.");
         }
         int sizeInBytes = 0;
         try {
             sizeInBytes = message.getAsBytes().length;
         } catch (TibrvException e) {
-            if (log.isWarnEnabled()) {
-                log.warn("Unable to extract bytes from message.", e);
-            }
+            logger.warn(e, "Unable to extract bytes from message.");
         }
         this.sizeInBytes = sizeInBytes;
         this.subject = SubjectHierarchy.INSTANCE.getSubjectElement(message.getSendSubject());
@@ -217,23 +204,17 @@ public final class Record {
                 trackingId = "";
             } catch (TibrvException e) {
                 trackingId = "";
-                log.error("Unable to determine tracking ID.", e);
+                logger.error(e, "Unable to determine tracking ID.");
             }
         }
         return trackingId;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         return (int) (17 + sequenceNumber * 37);
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

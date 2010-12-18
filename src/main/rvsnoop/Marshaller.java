@@ -1,17 +1,10 @@
-/*
- * Class:     Marshaller
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.tibco.sdk.MTree;
 import com.tibco.tibrv.TibrvMsg;
+import org.rvsnoop.Logger;
 
 /**
  * Utility methods to convert Rendezvous messages to specific string
@@ -19,10 +12,6 @@ import com.tibco.tibrv.TibrvMsg;
  * <p>
  * This class will select the "best" conversion method on loading. Not all
  * conversion methods work both ways, but all can convert messages to strings.
- *
- * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class Marshaller {
 
@@ -44,10 +33,6 @@ public final class Marshaller {
 
     /**
      * Marshaller implementation that uses SDK MTree's to do the work.
-     *
-     * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
-     * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
-     * @version $Revision$, $Date$
      */
     static final class MTreeImpl extends Marshaller.Implementation {
 
@@ -74,10 +59,6 @@ public final class Marshaller {
      * Marshaller implementation that just calls <code>toString()</code> to do the work.
      * <p>
      * This implementation does not support unmarshalling strings to messages.
-     *
-     * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
-     * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
-     * @version $Revision$ $Date$
      */
     static final class RvMsgImpl extends Marshaller.Implementation {
 
@@ -97,7 +78,7 @@ public final class Marshaller {
 
     private static final Implementation implementation;
 
-    private static final Log log = LogFactory.getLog(Marshaller.class);
+    private static final Logger logger = Logger.getLogger();
 
     private static final String[] PREFERRED = { IMPL_MTREE, IMPL_RVMSG };
 
@@ -105,14 +86,10 @@ public final class Marshaller {
         try {
             return (Implementation) Class.forName(className).newInstance();
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to load marshaller: " + className);
-            }
+            logger.debug("Failed to load marshaller: %s", className);
             return null;
         } catch (NoClassDefFoundError e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to load marshaller: " + className);
-            }
+            logger.debug("Failed to load marshaller: %s", className);
             return null;
         }
     }
@@ -128,12 +105,10 @@ public final class Marshaller {
             if ((impl = getImplementation(s)) != null)
                 break;
         implementation = impl;
-        if (log.isInfoEnabled()) {
-            if (impl == null) {
-                log.info("No marshaller loaded!");
-            } else {
-                log.info("Using marshaller: " + impl.name);
-            }
+        if (impl == null) {
+            logger.info("No marshaller loaded!");
+        } else {
+            logger.info("Using marshaller: %s", impl.name);
         }
     }
 

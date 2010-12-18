@@ -1,10 +1,5 @@
-/*
- * Class:     StringUtils
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
 
 import java.text.MessageFormat;
@@ -26,7 +21,7 @@ public final class StringUtils {
 
     private static final String[] NO_LINES = new String[0];
 
-    public static String format(String message, Object[] fields) {
+    public static String format(String message, Object... fields) {
         fields = fields != null ? fields : NO_FIELDS;
         for (int i = 0, size = fields.length; i < size; ++i)
             if (fields[i] == null)

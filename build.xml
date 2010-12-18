@@ -1,4 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg. -->
+<!-- License:   Apache Software License (Version 2.0) -->
+
 <!-- Build file tested with Ant version 1.7.0. -->
 <!-- $Id$ -->
 <project name="rvsnoop" default="dist" basedir=".">
@@ -212,7 +215,6 @@
     </copy>
     <copy todir="${dir.build}/dist/lib">
       <fileset refid="include.classpath"/>
-      <fileset file="src/main/commons-logging.properties"/>
       <!-- No need to copy rvsnoop.jar as it is added by the jar target. -->
     </copy>
     <zip destfile="${dir.build}/dist/src/rvsnoop-${version}-src.zip">

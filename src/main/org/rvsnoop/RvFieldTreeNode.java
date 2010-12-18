@@ -1,10 +1,5 @@
-/*
- * Class:     RvFieldTreeNode
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -30,9 +25,6 @@ import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.ParsingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvIPAddr;
 import com.tibco.tibrv.TibrvIPPort;
@@ -42,10 +34,6 @@ import com.tibco.tibrv.TibrvXml;
 
 /**
  * A {@link TreeNode} that wraps a Rendezvous message field.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.3
  */
 public final class RvFieldTreeNode extends LazyTreeNode {
 
@@ -140,7 +128,7 @@ public final class RvFieldTreeNode extends LazyTreeNode {
 
     private final String text;
 
-    private static final Log log = LogFactory.getLog(RvFieldTreeNode.class);
+    private static final Logger logger = Logger.getLogger();
 
     private final TibrvMsgField field;
 
@@ -190,9 +178,7 @@ public final class RvFieldTreeNode extends LazyTreeNode {
                     children.add(new RvFieldTreeNode(this, msg.getFieldByIndex(i)));
                 }
             } catch (TibrvException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(MessageFormat.format(ERROR_FIELD, e.error), e);
-                }
+                logger.error(e, MessageFormat.format(ERROR_FIELD, e.error));
             }
             children.trimToSize();
             return children;
@@ -210,14 +196,9 @@ public final class RvFieldTreeNode extends LazyTreeNode {
                 children.add(new XMLTreeNode(this, doc.getChild(i)));
             }
         } catch (ParsingException e) {
-            if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_XML_PARSE,
-                        e.getLineNumber(), e.getColumnNumber()), e);
-            }
+            logger.error(e, MessageFormat.format(ERROR_XML_PARSE, e.getLineNumber(), e.getColumnNumber()));
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(ERROR_XML_IO, e);
-            }
+            logger.error(e, ERROR_XML_IO);
         } finally {
             closeQuietly(reader);
         }
@@ -225,9 +206,6 @@ public final class RvFieldTreeNode extends LazyTreeNode {
         return children;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#getAllowsChildren()
-     */
     @Override
     public boolean getAllowsChildren() {
         return allowsChildren;
@@ -247,4 +225,5 @@ public final class RvFieldTreeNode extends LazyTreeNode {
     public String getTooltip() {
         return TibrvMsg.getTypeName(field.type);
     }
+
 }

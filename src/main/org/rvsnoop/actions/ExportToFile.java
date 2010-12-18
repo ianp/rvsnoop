@@ -1,10 +1,5 @@
-/*
- * Class:     ExportToFile
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -18,9 +13,8 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Logger;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 
@@ -30,16 +24,12 @@ import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * An abstract class that handles the basics of exporting messages from the ledger.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.6
  */
 public abstract class ExportToFile extends RvSnoopAction implements RecordLedgerSelectionListener {
 
     private static final int BUFFER_SIZE = 64 * 1024;
 
-    private static final Log log = LogFactory.getLog(ExportToFile.class);
+    private static final Logger logger = Logger.getLogger();
 
     private transient Record[] currentSelection;
 
@@ -82,21 +72,15 @@ public abstract class ExportToFile extends RvSnoopAction implements RecordLedger
     public void exportRecords(Record[] records, final File file) {
         try {
             stream = new BufferedOutputStream(new FileOutputStream(file), BUFFER_SIZE);
-            if (log.isInfoEnabled()) {
-                log.info("Exporting " + records.length + " records to " + file.getPath() + '.');
-            }
+            logger.info("Exporting %s records to %s.", records.length, file.getPath());
             writeHeader(records.length);
             for (int i = 0, imax = records.length; i < imax; ++i) {
                 writeRecord(records[i], i);
             }
             writeFooter();
-            if (log.isInfoEnabled()) {
-                log.info("Exported " + records.length + " records to " + file.getPath() + '.');
-            }
+            logger.info("Exported %s records to %s.", records.length, file.getPath());
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error("There was a problem exporting the selected records.", e);
-            }
+            logger.error(e, "There was a problem exporting the selected records.");
         } finally {
             closeQuietly(stream);
         }

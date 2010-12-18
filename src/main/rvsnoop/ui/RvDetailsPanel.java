@@ -1,10 +1,5 @@
-/*
- * Class:     RvDetailsPanel
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.ui;
 
 import java.awt.BorderLayout;
@@ -27,9 +22,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.LazyTreeNode;
+import org.rvsnoop.Logger;
 import org.rvsnoop.RvMessageTreeNode;
 
 import rvsnoop.Record;
@@ -67,7 +61,7 @@ public final class RvDetailsPanel extends JPanel {
 
     private static final Constructor aeMsgTreeNode;
 
-    private static final Log log = LogFactory.getLog(RvDetailsPanel.class);
+    private static final Logger logger = Logger.getLogger();
 
     private static final NumberFormat INT_FORMAT = NumberFormat.getIntegerInstance();
 
@@ -77,13 +71,9 @@ public final class RvDetailsPanel extends JPanel {
             Class.forName("com.tibco.sdk.MTree");
             Class aeMsgTreeNodeClass = Class.forName("org.rvsnoop.AeMessageTreeNode");
             aeMsgTreeNodeConstructor = aeMsgTreeNodeClass.getConstructor(new Class[] { TibrvMsg.class });
-            if (log.isInfoEnabled()) {
-                log.info("SDK found, AE tree view will be enabled.");
-            }
+            logger.info("SDK found, AE tree view will be enabled.");
         } catch (Exception e) {
-            if (log.isInfoEnabled()) {
-                log.info("SDK not found, AE tree view will be disabled.", e);
-            }
+            logger.info("SDK not found, AE tree view will be disabled.", e);
             // Do nothing if SDK not on class path.
         }
         aeMsgTreeNode = aeMsgTreeNodeConstructor;
@@ -201,9 +191,7 @@ public final class RvDetailsPanel extends JPanel {
         if (aeMsgTreeNode == null) {
             model.setRoot(new RvMessageTreeNode(message));
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Trying to create AE details tree from message.");
-            }
+            logger.debug("Trying to create AE details tree from message.");
             try {
                 // We need to do this reflectively in case the SDK isn't available.
                 model.setRoot((TreeNode) aeMsgTreeNode.newInstance(message));

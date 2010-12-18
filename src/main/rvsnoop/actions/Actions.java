@@ -1,17 +1,11 @@
-/*
- * Class:     Actions
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import static java.lang.String.format;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,9 +14,8 @@ import java.util.Map;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Logger;
 import org.rvsnoop.actions.FilterBySelection;
 import org.rvsnoop.actions.NewRvConnection;
 import org.rvsnoop.actions.ClearLedger;
@@ -45,8 +38,6 @@ import org.rvsnoop.actions.ShowAllColumns;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 import org.rvsnoop.ui.RecordLedgerTable;
 
-import rvsnoop.StringUtils;
-
 /**
  * Singleton action instances.
  * <p>
@@ -54,10 +45,6 @@ import rvsnoop.StringUtils;
  * This is done to allow the use of actions to enforce modularity in the code
  * whilst preventing application state from being scattered throughout too many
  * classes.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.4
  */
 public final class Actions {
 
@@ -81,7 +68,7 @@ public final class Actions {
 
     private static final Map<String, Action> actionCommandMap = new HashMap<String, Action>();
 
-    private static final Log log = LogFactory.getLog(Actions.class);
+    private static final Logger logger = Logger.getLogger();
 
     public static final Action DISPLAY_HOME_PAGE = add(new DisplayHomePage());
 
@@ -92,16 +79,13 @@ public final class Actions {
     public static final Action REPORT_BUG = add(new ReportBug());
 
     private static Action add(Action action) {
-        final String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
+        String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
         actionCommandMap.put(command, action);
-        final KeyStroke accelerator = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
+        KeyStroke accelerator = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
         if (accelerator != null) {
-            final Object old = acceleratorKeyMap.put(accelerator, action);
-            if (old != null && log.isWarnEnabled()) {
-                final Object[] fields = new Object[] { accelerator.toString(), ((Action) old).getValue(Action.ACTION_COMMAND_KEY), command };
-                if (log.isWarnEnabled()) {
-                    log.warn(StringUtils.format("Redefining accelerator key '{0}' from {1} to {2}.", fields));
-                }
+            final Action old = acceleratorKeyMap.put(accelerator, action);
+            if (old != null) {
+                logger.warn("Redefining accelerator key '%s' from %s to %s.", accelerator, old.getValue(Action.ACTION_COMMAND_KEY), command);
             }
         }
         return action;
@@ -157,12 +141,9 @@ public final class Actions {
         final KeyStroke acc = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
         if (acc == null) { return; }
         Object old = acceleratorKeyToActionMap.put(acc, action);
-        if (old != null && log.isWarnEnabled()) {
-            if (log.isWarnEnabled()) {
-                old = ((Action) old).getValue(Action.ACTION_COMMAND_KEY);
-                log.warn(format("Redefining accelerator key '%s' from %s to %s.",
-                        acc.toString(), old, cmd));
-            }
+        if (old != null) {
+            old = ((Action) old).getValue(Action.ACTION_COMMAND_KEY);
+            logger.warn("Redefining accelerator key '%s' from %s to %s.", acc, old, cmd);
         }
     }
 

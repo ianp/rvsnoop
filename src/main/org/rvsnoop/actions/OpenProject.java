@@ -1,10 +1,5 @@
-/*
- * Class:     OpenProject
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -15,9 +10,8 @@ import java.text.MessageFormat;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Logger;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.Project;
 import org.rvsnoop.ProjectFileFilter;
@@ -28,10 +22,6 @@ import com.tibco.tibrv.TibrvException;
 
 /**
  * Open a new project.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.5
  */
 public final class OpenProject extends RvSnoopAction {
 
@@ -39,7 +29,7 @@ public final class OpenProject extends RvSnoopAction {
 
     private static final long serialVersionUID = 7204749257785908263L;
 
-    private static final Log log = LogFactory.getLog(OpenProject.class);
+    private static final Logger logger = Logger.getLogger();
 
     public static final String COMMAND = "open";
     static String ACCELERATOR, MNEMONIC, NAME, TOOLTIP;
@@ -66,26 +56,18 @@ public final class OpenProject extends RvSnoopAction {
         File file = chooser.getSelectedFile();
         try {
             file = file.getCanonicalFile();
-            if (log.isInfoEnabled()) {
-                log.info(MessageFormat.format(INFO_LOADING, file.getName()));
-            }
+            logger.info(INFO_LOADING, file.getName());
             application.setProject(new Project(file));
-            if (log.isInfoEnabled()) {
-                log.info(MessageFormat.format(INFO_LOADED, file.getName()));
-            }
+            logger.info(INFO_LOADED, file.getName());
         } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_LOADING, file.getName()), e);
-            }
+            logger.error(e, ERROR_LOADING, file.getName());
         }
         try {
             // XXX we should really save connection state in the project file
             //     and restore it after re-opening
             RvConnection.resumeQueue();
         } catch (TibrvException e) {
-            if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_STARTING, e.error), e);
-            }
+            logger.error(e, ERROR_STARTING, e.error);
         }
     }
 

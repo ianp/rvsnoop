@@ -9,10 +9,8 @@ import java.util.Map;
 import com.google.common.base.Objects;
 import nu.xom.Element;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ca.odell.glazedlists.matchers.Matcher;
+import org.rvsnoop.Logger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -79,7 +77,7 @@ public abstract class RecordMatcher implements Matcher<Record> {
     public static final String XML_ELEMENT = "matcher";
     public static final String XML_NS = "http://rvsnoop.org/ns/matcher/1";
 
-    private static final Log log = LogFactory.getLog(RecordMatcher.class);
+    private static final Logger logger = Logger.getLogger();
 
     /**
      * Create a new matcher.
@@ -98,8 +96,7 @@ public abstract class RecordMatcher implements Matcher<Record> {
         try {
             return clazz.getConstructor(String.class).newInstance(value);
         } catch (Exception e) {
-            if (log.isErrorEnabled())
-                log.error("Could not create a matcher from name=‘" + typeOrName + "’ and value=‘" + value + "’.", e);
+            logger.error(e, "Could not create a matcher from name=‘%s’ and value=‘%s’.", typeOrName, value);
             return null;
         }
     }

@@ -1,10 +1,5 @@
-/*
- * Class:     CheckForUpdates
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import java.io.IOException;
@@ -16,25 +11,20 @@ import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.ParsingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Task;
 
+import org.rvsnoop.Logger;
 import rvsnoop.Version;
 
 /**
  * Check for updates.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.4
  */
 public final class CheckForUpdatesTask extends Task<Boolean, Void> {
 
-    private static final Log log = LogFactory.getLog(CheckForUpdatesTask.class);
+    private static final Logger logger = Logger.getLogger();
 
     public CheckForUpdatesTask(Application application) {
         super(application);
@@ -66,7 +56,7 @@ public final class CheckForUpdatesTask extends Task<Boolean, Void> {
                 resourceMap.getString("checkForUpdates.Action.text"),
                 JOptionPane.ERROR_MESSAGE,
                 resourceMap.getIcon("banners.error"));
-        if (log.isErrorEnabled()) { log.error(message, e); }
+        logger.error(e, message);
     }
 
     @Override

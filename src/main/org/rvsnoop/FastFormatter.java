@@ -1,16 +1,10 @@
-/*
- * Class:     FastFormatter
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Calendar;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
@@ -18,9 +12,6 @@ import java.util.logging.LogRecord;
 /**
  * A simple formatter that is both faster and less memory intensive than the
  * supplied {@link java.util.logging.SimpleFormatter}.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class FastFormatter extends Formatter {
 
@@ -35,9 +26,6 @@ public final class FastFormatter extends Formatter {
     private final StringWriter writer = new StringWriter();
     private final Calendar calendar = Calendar.getInstance();
 
-    /* (non-Javadoc)
-     * @see java.util.logging.Formatter#format(java.util.logging.LogRecord)
-     */
     @Override
     public synchronized String format(LogRecord record) {
         try {

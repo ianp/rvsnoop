@@ -1,10 +1,5 @@
-/*
- * Class:     PauseAllConnections
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -15,9 +10,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import org.rvsnoop.Logger;
 import rvsnoop.RvConnection;
 
 import com.tibco.tibrv.TibrvException;
@@ -27,10 +20,6 @@ import com.tibco.tibrv.TibrvException;
  * <p>
  * This works by telling the local queue to reject all new messages, it also
  * sets all of the connections to paused.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.5
  */
 final class PauseAllConnections extends AbstractAction {
 
@@ -39,7 +28,7 @@ final class PauseAllConnections extends AbstractAction {
 
     private static final String ID = "pauseAllConnections";
 
-    private static final Log log = LogFactory.getLog(PauseAllConnections.class);
+    private static final Logger logger = Logger.getLogger();
 
     private static String NAME_PAUSE = "Pause All";
 
@@ -71,13 +60,9 @@ final class PauseAllConnections extends AbstractAction {
                 putValue(Action.SHORT_DESCRIPTION, TOOLTIP_PAUSE);
                 putValue(Action.SMALL_ICON, PAUSE);
                 isPaused = false;
-                if (log.isInfoEnabled()) {
-                    log.info("All connections have now been resumed.");
-                }
+                logger.info("All connections have now been resumed.");
             } catch (TibrvException e) {
-                if (log.isErrorEnabled()) {
-                    log.error("There was a problem resuming the connections.", e);
-                }
+                logger.error(e, "There was a problem resuming the connections.");
             }
         } else {
             try {
@@ -86,13 +71,9 @@ final class PauseAllConnections extends AbstractAction {
                 putValue(Action.SHORT_DESCRIPTION, TOOLTIP_RESUME);
                 putValue(Action.SMALL_ICON, RESUME);
                 isPaused = true;
-                if (log.isInfoEnabled()) {
-                    log.info("All connections have now been paused.");
-                }
+                logger.info("All connections have now been paused.");
             } catch (TibrvException e) {
-                if (log.isErrorEnabled()) {
-                    log.error("There was a problem pausing the connections.", e);
-                }
+                logger.error(e, "There was a problem pausing the connections.");
             }
         }
     }

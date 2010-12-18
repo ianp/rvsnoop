@@ -1,10 +1,5 @@
-/*
- * Class:     Republish
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -13,9 +8,8 @@ import java.text.MessageFormat;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
+import org.rvsnoop.Logger;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
@@ -28,10 +22,6 @@ import rvsnoop.ui.UIUtils;
 
 /**
  * Republish the currently selected record(s) to a designated transport.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.5
  */
 public final class Republish extends RvSnoopAction implements RecordLedgerSelectionListener {
 
@@ -39,7 +29,7 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
 
     static { NLSUtils.internationalize(Republish.class); }
 
-    private static final Log log = LogFactory.getLog(Republish.class);
+    private static final Logger logger = Logger.getLogger();
 
     public static final String COMMAND = "republish";
     static String ACCELERATOR, ERROR_PUBLISHING, MNEMONIC, NAME, TOOLTIP, QUESTION_CONFIRM;
@@ -69,9 +59,6 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
         putAcceleratorValue(ACCELERATOR);
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.RvSnoopAction#actionPerformed(java.awt.event.ActionEvent)
-     */
     @Override
     public void actionPerformed(ActionEvent event) {
         final String question = MessageFormat.format(QUESTION_CONFIRM, currentSelection.length);
@@ -93,15 +80,12 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
                 connection.publish(record);
             } catch (Exception e) {
                 final String message = MessageFormat.format(ERROR_PUBLISHING, record.getSequenceNumber(), e.getLocalizedMessage());
-                if (log.isErrorEnabled()) { log.error(message, e); }
+                logger.error(e, message);
                 UIUtils.showError(message, e);
             }
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.event.RecordLedgerSelectionListener#valueChanged(org.rvsnoop.event.RecordLedgerSelectionEvent)
-     */
     public void valueChanged(RecordLedgerSelectionEvent event) {
         currentSelection = event.getSelectedRecords();
         setEnabled(currentSelection.length > 0);

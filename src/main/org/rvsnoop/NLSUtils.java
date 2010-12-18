@@ -1,10 +1,5 @@
-/*
- * Class:     NLSUtils
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.io.IOException;
@@ -21,17 +16,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Utility methods to load message values from property files and assign them
  * directly to the fields of a class. Originally based on a class from Equinox.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 @SuppressWarnings("unchecked")
 public final class NLSUtils {
@@ -48,9 +37,7 @@ public final class NLSUtils {
                 field.setAccessible(true);
                 field.set(null, value);
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Error setting field " + field.getName() + " to " + value, e);
-                }
+                logger.error(e, "Error setting field %s to %s", field.getName(), value);
             } finally {
                 field.setAccessible(false);
             }
@@ -88,35 +75,23 @@ public final class NLSUtils {
             Object previousFieldValue = namesToFields.put(name, ASSIGNED);
             // if already assigned, there is nothing to do
             if (previousFieldValue == ASSIGNED) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Ignoring duplicate property " + name + " in " + resourcePath); //$NON-NLS-1$ //$NON-NLS-2$
-                }
+                logger.debug("Ignoring duplicate property %s in %s", name, resourcePath);
                 return putObject;
             }
             // if there is no field with a corresponding name, there is nothing to do
             if (previousFieldValue == null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Unused message " + name + " in " + resourcePath); //$NON-NLS-1$ //$NON-NLS-2$
-                }
+                logger.debug("Unused message %s in %s", name, resourcePath);
                 return putObject;
             }
             Field previousField = (Field) previousFieldValue;
             // Can only set value of public static non-final fields
             if ((previousField.getModifiers() & MOD_MASK) != Modifier.STATIC) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Skipping non-static field " + name); //$NON-NLS-1$
-                }
                 return putObject;
             }
             try {
                 setField(previousField, value);
-                if (log.isTraceEnabled()) {
-                    log.trace("Field " + name + " set to " + value); //$NON-NLS-1$ //$NON-NLS-2$
-                }
             } catch (Exception e) {
-                if (log.isWarnEnabled()) {
-                    log.warn("Could not set field " + name, e); //$NON-NLS-1$
-                }
+                logger.warn(e, "Could not set field %s", name);
             }
             return putObject;
         }
@@ -129,7 +104,7 @@ public final class NLSUtils {
      */
     static Field ASSIGNED;
 
-    static final Log log = LogFactory.getLog(NLSUtils.class);
+    static final Logger logger = Logger.getLogger();
 
     static final int MOD_MASK = Modifier.STATIC | Modifier.FINAL;
 
@@ -141,9 +116,7 @@ public final class NLSUtils {
         try {
             ASSIGNED = NLSUtils.class.getDeclaredField("ASSIGNED"); //$NON-NLS-1$
         } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error("Could not load internationalized strings correctly.", e); // $NON-NLS-1$
-            }
+            logger.error(e, "Could not load internationalized strings correctly.");
         }
     }
 
@@ -175,9 +148,7 @@ public final class NLSUtils {
         return variants;
     }
 
-    private static void computeMissingMessages(String resourcePath,
-                                               Class clazz, Map namesToFields,
-                                               Field[] fields) {
+    private static void computeMissingMessages(String resourcePath, Map namesToFields, Field[] fields) {
         // Make sure that there aren't any empty fields
         for (int i = 0, imax = fields.length; i < imax; ++i) {
             Field field = fields[i];
@@ -186,14 +157,10 @@ public final class NLSUtils {
             // If the field has a a value assigned, there is nothing to do
             if (namesToFields.get(field.getName()) == ASSIGNED) { continue; }
             try {
-                if (log.isWarnEnabled()) {
-                    log.warn("Missing message: " + field.getName() + " in: " + resourcePath); //$NON-NLS-1$ $NON-NLS-2$
-                }
+                logger.warn("Missing message: %s in: %s", field.getName(), resourcePath);
                 setField(field, "!" + field.getName() + "!"); //$NON-NLS-1$ $NON-NLS-2$
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Could not set missing message for " + field.getName(), e); //$NON-NLS-1$
-                }
+                logger.error(e, "Could not set missing message for %s", field.getName());
             }
         }
     }
@@ -207,17 +174,12 @@ public final class NLSUtils {
      * @return The resource, or <code>null</code> if it could not be found.
      */
     public static URL findNLSResource(String resourcePath, Class clazz) {
-        if (log.isDebugEnabled()) {
-            log.debug("Loading NLS resource from path: " + resourcePath);
-        }
+        logger.debug("Loading NLS resource from path: %s", resourcePath);
         final int lastIndex = resourcePath.lastIndexOf(".");
         final String basePath = resourcePath.substring(0, lastIndex);
         final String suffix = resourcePath.substring(lastIndex);
         final String[] variants = buildVariants(basePath, suffix);
         for (int i = 0, imax = variants.length; i < imax; ++i) {
-            if (log.isTraceEnabled()) {
-                log.trace("Trying variant: " + variants[i]);
-            }
             URL url = clazz.getResource(variants[i]);
             if (url != null) { return url; }
         }
@@ -239,10 +201,8 @@ public final class NLSUtils {
      * file.
      */
     public static void internationalize(final String resourcePath, Class clazz) {
-        long start = log.isTraceEnabled() ? System.currentTimeMillis() : 0;
-        if (log.isDebugEnabled()) {
-            log.debug("Loading NLS bundle for " + clazz.getSimpleName() + " from " + resourcePath); //$NON-NLS-1$ //$NON-NLS-2$
-        }
+        long start = System.currentTimeMillis();
+        logger.debug("Loading NLS bundle for %s from %s", clazz.getSimpleName(), resourcePath);
         Field[] fields = clazz.getDeclaredFields();
         // Strip out compiler generated synthetic fields
         Field[] tmpFields = new Field[fields.length];
@@ -266,30 +226,20 @@ public final class NLSUtils {
         final String[] variants = buildVariants(resourcePath, SUFFIX);
         for (int i = 0, imax = variants.length; i < imax; ++i) {
             String variant = variants[i];
-            if (log.isTraceEnabled()) {
-                log.trace("Trying to load message resource " + variant); //$NON-NLS-1$
-            }
             final InputStream input = clazz.getResourceAsStream(variant);
             if (input == null) { continue; }
             try {
                 final MessagesProperties properties = new MessagesProperties(
                         namesToFields, resourcePath);
                 properties.load(input);
-                if (log.isTraceEnabled()) {
-                    log.trace("Successfully loaded " + properties.size() + " messages from resource " + variant); //$NON-NLS-1$ $NON-NLS-2$
-                }
             } catch (IOException e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Error loading message resource" + variant, e); //$NON-NLS-1$
-                }
+                logger.error(e, "Error loading message resource %s", variant);
             } finally {
                 closeQuietly(input);
             }
         }
-        computeMissingMessages(resourcePath, clazz, namesToFields, fields);
-        if (log.isTraceEnabled()) {
-            log.trace("Message bundle " + resourcePath + " loaded in " + (System.currentTimeMillis() - start) + " msecs."); //$NON-NLS-1$ $NON-NLS-2$ $NON-NLS-3$
-        }
+        computeMissingMessages(resourcePath, namesToFields, fields);
+        logger.debug("Message bundle %s loaded in %s msecs.", resourcePath, System.currentTimeMillis() - start);
     }
 
     static void setField(final Field field, final Object value) throws IllegalArgumentException, IllegalAccessException {

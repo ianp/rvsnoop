@@ -1,24 +1,17 @@
-/*
- * Class:     MatcherEditorListDialog
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.text.MessageFormat;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import ca.odell.glazedlists.matchers.MatcherEditor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.rvsnoop.Logger;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.matchers.DataAccessorFactory;
 import org.rvsnoop.matchers.PredicateFactory;
@@ -30,10 +23,6 @@ import ca.odell.glazedlists.util.concurrent.Lock;
 
 /**
  * A common dialog used for all of the search and filter functions.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.7
  */
 public final class MatcherEditorListDialog extends JDialog {
 
@@ -48,17 +37,13 @@ public final class MatcherEditorListDialog extends JDialog {
             dialog.setVisible(true);
             final RvSnoopMatcherEditor me = dialog.getMatcherEditor();
             if (me == null) { return; }
-            if (log.isDebugEnabled()) {
-                log.debug(MessageFormat.format(DEBUG_ADDING, me));
-            }
+            logger.debug(DEBUG_ADDING, me);
             final Lock lock = copyOfEditors.getReadWriteLock().writeLock();
             lock.lock();
             try {
                 copyOfEditors.add(me);
                 editorsList.repaint();
-                if (log.isDebugEnabled()) {
-                    log.debug(MessageFormat.format(DEBUG_ADDED, editorsList.getModel().getSize()));
-                }
+                logger.debug(DEBUG_ADDED, editorsList.getModel().getSize());
             } finally {
                 lock.unlock();
             }
@@ -108,13 +93,11 @@ public final class MatcherEditorListDialog extends JDialog {
         }
     }
 
-    static String ADD_TITLE, ADD_MESSAGE;
-
     static String BUTTON_ADD, BUTTON_CANCEL, BUTTON_OK, BUTTON_REMOVE;
 
     static String DEBUG_ADDED, DEBUG_ADDING, TITLE;
 
-    private static final Log log = LogFactory.getLog(MatcherEditorListDialog.class);
+    private static final Logger logger = Logger.getLogger();
 
     private static final RvSnoopMatcherEditor PROTOTYPE =
         new RvSnoopMatcherEditor(

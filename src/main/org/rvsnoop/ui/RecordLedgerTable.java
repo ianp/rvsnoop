@@ -1,10 +1,5 @@
-/*
- * Class:     RecordLedgerTable
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import java.awt.Color;
@@ -32,9 +27,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Connections;
+import org.rvsnoop.Logger;
 import org.rvsnoop.RecordLedger;
 import org.rvsnoop.RecordLedgerFormat;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
@@ -51,15 +45,11 @@ import ca.odell.glazedlists.swing.EventTableModel;
 
 /**
  * A custom <code>JTable</code> that is used to draw the record ledger.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.7
  */
 public final class RecordLedgerTable extends JTable {
 
     private static class DateCellRenderer extends DefaultTableCellRenderer {
-        private static final Log log = LogFactory.getLog(DateCellRenderer.class);
+        private static final Logger logger = Logger.getLogger();
         private static final long serialVersionUID = -6397207684112537883L;
         private static final DateFormat[] FORMATS = {
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
@@ -96,17 +86,13 @@ public final class RecordLedgerTable extends JTable {
                     final int dateWidth = metrics.stringWidth(FORMATS[i].format(date));
                     if (dateWidth < width) {
                         currentFormat = FORMATS[i];
-                        if (log.isDebugEnabled()) {
-                            log.debug("Setting date format to " + FORMATS[i].format(date));
-                        }
+                        logger.debug("Setting date format to %s", FORMATS[i].format(date));
                         break;
                     }
                 }
                 if (currentFormat == null) {
                     currentFormat = FORMATS[FORMATS.length - 1];
-                    if (log.isDebugEnabled()) {
-                        log.debug("Setting date format to " + FORMATS[FORMATS.length - 1].format(date));
-                    }
+                    logger.debug("Setting date format to %s", FORMATS[FORMATS.length - 1].format(date));
                 }
             }
             return currentFormat;
@@ -117,9 +103,6 @@ public final class RecordLedgerTable extends JTable {
         SelectionHandler() {
             super();
         }
-        /* (non-Javadoc)
-         * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
-         */
         public void valueChanged(ListSelectionEvent e) {
             final EventListener[] listeners =
                 listenerList.getListeners(RecordLedgerSelectionListener.class);
@@ -170,10 +153,6 @@ public final class RecordLedgerTable extends JTable {
      * <p>
      * This class delegates most of the work to {@linkplain RecordSelection}, it
      * just handles the UI specific elements.
-     *
-     * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
-     * @version $Revision$, $Date$
-     * @since 1.6
      */
     final class TransferHandler extends javax.swing.TransferHandler {
 
@@ -184,9 +163,6 @@ public final class RecordLedgerTable extends JTable {
             super();
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.TransferHandler#canImport(javax.swing.JComponent, java.awt.datatransfer.DataFlavor[])
-         */
         @Override
         public boolean canImport(JComponent target, DataFlavor[] flavours) {
             if (!RecordLedgerTable.this.equals(target)) { return false; }
@@ -198,9 +174,6 @@ public final class RecordLedgerTable extends JTable {
             return false;
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.TransferHandler#createTransferable(javax.swing.JComponent)
-         */
         @Override
         protected Transferable createTransferable(JComponent source) {
             if (!RecordLedgerTable.this.equals(source)) { return null; }
@@ -209,9 +182,6 @@ public final class RecordLedgerTable extends JTable {
             return new RecordSelection(records);
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.TransferHandler#exportDone(javax.swing.JComponent, java.awt.datatransfer.Transferable, int)
-         */
         @Override
         protected void exportDone(JComponent source, Transferable data, int action) {
             if (!RecordLedgerTable.this.equals(source)) { return; }
@@ -227,17 +197,11 @@ public final class RecordLedgerTable extends JTable {
             }
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.TransferHandler#getSourceActions(javax.swing.JComponent)
-         */
         @Override
         public int getSourceActions(JComponent c) {
             return COPY_OR_MOVE;
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.TransferHandler#importData(javax.swing.JComponent, java.awt.datatransfer.Transferable)
-         */
         @Override
         public boolean importData(JComponent target, Transferable data) {
             if (!RecordLedgerTable.this.equals(target)) { return false; }
@@ -281,18 +245,12 @@ public final class RecordLedgerTable extends JTable {
         listenerList.add(RecordLedgerSelectionListener.class, listener);
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.JTable#columnAdded(javax.swing.event.TableColumnModelEvent)
-     */
     @Override
     public void columnAdded(TableColumnModelEvent e) {
         super.columnAdded(e);
         configureRenderers();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.JTable#columnRemoved(javax.swing.event.TableColumnModelEvent)
-     */
     @Override
     public void columnRemoved(TableColumnModelEvent e) {
         super.columnRemoved(e);
