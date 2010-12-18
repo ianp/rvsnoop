@@ -7,33 +7,28 @@
  */
 package org.rvsnoop;
 
+import nu.xom.Attribute;
+import nu.xom.DocType;
+import nu.xom.Element;
+import nu.xom.Text;
+import org.rvsnoop.io.StreamSerializer;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.znerd.xmlenc.LineBreak;
-import org.znerd.xmlenc.XMLOutputter;
+import java.util.Stack;
 
 /**
  * A builder for writing XML documents.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class XMLBuilder {
 
     public static final String NS_CONNECTIONS = "http://rvsnoop.org/ns/connections/1";
-    public static final String NS_MATCHER = "http://rvsnoop.org/ns/matcher/1";
     public static final String NS_RENDEZVOUS = "http://rvsnoop.org/ns/tibrv/1";
-    public static final String NS_TYPES = "http://rvsnoop.org/ns/types/1";
 
-    public static final String PREFIX_CONNECTIONS = "c";
-    public static final String PREFIX_MATCHER= "m";
     public static final String PREFIX_RENDEZVOUS = "r";
-    public static final String PREFIX_TYPES = "t";
 
     private boolean declared;
 
@@ -42,9 +37,9 @@ public final class XMLBuilder {
     // URIs -> prefixes
     private final Map<String, String> namespaces = new LinkedHashMap<String, String>();
 
-    private boolean started;
+    private final StreamSerializer xml;
 
-    private final XMLOutputter xml;
+    private final Stack<Element> stack = new Stack<Element>();
 
     /**
      * @param stream The stream to write to.
@@ -55,11 +50,7 @@ public final class XMLBuilder {
             stream = new BufferedOutputStream(stream);
         }
         try {
-            this.xml = new XMLOutputter(new OutputStreamWriter(stream), "UTF-8");
-            xml.setEscaping(true);
-            xml.setLineBreak(LineBreak.UNIX);
-            xml.setIndentation("  ");
-            xml.setQuotationMark('\'');
+            this.xml = new StreamSerializer(stream);
             this.namespace = ns != null ? ns : "";
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
@@ -68,43 +59,31 @@ public final class XMLBuilder {
 
     public XMLBuilder attribute(String name, String value) throws IOException {
         try {
-            xml.attribute(name, value);
+            xml.write(new Attribute(name, value));
             return this;
         } catch (IllegalStateException e) {
             throw new CausedIOException(e);
         } catch (IllegalArgumentException e) {
             throw new CausedIOException(e);
         }
-    }
-
-    public XMLBuilder attribute(String name, String value, String ns) throws IOException {
-        return attribute(prefixify(name, ns), value);
     }
 
     public void close() throws IOException {
         try {
-            xml.endDocument();
+            while (!stack.isEmpty()) {
+                xml.writeEndTag(stack.pop());
+            }
+            xml.flush();
         } catch (IllegalStateException e) {
-            throw new CausedIOException(e);
-        }
-    }
-
-    public XMLBuilder comment(String text) throws IOException {
-        try {
-            xml.comment(text);
-            return this;
-        } catch (IllegalStateException e) {
-            throw new CausedIOException(e);
-        } catch (IllegalArgumentException e) {
             throw new CausedIOException(e);
         }
     }
 
     public XMLBuilder dtd(String name, String publicID, String systemID) throws IOException {
         try {
-            xml.declaration();
+            xml.writeXMLDeclaration();
             declared = true;
-            xml.dtd(name, publicID, systemID);
+            xml.write(new DocType(name, publicID, systemID));
             return this;
         } catch (IllegalStateException e) {
             throw new CausedIOException(e);
@@ -115,7 +94,7 @@ public final class XMLBuilder {
 
     public XMLBuilder endTag() throws IOException {
         try {
-            xml.endTag();
+            xml.writeEndTag(stack.pop());
             return this;
         } catch (IllegalStateException e) {
             throw new CausedIOException(e);
@@ -125,27 +104,24 @@ public final class XMLBuilder {
     }
     
     public XMLBuilder namespace(String prefix, String uri) {
-        if (started) { throw new IllegalStateException(); }
+        if (!stack.isEmpty()) { throw new IllegalStateException(); }
         namespaces.put(uri, prefix);
         return this;
     }
 
     private void namespaceDeclarations() throws IOException {
         if (namespace.length() > 0) {
-            xml.attribute("xmlns", namespace);
+            xml.writeNamespaceDeclaration("", namespace);
         }
         for (String nsuri : namespaces.keySet()) {
-            if (namespace.equals(nsuri)) {
-                continue;
-            }
-            final String prefix = namespaces.get(nsuri);
-            xml.attribute("xmlns:" + prefix, nsuri);
+            if (namespace.equals(nsuri)) { continue; }
+            xml.writeNamespaceDeclaration(namespaces.get(nsuri), nsuri);
         }
     }
 
     public XMLBuilder pcdata(String text) throws IOException {
         try {
-            xml.pcdata(text);
+            xml.write(new Text(text));
             return this;
         } catch (IllegalStateException e) {
             throw new CausedIOException(e);
@@ -162,14 +138,15 @@ public final class XMLBuilder {
     public XMLBuilder startTag(String type) throws IOException {
         try {
             if (!declared) {
-                xml.declaration();
+                xml.writeXMLDeclaration();
                 declared = true;
             }
-            xml.startTag(type);
-            if (!started) {
+            Element elt = new Element(type);
+            xml.writeStartTag(elt);
+            if (stack.isEmpty()) {
                 namespaceDeclarations();
-                started = true;
             }
+            stack.push(elt);
             return this;
         } catch (IllegalStateException e) {
             throw new CausedIOException(e);
