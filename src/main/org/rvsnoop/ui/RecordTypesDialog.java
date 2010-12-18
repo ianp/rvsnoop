@@ -7,22 +7,25 @@
  */
 package org.rvsnoop.ui;
 
+import org.rvsnoop.NLSUtils;
+import rvsnoop.RecordType;
+import rvsnoop.RecordTypes;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import org.rvsnoop.NLSUtils;
-
-import rvsnoop.RecordType;
-import rvsnoop.RecordTypes;
 
 /**
  * A dialog to allow the record types in a project to be customized.
@@ -86,7 +89,7 @@ public final class RecordTypesDialog extends JDialog {
 
     private static final long serialVersionUID = -2564241831430080435L;
 
-    private static final Image BANNER = new ImageIcon("/resources/banners/editRecordTypes.png").getImage();
+    private static final ImageIcon BANNER = new ImageIcon("/resources/banners/editRecordTypes.png");
 
     static String DIALOG_TITLE, TITLE, DESCRIPTION;
     static String BUTTON_ADD, BUTTON_OK, BUTTON_REMOVE;

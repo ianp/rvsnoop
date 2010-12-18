@@ -7,22 +7,27 @@
  */
 package org.rvsnoop.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.*;
-
 import org.rvsnoop.Connections;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.RecordLedger;
-
 import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIUtils;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * A dialog for displaying search results.
@@ -61,7 +66,7 @@ public final class SearchResultsDialog extends JDialog {
 
     private static final long serialVersionUID = 5216848181389646587L;
 
-    private static final Image BANNER = new ImageIcon("/resources/banners/searchResults.png").getImage();
+    private static final ImageIcon BANNER = new ImageIcon("/resources/banners/searchResults.png");
 
     static String BUTTON_FREEZE, BUTTON_OK, BUTTON_UNFREEZE;
     static String DIALOG_TITLE, TITLE, DESCRIPTION, TOOLTIP_VISIBLE_COLUMNS;

@@ -13,7 +13,6 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Paint;
 
 import javax.swing.BorderFactory;
@@ -66,7 +65,7 @@ public final class HeaderPanel extends JPanel {
     /** Used to determine whether the gradient needs regenerating. */
     private int width;
 
-    public HeaderPanel(String titleText, String descriptionText, Image bannerImage) {
+    public HeaderPanel(String titleText, String descriptionText, ImageIcon bannerIcon) {
         final Color controlColour = UIManager.getColor("control");
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, controlColour),
@@ -82,9 +81,9 @@ public final class HeaderPanel extends JPanel {
         description.setEditable(false);
         description.setLineWrap(true);
         description.setWrapStyleWord(true);
-        banner.setIcon(new ImageIcon(bannerImage));
+        banner.setIcon(bannerIcon);
         configureLayout();
-        setPreferredSize(new Dimension(480, bannerImage.getHeight(this) + 24));
+        setPreferredSize(new Dimension(480, bannerIcon.getIconHeight() + 24));
     }
 
     private void configureLayout() {

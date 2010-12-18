@@ -7,7 +7,7 @@
  */
 package rvsnoop.ui;
 
-import javax.swing.Icon;
+import javax.swing.*;
 
 /**
  * All of the banners used by RvSnoop.
@@ -24,27 +24,27 @@ public final class Banners {
     /**
      * Standard message banner for details panel.
      */
-    public static final Icon MESSAGE = Icons.createIcon("/resources/banners/message.png", ICON_SIZE);
+    public static final Icon MESSAGE = new ImageIcon("/resources/banners/message.png");
     /**
      * Advisory message banner for details panel.
      */
-    public static final Icon MESSAGE_ADVISORY = Icons.createIcon("/resources/banners/message_advisory.png", ICON_SIZE);
+    public static final Icon MESSAGE_ADVISORY = new ImageIcon("/resources/banners/message_advisory.png");
     /**
      * Certified messaging message banner for details panel.
      */
-    public static final Icon MESSAGE_CM = Icons.createIcon("/resources/banners/message_rvcm.png", ICON_SIZE);
+    public static final Icon MESSAGE_CM = new ImageIcon("/resources/banners/message_rvcm.png");
     /**
      * Default empty banner for details panel.
      */
-    public static final Icon MESSAGE_NONE = Icons.createIcon("/resources/banners/message_none.png", ICON_SIZE);
+    public static final Icon MESSAGE_NONE = new ImageIcon("/resources/banners/message_none.png");
     /**
      * Fault tolerant message banner for details panel.
      */
-    public static final Icon MESSAGE_FT = Icons.createIcon("/resources/banners/message_rvft.png", ICON_SIZE);
+    public static final Icon MESSAGE_FT = new ImageIcon("/resources/banners/message_rvft.png");
     /**
      * Bannder for confirm quit dialog.
      */
-    public static final Icon QUIT = Icons.createIcon("/resources/banners/quit.png", ICON_SIZE);
+    public static final Icon QUIT = new ImageIcon("/resources/banners/quit.png");
 
     /**
      * Do not instantiate.

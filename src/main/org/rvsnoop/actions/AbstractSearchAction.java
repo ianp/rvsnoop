@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import org.apache.commons.lang.text.StrBuilder;
 import org.rvsnoop.Application;
@@ -55,7 +55,7 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
         final EventList oldMatchers = getMatcherEditors();
         final JFrame frame = application.getFrame();
         final MatcherEditorListDialog dialog = new MatcherEditorListDialog(
-                frame, getTitle(), getDescription(), getImage(), oldMatchers);
+                frame, getTitle(), getDescription(), getIcon(), oldMatchers);
 
         dialog.setVisible(true);
         final EventList newMatchers = dialog.getCopyOfEditors();
@@ -114,8 +114,6 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
 
     /**
      * Configure the matchers based on multiple records.
-     *
-     * @param record
      */
     protected final void configureMatchers(EventList matchers, Record[] records) {
         final DataAccessorFactory daf = DataAccessorFactory.getInstance();
@@ -181,8 +179,10 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
             builder.append(c);
         }
     }
+
     protected abstract String getDescription();
-    protected abstract Image getImage();
+
+    protected abstract ImageIcon getIcon();
 
     protected abstract FilteredLedgerView getLedger();
 

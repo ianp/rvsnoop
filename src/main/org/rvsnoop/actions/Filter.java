@@ -7,15 +7,13 @@
  */
 package org.rvsnoop.actions;
 
-import java.awt.Image;
-
-import javax.swing.*;
-
+import ca.odell.glazedlists.EventList;
 import org.rvsnoop.Application;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
 
-import ca.odell.glazedlists.EventList;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
 
 /**
  * Filter the messages visible in the ledger.
@@ -50,12 +48,9 @@ public final class Filter extends AbstractSearchAction {
         return DESCRIPTION;
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#getImage()
-     */
     @Override
-    protected Image getImage() {
-        return new ImageIcon("/resources/banners/filter.png").getImage();
+    protected ImageIcon getIcon() {
+        return new ImageIcon("/resources/banners/filter.png");
     }
 
     /* (non-Javadoc)

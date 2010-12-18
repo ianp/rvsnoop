@@ -9,16 +9,11 @@ package org.rvsnoop.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.Iterator;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JDialog;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -138,12 +133,12 @@ public final class MatcherEditorListDialog extends JDialog {
 
     private final HeaderPanel header;
 
-    public MatcherEditorListDialog(Frame parent, String title, String description, Image image, EventList editors) {
+    public MatcherEditorListDialog(Frame parent, String title, String description, ImageIcon icon, EventList editors) {
         super(parent, TITLE, true); // true == modal
         copyOfEditors = getDeepCopy(editors);
         final GhostGlassPane glasspane = new GhostGlassPane();
         setGlassPane(glasspane);
-        header = new HeaderPanel(title, description, image);
+        header = new HeaderPanel(title, description, icon);
         editorsList = new ReorderableList(copyOfEditors, glasspane);
         final JScrollPane scrollpane = new JScrollPane(editorsList);
         scrollpane.setBackground(editorsList.getBackground());

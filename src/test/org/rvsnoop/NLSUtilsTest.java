@@ -22,10 +22,6 @@ import junit.framework.TestCase;
  */
 public class NLSUtilsTest extends TestCase {
 
-    /**
-     * Test method for {@link org.ianp.util.NLSUtils#findNLSResource(java.lang.String, java.lang.Class)}.
-     * @throws Exception
-     */
     public final void testFindNLSResource() {
         try {
             InputStream stream = NLSUtils.findNLSResource("/org/rvsnoop/NLSUtilsSample.txt", NLSUtilsTest.class).openStream();
@@ -38,9 +34,6 @@ public class NLSUtilsTest extends TestCase {
         }
     }
 
-    /**
-     * Test method for {@link org.ianp.util.NLSUtils#internationalize(java.lang.Class)}.
-     */
     public final void testInternationalizeClass() {
         NLSUtilsTestTarget tt = new NLSUtilsTestTarget();
         assertEquals("I18N_STRING_1", tt.getFirstString());
