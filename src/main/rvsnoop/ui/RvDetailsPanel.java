@@ -15,6 +15,7 @@ import java.text.NumberFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -48,6 +49,21 @@ import com.tibco.tibrv.TibrvMsg;
  * @since 1.5
  */
 public final class RvDetailsPanel extends JPanel {
+
+    /** Standard message banner for details panel. */
+    private static final Icon MESSAGE = new ImageIcon("/resources/banners/message.png");
+
+    /** Advisory message banner for details panel. */
+    private static final Icon MESSAGE_ADVISORY = new ImageIcon("/resources/banners/message_advisory.png");
+
+    /** Certified messaging message banner for details panel. */
+    private static final Icon MESSAGE_CM = new ImageIcon("/resources/banners/message_rvcm.png");
+
+    /** Default empty banner for details panel. */
+    private static final Icon MESSAGE_NONE = new ImageIcon("/resources/banners/message_none.png");
+
+    /** Fault tolerant message banner for details panel. */
+    private static final Icon MESSAGE_FT = new ImageIcon("/resources/banners/message_rvft.png");
 
     private static final Constructor aeMsgTreeNode;
 
@@ -126,7 +142,7 @@ public final class RvDetailsPanel extends JPanel {
         };
         for (int i = 0, imax = fields.length; i < imax; ++i)
             fields[i].setText("");
-        iconLabel.setIcon(Banners.MESSAGE_NONE);
+        iconLabel.setIcon(MESSAGE_NONE);
         model.setRoot(emptyRoot);
     }
 
@@ -174,13 +190,13 @@ public final class RvDetailsPanel extends JPanel {
         sendSubject.setText(ss);
         stringEncoding.setText(""); // TODO: Replace this with something useful.
         if (setCertifiedFields(message)) {
-            setIconAndTooltip(Banners.MESSAGE_CM, "Certified messaging co-ordination message");
+            setIconAndTooltip(MESSAGE_CM, "Certified messaging co-ordination message");
         } else if (ss.startsWith("_RVFT.")) {
-            setIconAndTooltip(Banners.MESSAGE_FT, "Fault tolerance co-ordination message");
+            setIconAndTooltip(MESSAGE_FT, "Fault tolerance co-ordination message");
         } else if (ss.startsWith("_RV.")) {
-            setIconAndTooltip(Banners.MESSAGE_ADVISORY, "Rendezvous advisory message");
+            setIconAndTooltip(MESSAGE_ADVISORY, "Rendezvous advisory message");
         } else {
-            setIconAndTooltip(Banners.MESSAGE, "");
+            setIconAndTooltip(MESSAGE, "");
         }
         if (aeMsgTreeNode == null) {
             model.setRoot(new RvMessageTreeNode(message));

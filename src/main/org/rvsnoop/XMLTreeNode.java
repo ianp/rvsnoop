@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.tree.TreeNode;
 
 import nu.xom.Attribute;
@@ -25,7 +26,6 @@ import nu.xom.Node;
 import nu.xom.ParentNode;
 import nu.xom.ProcessingInstruction;
 import nu.xom.Text;
-import rvsnoop.ui.Icons;
 
 /**
  * A {@link TreeNode} that wraps XOM node objects to allow for visual display.
@@ -35,6 +35,9 @@ import rvsnoop.ui.Icons;
  * @since 1.3
  */
 final class XMLTreeNode extends LazyTreeNode {
+
+    public static final Icon XML_ATTRIBUTE = new ImageIcon("/resources/icons/xml_attribute.png");
+    public static final Icon XML_ELEMENT = new ImageIcon("/resources/icons/xml_element.png");
 
     private final Node node;
 
@@ -70,9 +73,9 @@ final class XMLTreeNode extends LazyTreeNode {
     @Override
     public Icon getIcon() {
         if (node instanceof Attribute)
-            return Icons.XML_ATTRIBUTE;
+            return XML_ATTRIBUTE;
         if (node instanceof Element)
-            return Icons.XML_ELEMENT;
+            return XML_ELEMENT;
         // Comment, Document, DocType, ProcessingInstruction, Text
         return null;
     }

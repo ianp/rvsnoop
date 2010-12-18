@@ -64,7 +64,6 @@ import rvsnoop.TreeModelAdapter;
 import rvsnoop.actions.Actions;
 import rvsnoop.actions.ExportToHtml;
 import rvsnoop.actions.ExportToRecordBundle;
-import rvsnoop.ui.Icons;
 import rvsnoop.ui.RvDetailsPanel;
 import rvsnoop.ui.SubjectExplorerEditor;
 import rvsnoop.ui.SubjectExplorerRenderer;
@@ -220,18 +219,17 @@ public final class MainFrame extends JFrame {
         file.add(factory.getAction(SaveProject.COMMAND));
         file.add(factory.getAction(SaveProjectAs.COMMAND));
         final JMenu fileExport = new JMenu("Export To");
-        fileExport.setIcon(Icons.EXPORT);
+        fileExport.setIcon(new ImageIcon("/resources/icons/exportTo.png"));
         fileExport.add(factory.getAction(ExportToHtml.COMMAND));
         fileExport.add(factory.getAction(ExportToRecordBundle.COMMAND));
         file.add(fileExport);
         final JMenu fileImport = new JMenu("Import From");
-        fileExport.setIcon(Icons.IMPORT);
+        fileExport.setIcon(new ImageIcon("/resources/icons/import.png"));
         fileImport.add(Actions.IMPORT_FROM_RECORD_BUNDLE);
         file.add(fileImport);
         file.addSeparator();
         file.add(factory.getAction(NewRvConnection.COMMAND));
         final JMenu connRecent = new JMenu("Recent Connections");
-        connRecent.setIcon(Icons.ADD_CONNECTION);
         connRecent.addMenuListener(new RecentConnectionsMenuManager(application));
         file.add(connRecent);
 //        file.addSeparator();
@@ -259,7 +257,8 @@ public final class MainFrame extends JFrame {
         scrollPane.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 0, Color.GRAY));
         scrollPane.getVerticalScrollBar().addAdjustmentListener(new TrackingAdjustmentListener());
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        final JButton colsButton = UIUtils.createSmallButton(Icons.COLUMNS_CORNER, TOOLTIP_VISIBLE_COLUMNS, null);
+        final JButton colsButton = UIUtils.createSmallButton(
+                new ImageIcon("/resources/icons/columns_corner_button.png"), TOOLTIP_VISIBLE_COLUMNS, null);
         colsButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -341,7 +340,7 @@ public final class MainFrame extends JFrame {
         view.add(factory.getAction(FilterBySelection.COMMAND));
         view.addSeparator();
         final JMenu viewColumns = new JMenu("Columns");
-        viewColumns.setIcon(Icons.FILTER_COLUMNS);
+        viewColumns.setIcon(new ImageIcon("/resources/icons/filter_columns.png"));
         viewColumns.addMenuListener(new VisibleColumnsMenuManager(table.getTableFormat()));
         view.add(viewColumns);
         final JMenu viewTypes = new JMenu("Types");

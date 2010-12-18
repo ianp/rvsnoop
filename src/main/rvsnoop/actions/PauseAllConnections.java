@@ -12,12 +12,13 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import rvsnoop.RvConnection;
-import rvsnoop.ui.Icons;
 
 import com.tibco.tibrv.TibrvException;
 
@@ -32,6 +33,9 @@ import com.tibco.tibrv.TibrvException;
  * @since 1.5
  */
 final class PauseAllConnections extends AbstractAction {
+
+    public static final Icon PAUSE = new ImageIcon("/resources/icons/pause.png");
+    public static final Icon RESUME = new ImageIcon("/resources/icons/resume.png");
 
     private static final String ID = "pauseAllConnections";
 
@@ -50,7 +54,7 @@ final class PauseAllConnections extends AbstractAction {
     private boolean isPaused = false;
 
     public PauseAllConnections() {
-        super(NAME_PAUSE, Icons.PAUSE);
+        super(NAME_PAUSE, PAUSE);
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_P));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP_PAUSE);
@@ -65,7 +69,7 @@ final class PauseAllConnections extends AbstractAction {
                 RvConnection.resumeQueue();
                 putValue(Action.NAME, NAME_PAUSE);
                 putValue(Action.SHORT_DESCRIPTION, TOOLTIP_PAUSE);
-                putValue(Action.SMALL_ICON, Icons.PAUSE);
+                putValue(Action.SMALL_ICON, PAUSE);
                 isPaused = false;
                 if (log.isInfoEnabled()) {
                     log.info("All connections have now been resumed.");
@@ -80,7 +84,7 @@ final class PauseAllConnections extends AbstractAction {
                 RvConnection.pauseQueue();
                 putValue(Action.NAME, NAME_RESUME);
                 putValue(Action.SHORT_DESCRIPTION, TOOLTIP_RESUME);
-                putValue(Action.SMALL_ICON, Icons.RESUME);
+                putValue(Action.SMALL_ICON, RESUME);
                 isPaused = true;
                 if (log.isInfoEnabled()) {
                     log.info("All connections have now been paused.");

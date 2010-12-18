@@ -11,7 +11,6 @@ import org.rvsnoop.Connections;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.RecordLedger;
-import rvsnoop.ui.Icons;
 import rvsnoop.ui.UIUtils;
 
 import javax.swing.AbstractAction;
@@ -89,7 +88,8 @@ public final class SearchResultsDialog extends JDialog {
         scrollpane.setBorder(BorderFactory.createEmptyBorder());
         scrollpane.getVerticalScrollBar().addAdjustmentListener(new TrackingAdjustmentListener());
         scrollpane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        final JButton colsButton = UIUtils.createSmallButton(Icons.COLUMNS_CORNER, TOOLTIP_VISIBLE_COLUMNS, null);
+        final JButton colsButton = UIUtils.createSmallButton(
+                new ImageIcon("/resources/icons/columns_corner_button.png"), TOOLTIP_VISIBLE_COLUMNS, null);
         colsButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {

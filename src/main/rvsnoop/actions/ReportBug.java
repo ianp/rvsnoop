@@ -12,12 +12,12 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import rvsnoop.BrowserLauncher;
-import rvsnoop.ui.Icons;
 
 /**
  * Report a bug or request a new feature.
@@ -41,15 +41,12 @@ final class ReportBug extends AbstractAction {
     private static String TOOLTIP = "Report a bug or request a new feature";
 
     public ReportBug() {
-        super(NAME, Icons.BUG);
+        super(NAME, new ImageIcon("/resources/icons/bug.png"));
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_B));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     public void actionPerformed(ActionEvent event) {
         try {
             BrowserLauncher.openURL("http://sourceforge.net/tracker/?group_id=63447");

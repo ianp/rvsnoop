@@ -12,12 +12,12 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import rvsnoop.BrowserLauncher;
-import rvsnoop.ui.Icons;
 
 /**
  * Display the RvSnoop home page in a browser.
@@ -41,7 +41,7 @@ final class DisplayHomePage extends AbstractAction {
     private static String TOOLTIP = "Show the web site in the default browser";
 
     public DisplayHomePage() {
-        super(NAME, Icons.WEB);
+        super(NAME, new ImageIcon("/resources/icons/web.png"));
         putValue(Action.ACTION_COMMAND_KEY, ID);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_W));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
