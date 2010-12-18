@@ -8,6 +8,7 @@
 package rvsnoop.actions;
 
 import java.awt.event.KeyEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -18,7 +19,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.swing.Action;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.rvsnoop.Application;
 import org.rvsnoop.actions.ExportToFile;
 

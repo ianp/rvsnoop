@@ -8,6 +8,7 @@
 package org.rvsnoop;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.io.Closeables.closeQuietly;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,7 +30,6 @@ import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.ParsingException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -219,7 +219,7 @@ public final class RvFieldTreeNode extends LazyTreeNode {
                 log.error(ERROR_XML_IO, e);
             }
         } finally {
-            IOUtils.closeQuietly(reader);
+            closeQuietly(reader);
         }
         children.trimToSize();
         return children;

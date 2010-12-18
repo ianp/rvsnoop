@@ -30,8 +30,7 @@ import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.Files;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +40,8 @@ import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
 import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.RvConnection;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Handles the storage and retrival of the session state.
@@ -112,8 +113,8 @@ public final class UserPreferences {
         final File recentConnectionsDir = new File(path);
         File f = null;
         try {
-            FileUtils.forceMkdir(recentConnectionsDir);
             f = new File(recentConnectionsDir, "Recent Connections.xml");
+            Files.createParentDirs(f);
         } catch (IOException e) {
             if (log.isErrorEnabled()) { log.error(ERROR_CREATING_DIR, e); }
         }
@@ -232,7 +233,7 @@ public final class UserPreferences {
                 log.error(ERROR_STORING_CONNECTIONS, e);
             }
         } finally {
-            IOUtils.closeQuietly(stream);
+            closeQuietly(stream);
         }
     }
 

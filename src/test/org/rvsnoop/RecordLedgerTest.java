@@ -9,6 +9,7 @@ package org.rvsnoop;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -20,13 +21,12 @@ import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swing.EventTableModel;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Unit tests for the {@link RecordLedger} class.
@@ -89,7 +89,7 @@ public abstract class RecordLedgerTest extends TestCase {
         }
         records = recordList.toArray(new Record[recordList.size()]);
         assertEquals(10, records.length);
-        IOUtils.closeQuietly(stream);
+        closeQuietly(stream);
     }
 
     public void testAdd() {

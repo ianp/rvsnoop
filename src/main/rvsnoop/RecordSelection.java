@@ -14,6 +14,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -25,13 +26,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.rvsnoop.CausedIOException;
 import org.rvsnoop.Connections;
 
 import com.tibco.tibrv.TibrvException;
 import com.tibco.tibrv.TibrvMsg;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * A class to handle reading and writing records to and from various sources.
@@ -149,7 +150,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
                 final FileInputStream fis = new FileInputStream(file);
                 final BufferedInputStream bis = new BufferedInputStream(fis, (int) file.length());
                 records[i] = readRecord(new DataInputStream(bis), connections, true);
-                IOUtils.closeQuietly(fis);
+                closeQuietly(fis);
             }
             return records;
         } else {

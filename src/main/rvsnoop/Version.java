@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Version information.
@@ -38,7 +38,7 @@ public final class Version {
             error.initCause(e);
             throw error;
         } finally {
-            IOUtils.closeQuietly(stream);
+            closeQuietly(stream);
         }
     }
 

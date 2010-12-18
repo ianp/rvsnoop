@@ -9,6 +9,7 @@ package rvsnoop.actions;
 
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -17,8 +18,6 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
-
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;

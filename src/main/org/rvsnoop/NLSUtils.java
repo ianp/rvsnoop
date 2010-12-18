@@ -21,10 +21,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Utility methods to load message values from property files and assign them
@@ -283,7 +284,7 @@ public final class NLSUtils {
                     log.error("Error loading message resource" + variant, e); //$NON-NLS-1$
                 }
             } finally {
-                IOUtils.closeQuietly(input);
+                closeQuietly(input);
             }
         }
         computeMissingMessages(resourcePath, clazz, namesToFields, fields);

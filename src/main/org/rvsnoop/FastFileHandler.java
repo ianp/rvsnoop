@@ -31,11 +31,11 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.ByteStreams;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.SystemUtils;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * A <code>java.util.logging</code> handler to write to files.
@@ -87,23 +87,23 @@ public class FastFileHandler extends StreamHandler {
             this.file = file;
         }
         public void run() {
-            final String basename = FilenameUtils.removeExtension(file
-                    .getName());
+            int extIndex = file.getName().lastIndexOf(".");
+            final String basename = extIndex > 0 ? file.getName().substring(0, extIndex) : file.getName();
             final File compressed = new File(logDirectory, basename + ".gz");
             InputStream in = null;
             OutputStream out = null;
             try {
                 in = new FileInputStream(file);
                 out = new GZIPOutputStream(new FileOutputStream(compressed));
-                IOUtils.copy(in, out);
+                ByteStreams.copy(in, out);
                 in.close();
                 out.close();
             } catch (IOException e) {
                 reportError("Error compressing olg log file after file rotation",
                         e, ErrorManager.GENERIC_FAILURE);
             } finally {
-                IOUtils.closeQuietly(in);
-                IOUtils.closeQuietly(out);
+                closeQuietly(in);
+                closeQuietly(out);
             }
             Collections.replaceAll(files, file, compressed);
         }
@@ -180,10 +180,8 @@ public class FastFileHandler extends StreamHandler {
             path = SystemUtils.USER_HOME + "/.rvsnoop";
         }
         logDirectory = new File(path);
-        try {
-            FileUtils.forceMkdir(logDirectory);
-        } catch (IOException e) {
-            throw new ExceptionInInitializerError(e);
+        if (!logDirectory.isDirectory() && !logDirectory.mkdirs()) {
+            throw new ExceptionInInitializerError("Could not create log directory.");
         }
     }
 

@@ -18,7 +18,6 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.Application;
@@ -26,6 +25,8 @@ import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 
 import rvsnoop.Record;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * An abstract class that handles the basics of exporting messages from the ledger.
@@ -97,7 +98,7 @@ public abstract class ExportToFile extends RvSnoopAction implements RecordLedger
                 log.error("There was a problem exporting the selected records.", e);
             }
         } finally {
-            IOUtils.closeQuietly(stream);
+            closeQuietly(stream);
         }
     }
 

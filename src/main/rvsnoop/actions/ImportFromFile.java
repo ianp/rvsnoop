@@ -20,10 +20,11 @@ import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.ui.MainFrame;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * An abstract class that handles the basics of importing messages to the ledger.
@@ -79,7 +80,7 @@ public abstract class ImportFromFile extends AbstractAction {
                 log.error("There was a problem importing the file" + file.getPath() + '.', e);
             }
         } finally {
-            IOUtils.closeQuietly(stream);
+            closeQuietly(stream);
         }
     }
 

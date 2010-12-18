@@ -29,7 +29,6 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.ParsingException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
@@ -39,6 +38,8 @@ import rvsnoop.RecordTypes;
 import rvsnoop.RvConnection;
 import rvsnoop.SubjectElement;
 import rvsnoop.SubjectHierarchy;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Handles all of the project specific settings.
@@ -159,7 +160,7 @@ public final class Project {
         try {
             Connections.toXML(connections.toArray(), stream);
         } finally {
-            IOUtils.closeQuietly(stream);
+            closeQuietly(stream);
         }
     }
 
@@ -177,7 +178,7 @@ public final class Project {
                         .endTag()
                 .endTag().close();
         } finally {
-            IOUtils.closeQuietly(stream);
+            closeQuietly(stream);
         }
     }
 
@@ -206,7 +207,7 @@ public final class Project {
         }
         builder.endTag().close();
         } finally {
-            IOUtils.closeQuietly(stream);
+            closeQuietly(stream);
         }
     }
 
@@ -231,7 +232,7 @@ public final class Project {
             }
             builder.endTag().close();
         } finally {
-            IOUtils.closeQuietly(stream);
+            closeQuietly(stream);
         }
     }
 
