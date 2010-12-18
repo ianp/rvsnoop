@@ -1,10 +1,5 @@
-/*
- * Class:     RvSnoopApplication
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2008 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 
 package org.rvsnoop.ui;
 
@@ -18,6 +13,7 @@ import java.util.EventObject;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import org.apache.commons.cli2.CommandLine;
@@ -173,9 +169,27 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         }
     }
 
+    private void configureLookAndFeel() {
+        try {
+            if (SystemUtils.IS_OS_MAC) {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } else {
+                for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        UIManager.setLookAndFeel(info.getClassName());
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // If Nimbus is not available, you can set the GUI to another look and feel.
+        }
+    }
+
     @Override
     protected void initialize(String[] args) {
         ensureJavaVersionIsValid();
+        configureLookAndFeel();
         ResourceMap resourceMap = getContext().getResourceMap();
         logger.info(resourceMap, "info.appStarted");
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookTask(), "shutdownHook"));
