@@ -42,9 +42,7 @@ public final class RecentProjectsMenuManager implements MenuListener, PopupMenuL
         private static final long serialVersionUID = -4151087760552035722L;
         final File file;
         public MenuItem(File file, int index) {
-            super(MessageFormat.format(MENU_TEXT, new Object[] {
-                    new Integer(index), file.getName()
-            }));
+            super(MessageFormat.format(MENU_TEXT, index, file.getName()));
             this.file = file;
             setMnemonic(KeyEvent.VK_0 + index);
             addActionListener(this);

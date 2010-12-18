@@ -63,13 +63,11 @@ public final class SaveProjectAs extends RvSnoopAction {
             file = file.getCanonicalFile();
             application.setProject(file);
             if (log.isInfoEnabled()) {
-                log.info(MessageFormat.format(INFO_SAVED,
-                        new Object[] { file.getPath() }));
+                log.info(MessageFormat.format(INFO_SAVED, file.getPath()));
             }
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_SAVING,
-                        new Object[] { file.getPath() }), e);
+                log.error(MessageFormat.format(ERROR_SAVING, file.getPath()), e);
             }
         }
     }

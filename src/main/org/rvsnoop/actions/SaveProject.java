@@ -68,11 +68,11 @@ public final class SaveProject extends RvSnoopAction {
         try {
             project.store(application);
             if (log.isInfoEnabled()) {
-                log.info(MessageFormat.format(INFO_SAVED, new Object[] { path }));
+                log.info(MessageFormat.format(INFO_SAVED, path));
             }
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_SAVING, new Object[] { path }), e);
+                log.error(MessageFormat.format(ERROR_SAVING, path), e);
             }
         }
     }

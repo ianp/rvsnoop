@@ -108,8 +108,7 @@ public abstract class RecordMatcher implements Matcher<Record> {
         if (clazz == null) clazz = matchersByName.get(typeOrName);
         if (clazz == null) throw new IllegalArgumentException("No matcher named " + typeOrName + '.');
         try {
-            final Constructor<RecordMatcher> ctor = clazz.getConstructor(new Class[] { String.class });
-            return (RecordMatcher) ctor.newInstance(new Object[] { value });
+            return clazz.getConstructor(String.class).newInstance(value);
         } catch (Exception e) {
             if (log.isErrorEnabled())
                 log.error("Could not create a matcher from name=‘" + typeOrName + "’ and value=‘" + value + "’.", e);

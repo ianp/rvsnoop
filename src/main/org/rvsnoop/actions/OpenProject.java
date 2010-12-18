@@ -67,18 +67,15 @@ public final class OpenProject extends RvSnoopAction {
         try {
             file = file.getCanonicalFile();
             if (log.isInfoEnabled()) {
-                log.info(MessageFormat.format(INFO_LOADING,
-                        new Object[] { file.getName() }));
+                log.info(MessageFormat.format(INFO_LOADING, file.getName()));
             }
             application.setProject(new Project(file));
             if (log.isInfoEnabled()) {
-                log.info(MessageFormat.format(INFO_LOADED,
-                        new Object[] { file.getName() }));
+                log.info(MessageFormat.format(INFO_LOADED, file.getName()));
             }
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_LOADING,
-                        new Object[] { file.getName() }), e);
+                log.error(MessageFormat.format(ERROR_LOADING, file.getName()), e);
             }
         }
         try {
@@ -87,8 +84,7 @@ public final class OpenProject extends RvSnoopAction {
             RvConnection.resumeQueue();
         } catch (TibrvException e) {
             if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_STARTING,
-                        new Object[] { new Integer(e.error) }), e);
+                log.error(MessageFormat.format(ERROR_STARTING, e.error), e);
             }
         }
     }

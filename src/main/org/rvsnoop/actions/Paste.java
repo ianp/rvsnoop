@@ -77,8 +77,7 @@ public final class Paste extends RvSnoopAction {
             }
         } catch (TibrvException e) {
             if (log.isErrorEnabled()) {
-                log.error(MessageFormat.format(ERROR_RV,
-                        new Object[] { new Integer(e.error) }), e);
+                log.error(MessageFormat.format(ERROR_RV, e.error), e);
             }
         } catch (IOException e) {
             if (log.isErrorEnabled()) { log.error(ERROR_IO, e); }

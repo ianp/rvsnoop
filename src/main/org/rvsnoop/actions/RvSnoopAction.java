@@ -72,14 +72,13 @@ public abstract class RvSnoopAction extends AbstractAction {
                     accelerator = accelerator.substring("ALT+".length());
                 }
             }
-            final int accel = Integer.decode(accelerator).intValue();
+            final int accel = Integer.decode(accelerator);
             final int mask = SHORTCUT_MASK
                     + (shift ? InputEvent.SHIFT_MASK : 0)
                     + (alt ? InputEvent.ALT_MASK : 0);
             final KeyStroke stroke = KeyStroke.getKeyStroke(accel, mask);
             if (log.isDebugEnabled()) {
-                log.debug(MessageFormat.format(DEBUG_ACCELERATOR,
-                        new Object[] { getValue(ACTION_COMMAND_KEY), stroke }));
+                log.debug(MessageFormat.format(DEBUG_ACCELERATOR, getValue(ACTION_COMMAND_KEY), stroke));
             }
             putValue(Action.ACCELERATOR_KEY, stroke);
         } catch (NumberFormatException e) {

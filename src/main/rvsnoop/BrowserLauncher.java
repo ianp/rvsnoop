@@ -161,7 +161,7 @@ public class BrowserLauncher {
 		switch (jvm) {
 			case MACOSX:
 				try {
-					openURL.invoke(null, new Object[] { url });
+					openURL.invoke(null, url);
 				} catch (InvocationTargetException ite) {
 					throw new IOException("InvocationTargetException while calling openURL: " + ite.getMessage());
 				} catch (IllegalAccessException iae) {

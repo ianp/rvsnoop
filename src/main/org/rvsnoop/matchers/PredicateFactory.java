@@ -70,12 +70,10 @@ public final class PredicateFactory {
         Class clazz = (Class) map.get(string);
         if (clazz == null) {
             throw new IllegalArgumentException(
-                    MessageFormat.format(errorMessage, new Object[] { string }));
+                    MessageFormat.format(errorMessage, string));
         }
         try {
-            return (Predicate) clazz
-                .getConstructor(new Class[] { String.class, boolean.class })
-                .newInstance(new Object[] { value, ignoreCase ? Boolean.TRUE : Boolean.FALSE });
+            return (Predicate) clazz.getConstructor(String.class, boolean.class).newInstance(value, ignoreCase);
         } catch (Exception e) {
             // TODO handle this more gracefully somehow
             //      Maybe just log the exception and return null?

@@ -190,7 +190,7 @@ public final class RvDetailsPanel extends JPanel {
             }
             try {
                 // We need to do this reflectively in case the SDK isn't available.
-                model.setRoot((TreeNode) aeMsgTreeNode.newInstance(new Object[] { message }));
+                model.setRoot((TreeNode) aeMsgTreeNode.newInstance(message));
             } catch (Exception e) {
                 model.setRoot(new RvMessageTreeNode(message));
             }

@@ -84,7 +84,7 @@ public final class DataAccessorFactory {
         Class<? extends DataAccessor<?>> clazz = map.get(string);
         if (clazz == null) {
             throw new IllegalArgumentException(
-                    MessageFormat.format(errorMessage, new Object[] { string }));
+                    MessageFormat.format(errorMessage, string));
         }
         try {
             return clazz.newInstance();

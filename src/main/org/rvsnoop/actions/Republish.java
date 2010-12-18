@@ -61,8 +61,7 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
      */
     @Override
     public void actionPerformed(ActionEvent event) {
-        final String question = MessageFormat.format(QUESTION_CONFIRM,
-                new Object[] { new Integer(currentSelection.length) });
+        final String question = MessageFormat.format(QUESTION_CONFIRM, currentSelection.length);
         // FIXME get the connection list from Application
         final RvConnection[] connections = application.getConnections().toArray();
         final String[] connectionNames = new String[connections.length];
@@ -80,8 +79,7 @@ public final class Republish extends RvSnoopAction implements RecordLedgerSelect
             try {
                 connection.publish(record);
             } catch (Exception e) {
-                final String message = MessageFormat.format(ERROR_PUBLISHING,
-                        new Object[] { new Long(record.getSequenceNumber()), e.getLocalizedMessage() });
+                final String message = MessageFormat.format(ERROR_PUBLISHING, record.getSequenceNumber(), e.getLocalizedMessage());
                 if (log.isErrorEnabled()) { log.error(message, e); }
                 UIUtils.showError(message, e);
             }

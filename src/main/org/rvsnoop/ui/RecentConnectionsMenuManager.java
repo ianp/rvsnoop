@@ -40,9 +40,7 @@ public final class RecentConnectionsMenuManager implements MenuListener, PopupMe
         private static final long serialVersionUID = -6436657697729548579L;
         final RvConnection connection;
         public MenuItem(RvConnection connection, int index) {
-            super(MessageFormat.format(MENU_TEXT, new Object[] {
-                    new Integer(index), connection.getDescription()
-            }));
+            super(MessageFormat.format(MENU_TEXT, index, connection.getDescription()));
             this.connection = connection;
             setMnemonic(KeyEvent.VK_0 + index);
             addActionListener(this);

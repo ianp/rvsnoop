@@ -52,13 +52,13 @@ public final class AeMessageTreeNode extends LazyTreeNode {
         data.use_tibrvMsg(message);
         final int format = data.getMessageFormat();
         if (format == MMessageFormat.AERV) {
-            text = MessageFormat.format(AERV, new Object[] { message.getField("^ver^").data });
+            text = MessageFormat.format(AERV, message.getField("^ver^").data);
         } else if (format == MMessageFormat.RV) {
-            text = MessageFormat.format(RV, new Object[] { message.getField("^ver^").data });
+            text = MessageFormat.format(RV, message.getField("^ver^").data);
         } else if (format == MMessageFormat.XMLJMS) {
-            text = MessageFormat.format(XMLJMS, new Object[] { message.getField("^ver^").data });
+            text = MessageFormat.format(XMLJMS, message.getField("^ver^").data);
         } else if (format == MMessageFormat.XMLRV) {
-            text = MessageFormat.format(XMLRV, new Object[] { message.getField("^ver^").data });
+            text = MessageFormat.format(XMLRV, message.getField("^ver^").data);
         } else {
             text = UNKNOWN;
         }

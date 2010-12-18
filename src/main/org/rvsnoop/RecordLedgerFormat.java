@@ -148,10 +148,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
     };
 
     public static final List<ColumnFormat> ALL_COLUMNS = Collections.unmodifiableList(
-        Arrays.asList(new ColumnFormat[] {
-            CONNECTION, TIMESTAMP, SEQUENCE_NO, TYPE,
-            SUBJECT, SIZE_IN_BYTES, TRACKING_ID, MESSAGE
-    }));
+        Arrays.asList(CONNECTION, TIMESTAMP, SEQUENCE_NO, TYPE, SUBJECT, SIZE_IN_BYTES, TRACKING_ID, MESSAGE));
 
     public static String displayNameToIdentifier(String displayName) {
         for (int i = 0, imax = ALL_COLUMNS.size(); i < imax; ++i) {

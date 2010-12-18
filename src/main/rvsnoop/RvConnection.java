@@ -84,7 +84,7 @@ public final class RvConnection implements TibrvMsgCallback {
         public void onError(Object tibrvObject, int errorCode, String message, Throwable cause) {
             if (log.isErrorEnabled()) {
                 if (message == null) { message = ""; }
-                log.error(MessageFormat.format(ERROR_RV, new Object[] { new Integer(errorCode), message }), cause);
+                log.error(MessageFormat.format(ERROR_RV, errorCode, message), cause);
             }
             // XXX should we pop up an error dialog here?
         }

@@ -54,7 +54,7 @@ public final class MatcherEditorListDialog extends JDialog {
             final RvSnoopMatcherEditor me = dialog.getMatcherEditor();
             if (me == null) { return; }
             if (log.isDebugEnabled()) {
-                log.debug(MessageFormat.format(DEBUG_ADDING, new Object[] { me }));
+                log.debug(MessageFormat.format(DEBUG_ADDING, me));
             }
             final Lock lock = copyOfEditors.getReadWriteLock().writeLock();
             lock.lock();
@@ -62,8 +62,7 @@ public final class MatcherEditorListDialog extends JDialog {
                 copyOfEditors.add(me);
                 editorsList.repaint();
                 if (log.isDebugEnabled()) {
-                    log.debug(MessageFormat.format(DEBUG_ADDED,
-                            new Object[] { new Integer(editorsList.getModel().getSize()) }));
+                    log.debug(MessageFormat.format(DEBUG_ADDED, editorsList.getModel().getSize()));
                 }
             } finally {
                 lock.unlock();
