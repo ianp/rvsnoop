@@ -1,10 +1,5 @@
-/*
- * Class:     UIUtils
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.ui;
 
 import java.awt.Dimension;
@@ -30,15 +25,10 @@ import com.tibco.tibrv.TibrvException;
 
 /**
  * A collection of static utility methods for working with Swing.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class UIUtils {
 
     private static String ERROR_TITLE = "Error";
-
-    private static String INFORMATION_TITLE = "Information";
 
     public static void configureOKAndCancelButtons(JPanel panel, Action ok, Action cancel) {
         final ActionMap actionMap = panel.getActionMap();
@@ -79,15 +69,6 @@ public final class UIUtils {
         JOptionPane.showMessageDialog(MainFrame.INSTANCE, m, title, JOptionPane.ERROR_MESSAGE);
     }
 
-    public static void showInformation(Object message) {
-        JOptionPane.showMessageDialog(MainFrame.INSTANCE, message, INFORMATION_TITLE, JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    /**
-     * Do not instantiate.
-     */
-    private UIUtils() {
-        throw new UnsupportedOperationException();
-    }
+    private UIUtils() {}
 
 }
