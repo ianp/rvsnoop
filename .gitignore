@@ -1,5 +1,7 @@
 .DS_Store
 build
 rvsnoop.iml
+rvsnoop.gpr
+rvsnoop.gws
 build.properties
 
