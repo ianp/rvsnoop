@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.Locale;
 
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,7 +29,6 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import org.jdesktop.layout.GroupLayout;
 import org.rvsnoop.Application;
 
 import ca.odell.glazedlists.event.ListEvent;
@@ -118,17 +118,17 @@ public final class StatusBar extends JPanel {
 
         final GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
-        layout.setAutocreateGaps(true);
+        layout.setAutoCreateGaps(true);
         GroupLayout.SequentialGroup hgp = layout.createSequentialGroup();
         layout.setHorizontalGroup(hgp);
-        hgp.add(message, 1, GroupLayout.PREFERRED_SIZE, Integer.MAX_VALUE)
-            .add(count, 1, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-            .add(encoding, 1, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE);
+        hgp.addComponent(message, 1, GroupLayout.PREFERRED_SIZE, Integer.MAX_VALUE)
+            .addComponent(count, 1, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+            .addComponent(encoding, 1, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE);
         GroupLayout.ParallelGroup vgp = layout.createParallelGroup();
         layout.setVerticalGroup(vgp);
-        vgp.add(message, 1, 16, 16)
-            .add(count, 1, 16, 16)
-            .add(encoding, 1, 16, 16);
+        vgp.addComponent(message, 1, 16, 16)
+            .addComponent(count, 1, 16, 16)
+            .addComponent(encoding, 1, 16, 16);
         final Dimension d = getPreferredSize();
         d.height = 16;
         setPreferredSize(d);

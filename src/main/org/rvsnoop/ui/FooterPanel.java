@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.GroupLayout;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -25,7 +26,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import org.jdesktop.layout.GroupLayout;
 import org.rvsnoop.SystemUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -72,19 +72,19 @@ public final class FooterPanel extends JPanel {
         // Layout
         final GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
-        layout.setAutocreateGaps(true);
+        layout.setAutoCreateGaps(true);
         // Horizontal group
         final GroupLayout.SequentialGroup hgp = layout.createSequentialGroup();
         layout.setHorizontalGroup(hgp);
-        hgp.add(1, 1, Integer.MAX_VALUE);
+        hgp.addGap(1, 1, Integer.MAX_VALUE);
         for (int i = 0, imax = buttons.size(); i < imax; ++i) {
-            hgp.add(buttons.get(i));
+            hgp.addComponent(buttons.get(i));
         }
         // Vertical group
         final GroupLayout.ParallelGroup vgp = layout.createParallelGroup();
         layout.setVerticalGroup(vgp);
         for (int i = 0, imax = buttons.size(); i < imax; ++i) {
-            vgp.add(buttons.get(i));
+            vgp.addComponent(buttons.get(i)) ;
         }
 
         final Border outer = new MatteBorder(1, 0, 0, 0, UIManager.getColor("control"));

@@ -11,6 +11,7 @@ import java.awt.Component;
 import java.awt.Font;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -18,8 +19,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
-
-import org.jdesktop.layout.GroupLayout;
 
 import rvsnoop.RecordType;
 
@@ -60,21 +59,21 @@ public final class RecordTypesListCellRenderer extends JPanel implements ListCel
         // Layout
         GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
-        layout.setAutocreateGaps(true);
+        layout.setAutoCreateGaps(true);
         // Horizontal group
         GroupLayout.SequentialGroup hgp = layout.createSequentialGroup();
         layout.setHorizontalGroup(hgp);
-        hgp.add(imageLabel)
-            .add(layout.createParallelGroup()
-                .add(titleLabel)
-                .add(valueLabel));
+        hgp.addComponent(imageLabel)
+            .addGroup(layout.createParallelGroup()
+                .addComponent(titleLabel)
+                .addComponent(valueLabel));
         // Vertical group
         GroupLayout.ParallelGroup vgp = layout.createParallelGroup();
         layout.setVerticalGroup(vgp);
-        vgp.add(imageLabel)
-            .add(layout.createSequentialGroup()
-                .add(titleLabel)
-                .add(valueLabel));
+        vgp.addComponent(imageLabel)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(titleLabel)
+                .addComponent(valueLabel));
     }
 
     public Component getListCellRendererComponent(JList list, Object value,

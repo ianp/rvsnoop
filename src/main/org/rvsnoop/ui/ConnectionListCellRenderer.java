@@ -12,6 +12,7 @@ import java.awt.Component;
 import java.awt.Font;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -19,9 +20,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
-
-import org.jdesktop.layout.GroupLayout;
-import org.jdesktop.layout.GroupLayout.SequentialGroup;
 
 import rvsnoop.RvConnection;
 import rvsnoop.State;
@@ -77,25 +75,25 @@ public final class ConnectionListCellRenderer extends JPanel implements ListCell
         // Layout
         GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
-        layout.setAutocreateGaps(true);
+        layout.setAutoCreateGaps(true);
         layout.setHonorsVisibility(true);
         // Horizontal group
         GroupLayout.ParallelGroup hgp = layout.createParallelGroup();
         layout.setHorizontalGroup(hgp);
-        hgp.add(nameLabel)
-            .add(layout.createSequentialGroup()
+        hgp.addComponent(nameLabel)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap(ICON_INDENT, ICON_INDENT)
-                .add(layout.createParallelGroup()
-                    .add(serviceLabel)
-                    .add(networkLabel)
-                    .add(daemonLabel)));
+                .addGroup(layout.createParallelGroup()
+                    .addComponent(serviceLabel)
+                    .addComponent(networkLabel)
+                    .addComponent(daemonLabel)));
         // Vertical group
-        SequentialGroup vgp = layout.createSequentialGroup();
+        GroupLayout.SequentialGroup vgp = layout.createSequentialGroup();
         layout.setVerticalGroup(vgp);
-        vgp.add(nameLabel)
-            .add(serviceLabel)
-            .add(networkLabel)
-            .add(daemonLabel);
+        vgp.addComponent(nameLabel)
+            .addComponent(serviceLabel)
+            .addComponent(networkLabel)
+            .addComponent(daemonLabel);
     }
 
     public Component getListCellRendererComponent(JList list, Object value,

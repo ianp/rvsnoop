@@ -16,6 +16,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -23,9 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-
-import org.jdesktop.layout.GroupLayout;
-
 
 /**
  * A panel component that can be used as a header panel in a dialog or window.
@@ -90,25 +88,25 @@ public final class HeaderPanel extends JPanel {
         // Layout
         GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
-        layout.setAutocreateGaps(true);
+        layout.setAutoCreateGaps(true);
         // Horizontal group
         GroupLayout.SequentialGroup hgp = layout.createSequentialGroup();
         layout.setHorizontalGroup(hgp);
-        hgp.add(layout.createParallelGroup()
-                .add(this.title, 1, GroupLayout.PREFERRED_SIZE, Integer.MAX_VALUE)
-                .add(layout.createSequentialGroup()
-                    .add(warning)
-                    .add(this.description, 1, GroupLayout.PREFERRED_SIZE, Integer.MAX_VALUE)))
-            .add(banner);
+        hgp.addGroup(layout.createParallelGroup()
+                .addComponent(this.title, 1, GroupLayout.PREFERRED_SIZE, Integer.MAX_VALUE)
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(warning)
+                    .addComponent(this.description, 1, GroupLayout.PREFERRED_SIZE, Integer.MAX_VALUE)))
+            .addComponent(banner);
         // Vertical group
         GroupLayout.ParallelGroup vgp = layout.createParallelGroup();
         layout.setVerticalGroup(vgp);
-        vgp.add(layout.createSequentialGroup()
-            .add(this.title)
-            .add(layout.createParallelGroup()
-                .add(warning)
-                .add(this.description)))
-            .add(banner);
+        vgp.addGroup(layout.createSequentialGroup()
+            .addComponent(this.title)
+            .addGroup(layout.createParallelGroup()
+                .addComponent(warning)
+                .addComponent(this.description)))
+            .addComponent(banner);
     }
 
     @Override

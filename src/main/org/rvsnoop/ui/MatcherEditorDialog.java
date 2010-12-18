@@ -14,14 +14,13 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JTextField;
 
-import org.jdesktop.layout.GroupLayout;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.SystemUtils;
 import org.rvsnoop.matchers.DataAccessor;
@@ -125,31 +124,31 @@ public final class MatcherEditorDialog extends JDialog {
         final Container contents = getContentPane();
         final GroupLayout layout = new GroupLayout(contents);
         contents.setLayout(layout);
-        layout.setAutocreateGaps(true);
+        layout.setAutoCreateGaps(true);
         final int pref = GroupLayout.PREFERRED_SIZE;
         // Horizontal group
         final GroupLayout.ParallelGroup hgp = layout.createParallelGroup();
         layout.setHorizontalGroup(hgp);
-        hgp.add(layout.createSequentialGroup()
-                .add(dataAccessor, 1, pref, pref)
-                .add(predicateType, 1, pref, pref)
-                .add(predicateArgument, pref, pref, Integer.MAX_VALUE)
-                .add(predicateIgnoreCase))
-            .add(layout.createSequentialGroup()
-                .add(1, 1, Integer.MAX_VALUE)
-                .add(leading)
-                .add(trailing));
+        hgp.addGroup(layout.createSequentialGroup()
+                .addComponent(dataAccessor, 1, pref, pref)
+                .addComponent(predicateType, 1, pref, pref)
+                .addComponent(predicateArgument, pref, pref, Integer.MAX_VALUE)
+                .addComponent(predicateIgnoreCase))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(1, 1, Integer.MAX_VALUE)
+                .addComponent(leading)
+                .addComponent(trailing));
         // Vertical group
         final GroupLayout.SequentialGroup vgp = layout.createSequentialGroup();
         layout.setVerticalGroup(vgp);
-        vgp.add(layout.createBaselineGroup(true, false)
-                .add(dataAccessor)
-                .add(predicateType)
-                .add(predicateArgument)
-                .add(predicateIgnoreCase))
-            .add(layout.createParallelGroup()
-                .add(leading)
-                .add(trailing));
+        vgp.addGroup(layout.createBaselineGroup(true, false)
+                .addComponent(dataAccessor)
+                .addComponent(predicateType)
+                .addComponent(predicateArgument)
+                .addComponent(predicateIgnoreCase))
+            .addGroup(layout.createParallelGroup()
+                .addComponent(leading)
+                .addComponent(trailing));
         pack();
         setLocationRelativeTo(parent);
         setResizable(false);
