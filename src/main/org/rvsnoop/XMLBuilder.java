@@ -11,7 +11,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public final class XMLBuilder {
     private final String namespace;
 
     // URIs -> prefixes
-    private final Map namespaces = new LinkedHashMap();
+    private final Map<String, String> namespaces = new LinkedHashMap<String, String>();
 
     private boolean started;
 
@@ -50,7 +49,6 @@ public final class XMLBuilder {
     /**
      * @param stream The stream to write to.
      * @param ns The default namespace for the document.
-     * @param namespaces A namespace to prefix mapping for the document.
      */
     public XMLBuilder(OutputStream stream, String ns) {
         if (!(stream instanceof BufferedOutputStream)) {
@@ -136,10 +134,11 @@ public final class XMLBuilder {
         if (namespace.length() > 0) {
             xml.attribute("xmlns", namespace);
         }
-        for (Iterator i = namespaces.keySet().iterator(); i.hasNext(); ) {
-            final String nsuri = (String) i.next();
-            if (namespace.equals(nsuri)) { continue; }
-            final String prefix = (String) namespaces.get(nsuri);
+        for (String nsuri : namespaces.keySet()) {
+            if (namespace.equals(nsuri)) {
+                continue;
+            }
+            final String prefix = namespaces.get(nsuri);
             xml.attribute("xmlns:" + prefix, nsuri);
         }
     }
@@ -157,7 +156,7 @@ public final class XMLBuilder {
 
     private String prefixify(String name, String ns) {
         if (namespace.equals(ns)) { return name; }
-        return namespaces.get(ns).toString() + ':' + name;
+        return namespaces.get(ns) + ':' + name;
     }
 
     public XMLBuilder startTag(String type) throws IOException {

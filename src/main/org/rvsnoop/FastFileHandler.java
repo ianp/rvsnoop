@@ -171,7 +171,7 @@ public class FastFileHandler extends StreamHandler {
     private static final int MIN_FILE_SIZE = 64 * 1024;
 
     static {
-        String path = null;
+        String path;
         if (SystemUtils.IS_OS_WINDOWS) {
             path = SystemUtils.USER_HOME + "/Application Data/Logs/RvSnoop";
         } else if (SystemUtils.IS_OS_MAC_OSX) {
@@ -268,7 +268,7 @@ public class FastFileHandler extends StreamHandler {
     }
 
     private void initFormatter(final LogManager manager, final String cname) {
-        Formatter formatter = null;
+        Formatter formatter;
         try {
             Class clazz = Class.forName(manager.getProperty(cname + ".formatter"));
             formatter = (Formatter) clazz.newInstance();

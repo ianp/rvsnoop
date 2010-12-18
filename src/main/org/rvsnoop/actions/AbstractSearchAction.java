@@ -52,26 +52,26 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
      */
     @Override
     public final void actionPerformed(ActionEvent e) {
-        final EventList oldMatchers = getMatcherEditors();
+        final EventList<MatcherEditor> oldMatchers = getMatcherEditors();
         final JFrame frame = application.getFrame();
         final MatcherEditorListDialog dialog = new MatcherEditorListDialog(
                 frame, getTitle(), getDescription(), getIcon(), oldMatchers);
 
         dialog.setVisible(true);
-        final EventList newMatchers = dialog.getCopyOfEditors();
+        final EventList<MatcherEditor> newMatchers = dialog.getCopyOfEditors();
         if (newMatchers == null) { return; } // User cancelled dialog.
 
-        final List added = new ArrayList(newMatchers);
+        final List<MatcherEditor> added = new ArrayList<MatcherEditor>(newMatchers);
         added.removeAll(oldMatchers);
-        final List removed = new ArrayList(oldMatchers);
+        final List<MatcherEditor> removed = new ArrayList<MatcherEditor>(oldMatchers);
         removed.removeAll(newMatchers);
 
         final FilteredLedgerView ledger = getLedger();
-        for (Iterator i = added.iterator(); i.hasNext(); ) {
-            ledger.addFilter((MatcherEditor) i.next());
+        for (MatcherEditor editor : added) {
+            ledger.addFilter(editor);
         }
-        for (Iterator i = removed.iterator(); i.hasNext(); ) {
-            ledger.removeFilter((MatcherEditor) i.next());
+        for (MatcherEditor editor : removed) {
+            ledger.removeFilter(editor);
         }
 
         displayResults(ledger);
@@ -186,8 +186,8 @@ public abstract class AbstractSearchAction extends RvSnoopAction {
 
     protected abstract FilteredLedgerView getLedger();
 
-    protected EventList getMatcherEditors() {
-        return new BasicEventList();
+    protected EventList<MatcherEditor> getMatcherEditors() {
+        return new BasicEventList<MatcherEditor>();
     }
 
     protected abstract String getTitle();

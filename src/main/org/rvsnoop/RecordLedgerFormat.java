@@ -110,7 +110,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
         private static final long serialVersionUID = 2274660797219318776L;
         @Override
         public Object getValue(Record record) {
-            return new Integer(record.getSizeInBytes());
+            return record.getSizeInBytes();
         }
     };
 

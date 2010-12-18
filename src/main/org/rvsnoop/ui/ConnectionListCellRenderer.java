@@ -10,7 +10,6 @@ package org.rvsnoop.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.util.Iterator;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
@@ -138,8 +137,9 @@ public final class ConnectionListCellRenderer extends JPanel implements ListCell
 
     private String getToolTipText(final RvConnection connection) {
         final StrBuilder builder = new StrBuilder();
-        final Iterator i = connection.getSubjects().iterator();
-        while (i.hasNext()) { builder.append(i.next()).append('\n'); }
+        for (String s : connection.getSubjects()) {
+            builder.append(s).append('\n');
+        }
         if (builder.length() > 0) {
             builder.setLength(builder.length() - 1);
         } else {

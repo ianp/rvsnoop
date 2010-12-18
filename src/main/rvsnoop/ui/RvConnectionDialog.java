@@ -10,7 +10,6 @@ package rvsnoop.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.util.Iterator;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -139,8 +138,7 @@ public final class RvConnectionDialog extends JDialog {
         subject.setBorder(daemon.getBorder());
         if (conn.getNumSubjects() > 0) {
             final StringBuffer buffer = new StringBuffer();
-            for (final Iterator i = conn.getSubjects().iterator(); i.hasNext(); )
-                buffer.append(i.next()).append("\n");
+            for (Object o : conn.getSubjects()) buffer.append(o).append("\n");
             subject.setText(buffer.toString());
         }
         final JPanel panel = builder.getPanel();

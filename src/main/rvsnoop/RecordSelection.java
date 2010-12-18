@@ -167,7 +167,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
     public static Record[] read(DataInput input, Connections connections) throws IOException {
         final byte[] magic = new byte[BIND_RECORD_MAGIC.length];
         input.readFully(magic);
-        Record[] records = null;
+        Record[] records;
         if (Arrays.equals(BIND_RECORD_SET_MAGIC, magic)) {
             records = new Record[input.readInt()];
             for (int i = 0, imax = records.length; i < imax; ++i)

@@ -63,23 +63,23 @@ public final class RvFieldTreeNode extends LazyTreeNode {
     private static String describeField(TibrvMsgField field) {
         final short type = field.type;
         switch (type) {
-            case TibrvMsg.ENCRYPTED: return FD_ENCRYPTED.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.MSG:       return FD_MSG.format(new Object[] {field.name, new Integer(((TibrvMsg) field.data).getNumFields())});
-            case TibrvMsg.OPAQUE:    return FD_OPAQUE.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
+            case TibrvMsg.ENCRYPTED: return FD_ENCRYPTED.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.MSG:       return FD_MSG.format(new Object[] {field.name, ((TibrvMsg) field.data).getNumFields()});
+            case TibrvMsg.OPAQUE:    return FD_OPAQUE.format(new Object[] {field.name, Array.getLength(field.data)});
             case TibrvMsg.BOOL:      return FD_BOOL.format(new Object[] {field.name, field.data});
             case TibrvMsg.DATETIME:  return FD_DATETIME.format(new Object[] {field.name, field.data});
             case TibrvMsg.IPADDR32:  return FD_IPADDR32.format(new Object[] {field.name, ((TibrvIPAddr) field.data).getAsString()});
-            case TibrvMsg.IPPORT16:  return FD_IPPORT16.format(new Object[] {field.name, new Integer(((TibrvIPPort) field.data).getPort())});
-            case TibrvMsg.F32ARRAY:  return FD_F32ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.F64ARRAY:  return FD_F64ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.I8ARRAY:   return FD_I8ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.I16ARRAY:  return FD_I16ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.I32ARRAY:  return FD_I32ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.I64ARRAY:  return FD_I64ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.U8ARRAY:   return FD_U8ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.U16ARRAY:  return FD_U16ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.U32ARRAY:  return FD_U32ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
-            case TibrvMsg.U64ARRAY:  return FD_U64ARRAY.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
+            case TibrvMsg.IPPORT16:  return FD_IPPORT16.format(new Object[] {field.name, ((TibrvIPPort) field.data).getPort()});
+            case TibrvMsg.F32ARRAY:  return FD_F32ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.F64ARRAY:  return FD_F64ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.I8ARRAY:   return FD_I8ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.I16ARRAY:  return FD_I16ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.I32ARRAY:  return FD_I32ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.I64ARRAY:  return FD_I64ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.U8ARRAY:   return FD_U8ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.U16ARRAY:  return FD_U16ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.U32ARRAY:  return FD_U32ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
+            case TibrvMsg.U64ARRAY:  return FD_U64ARRAY.format(new Object[] {field.name, Array.getLength(field.data)});
             case TibrvMsg.F32: return FD_F32.format(new Object[] {field.name, field.data});
             case TibrvMsg.F64: return FD_F64.format(new Object[] {field.name, field.data});
             case TibrvMsg.I8:  return FD_I8.format(new Object[] {field.name, field.data});
@@ -91,13 +91,13 @@ public final class RvFieldTreeNode extends LazyTreeNode {
             case TibrvMsg.U32: return FD_U32.format(new Object[] {field.name, field.data});
             case TibrvMsg.U64: return FD_U64.format(new Object[] {field.name, field.data});
             case TibrvMsg.XML:
-                return FD_XML.format(new Object[] {field.name, new Integer(((TibrvXml) field.data).getBytes().length)});
+                return FD_XML.format(new Object[] {field.name, ((TibrvXml) field.data).getBytes().length});
             case TibrvMsg.STRING:
                 final String s = (String) field.data;
-                if (s.startsWith("<?xml ")) return FD_STRING_XML.format(new Object[] {field.name, new Integer(s.length())});
-                if (s.length() > 60) return FD_STRING_LONG.format(new Object[] {field.name, new Integer(s.length()), s.substring(0, 60)});
+                if (s.startsWith("<?xml ")) return FD_STRING_XML.format(new Object[] {field.name, s.length()});
+                if (s.length() > 60) return FD_STRING_LONG.format(new Object[] {field.name, s.length(), s.substring(0, 60)});
                 return FD_STRING.format(new Object[] {field.name, s});
-            default: return FD_USER.format(new Object[] {field.name, new Integer(Array.getLength(field.data))});
+            default: return FD_USER.format(new Object[] {field.name, Array.getLength(field.data)});
         }
     }
 

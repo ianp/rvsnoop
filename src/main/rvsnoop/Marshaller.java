@@ -124,8 +124,8 @@ public final class Marshaller {
         if (additional != null) preferred[0] = additional;
         System.arraycopy(PREFERRED, 0, preferred, additional == null ? 0 : 1, 4);
         Implementation impl = null;
-        for (int i = 0; i < preferred.length; ++i)
-            if ((impl = getImplementation(preferred[i])) != null)
+        for (String s : preferred)
+            if ((impl = getImplementation(s)) != null)
                 break;
         implementation = impl;
         if (log.isInfoEnabled()) {

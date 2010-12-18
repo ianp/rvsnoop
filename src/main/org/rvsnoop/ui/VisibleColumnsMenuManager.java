@@ -9,7 +9,6 @@ package org.rvsnoop.ui;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Iterator;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -76,9 +75,8 @@ public final class VisibleColumnsMenuManager implements MenuListener, PopupMenuL
     public void menuSelected(MenuEvent e) {
         final JMenu menu = (JMenu) e.getSource();
         menu.removeAll();
-        final Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator();
-        while (i.hasNext()) {
-            menu.add(new MenuItem(format, (ColumnFormat) i.next()));
+        for (ColumnFormat columnFormat : RecordLedgerFormat.ALL_COLUMNS) {
+            menu.add(new MenuItem(format, columnFormat));
         }
     }
 
@@ -102,9 +100,8 @@ public final class VisibleColumnsMenuManager implements MenuListener, PopupMenuL
     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
         final JPopupMenu menu = (JPopupMenu) e.getSource();
         menu.removeAll();
-        final Iterator i = RecordLedgerFormat.ALL_COLUMNS.iterator();
-        while (i.hasNext()) {
-            menu.add(new MenuItem(format, (ColumnFormat) i.next()));
+        for (ColumnFormat columnFormat : RecordLedgerFormat.ALL_COLUMNS) {
+            menu.add(new MenuItem(format, columnFormat));
         }
     }
 

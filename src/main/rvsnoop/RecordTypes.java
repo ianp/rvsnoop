@@ -49,9 +49,7 @@ public final class RecordTypes {
                     final Record record = (Record) item;
                     types.getReadWriteLock().readLock().lock();
                     try {
-                        final Iterator i = types.iterator();
-                        while (i.hasNext()) {
-                            final RecordType type = (RecordType) i.next();
+                        for (RecordType type : types) {
                             if (type.matches(record))
                                 return type.isSelected();
                         }
@@ -79,7 +77,7 @@ public final class RecordTypes {
 
     final MessageTypeMatcherEditor matcherEditor = new MessageTypeMatcherEditor();
 
-    final EventList types = new BasicEventList();
+    final EventList<RecordType> types = new BasicEventList<RecordType>();
 
     private RecordTypes() {
         reset();
@@ -112,7 +110,7 @@ public final class RecordTypes {
         try {
             final String[] nameArray = new String[types.size()];
             for (int i = types.size() - 1; i >= 0; --i) {
-                nameArray[i] = ((RecordType) types.get(i)).getName();
+                nameArray[i] = types.get(i).getName();
             }
             final List names = Arrays.asList(nameArray);
             String name;
@@ -128,7 +126,7 @@ public final class RecordTypes {
     public RecordType[] getAllTypes() {
         types.getReadWriteLock().readLock().lock();
         try {
-            return (RecordType[]) types.toArray(new RecordType[types.size()]);
+            return types.toArray(new RecordType[types.size()]);
         } finally {
             types.getReadWriteLock().readLock().unlock();
         }
@@ -141,9 +139,7 @@ public final class RecordTypes {
     public RecordType getFirstMatchingType(Record record) {
         types.getReadWriteLock().readLock().lock();
         try {
-            final Iterator i = types.iterator();
-            while (i.hasNext()) {
-                final RecordType type = (RecordType) i.next();
+            for (RecordType type : types) {
                 if (type.matches(record))
                     return type;
             }
@@ -159,7 +155,7 @@ public final class RecordTypes {
      * @return A new list model that holds the record types.
      */
     public ListModel getListModel() {
-        return new EventListModel(types);
+        return new EventListModel<RecordType>(types);
     }
 
     public MessageTypeMatcherEditor getMatcherEditor() {
@@ -172,11 +168,11 @@ public final class RecordTypes {
      * @return A new table model that holds the record types.
      */
     public TableModel getTableModel(TableFormat format) {
-        return new EventTableModel(types, format);
+        return new EventTableModel<RecordType>(types, format);
     }
 
     public RecordType getType(int index) {
-        return (RecordType) types.get(index);
+        return types.get(index);
     }
 
     public boolean isNameInUse(String name) {
@@ -184,7 +180,7 @@ public final class RecordTypes {
         types.getReadWriteLock().readLock().lock();
         try {
             for (int i = 0, imax = types.size(); i < imax; ++i)
-                if (name.equals(((RecordType) types.get(i)).getName()))
+                if (name.equals(types.get(i).getName()))
                     return true;
             return false;
         } finally {

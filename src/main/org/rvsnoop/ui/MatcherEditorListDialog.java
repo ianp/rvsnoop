@@ -11,12 +11,12 @@ import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
-import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import ca.odell.glazedlists.matchers.MatcherEditor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.rvsnoop.NLSUtils;
@@ -125,7 +125,7 @@ public final class MatcherEditorListDialog extends JDialog {
 
     static { NLSUtils.internationalize(MatcherEditorListDialog.class); }
 
-    private EventList copyOfEditors;
+    private EventList<MatcherEditor> copyOfEditors;
 
     private final JList editorsList;
 
@@ -169,17 +169,17 @@ public final class MatcherEditorListDialog extends JDialog {
      *
      * @return The matchers, or <code>null</code> if the dialog was cancelled.
      */
-    public EventList getCopyOfEditors() {
+    public EventList<MatcherEditor> getCopyOfEditors() {
         return copyOfEditors;
     }
 
-    private EventList getDeepCopy(EventList editors) {
+    private EventList<MatcherEditor> getDeepCopy(EventList<MatcherEditor> editors) {
         final Lock lock = editors.getReadWriteLock().readLock();
         lock.lock();
-        final EventList copy = new BasicEventList(editors.size());
+        final EventList<MatcherEditor> copy = new BasicEventList<MatcherEditor>(editors.size());
         try {
-            for (Iterator i = editors.iterator(); i.hasNext(); ) {
-                copy.add(new RvSnoopMatcherEditor((RvSnoopMatcherEditor) i.next()));
+            for (MatcherEditor editor : editors) {
+                copy.add(new RvSnoopMatcherEditor((RvSnoopMatcherEditor) editor));
             }
         } finally {
             lock.unlock();

@@ -67,7 +67,7 @@ public final class Project {
 
     public void loadConnections(Connections connections) throws IOException {
         final File file = new File(projectDirectory, "Connections.xml");
-        InputStream stream = null;
+        InputStream stream;
         try {
             stream = new BufferedInputStream(new FileInputStream(file));
             final Element root = new Builder().build(stream).getRootElement();
@@ -96,7 +96,7 @@ public final class Project {
 
     public void loadRecordTypes(RecordTypes types) throws IOException {
         final File file = new File(projectDirectory, "Record Types.xml");
-        InputStream stream = null;
+        InputStream stream;
         try {
             stream = new BufferedInputStream(new FileInputStream(file));
             final Element root = new Builder().build(stream).getRootElement();
@@ -124,7 +124,7 @@ public final class Project {
 
     public SubjectHierarchy loadSubjects(JTree tree) throws IOException {
         final File file = new File(projectDirectory, "Subjects.xml");
-        InputStream stream = null;
+        InputStream stream;
         try {
             stream = new BufferedInputStream(new FileInputStream(file));
             final Element root = new Builder().build(stream).getRootElement();

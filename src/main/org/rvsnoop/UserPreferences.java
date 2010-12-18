@@ -101,7 +101,7 @@ public final class UserPreferences {
     private final LinkedList<File> recentProjects = new LinkedList<File>();
 
     private UserPreferences() {
-        String path = null;
+        String path;
         if (SystemUtils.IS_OS_WINDOWS) {
             path = SystemUtils.USER_HOME + "/Application Data/RvSnoop";
         } else if (SystemUtils.IS_OS_MAC_OSX) {

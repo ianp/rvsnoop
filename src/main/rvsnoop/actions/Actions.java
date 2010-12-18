@@ -15,7 +15,6 @@ import static java.lang.String.format;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.Action;
@@ -173,12 +172,9 @@ public final class Actions {
 
     public void configureListeners() {
         final RecordLedgerTable table = application.getLedgerTable();
-        final Iterator actions = commandToActionMap.values().iterator();
-        while (actions.hasNext()) {
-            final RvSnoopAction action = (RvSnoopAction) actions.next();
+        for (Action action : commandToActionMap.values()) {
             if (action instanceof RecordLedgerSelectionListener) {
-                table.addRecordLedgerSelectionListener(
-                        (RecordLedgerSelectionListener) action);
+                table.addRecordLedgerSelectionListener((RecordLedgerSelectionListener) action);
                 action.setEnabled(false);
             }
         }

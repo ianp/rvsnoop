@@ -36,9 +36,9 @@ public final class State {
     }
 
     public static State valueOf(String state) {
-        for (int i = 0; i < VALUES.length; ++i)
-            if (VALUES[i].name.equals(state))
-                return VALUES[i];
+        for (State VALUE : VALUES)
+            if (VALUE.name.equals(state))
+                return VALUE;
         return null;
     }
 

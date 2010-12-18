@@ -173,7 +173,7 @@ public final class RvConnection implements TibrvMsgCallback {
             new TibrvDispatcher(Tibrv.defaultQueue());
             new TibrvDispatcher(queue);
         } catch (TibrvException e) {
-            final String msg = StringUtils.format(ERROR_RV_OPEN, new Object[] { e.getLocalizedMessage(), new Integer(e.error) });
+            final String msg = StringUtils.format(ERROR_RV_OPEN, new Object[] { e.getLocalizedMessage(), e.error});
             log.error(msg, e);
             try {
                 // try to clean up.
