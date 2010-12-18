@@ -1,10 +1,5 @@
-/*
- * Class:     SubjectHierarchy
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
 
 import java.util.Enumeration;
@@ -22,12 +17,7 @@ import ca.odell.glazedlists.matchers.MatcherEditor;
 /**
  * A hierarchy of rendezvous subjects.
  * <p>
- * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor
- * 5</a>.
- *
- * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
+ * Based on <a href="http://wiki.apache.org/logging-log4j/LogFactor5">Log Factor 5</a>.
  */
 // Class provides static instance instead of getInstance() method.
 // @PMD:REVIEWED:MissingStaticMethodInNonInstantiatableClass: by ianp on 1/4/06 2:03 PM
@@ -166,11 +156,6 @@ public final class SubjectHierarchy extends DefaultTreeModel {
         newChild.setSelected(isSelected);
         insertNodeInto(newChild, current, index);
         return newChild;
-    }
-
-    public void removeAll() {
-        final SubjectElement root = (SubjectElement) this.root;
-        root.removeAllChildren();
     }
 
     /**

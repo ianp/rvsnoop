@@ -1,15 +1,12 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop;
 
-import java.text.Collator;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.base.Objects;
-import nu.xom.Attribute;
 import nu.xom.Element;
 
 import org.apache.commons.logging.Log;
@@ -107,20 +104,6 @@ public abstract class RecordMatcher implements Matcher<Record> {
         }
     }
 
-    /**
-     * Get the set of known matcher names.
-     * <p>
-     * The array of names will be sorted according to the default locale.
-     *
-     * @return The names of all known record matchers.
-     */
-    public static String[] getMatcherNames() {
-        final Set<String> nameSet = matchersByName.keySet();
-        final String[] names = nameSet.toArray(new String[nameSet.size()]);
-        Arrays.sort(names, Collator.getInstance());
-        return names;
-    }
-
     private final String type;
 
     private final String name;
@@ -159,30 +142,11 @@ public abstract class RecordMatcher implements Matcher<Record> {
         return value;
     }
 
-    /**
-     * @param value The value to set.
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
                 .add(PROP_TYPE, type)
                 .add(PROP_VALUE, value).toString();
-    }
-
-    /**
-     * Create an XML fragment that represents this matcher.
-     *
-     * @return the XML fragment that represents this matcher.
-     */
-    public Element toXml() {
-        final Element element = new Element(XML_ELEMENT, XML_NS);
-        element.addAttribute(new Attribute(PROP_TYPE, type));
-        element.addAttribute(new Attribute(PROP_VALUE, value));
-        return element;
     }
 
 }

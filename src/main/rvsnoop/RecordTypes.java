@@ -1,36 +1,21 @@
-/*
- * Class:     RecordTypes
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
 
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.ListModel;
-import javax.swing.table.TableModel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
-import ca.odell.glazedlists.swing.EventListModel;
-import ca.odell.glazedlists.swing.EventTableModel;
 
 /**
  * RvSnoop allows the user to classify records based on fairly arbitrary criteria.
  * <p>
  * The mechanism used for this is the {@link RecordType} class, this object
  * holds a list of all the known types.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class RecordTypes {
 
@@ -149,26 +134,8 @@ public final class RecordTypes {
         }
     }
 
-    /**
-     * Get a list model suitable for displaying the record types in a swing component.
-     *
-     * @return A new list model that holds the record types.
-     */
-    public ListModel getListModel() {
-        return new EventListModel<RecordType>(types);
-    }
-
     public MessageTypeMatcherEditor getMatcherEditor() {
         return matcherEditor;
-    }
-
-    /**
-     * Get a table model suitable for displaying the record types in a swing component.
-     *
-     * @return A new table model that holds the record types.
-     */
-    public TableModel getTableModel(TableFormat format) {
-        return new EventTableModel<RecordType>(types, format);
     }
 
     public RecordType getType(int index) {
@@ -196,32 +163,6 @@ public final class RecordTypes {
             } finally {
                 types.getReadWriteLock().writeLock().unlock();
             }
-        }
-    }
-
-    /**
-     * Re-order the type to a new priority.
-     *
-     * @param type The type to re-order.
-     * @param index The new priority for the type.
-     */
-    public void reorderType(RecordType type, int index) {
-        types.getReadWriteLock().writeLock().lock();
-        try {
-            if (index < 0) index = 0;
-            else if (index >= types.size()) {
-                types.remove(type);
-                types.add(type);
-                return;
-            }
-            final int oldIndex = types.indexOf(type);
-            if (index == oldIndex) return;
-            // If the new position is after the old one then adjust the index to
-            // take into account the type about to be removed:
-            final int newIndex = index > oldIndex ? index - 1 : index;
-            types.add(newIndex, types.remove(oldIndex));
-        } finally {
-            types.getReadWriteLock().writeLock().unlock();
         }
     }
 

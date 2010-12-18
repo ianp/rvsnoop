@@ -1,28 +1,15 @@
-/*
- * Class:     Version
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 
 import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Version information.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.4
  */
 public final class Version {
 
@@ -39,15 +26,6 @@ public final class Version {
             throw error;
         } finally {
             closeQuietly(stream);
-        }
-    }
-
-    public static Date getBuildDate() {
-        try {
-            final DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            return format.parse(props.getProperty("build.date"));
-        } catch (ParseException e) {
-            return new Date(0L);
         }
     }
 
