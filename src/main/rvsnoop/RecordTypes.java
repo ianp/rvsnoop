@@ -6,16 +6,23 @@ package rvsnoop;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
 import com.google.inject.Inject;
+import org.bushe.swing.event.annotation.AnnotationProcessor;
 import org.bushe.swing.event.annotation.EventSubscriber;
 import org.jdesktop.application.ApplicationContext;
 import org.rvsnoop.event.ProjectClosingEvent;
 import org.rvsnoop.event.ProjectOpenedEvent;
+import org.rvsnoop.ui.SwingRunnable;
+import rvsnoop.ui.UIUtils;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -30,17 +37,17 @@ public final class RecordTypes {
     public static final RecordType DEFAULT = new RecordType("Normal", Color.BLACK, RecordMatcher.DEFAULT_MATCHER);
     public static final RecordType ERROR = new RecordType("Error", Color.RED, new RecordMatcher.SendSubjectContains("ERROR"));
 
-    private final ApplicationContext appContext;
+    private final ApplicationContext context;
 
     final MessageTypeMatcherEditor matcherEditor = new MessageTypeMatcherEditor();
 
     final EventList<RecordType> types = new BasicEventList<RecordType>();
 
     @Inject
-    public RecordTypes(ApplicationContext appContext) {
-        this.appContext = appContext;
+    public RecordTypes(ApplicationContext context) {
+        this.context = context;
         reset();
-//        AnnotationProcessor.process(this);
+        AnnotationProcessor.process(this);
     }
 
     public void clear() {
@@ -164,11 +171,35 @@ public final class RecordTypes {
 
     @EventSubscriber
     public void onProjectOpened(ProjectOpenedEvent event) {
-        // TODO
+        Future<List<RecordType>> future = event.getSource().getAll(RecordType.class);
+        SwingUtilities.invokeLater(new SwingRunnable<List<RecordType>>(future, context) {
+            @Override
+            protected void onSuccess(List<RecordType> value) {
+                if (value.isEmpty()) {
+                    reset();
+                } else {
+                    types.getReadWriteLock().writeLock().lock();
+                    try {
+                        for (RecordType type : value) {
+                            if (!type.equals(DEFAULT)) {
+                                types.add(type);
+                            }
+                        }
+                    } finally {
+                        types.getReadWriteLock().writeLock().unlock();
+                    }
+                }
+            }
+
+            @Override
+            protected void onError(JFrame frame, Exception exception) {
+                UIUtils.showError(frame, "Could not load the connections list.", exception);
+            }
+        });
     }
 
     // TODO make private again
-    public class MessageTypeMatcherEditor extends AbstractMatcherEditor {
+    public class MessageTypeMatcherEditor extends AbstractMatcherEditor<Record> {
         MessageTypeMatcherEditor() {
             super();
         }
@@ -176,10 +207,9 @@ public final class RecordTypes {
             fireConstrained(getMatcher());
         }
         @Override
-        public Matcher getMatcher() {
-            return new Matcher() {
-                public boolean matches(Object item) {
-                    final Record record = (Record) item;
+        public Matcher<Record> getMatcher() {
+            return new Matcher<Record>() {
+                public boolean matches(Record record) {
                     types.getReadWriteLock().readLock().lock();
                     try {
                         for (RecordType type : types) {

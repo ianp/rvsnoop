@@ -1,10 +1,5 @@
-/*
- * Class:     SearchBySelection
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -23,10 +18,6 @@ import javax.swing.ImageIcon;
 
 /**
  * Start a new live search based on the current selection.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.7
  */
 public final class SearchBySelection extends AbstractSearchAction implements RecordLedgerSelectionListener {
 
@@ -46,18 +37,12 @@ public final class SearchBySelection extends AbstractSearchAction implements Rec
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#displayResults(org.rvsnoop.RecordLedger)
-     */
     @Override
     protected void displayResults(RecordLedger ledger) {
         new SearchResultsDialog(application.getFrame(), ledger,
-                application.getConnections()).setVisible(true);
+                application.getConnections(), application.getRecordTypes()).setVisible(true);
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#getDescription()
-     */
     @Override
     protected String getDescription() {
         return DESCRIPTION;
@@ -68,17 +53,11 @@ public final class SearchBySelection extends AbstractSearchAction implements Rec
         return new ImageIcon("/resources/banners/searchBySelection.png");
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#getLedger()
-     */
     @Override
     protected FilteredLedgerView getLedger() {
         return application.getFilteredLedger();
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#getMatcherEditors()
-     */
     @Override
     protected EventList getMatcherEditors() {
         final EventList matchers = new BasicEventList();
@@ -90,17 +69,11 @@ public final class SearchBySelection extends AbstractSearchAction implements Rec
         return matchers;
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#getTitle()
-     */
     @Override
     protected String getTitle() {
         return TITLE;
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.event.RecordLedgerSelectionListener#valueChanged(org.rvsnoop.event.RecordLedgerSelectionEvent)
-     */
     public void valueChanged(RecordLedgerSelectionEvent event) {
         currentSelection = event.getSelectedRecords();
         setEnabled(currentSelection.length > 0);
