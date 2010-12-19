@@ -13,17 +13,28 @@ import java.util.Comparator;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.Future;
 
+import javax.swing.JFrame;
 import javax.swing.ListModel;
+import javax.swing.SwingUtilities;
 
 import org.bushe.swing.event.EventBus;
 
+import org.bushe.swing.event.annotation.AnnotationProcessor;
+import org.bushe.swing.event.annotation.EventSubscriber;
+import org.jdesktop.application.ApplicationContext;
+import org.rvsnoop.event.ProjectClosingEvent;
+import org.rvsnoop.event.ProjectOpenedEvent;
+import org.rvsnoop.ui.SwingRunnable;
 import rvsnoop.RvConnection;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.swing.EventListModel;
 import ca.odell.glazedlists.util.concurrent.Lock;
+import rvsnoop.ui.UIUtils;
 
 /**
  * A list of connections.
@@ -53,14 +64,18 @@ public final class Connections {
         builder.endTag().close();
     }
 
+    private final ApplicationContext appContext;
+
     private final ObservableElementList<RvConnection> list;
 
-    public Connections() {
+    public Connections(ApplicationContext appContext) {
+        this.appContext = appContext;
         this.list = new ObservableElementList<RvConnection>(
                 new SortedList<RvConnection>(
                         GlazedLists.eventList(new ArrayList<RvConnection>()),
                         new DescriptionComparator()),
                 new Observer());
+        AnnotationProcessor.process(this);
     }
 
     /**
@@ -189,6 +204,28 @@ public final class Connections {
         } finally {
             lock.unlock();
         }
+    }
+
+    @EventSubscriber
+    public void onProjectClosing(ProjectClosingEvent event) {
+        clear();
+    }
+
+    @EventSubscriber
+    public void onProjectOpened(ProjectOpenedEvent event) {
+        Future<List<RvConnection>> future = event.getSource().getConnections();
+        SwingUtilities.invokeLater(new SwingRunnable<List<RvConnection>>(future, appContext) {
+            @Override
+            protected void onSuccess(List<RvConnection> value) {
+                for (RvConnection c : value) {
+                    add(c);
+                }
+            }
+            @Override
+            protected void onError(JFrame frame, Exception exception) {
+                UIUtils.showError(frame, "Could not load the connections list.", exception);
+            }
+        });
     }
 
     public final class AddedEvent extends EventObject {

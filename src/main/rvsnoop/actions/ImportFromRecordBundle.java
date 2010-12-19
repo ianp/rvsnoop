@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop.actions;
 
 import java.io.ByteArrayInputStream;
@@ -10,12 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
-import javax.swing.SwingUtilities;
-
+import org.bushe.swing.event.EventBus;
 import org.rvsnoop.Application;
+import org.rvsnoop.event.MessageReceivedEvent;
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
-import rvsnoop.RvConnection;
 
 /**
  * Import the contents of a ‘snoop record bundle’ to the ledger.
@@ -44,8 +44,9 @@ public final class ImportFromRecordBundle extends ImportFromFile {
                 buffer.write(bytes, 0, count);
             final DataInput in = new DataInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             final Record[] records = RecordSelection.read(in, null); // FIXME
-            for (int i = 0, imax = records.length; i < imax; ++i)
-                SwingUtilities.invokeLater(new RvConnection.AddRecordTask(records[i]));
+            for (int i = 0, imax = records.length; i < imax; ++i) {
+                EventBus.publish(new MessageReceivedEvent(records[i]));
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
 
 import java.beans.PropertyChangeListener;
@@ -13,7 +14,6 @@ import org.rvsnoop.event.ProjectOpenedEvent;
 import org.rvsnoop.ui.MainFrame;
 import org.rvsnoop.ui.RecordLedgerTable;
 
-import rvsnoop.MessageLedger;
 import rvsnoop.RecordTypes;
 import rvsnoop.SubjectHierarchy;
 import rvsnoop.actions.Actions;
@@ -25,10 +25,6 @@ import com.google.inject.Inject;
  * <p>
  * This serves as a central location that components can use to access common
  * data and state.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.7
  */
 public interface Application {
 
@@ -219,7 +215,6 @@ public interface Application {
         public synchronized RecordLedger getLedger() {
             if (ledger == null) {
                 ledger = new InMemoryLedger();
-                MessageLedger.RECORD_LEDGER = ledger;
             }
             return ledger;
         }
@@ -245,35 +240,22 @@ public interface Application {
         public synchronized void setProject(Project project) throws IOException {
             final Project oldProject = this.project;
             if (project.equals(oldProject)) { return; }
-            // XXX when changing the ledger be sure to copy any listeners across
-            //     to the new ledger instance.
-            if (this.project != null) {
-                ledger.syncronize();
-                ledger = null;
-                MessageLedger.RECORD_LEDGER = null;
-                filteredLedger = null;
-            }
+
             this.project = project;
-            // TODO configure the ledger from data in the project file.
-            ledger = new InMemoryLedger();
-            MessageLedger.RECORD_LEDGER = ledger;
-            filteredLedger = FilteredLedgerView.newInstance(ledger, false);
 
-            getConnections().clear();
-            project.loadConnections(getConnections());
+//            getConnections().clear();
+//            project.loadConnections(getConnections());
 
-            getRecordTypes().clear();
+//            getRecordTypes().clear();
             project.loadRecordTypes(getRecordTypes());
 
             firePropertyChange(KEY_PROJECT, oldProject, project);
-            EventBus.publish(new ProjectOpenedEvent(project));
         }
 
         public synchronized void setProject(File directory) throws IOException {
             project = new Project(directory);
             project.store(this);
             firePropertyChange(KEY_PROJECT, null, project);
-            EventBus.publish(new ProjectOpenedEvent(project));
         }
     }
 

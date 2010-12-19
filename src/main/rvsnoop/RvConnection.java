@@ -14,12 +14,12 @@ import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.SwingUtilities;
 
 import com.google.common.base.Objects;
 import nu.xom.Element;
 import nu.xom.Elements;
 
+import org.bushe.swing.event.EventBus;
 import org.rvsnoop.Connections;
 import org.rvsnoop.Logger;
 import org.rvsnoop.XMLBuilder;
@@ -38,6 +38,7 @@ import com.tibco.tibrv.TibrvMsgCallback;
 import com.tibco.tibrv.TibrvNetTransport;
 import com.tibco.tibrv.TibrvQueue;
 import com.tibco.tibrv.TibrvRvdTransport;
+import org.rvsnoop.event.MessageReceivedEvent;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -54,19 +55,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * connections the immutable properties are service, network, and daemon.
  */
 public final class RvConnection implements TibrvMsgCallback {
-
-    public static class AddRecordTask implements Runnable {
-        private final Record record;
-
-        public AddRecordTask(Record record) {
-            this.record = record;
-        }
-
-        public void run() {
-            SubjectHierarchy.INSTANCE.addRecord(record);
-            MessageLedger.RECORD_LEDGER.add(record);
-        }
-    }
 
     private static class ErrorCallback implements TibrvErrorCallback {
         ErrorCallback() {
@@ -479,7 +467,7 @@ public final class RvConnection implements TibrvMsgCallback {
         final RvConnection conn = (RvConnection) (closure instanceof RvConnection ? closure : null);
         if (conn != null && conn.getState() == State.PAUSED)
             return;
-        SwingUtilities.invokeLater(new AddRecordTask(new Record(conn, message)));
+        EventBus.publish(new MessageReceivedEvent(new Record(conn, message)));
     }
 
     public synchronized void pause() {
@@ -554,8 +542,6 @@ public final class RvConnection implements TibrvMsgCallback {
      */
     public void setParentList(Connections connection) {
         // FIXME reduce visibility to package
-        // TODO get a reference to the RecordLedger here then use it to remove
-        //      the static MessageLedger.INSTANCE reference in AddRecordTask
         if (connection == null && state != State.STOPPED)
             throw new IllegalStateException("Connection not stopped!");
         parentList = connection;

@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop;
 
 import java.awt.Color;
@@ -10,6 +11,9 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
+import org.bushe.swing.event.annotation.AnnotationProcessor;
+import org.bushe.swing.event.annotation.EventSubscriber;
+import org.rvsnoop.event.ProjectClosingEvent;
 
 /**
  * RvSnoop allows the user to classify records based on fairly arbitrary criteria.
@@ -66,6 +70,7 @@ public final class RecordTypes {
 
     private RecordTypes() {
         reset();
+//        AnnotationProcessor.process(this);
     }
 
     public void clear() {

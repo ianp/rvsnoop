@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop;
 
 import java.util.Enumeration;
@@ -13,6 +14,9 @@ import javax.swing.tree.TreeNode;
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.matchers.MatcherEditor;
+import org.bushe.swing.event.annotation.AnnotationProcessor;
+import org.bushe.swing.event.annotation.EventSubscriber;
+import org.rvsnoop.event.MessageReceivedEvent;
 
 /**
  * A hierarchy of rendezvous subjects.
@@ -66,6 +70,7 @@ public final class SubjectHierarchy extends DefaultTreeModel {
 
     public SubjectHierarchy() {
         super(new SubjectElement());
+        AnnotationProcessor.process(this);
     }
 
     public void addRecord(Record record) {
@@ -218,6 +223,11 @@ public final class SubjectHierarchy extends DefaultTreeModel {
                 }
             });
         }
+    }
+
+    @EventSubscriber
+    public void onMessageReceived(MessageReceivedEvent event) {
+        addRecord(event.getSource());
     }
 
 }

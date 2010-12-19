@@ -1,16 +1,16 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
 
-import java.io.IOException;
-import java.util.Collection;
-
-import rvsnoop.Record;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swing.EventTableModel;
 import ca.odell.glazedlists.util.concurrent.Lock;
+import rvsnoop.Record;
+
+import java.util.Collection;
 
 /**
  * The record ledger is the central record store in RvSnoop.
@@ -278,6 +278,16 @@ public abstract class RecordLedger {
         return list;
     }
 
+    public final boolean isEmpty() {
+        Lock lock = list.getReadWriteLock().readLock();
+        lock.lock();
+        try {
+            return list.isEmpty();
+        } finally {
+            lock.unlock();
+        }
+    }
+
     /**
      * Remove a single record from the ledger.
      * <p>
@@ -342,16 +352,4 @@ public abstract class RecordLedger {
         }
     }
 
-    /**
-     * Synchronize the ledger with it's backing store.
-     * <p>
-     * If the ledger implementation is persistent this method should ensure that
-     * it's backing store is in a consistent state (e.g. data flushed to disk).
-     *
-     * @throws IOException If there was a problem writing to the persistent
-     *     storage.
-     */
-    public void syncronize() throws IOException {
-        // This is just a hook for persistend sub-classes to use.
-    }
 }

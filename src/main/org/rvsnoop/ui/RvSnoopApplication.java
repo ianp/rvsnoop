@@ -268,7 +268,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
         @Override
         protected void configure() {
-            bind(Connections.class).toInstance(new Connections());
+            bind(Connections.class).toInstance(new Connections(getContext()));
             bind(Application.class).to(Application.Impl.class).in(Scopes.SINGLETON);
             bind(ApplicationContext.class).toInstance(getContext());
         }

@@ -1,10 +1,5 @@
-/*
- * Class:     RecordLedgerTest
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.io.BufferedInputStream;
@@ -21,6 +16,7 @@ import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
 
+import org.jdesktop.application.ApplicationContext;
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
 import ca.odell.glazedlists.matchers.Matcher;
@@ -30,9 +26,6 @@ import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Unit tests for the {@link RecordLedger} class.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 @SuppressWarnings({ "FeatureEnvy" })
 public abstract class RecordLedgerTest extends TestCase {
@@ -70,7 +63,7 @@ public abstract class RecordLedgerTest extends TestCase {
     // hack. Do the same for RecordStream (or refactor RecordSelection).
     @Override
     public void setUp() throws IOException {
-        connections = new Connections();
+        connections = new Connections(new ApplicationContext() {});
         ledger = createRecordLedger();
         final InputStream stream =
             new BufferedInputStream(ClassLoader.getSystemResource(TEST_DATA).openStream());

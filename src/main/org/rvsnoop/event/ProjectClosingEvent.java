@@ -3,18 +3,17 @@
 
 package org.rvsnoop.event;
 
+import org.rvsnoop.Project;
 import org.rvsnoop.ProjectService;
 
 import java.util.EventObject;
 
 /**
- * Event fired whenever a new project has been opened.
+ * Event fired whenever a project is being closed.
  */
-public final class ProjectOpenedEvent extends EventObject {
+public class ProjectClosingEvent extends EventObject {
 
-    private static final long serialVersionUID = 2L;
-
-    public ProjectOpenedEvent(ProjectService projectService) {
+    public ProjectClosingEvent(ProjectService projectService) {
         super(projectService);
     }
 

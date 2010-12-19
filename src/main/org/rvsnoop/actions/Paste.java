@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop.actions;
 
 import java.awt.Toolkit;
@@ -13,13 +14,14 @@ import java.io.IOException;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
+import org.bushe.swing.event.EventBus;
 import org.rvsnoop.Application;
 import org.rvsnoop.Logger;
 import org.rvsnoop.NLSUtils;
 
+import org.rvsnoop.event.MessageReceivedEvent;
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
-import rvsnoop.RvConnection.AddRecordTask;
 
 import com.tibco.tibrv.TibrvException;
 
@@ -62,7 +64,7 @@ public final class Paste extends RvSnoopAction {
         try {
             final Record[] records = RecordSelection.read(clipboardData, application.getConnections());
             for (int i = 0, imax = records.length; i < imax; ++i) {
-                SwingUtilities.invokeLater(new AddRecordTask(records[i]));
+                EventBus.publish(new MessageReceivedEvent(records[i]));
             }
         } catch (TibrvException e) {
             logger.error(e, ERROR_RV, e.error);
