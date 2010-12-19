@@ -1,7 +1,9 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop.ui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
@@ -18,8 +20,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
-
-import org.rvsnoop.ui.MainFrame;
 
 import com.tibco.tibrv.TibrvException;
 
@@ -59,14 +59,14 @@ public final class UIUtils {
         return btn;
     }
 
-    public static void showError(String message, Throwable exception) {
+    public static void showError(Component parent, String message, Throwable exception) {
         final String title = exception instanceof TibrvException ? "Rendezvous Error" : ERROR_TITLE;
         final String[] m = new String[3];
         final String s = exception.getLocalizedMessage();
         m[0] = message;
         m[1] = s != null ? s : "";
         m[2] = exception instanceof TibrvException ? "Rendezvous Error Code: " + ((TibrvException) exception).error : "";
-        JOptionPane.showMessageDialog(MainFrame.INSTANCE, m, title, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(parent, m, title, JOptionPane.ERROR_MESSAGE);
     }
 
     private UIUtils() {}

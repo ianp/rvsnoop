@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop.ui;
 
 import java.awt.Color;
@@ -189,11 +190,11 @@ public final class RecordLedgerTable extends JTable {
             try {
                 getRecordLedger().removeAll(Arrays.asList(RecordSelection.read(data, connections)));
             } catch (UnsupportedFlavorException e) {
-                UIUtils.showError(ERROR_REMOVING_RECORDS, e);
+                UIUtils.showError(RecordLedgerTable.this, ERROR_REMOVING_RECORDS, e);
             } catch (IOException e) {
-                UIUtils.showError(ERROR_REMOVING_RECORDS, e);
+                UIUtils.showError(RecordLedgerTable.this, ERROR_REMOVING_RECORDS, e);
             } catch (TibrvException e) {
-                UIUtils.showError(ERROR_REMOVING_RECORDS, e);
+                UIUtils.showError(RecordLedgerTable.this, ERROR_REMOVING_RECORDS, e);
             }
         }
 

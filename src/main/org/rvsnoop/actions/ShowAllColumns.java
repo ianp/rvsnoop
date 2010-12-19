@@ -1,10 +1,5 @@
-/*
- * Class:     ShowAllColumns
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -14,14 +9,9 @@ import javax.swing.Action;
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.RecordLedgerFormat;
-import org.rvsnoop.ui.MainFrame;
 
 /**
  * Show all columns in the message ledger.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.5
  */
 public final class ShowAllColumns extends RvSnoopAction {
 
@@ -41,12 +31,9 @@ public final class ShowAllColumns extends RvSnoopAction {
         putAcceleratorValue(ACCELERATOR);
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     @Override
     public void actionPerformed(ActionEvent event) {
-        MainFrame.INSTANCE.getRecordLedger().getTableFormat().setColumns(RecordLedgerFormat.ALL_COLUMNS);
+        application.getLedgerTable().getTableFormat().setColumns(RecordLedgerFormat.ALL_COLUMNS);
     }
 
 }

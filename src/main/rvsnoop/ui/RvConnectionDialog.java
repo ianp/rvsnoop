@@ -1,9 +1,11 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -15,7 +17,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.google.common.base.Splitter;
-import org.rvsnoop.ui.MainFrame;
 
 import rvsnoop.RvConnection;
 
@@ -26,10 +27,6 @@ import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * An input dialog for entry of Rendezvous parameters and subjects.
- *
- * @author <a href="mailto:lundberg@home.se">Örjan Lundberg</a>
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class RvConnectionDialog extends JDialog {
 
@@ -90,8 +87,8 @@ public final class RvConnectionDialog extends JDialog {
      *
      * @param initial The initial parameter values to display, may be <code>null</code>.
      */
-    public RvConnectionDialog(RvConnection initial) {
-        super(MainFrame.INSTANCE, "Add Connection", true);
+    public RvConnectionDialog(Frame parent, RvConnection initial) {
+        super(parent, "Add Connection", true);
         buildContentArea(initial != null ? initial : new RvConnection());
         buildButtonArea();
         pack();
@@ -99,7 +96,7 @@ public final class RvConnectionDialog extends JDialog {
         size.width = Math.max(size.width, MAX_WIDTH);
         size.height = Math.max(size.height, MAX_HEIGHT);
         setSize(size);
-        setLocationRelativeTo(MainFrame.INSTANCE);
+        setLocationRelativeTo(parent);
     }
 
     private void buildButtonArea() {

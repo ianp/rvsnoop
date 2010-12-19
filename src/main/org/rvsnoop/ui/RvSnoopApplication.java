@@ -235,8 +235,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
     @Override
     protected void startup() {
-        MainFrame.INSTANCE = injector.getInstance(Application.class).getFrame();
-        setMainFrame(MainFrame.INSTANCE);
+        setMainFrame(injector.getInstance(Application.class).getFrame());
 
         final JFrame frame = getMainFrame();
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);

@@ -1,13 +1,7 @@
-/*
- * Class:     ImportFromRecordBundle
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop.actions;
 
-import java.awt.event.KeyEvent;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
@@ -16,9 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
-import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
+import org.rvsnoop.Application;
 import rvsnoop.Record;
 import rvsnoop.RecordSelection;
 import rvsnoop.RvConnection;
@@ -29,37 +23,20 @@ import rvsnoop.RvConnection;
  * A record bundle is just a zip file containing one entry per record, the
  * records use the RvSnoop byte stream format (i.e. the native message format
  * and a bit of additional metadata).
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.6
  */
 public final class ImportFromRecordBundle extends ImportFromFile {
 
-    private static final String ID = "importFromRecordBundle";
+    public static final String COMMAND = "importFromRecordBundle";
 
-    private static String NAME = "Record Bundle";
-
-    static final long serialVersionUID = -6034884975434400478L;
-
-    private static String TOOLTIP = "Import the contents of a record bundle";
-
-    private ZipInputStream zip;
-
-    public ImportFromRecordBundle() {
-        super(ID, NAME, null, new ExportToRecordBundle.FileFilter());
-        putValue(Action.SHORT_DESCRIPTION, TOOLTIP);
-        putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_B));
+    public ImportFromRecordBundle(Application application) {
+        super(application, COMMAND, new ExportToRecordBundle.FileFilter());
     }
 
-    /* (non-Javadoc)
-     * @see rvsnoop.actions.ImportFromFile#importFromFile(java.io.InputStream)
-     */
     @Override
     protected void importRecords(InputStream stream) throws IOException {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         final byte[] bytes = new byte[1024];
-        zip = new ZipInputStream(stream);
+        ZipInputStream zip = new ZipInputStream(stream);
         while (zip.getNextEntry() != null) {
             int count;
             buffer.reset();

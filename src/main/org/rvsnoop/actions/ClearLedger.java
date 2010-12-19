@@ -1,10 +1,5 @@
-/*
- * Class:     ClearLedger
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -13,16 +8,11 @@ import javax.swing.Action;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
-import org.rvsnoop.ui.MainFrame;
 
 import rvsnoop.Record;
 
 /**
  * Clear the contents of the record ledger.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.5
  */
 public final class ClearLedger extends RvSnoopAction {
 
@@ -41,16 +31,13 @@ public final class ClearLedger extends RvSnoopAction {
         putMnemonicValue(MNEMONIC);
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     @Override
     public final void actionPerformed(ActionEvent event) {
         application.getLedger().clear();
         application.getSubjectHierarchy().reset();
         Record.resetSequence();
         // FIXME this should be replaced with a listener on the ledger.
-        MainFrame.INSTANCE.clearDetails();
+        application.getFrame().clearDetails();
     }
 
 }

@@ -1,11 +1,8 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop.actions;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,35 +45,11 @@ import org.rvsnoop.ui.RecordLedgerTable;
  */
 public final class Actions {
 
-    private static class GlobalAcceleratorListener extends KeyAdapter {
-        GlobalAcceleratorListener() {
-            super();
-        }
-        @Override
-        public void keyTyped(KeyEvent e) {
-            final Action a = acceleratorKeyMap.get(KeyStroke.getKeyStrokeForEvent(e));
-            if (a == null) return;
-            a.actionPerformed(new ActionEvent(e.getSource(), e.getID(),
-                    (String) a.getValue(Action.ACTION_COMMAND_KEY)));
-            e.consume();
-        }
-    }
-
     private static final Map<KeyStroke, Action> acceleratorKeyMap = new HashMap<KeyStroke, Action>();
-
-    private static final KeyListener acceleratorKeyListener = new GlobalAcceleratorListener();
 
     private static final Map<String, Action> actionCommandMap = new HashMap<String, Action>();
 
     private static final Logger logger = Logger.getLogger();
-
-    public static final Action DISPLAY_HOME_PAGE = add(new DisplayHomePage());
-
-    public static final Action IMPORT_FROM_RECORD_BUNDLE = add(new ImportFromRecordBundle());
-
-    public static final Action PAUSE_ALL = add(new PauseAllConnections());
-
-    public static final Action REPORT_BUG = add(new ReportBug());
 
     private static Action add(Action action) {
         String command = (String) action.getValue(Action.ACTION_COMMAND_KEY);
@@ -101,10 +74,6 @@ public final class Actions {
         return Collections.unmodifiableCollection(actionCommandMap.values());
     }
 
-    public static KeyListener getAcceleratorKeyListener() {
-        return acceleratorKeyListener;
-    }
-
     private final Application application;
 
     private final Map<KeyStroke, Action> acceleratorKeyToActionMap = new HashMap<KeyStroke, Action>();
@@ -117,15 +86,19 @@ public final class Actions {
         addAction(new Copy(application));
         addAction(new Cut(application));
         addAction(new Delete(application));
+        add(new DisplayHomePage());
         addAction(new EditRecordTypes(application));
         addAction(new ExportToHtml(application));
         addAction(new ExportToRecordBundle(application));
         addAction(new Filter(application));
         addAction(new FilterBySelection(application));
+        addAction(new ImportFromRecordBundle(application));
         addAction(new NewRvConnection(application));
         addAction(new OpenProject(application));
         addAction(new Paste(application));
+        add(new PauseAllConnections());
         addAction(new PruneEmptySubjects(application));
+        add(new ReportBug());
         addAction(new Republish(application));
         addAction(new SaveProject(application));
         addAction(new SaveProjectAs(application));

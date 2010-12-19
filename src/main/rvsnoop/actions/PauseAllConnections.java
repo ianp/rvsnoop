@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -21,12 +22,12 @@ import com.tibco.tibrv.TibrvException;
  * This works by telling the local queue to reject all new messages, it also
  * sets all of the connections to paused.
  */
-final class PauseAllConnections extends AbstractAction {
+public final class PauseAllConnections extends AbstractAction {
 
     public static final Icon PAUSE = new ImageIcon("/resources/icons/pause.png");
     public static final Icon RESUME = new ImageIcon("/resources/icons/resume.png");
 
-    private static final String ID = "pauseAllConnections";
+    public static final String COMMAND = "pauseAllConnections";
 
     private static final Logger logger = Logger.getLogger();
 
@@ -44,14 +45,11 @@ final class PauseAllConnections extends AbstractAction {
 
     public PauseAllConnections() {
         super(NAME_PAUSE, PAUSE);
-        putValue(Action.ACTION_COMMAND_KEY, ID);
+        putValue(Action.ACTION_COMMAND_KEY, COMMAND);
         putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_P));
         putValue(Action.SHORT_DESCRIPTION, TOOLTIP_PAUSE);
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     public synchronized void actionPerformed(ActionEvent event) {
         if (isPaused) {
             try {

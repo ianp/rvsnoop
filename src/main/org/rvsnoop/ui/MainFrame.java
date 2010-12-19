@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop.ui;
 
 import java.awt.BorderLayout;
@@ -58,6 +59,8 @@ import rvsnoop.TreeModelAdapter;
 import rvsnoop.actions.Actions;
 import rvsnoop.actions.ExportToHtml;
 import rvsnoop.actions.ExportToRecordBundle;
+import rvsnoop.actions.ImportFromRecordBundle;
+import rvsnoop.actions.PauseAllConnections;
 import rvsnoop.ui.RvDetailsPanel;
 import rvsnoop.ui.SubjectExplorerEditor;
 import rvsnoop.ui.SubjectExplorerRenderer;
@@ -103,9 +106,6 @@ public final class MainFrame extends JFrame {
     private static final String TOOLTIP_VISIBLE_COLUMNS = "Show or hide individual table columns";
 
     private static final Logger logger = Logger.getLogger();
-
-    // FIXME: Remove this field.
-    public static MainFrame INSTANCE;
 
     private final Application application;
 
@@ -215,7 +215,7 @@ public final class MainFrame extends JFrame {
         file.add(fileExport);
         final JMenu fileImport = new JMenu("Import From");
         fileExport.setIcon(new ImageIcon("/resources/icons/import.png"));
-        fileImport.add(Actions.IMPORT_FROM_RECORD_BUNDLE);
+        fileImport.add(factory.getAction(ImportFromRecordBundle.COMMAND));
         file.add(fileImport);
         file.addSeparator();
         file.add(factory.getAction(NewRvConnection.COMMAND));
@@ -308,7 +308,7 @@ public final class MainFrame extends JFrame {
         toolbar.addSeparator();
         toolbar.add(factory.getAction(ClearLedger.COMMAND));
         toolbar.addSeparator();
-        toolbar.add(Actions.PAUSE_ALL);
+        toolbar.add(factory.getAction(PauseAllConnections.COMMAND));
         final Component[] components = toolbar.getComponents();
         for (int i = 0, imax = components.length; i < imax; ++i) {
             Component component = components[i];

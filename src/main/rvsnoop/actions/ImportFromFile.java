@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -9,21 +10,20 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
+import org.rvsnoop.Application;
 import org.rvsnoop.Logger;
-import org.rvsnoop.ui.MainFrame;
+import org.rvsnoop.actions.RvSnoopAction;
 
 import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * An abstract class that handles the basics of importing messages to the ledger.
  */
-public abstract class ImportFromFile extends AbstractAction {
+public abstract class ImportFromFile extends RvSnoopAction {
 
     private static final int BUFFER_SIZE = 64 * 1024;
 
@@ -31,8 +31,8 @@ public abstract class ImportFromFile extends AbstractAction {
 
     private final FileFilter filter;
 
-    protected ImportFromFile(String id, String name, Icon icon, FileFilter filter) {
-        super(name, icon);
+    protected ImportFromFile(Application application, String id, FileFilter filter) {
+        super(id, application);
         putValue(Action.ACTION_COMMAND_KEY, id);
         this.filter = filter;
     }
@@ -40,7 +40,7 @@ public abstract class ImportFromFile extends AbstractAction {
     public void actionPerformed(ActionEvent event) {
         final JFileChooser chooser = new JFileChooser();
         if (filter != null) chooser.setFileFilter(filter);
-        if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(MainFrame.INSTANCE))
+        if (JFileChooser.APPROVE_OPTION != chooser.showOpenDialog(application.getFrame()))
             return;
         final File file = chooser.getSelectedFile();
         importRecords(file);

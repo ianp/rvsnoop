@@ -1,10 +1,5 @@
-/*
- * Class:     SelectAllRecords
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -15,14 +10,9 @@ import javax.swing.ListSelectionModel;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
-import org.rvsnoop.ui.MainFrame;
 
 /**
  * Select all records in the visible ledger.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.5
  */
 public final class SelectAllRecords extends RvSnoopAction {
 
@@ -42,12 +32,9 @@ public final class SelectAllRecords extends RvSnoopAction {
         putAcceleratorValue(ACCELERATOR);
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     @Override
     public void actionPerformed(ActionEvent event) {
-        final JTable ledger = MainFrame.INSTANCE.getRecordLedger();
+        final JTable ledger = application.getLedgerTable();
         final ListSelectionModel selectionModel = ledger.getSelectionModel();
         selectionModel.setSelectionInterval(0, ledger.getRowCount() - 1);
     }

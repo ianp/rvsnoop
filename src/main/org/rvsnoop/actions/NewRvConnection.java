@@ -1,10 +1,5 @@
-/*
- * Class:     NewRvConnection
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -43,13 +38,10 @@ public final class NewRvConnection extends RvSnoopAction {
         putAcceleratorValue(ACCELERATOR);
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     @Override
     public void actionPerformed(ActionEvent event) {
         RvConnection conn = UserPreferences.getInstance().getMostRecentConnection();
-        final RvConnectionDialog dialog = new RvConnectionDialog(conn);
+        final RvConnectionDialog dialog = new RvConnectionDialog(application.getFrame(), conn);
         dialog.setVisible(true);
         if (dialog.isCancelled()) { return; }
         conn = dialog.getConnection();
