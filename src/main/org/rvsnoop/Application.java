@@ -1,10 +1,5 @@
-/*
- * Class:     Application
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.beans.PropertyChangeListener;
@@ -14,6 +9,7 @@ import java.io.IOException;
 import org.bushe.swing.event.EventBus;
 import org.jdesktop.application.AbstractBean;
 import org.rvsnoop.actions.RvSnoopAction;
+import org.rvsnoop.event.ProjectOpenedEvent;
 import org.rvsnoop.ui.MainFrame;
 import org.rvsnoop.ui.RecordLedgerTable;
 
@@ -270,14 +266,14 @@ public interface Application {
             project.loadRecordTypes(getRecordTypes());
 
             firePropertyChange(KEY_PROJECT, oldProject, project);
-            EventBus.publish(project.new LoadedEvent());
+            EventBus.publish(new ProjectOpenedEvent(project));
         }
 
         public synchronized void setProject(File directory) throws IOException {
             project = new Project(directory);
             project.store(this);
             firePropertyChange(KEY_PROJECT, null, project);
-            EventBus.publish(project.new LoadedEvent());
+            EventBus.publish(new ProjectOpenedEvent(project));
         }
     }
 

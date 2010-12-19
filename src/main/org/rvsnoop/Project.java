@@ -1,10 +1,5 @@
-/*
- * Class:     Project
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.awt.Color;
@@ -227,21 +222,6 @@ public final class Project {
         } finally {
             closeQuietly(stream);
         }
-    }
-
-    public final class LoadedEvent extends EventObject {
-
-        static final long serialVersionUID = 5175118314515685867L;
-
-        public LoadedEvent() {
-            super(Project.this);
-        }
-
-        @Override
-        public Project getSource() {
-            return (Project) super.getSource();
-        }
-
     }
 
 }
