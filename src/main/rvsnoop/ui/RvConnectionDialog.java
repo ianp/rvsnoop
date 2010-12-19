@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
 import rvsnoop.RvConnection;
@@ -85,7 +86,8 @@ public final class RvConnectionDialog extends JDialog {
     /**
      * Create a new dialog.
      *
-     * @param initial The initial parameter values to display, may be <code>null</code>.
+     * @param parent the parent frame for the dialog.
+     * @param initial the initial parameter values to display, or {@code null}.
      */
     public RvConnectionDialog(Frame parent, RvConnection initial) {
         super(parent, "Add Connection", true);
@@ -109,8 +111,7 @@ public final class RvConnectionDialog extends JDialog {
     }
 
     private void buildContentArea(RvConnection conn) {
-        final DefaultFormBuilder builder = new DefaultFormBuilder(
-                new FormLayout("r:default, 3dlu, p:grow", ""));
+        DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("r:default, 3dlu, p:grow", ""));
         builder.appendSeparator("Rendezvous Parameters");
         builder.append("Description", description).setLabelFor(description);
         builder.nextLine();
@@ -131,9 +132,9 @@ public final class RvConnectionDialog extends JDialog {
         subject.setToolTipText("Put multiple subjects on separate lines");
         subject.setBorder(daemon.getBorder());
         if (conn.getNumSubjects() > 0) {
-            final StringBuffer buffer = new StringBuffer();
-            for (Object o : conn.getSubjects()) buffer.append(o).append("\n");
-            subject.setText(buffer.toString());
+            subject.setText(Joiner.on("\n").join(conn.getSubjects()));
+        } else {
+            subject.setText(">\n");
         }
         final JPanel panel = builder.getPanel();
         panel.setBorder(Borders.DLU2_BORDER);
