@@ -6,14 +6,17 @@ package org.rvsnoop.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.AbstractButton;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -32,8 +35,14 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreeNode;
 
+import com.tibco.tibrv.TibrvException;
+import org.jdesktop.application.Action;
+import org.jdesktop.application.ApplicationContext;
+import org.jdesktop.application.ResourceMap;
 import org.rvsnoop.Application;
 import org.rvsnoop.Logger;
+import org.rvsnoop.Project;
+import org.rvsnoop.ProjectFileFilter;
 import org.rvsnoop.RecordLedger;
 import org.rvsnoop.UserPreferences;
 import org.rvsnoop.actions.ClearLedger;
@@ -43,7 +52,6 @@ import org.rvsnoop.actions.Delete;
 import org.rvsnoop.actions.Filter;
 import org.rvsnoop.actions.FilterBySelection;
 import org.rvsnoop.actions.NewRvConnection;
-import org.rvsnoop.actions.OpenProject;
 import org.rvsnoop.actions.Paste;
 import org.rvsnoop.actions.PruneEmptySubjects;
 import org.rvsnoop.actions.Republish;
@@ -56,6 +64,7 @@ import org.rvsnoop.actions.ShowAllColumns;
 
 import rvsnoop.Record;
 import rvsnoop.RecordTypes;
+import rvsnoop.RvConnection;
 import rvsnoop.TreeModelAdapter;
 import rvsnoop.actions.Actions;
 import rvsnoop.actions.ExportToHtml;
@@ -108,6 +117,7 @@ public final class MainFrame extends JFrame {
 
     private static final Logger logger = Logger.getLogger();
 
+    private final ApplicationContext context;
     private final Application application;
 
     private final JPopupMenu columnsPopup = new JPopupMenu();
@@ -128,8 +138,9 @@ public final class MainFrame extends JFrame {
 
     private final RecordTypes recordTypes;
 
-    public MainFrame(final Application application, RecordTypes recordTypes) {
+    public MainFrame(ApplicationContext context, Application application, RecordTypes recordTypes) {
         setName("mainFrame");
+        this.context = context;
         this.application = application;
         this.recordTypes = recordTypes;
         final UserPreferences state = UserPreferences.getInstance();
@@ -200,9 +211,10 @@ public final class MainFrame extends JFrame {
     }
 
     private JMenu createFileMenu(final Actions factory) {
+        ActionMap actionMap = context.getActionMap(this);
         final JMenu file = new JMenu("File");
         file.setMnemonic('f');
-        file.add(factory.getAction(OpenProject.COMMAND));
+        file.add(actionMap.get("openProject"));
         final JMenu fileRecent = new JMenu("Recent Projects");
         fileRecent.setIcon(new ImageIcon("/resources/icons/open.png"));
         fileRecent.addMenuListener(new RecentProjectsMenuManager(application));
@@ -298,11 +310,12 @@ public final class MainFrame extends JFrame {
     }
 
     private JToolBar createToolBar(final Actions factory) {
+        ActionMap actionMap = context.getActionMap(this);
         final JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
         toolbar.setRollover(true);
-        toolbar.add(factory.getAction(OpenProject.COMMAND));
+        toolbar.add(actionMap.get("openProject"));
         toolbar.add(factory.getAction(SaveProject.COMMAND));
         toolbar.addSeparator();
         toolbar.add(factory.getAction(NewRvConnection.COMMAND));
@@ -345,10 +358,6 @@ public final class MainFrame extends JFrame {
         return messageLedger;
     }
 
-    public Font getMessageLedgerFont() {
-        return messageLedger.getFont();
-    }
-
     public Record getSelectedRecord() {
         try {
             final int index = messageLedger.getSelectedRow();
@@ -361,6 +370,31 @@ public final class MainFrame extends JFrame {
 
     public JTree getSubjectExplorer() {
         return subjectExplorer;
+    }
+
+    @Action()
+    public void openProject() {
+        final JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new ProjectFileFilter());
+        final int option = chooser.showOpenDialog(this);
+        if (JFileChooser.APPROVE_OPTION != option) { return; }
+        File file = chooser.getSelectedFile();
+        ResourceMap resourceMap = context.getResourceMap();
+        try {
+            file = file.getCanonicalFile();
+            logger.info(resourceMap.getString("openProject.info.loading"), file.getName());
+            application.setProject(new Project(file));
+            logger.info(resourceMap.getString("openProject.info.loaded"), file.getName());
+        } catch (IOException e) {
+            logger.error(e, resourceMap.getString("openProject.error.loading"), file.getName());
+        }
+        try {
+            // XXX we should really save connection state in the project file
+            //     and restore it after re-opening
+            RvConnection.resumeQueue();
+        } catch (TibrvException e) {
+            logger.error(e, resourceMap.getString("openProject.error.starting"), e.error);
+        }
     }
 
 }

@@ -21,7 +21,6 @@ import org.rvsnoop.actions.Cut;
 import org.rvsnoop.actions.Delete;
 import org.rvsnoop.actions.EditRecordTypes;
 import org.rvsnoop.actions.Filter;
-import org.rvsnoop.actions.OpenProject;
 import org.rvsnoop.actions.Paste;
 import org.rvsnoop.actions.PruneEmptySubjects;
 import org.rvsnoop.actions.Republish;
@@ -94,7 +93,6 @@ public final class Actions {
         addAction(new FilterBySelection(application));
         addAction(new ImportFromRecordBundle(application));
         addAction(new NewRvConnection(application));
-        addAction(new OpenProject(application));
         addAction(new Paste(application));
         add(new PauseAllConnections());
         addAction(new PruneEmptySubjects(application));

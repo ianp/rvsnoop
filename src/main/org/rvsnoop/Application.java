@@ -206,7 +206,7 @@ public interface Application {
 
         public synchronized MainFrame getFrame() {
             if (frame == null) {
-                frame = new MainFrame(this, types);
+                frame = new MainFrame(context, this, types);
                 getActionFactory().configureListeners();
             }
             return frame;
