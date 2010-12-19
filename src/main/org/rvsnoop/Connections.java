@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 
+import com.google.inject.Inject;
 import org.bushe.swing.event.EventBus;
 
 import org.bushe.swing.event.annotation.AnnotationProcessor;
@@ -68,6 +69,7 @@ public final class Connections {
 
     private final ObservableElementList<RvConnection> list;
 
+    @Inject
     public Connections(ApplicationContext appContext) {
         this.appContext = appContext;
         this.list = new ObservableElementList<RvConnection>(
@@ -213,7 +215,7 @@ public final class Connections {
 
     @EventSubscriber
     public void onProjectOpened(ProjectOpenedEvent event) {
-        Future<List<RvConnection>> future = event.getSource().getConnections();
+        Future<List<RvConnection>> future = event.getSource().getAll(RvConnection.class);
         SwingUtilities.invokeLater(new SwingRunnable<List<RvConnection>>(future, appContext) {
             @Override
             protected void onSuccess(List<RvConnection> value) {

@@ -1,10 +1,5 @@
-/*
- * Class:     FilteredLedgerView
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2002-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import rvsnoop.RecordTypes;
@@ -40,15 +35,15 @@ public class FilteredLedgerView extends RecordLedger {
 
     }
 
-    public static FilteredLedgerView newInstance(RecordLedger ledger, boolean freezable) {
+    public static FilteredLedgerView newInstance(RecordLedger ledger, RecordTypes types, boolean freezable) {
         if (freezable) {
             final FreezableList freezableList = new FreezableList(ledger.getEventList());
             final FilterList filter = new FilterList(freezableList);
-            final FilteredLedgerView view = new FilteredLedgerView(filter);
+            final FilteredLedgerView view = new FilteredLedgerView(filter, types);
             view.freezableList = freezableList;
             return view;
         } else {
-            return new FilteredLedgerView(new FilterList(ledger.getEventList()));
+            return new FilteredLedgerView(new FilterList(ledger.getEventList()), types);
         }
     }
 
@@ -60,9 +55,12 @@ public class FilteredLedgerView extends RecordLedger {
 
     private MatcherEditor typeFilter;
 
+    private final RecordTypes types;
+
     /** Create a new <code>FilteredLedgerView</code>. */
-    protected FilteredLedgerView(FilterList list) {
+    protected FilteredLedgerView(FilterList list, RecordTypes types) {
         super(list);
+        this.types = types;
         list.setMatcherEditor(filters);
         filters.setMode(CompositeMatcherEditor.AND);
         setFilteringOnSubject(true);
@@ -190,7 +188,7 @@ public class FilteredLedgerView extends RecordLedger {
         lock.lock();
         try {
             if (filtering) {
-                typeFilter = RecordTypes.getInstance().getMatcherEditor();
+                typeFilter = types.getMatcherEditor();
                 editors.add(typeFilter);
             } else {
                 editors.remove(typeFilter);

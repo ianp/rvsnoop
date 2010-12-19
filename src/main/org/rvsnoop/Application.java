@@ -113,13 +113,6 @@ public interface Application {
     public Project getProject();
 
     /**
-     * Get all of the known record types.
-     *
-     * @return The record types.
-     */
-    public RecordTypes getRecordTypes();
-
-    /**
      * Get the shared subject hierarchy.
      *
      * @return The subject hierarchy.
@@ -160,7 +153,9 @@ public interface Application {
      * @throws IOException If there is a problem storing the project.
      */
     public void setProject(File directory) throws IOException;
-    
+
+    @Deprecated
+    public RecordTypes getRecordTypes();
     
     public static final class Impl extends AbstractBean implements Application {
 
@@ -178,9 +173,12 @@ public interface Application {
         /** The current project. */
         private Project project;
 
+        private final RecordTypes types;
+
         @Inject
-        public Impl(Connections connections) {
+        public Impl(Connections connections, RecordTypes types) {
             this.connections = connections;
+            this.types = types;
             UserPreferences.getInstance().listenToChangesFrom(this);
         }
 
@@ -199,14 +197,14 @@ public interface Application {
 
         public synchronized FilteredLedgerView getFilteredLedger() {
             if (filteredLedger == null) {
-                filteredLedger = FilteredLedgerView.newInstance(getLedger(), false);
+                filteredLedger = FilteredLedgerView.newInstance(getLedger(), types, false);
             }
             return filteredLedger;
         }
 
         public synchronized MainFrame getFrame() {
             if (frame == null) {
-                frame = new MainFrame(this);
+                frame = new MainFrame(this, types);
                 getActionFactory().configureListeners();
             }
             return frame;
@@ -227,14 +225,13 @@ public interface Application {
             return project;
         }
 
-        public synchronized RecordTypes getRecordTypes() {
-            // FIXME this should not use a static instance, they should be loaded from the project.
-            return RecordTypes.getInstance();
-        }
-
         public synchronized SubjectHierarchy getSubjectHierarchy() {
             // FIXME this should not use a static instance, they should be loaded from the project.
             return SubjectHierarchy.INSTANCE;
+        }
+
+        public RecordTypes getRecordTypes() {
+            return types;
         }
 
         public synchronized void setProject(Project project) throws IOException {
@@ -247,7 +244,7 @@ public interface Application {
 //            project.loadConnections(getConnections());
 
 //            getRecordTypes().clear();
-            project.loadRecordTypes(getRecordTypes());
+//            project.loadRecordTypes(getRecordTypes());
 
             firePropertyChange(KEY_PROJECT, oldProject, project);
         }

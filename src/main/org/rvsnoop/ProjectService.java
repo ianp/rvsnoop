@@ -34,14 +34,14 @@ public final class ProjectService {
         AnnotationProcessor.process(this);
     }
 
-    public Future<List<RvConnection>> getConnections() {
-        Callable<List<RvConnection>> callable = new Callable<List<RvConnection>>() {
-            public List<RvConnection> call() throws Exception {
-                return db.query(RvConnection.class);
+    public <T> Future<List<T>> getAll(final Class<T> clazz) {
+        Callable<List<T>> callable = new Callable<List<T>>() {
+            public List<T> call() throws Exception {
+                return db.query(clazz);
             }
         };
         executorService.submit(callable);
-        return new FutureTask<List<RvConnection>>(callable);
+        return new FutureTask<List<T>>(callable);
     }
 
     public void openProject(final File file) {

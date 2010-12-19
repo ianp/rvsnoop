@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
 
 import java.text.Collator;
@@ -19,56 +20,8 @@ import ca.odell.glazedlists.swing.EventTableModel;
 
 /**
  * A format that describes the contents of a record ledger.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
-
-    @SuppressWarnings("unchecked")
-	private static final class ComparableComparator implements Comparator<Comparable> {
-        ComparableComparator() {
-            super();
-        }
-        public int compare(Comparable o1, Comparable o2) {
-            return o1.compareTo(o2);
-        }
-    }
-
-    /**
-     * Format information for a single column.
-     *
-     * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
-     * @version $Revision$, $Date$
-     */
-    public abstract static class ColumnFormat {
-        private final Class<?> clazz;
-        private final Comparator<?> comparator;
-        private final String identifier;
-        private final String name;
-        ColumnFormat(String id, String name, Class<?> clazz) {
-            this(id, name, clazz, Collator.getInstance());
-        }
-        ColumnFormat(String id, String name, Class<?> clazz, Comparator<?> comparator) {
-            this.clazz = clazz;
-            this.comparator = comparator;
-            this.identifier = id;
-            this.name = name;
-        }
-        public Class<?> getClazz() {
-            return clazz;
-        }
-        public Comparator<?> getComparator() {
-            return comparator;
-        }
-        public final String getIdentifier() {
-            return identifier;
-        }
-        public final String getName() {
-            return name;
-        }
-        public abstract Object getValue(Record record);
-    }
 
     static String CONNECTION_NAME, MESSAGE_NAME, SEQUENCE_NO_NAME,
         SIZE_IN_BYTES_NAME, SUBJECT_NAME, TIMESTAMP_NAME, TRACKING_ID_NAME,
@@ -76,8 +29,7 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
 
     static { NLSUtils.internationalize(RecordLedgerFormat.class); }
 
-    public static ColumnFormat CONNECTION = new ColumnFormat("connection", CONNECTION_NAME, String.class, new ComparableComparator()) {
-        private static final long serialVersionUID = -4938884664732119140L;
+    private static ColumnFormat CONNECTION = new ColumnFormat("connection", CONNECTION_NAME, String.class, new ComparableComparator()) {
         @Override
         public Object getValue(Record record) {
             final RvConnection connection = record.getConnection();
@@ -86,74 +38,58 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
     };
 
     public static final ColumnFormat MESSAGE = new ColumnFormat("message", MESSAGE_NAME, Object.class) {
-        private static final long serialVersionUID = 3526646591996520301L;
         @Override
         public Object getValue(Record record) {
             return record.getMessage();
         }
     };
 
-    public static final ColumnFormat SEQUENCE_NO = new ColumnFormat("sequence", SEQUENCE_NO_NAME, Long.class, new ComparableComparator()) {
-        private static final long serialVersionUID = -5762735421370128862L;
+    private static final ColumnFormat SEQUENCE_NO = new ColumnFormat("sequence", SEQUENCE_NO_NAME, Long.class, new ComparableComparator()) {
         @Override
         public Object getValue(Record record) {
             return Long.toString(record.getSequenceNumber());
         }
     };
 
-    public static final ColumnFormat SIZE_IN_BYTES = new ColumnFormat("size", SIZE_IN_BYTES_NAME, Integer.class, new ComparableComparator()) {
-        private static final long serialVersionUID = 2274660797219318776L;
+    private static final ColumnFormat SIZE_IN_BYTES = new ColumnFormat("size", SIZE_IN_BYTES_NAME, Integer.class, new ComparableComparator()) {
         @Override
         public Object getValue(Record record) {
             return record.getSizeInBytes();
         }
     };
 
-    public static final ColumnFormat SUBJECT = new ColumnFormat("subject", SUBJECT_NAME, String.class, new ComparableComparator()) {
-        private static final long serialVersionUID = 7415054603888398693L;
+    private static final ColumnFormat SUBJECT = new ColumnFormat("subject", SUBJECT_NAME, String.class, new ComparableComparator()) {
         @Override
         public Object getValue(Record record) {
             return record.getSendSubject();
         }
     };
 
-    public static final ColumnFormat TIMESTAMP = new ColumnFormat("timestamp", TIMESTAMP_NAME, Date.class, new ComparableComparator()) {
-        private static final long serialVersionUID = -3858078006527711756L;
+    private static final ColumnFormat TIMESTAMP = new ColumnFormat("timestamp", TIMESTAMP_NAME, Date.class, new ComparableComparator()) {
         @Override
         public Object getValue(Record record) {
             return new Date(record.getTimestamp());
         }
     };
 
-    public static final ColumnFormat TRACKING_ID = new ColumnFormat("tracking", TRACKING_ID_NAME, String.class, new ComparableComparator()) {
-        private static final long serialVersionUID = -3033175036104293820L;
+    private static final ColumnFormat TRACKING_ID = new ColumnFormat("tracking", TRACKING_ID_NAME, String.class, new ComparableComparator()) {
         @Override
         public Object getValue(Record record) {
             return record.getTrackingId();
         }
     };
 
-    public static final ColumnFormat TYPE = new ColumnFormat("type", TYPE_NAME, String.class, new ComparableComparator()) {
-        private static final long serialVersionUID = 6353909616946303068L;
-        final RecordTypes types = RecordTypes.getInstance();
+    private static final ColumnFormat TYPE = new ColumnFormat("type", TYPE_NAME, String.class, new ComparableComparator()) {
+        //final RecordTypes types = RecordTypes.getInstance();
         @Override
         public Object getValue(Record record) {
-            return types.getFirstMatchingType(record).getName();
+            //return types.getFirstMatchingType(record).getName();
+            return null;
         }
     };
 
     public static final List<ColumnFormat> ALL_COLUMNS = Collections.unmodifiableList(
         Arrays.asList(CONNECTION, TIMESTAMP, SEQUENCE_NO, TYPE, SUBJECT, SIZE_IN_BYTES, TRACKING_ID, MESSAGE));
-
-    public static String displayNameToIdentifier(String displayName) {
-        for (int i = 0, imax = ALL_COLUMNS.size(); i < imax; ++i) {
-            final ColumnFormat column = ALL_COLUMNS.get(i);
-            if (column.getName().equals(displayName)) {
-                return column.identifier;
-            }
-        }
-        return null;
-    }
 
     /**
      * Gets a column format by it's ID.
@@ -264,6 +200,51 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
      */
     void setModel(EventTableModel<Record> model) {
         this.model = model;
+    }
+
+    @SuppressWarnings("unchecked")
+	private static final class ComparableComparator implements Comparator<Comparable> {
+        ComparableComparator() {
+            super();
+        }
+        public int compare(Comparable o1, Comparable o2) {
+            return o1.compareTo(o2);
+        }
+    }
+
+    /**
+     * Format information for a single column.
+     *
+     * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+     * @version $Revision$, $Date$
+     */
+    public abstract static class ColumnFormat {
+        private final Class<?> clazz;
+        private final Comparator<?> comparator;
+        private final String identifier;
+        private final String name;
+        ColumnFormat(String id, String name, Class<?> clazz) {
+            this(id, name, clazz, Collator.getInstance());
+        }
+        ColumnFormat(String id, String name, Class<?> clazz, Comparator<?> comparator) {
+            this.clazz = clazz;
+            this.comparator = comparator;
+            this.identifier = id;
+            this.name = name;
+        }
+        public Class<?> getClazz() {
+            return clazz;
+        }
+        public Comparator<?> getComparator() {
+            return comparator;
+        }
+        public final String getIdentifier() {
+            return identifier;
+        }
+        public final String getName() {
+            return name;
+        }
+        public abstract Object getValue(Record record);
     }
 
 }

@@ -11,9 +11,13 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
-import org.bushe.swing.event.annotation.AnnotationProcessor;
+import com.google.inject.Inject;
 import org.bushe.swing.event.annotation.EventSubscriber;
+import org.jdesktop.application.ApplicationContext;
 import org.rvsnoop.event.ProjectClosingEvent;
+import org.rvsnoop.event.ProjectOpenedEvent;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * RvSnoop allows the user to classify records based on fairly arbitrary criteria.
@@ -23,52 +27,18 @@ import org.rvsnoop.event.ProjectClosingEvent;
  */
 public final class RecordTypes {
 
-    // TODO make private again
-    public class MessageTypeMatcherEditor extends AbstractMatcherEditor {
-        MessageTypeMatcherEditor() {
-            super();
-        }
-        public void constrain() {
-            fireConstrained(getMatcher());
-        }
-        @Override
-        public Matcher getMatcher() {
-            return new Matcher() {
-                public boolean matches(Object item) {
-                    final Record record = (Record) item;
-                    types.getReadWriteLock().readLock().lock();
-                    try {
-                        for (RecordType type : types) {
-                            if (type.matches(record))
-                                return type.isSelected();
-                        }
-                        return true;
-                    } finally {
-                        types.getReadWriteLock().readLock().unlock();
-                    }
-                }
-            };
-        }
-        public void relax() {
-            fireRelaxed(getMatcher());
-        }
-    }
-
-    private static RecordTypes instance;
-
     public static final RecordType DEFAULT = new RecordType("Normal", Color.BLACK, RecordMatcher.DEFAULT_MATCHER);
     public static final RecordType ERROR = new RecordType("Error", Color.RED, new RecordMatcher.SendSubjectContains("ERROR"));
 
-    public static synchronized RecordTypes getInstance() {
-        if (instance == null) instance = new RecordTypes();
-        return instance;
-    }
+    private final ApplicationContext appContext;
 
     final MessageTypeMatcherEditor matcherEditor = new MessageTypeMatcherEditor();
 
     final EventList<RecordType> types = new BasicEventList<RecordType>();
 
-    private RecordTypes() {
+    @Inject
+    public RecordTypes(ApplicationContext appContext) {
+        this.appContext = appContext;
         reset();
 //        AnnotationProcessor.process(this);
     }
@@ -88,9 +58,8 @@ public final class RecordTypes {
     }
 
     public RecordType createType(String name, Color color, RecordMatcher matcher) {
-        if (RecordTypes.getInstance().isNameInUse(name))
-            throw new IllegalArgumentException("Type name already in use: " + name);
-        final RecordType type =  new RecordType(name, color, matcher);
+        checkArgument(!isNameInUse(name), "Type name already in use: %s.", name);
+        RecordType type = new RecordType(name, color, matcher);
         types.add(type);
         return type;
     }
@@ -186,6 +155,47 @@ public final class RecordTypes {
 
     public int size() {
         return types.size();
+    }
+
+    @EventSubscriber
+    public void onProjectClosing(ProjectClosingEvent event) {
+        clear();
+    }
+
+    @EventSubscriber
+    public void onProjectOpened(ProjectOpenedEvent event) {
+        // TODO
+    }
+
+    // TODO make private again
+    public class MessageTypeMatcherEditor extends AbstractMatcherEditor {
+        MessageTypeMatcherEditor() {
+            super();
+        }
+        public void constrain() {
+            fireConstrained(getMatcher());
+        }
+        @Override
+        public Matcher getMatcher() {
+            return new Matcher() {
+                public boolean matches(Object item) {
+                    final Record record = (Record) item;
+                    types.getReadWriteLock().readLock().lock();
+                    try {
+                        for (RecordType type : types) {
+                            if (type.matches(record))
+                                return type.isSelected();
+                        }
+                        return true;
+                    } finally {
+                        types.getReadWriteLock().readLock().unlock();
+                    }
+                }
+            };
+        }
+        public void relax() {
+            fireRelaxed(getMatcher());
+        }
     }
 
 }

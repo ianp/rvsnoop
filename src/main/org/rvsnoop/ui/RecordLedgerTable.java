@@ -124,10 +124,11 @@ public final class RecordLedgerTable extends JTable {
 
         private final Color oddRowsColor;
 
-        private final RecordTypes types = RecordTypes.getInstance();
+        private final RecordTypes types;
 
-        private StripedCellRenderer(TableCellRenderer baseRenderer) {
+        private StripedCellRenderer(TableCellRenderer baseRenderer, RecordTypes types) {
             this.baseRenderer = baseRenderer;
+            this.types = types;
             this.evenRowsColor = Color.WHITE;
             this.oddRowsColor = new Color(229, 229, 255);
         }
@@ -221,10 +222,13 @@ public final class RecordLedgerTable extends JTable {
 
     private final RecordLedger ledger;
 
-    public RecordLedgerTable(RecordLedger ledger, Connections connections) {
+    private final RecordTypes types;
+
+    public RecordLedgerTable(RecordLedger ledger, Connections connections, RecordTypes types) {
         super(ledger.createTableModel());
         this.connections = connections;
         this.ledger = ledger;
+        this.types = types;
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder());
         setShowGrid(true);
@@ -260,13 +264,13 @@ public final class RecordLedgerTable extends JTable {
 
     private void configureRenderers() {
         try {
-            final StripedCellRenderer striper = new StripedCellRenderer(null);
+            final StripedCellRenderer striper = new StripedCellRenderer(null, types);
             final TableColumnModel columns = getColumnModel();
             for (int i = 0, imax = columns.getColumnCount(); i < imax; ++i) {
                 final Class columnClass = getColumnClass(i);
                 if (Date.class.isAssignableFrom(columnClass)) {
                     columns.getColumn(i).setCellRenderer(
-                            new StripedCellRenderer(new DateCellRenderer()));
+                            new StripedCellRenderer(new DateCellRenderer(), types));
                 } else {
                     columns.getColumn(i).setCellRenderer(striper);
                 }

@@ -1,10 +1,5 @@
-/*
- * Class:     EditRecordTypes
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -15,15 +10,8 @@ import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.ui.RecordTypesDialog;
 
-import rvsnoop.RecordTypes;
-
-
 /**
  * Display a dialog to allow editing of the record types.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.6
  */
 public final class EditRecordTypes extends RvSnoopAction {
 
@@ -42,15 +30,10 @@ public final class EditRecordTypes extends RvSnoopAction {
         putMnemonicValue(MNEMONIC);
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
     @Override
     public void actionPerformed(ActionEvent event) {
         final RecordTypesDialog dialog =
-            new RecordTypesDialog(
-                    application.getFrame(),
-                    RecordTypes.getInstance());
+            new RecordTypesDialog( application.getFrame(), application.getRecordTypes());
         dialog.setModal(true);
         dialog.pack();
         dialog.setVisible(true);

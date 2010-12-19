@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package rvsnoop.actions;
 
 import java.awt.event.KeyEvent;
@@ -134,7 +135,11 @@ public final class ExportToHtml extends ExportToFile {
         serializer.writeStartTag(TR_ELT);
         writeTagged(TD_ELT, DATE_FORMATTER.format(new Date(record.getTimestamp())));
         writeTagged(TD_ELT, Long.toString(record.getSequenceNumber()));
-        writeTagged(TD_ELT, RecordTypes.getInstance().getFirstMatchingType(record).getName());
+
+        // FIXME: add type back in to export
+        //writeTagged(TD_ELT, RecordTypes.getInstance().getFirstMatchingType(record).getName());
+        writeTagged(TD_ELT, "[NOT IMPLEMENTED]");
+
         writeTagged(TD_ELT, record.getSendSubject());
         writeTagged(TD_ELT, record.getTrackingId());
         serializer.writeStartTag(TD_ELT);

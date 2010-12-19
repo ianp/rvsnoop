@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
 
 import java.awt.Color;
@@ -139,7 +140,7 @@ public final class Project {
         storeConnections(application.getConnections());
         storeSubjects(application.getSubjectHierarchy(),
                 application.getFrame().getSubjectExplorer());
-        storeTypes(application.getRecordTypes());
+        //storeTypes(application.getRecordTypes());
     }
 
     public void storeConnections(Connections connections) throws IOException {

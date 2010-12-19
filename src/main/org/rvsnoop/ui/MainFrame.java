@@ -32,6 +32,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreeNode;
 
+import org.jdesktop.application.ApplicationContext;
 import org.rvsnoop.Application;
 import org.rvsnoop.Logger;
 import org.rvsnoop.RecordLedger;
@@ -55,6 +56,7 @@ import org.rvsnoop.actions.SelectAllRecords;
 import org.rvsnoop.actions.ShowAllColumns;
 
 import rvsnoop.Record;
+import rvsnoop.RecordTypes;
 import rvsnoop.TreeModelAdapter;
 import rvsnoop.actions.Actions;
 import rvsnoop.actions.ExportToHtml;
@@ -125,9 +127,12 @@ public final class MainFrame extends JFrame {
 
     private final StatusBar statusBar;
 
-    public MainFrame(final Application application) {
+    private final RecordTypes recordTypes;
+
+    public MainFrame(final Application application, RecordTypes recordTypes) {
         setName("mainFrame");
         this.application = application;
+        this.recordTypes = recordTypes;
         final UserPreferences state = UserPreferences.getInstance();
         statusBar = new StatusBar(application);
         subjectExplorer = createSubjectExplorer();
@@ -236,7 +241,7 @@ public final class MainFrame extends JFrame {
     }
 
     private RecordLedgerTable createMessageLedger(RecordLedger ledger) {
-        final RecordLedgerTable table = new RecordLedgerTable(ledger, application.getConnections());
+        final RecordLedgerTable table = new RecordLedgerTable(ledger, application.getConnections(), recordTypes);
         table.getTableFormat().setColumns(UserPreferences.getInstance().getLedgerColumns());
         columnsPopup.addPopupMenuListener(new VisibleColumnsMenuManager(table.getTableFormat()));
         return table;
