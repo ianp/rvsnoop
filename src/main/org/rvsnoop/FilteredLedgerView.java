@@ -1,7 +1,9 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
 
+import org.jdesktop.application.ApplicationContext;
 import rvsnoop.RecordTypes;
 import rvsnoop.SubjectHierarchy;
 import ca.odell.glazedlists.EventList;
@@ -39,11 +41,11 @@ public class FilteredLedgerView extends RecordLedger {
         if (freezable) {
             final FreezableList freezableList = new FreezableList(ledger.getEventList());
             final FilterList filter = new FilterList(freezableList);
-            final FilteredLedgerView view = new FilteredLedgerView(filter, types);
+            final FilteredLedgerView view = new FilteredLedgerView(ledger.context, filter, types);
             view.freezableList = freezableList;
             return view;
         } else {
-            return new FilteredLedgerView(new FilterList(ledger.getEventList()), types);
+            return new FilteredLedgerView(ledger.context, new FilterList(ledger.getEventList()), types);
         }
     }
 
@@ -55,12 +57,9 @@ public class FilteredLedgerView extends RecordLedger {
 
     private MatcherEditor typeFilter;
 
-    private final RecordTypes types;
-
     /** Create a new <code>FilteredLedgerView</code>. */
-    protected FilteredLedgerView(FilterList list, RecordTypes types) {
-        super(list);
-        this.types = types;
+    protected FilteredLedgerView(ApplicationContext context, FilterList list, RecordTypes recordTypes) {
+        super(context, list, recordTypes);
         list.setMatcherEditor(filters);
         filters.setMode(CompositeMatcherEditor.AND);
         setFilteringOnSubject(true);
@@ -188,7 +187,7 @@ public class FilteredLedgerView extends RecordLedger {
         lock.lock();
         try {
             if (filtering) {
-                typeFilter = types.getMatcherEditor();
+                typeFilter = recordTypes.getMatcherEditor();
                 editors.add(typeFilter);
             } else {
                 editors.remove(typeFilter);

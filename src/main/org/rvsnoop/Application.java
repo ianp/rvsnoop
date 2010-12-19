@@ -7,10 +7,9 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
-import org.bushe.swing.event.EventBus;
 import org.jdesktop.application.AbstractBean;
+import org.jdesktop.application.ApplicationContext;
 import org.rvsnoop.actions.RvSnoopAction;
-import org.rvsnoop.event.ProjectOpenedEvent;
 import org.rvsnoop.ui.MainFrame;
 import org.rvsnoop.ui.RecordLedgerTable;
 
@@ -159,6 +158,8 @@ public interface Application {
     
     public static final class Impl extends AbstractBean implements Application {
 
+        private final ApplicationContext context;
+
         private Actions actionFactory;
 
         private final Connections connections;
@@ -176,7 +177,8 @@ public interface Application {
         private final RecordTypes types;
 
         @Inject
-        public Impl(Connections connections, RecordTypes types) {
+        public Impl(ApplicationContext context, Connections connections, RecordTypes types) {
+            this.context = context;
             this.connections = connections;
             this.types = types;
             UserPreferences.getInstance().listenToChangesFrom(this);
@@ -212,7 +214,7 @@ public interface Application {
 
         public synchronized RecordLedger getLedger() {
             if (ledger == null) {
-                ledger = new InMemoryLedger();
+                ledger = new InMemoryLedger(context, types);
             }
             return ledger;
         }

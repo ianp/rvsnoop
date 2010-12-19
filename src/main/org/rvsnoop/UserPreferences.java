@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
 
 import java.beans.PropertyChangeEvent;
@@ -7,29 +8,15 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
-
-import javax.swing.JFrame;
-import javax.swing.JSplitPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 import com.google.common.io.Files;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventSubscriber;
-import org.rvsnoop.RecordLedgerFormat.ColumnFormat;
-import org.rvsnoop.ui.RecordLedgerTable;
 
 import rvsnoop.RvConnection;
 
@@ -42,18 +29,6 @@ import static com.google.common.io.Closeables.closeQuietly;
  * which handle storing connection details and so on.
  */
 public final class UserPreferences {
-
-    private final class LedgerColumnsListener implements TableColumnModelListener {
-        public void columnAdded(TableColumnModelEvent e) {
-            setLedgerColumns((TableColumnModel) e.getSource());
-        }
-        public void columnMarginChanged(ChangeEvent e) { /* NO-OP */ }
-        public void columnMoved(TableColumnModelEvent e) { /* NO-OP */ }
-        public void columnRemoved(TableColumnModelEvent e) {
-            setLedgerColumns((TableColumnModel) e.getSource());
-        }
-        public void columnSelectionChanged(ListSelectionEvent e) { /* NO-OP */ }
-    }
 
     private final class RecentProjectsListener implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent event) {
@@ -132,24 +107,6 @@ public final class UserPreferences {
         return preferences.get(KEY_LAST_EXPORT_LOCATION, System.getProperty("user.dir"));
     }
 
-    public List<ColumnFormat> getLedgerColumns() {
-        final List<ColumnFormat> columns = new ArrayList<ColumnFormat>(RecordLedgerFormat.ALL_COLUMNS.size());
-        final Preferences node = preferences.node(KEY_LEDGER_COLUMNS);
-        try {
-            final String[] keys = node.keys();
-            for (int i = 0, imax = keys.length; i < imax; ++i) {
-                if (!node.getBoolean(keys[i], false)) { continue; }
-                final ColumnFormat column = RecordLedgerFormat.getColumn(keys[i]);
-                if (column != null) { columns.add(column); }
-            }
-        } catch (BackingStoreException e) {
-            columns.clear();
-            columns.addAll(RecordLedgerFormat.ALL_COLUMNS);
-            columns.remove(RecordLedgerFormat.MESSAGE);
-        }
-        return columns;
-    }
-
     public RvConnection getMostRecentConnection() {
         try {
             return recentConnections.get(0);
@@ -178,10 +135,6 @@ public final class UserPreferences {
         application.addPropertyChangeListener(Application.KEY_PROJECT, new RecentProjectsListener());
     }
 
-    public void listenToChangesFrom(JFrame frame, RecordLedgerTable table, JSplitPane[] splits) {
-        table.getColumnModel().addColumnModelListener(new LedgerColumnsListener());
-    }
-
     /**
      * @param pcl
      * @see java.util.prefs.Preferences#removePreferenceChangeListener(java.util.prefs.PreferenceChangeListener)
@@ -192,18 +145,6 @@ public final class UserPreferences {
 
     public void getLastExportLocation(String path) {
         preferences.put(KEY_LAST_EXPORT_LOCATION, path);
-    }
-
-    @SuppressWarnings("unchecked")
-	private void setLedgerColumns(final TableColumnModel model) {
-        final List columns = new ArrayList(model.getColumnCount());
-        for (Enumeration e = model.getColumns(); e.hasMoreElements(); ) {
-            columns.add(((TableColumn) e.nextElement()).getHeaderValue());
-        }
-        final Preferences node = preferences.node(KEY_LEDGER_COLUMNS);
-        for (ColumnFormat column : RecordLedgerFormat.ALL_COLUMNS) {
-            node.putBoolean(column.getIdentifier(), columns.contains(column.getName()));
-        }
     }
 
     public void setNumberOfRecentConnections(int number) {

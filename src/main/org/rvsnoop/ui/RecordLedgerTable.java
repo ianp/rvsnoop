@@ -31,7 +31,6 @@ import javax.swing.table.TableColumnModel;
 import org.rvsnoop.Connections;
 import org.rvsnoop.Logger;
 import org.rvsnoop.RecordLedger;
-import org.rvsnoop.RecordLedgerFormat;
 import org.rvsnoop.event.RecordLedgerSelectionEvent;
 import org.rvsnoop.event.RecordLedgerSelectionListener;
 

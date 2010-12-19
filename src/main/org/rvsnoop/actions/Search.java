@@ -1,10 +1,5 @@
-/*
- * Class:     Search
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.actions;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -20,10 +15,6 @@ import javax.swing.ImageIcon;
 
 /**
  * Start a new live search in the ledger contents.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.4
  */
 public final class Search extends AbstractSearchAction {
 
@@ -44,13 +35,10 @@ public final class Search extends AbstractSearchAction {
         putAcceleratorValue(ACCELERATOR);
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#displayResults(org.rvsnoop.RecordLedger)
-     */
     @Override
     protected void displayResults(RecordLedger ledger) {
         new SearchResultsDialog(application.getFrame(), ledger,
-                application.getConnections()).setVisible(true);
+                application.getConnections(), application.getRecordTypes()).setVisible(true);
     }
 
     /* (non-Javadoc)
@@ -66,25 +54,16 @@ public final class Search extends AbstractSearchAction {
         return new ImageIcon("/resources/banners/search.png");
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#getLedger()
-     */
     @Override
     protected FilteredLedgerView getLedger() {
-        return FilteredLedgerView.newInstance(application.getLedger(), true);
+        return FilteredLedgerView.newInstance(application.getLedger(), application.getRecordTypes(), true);
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#getMatcherEditors()
-     */
     @Override
     protected EventList getMatcherEditors() {
         return new BasicEventList();
     }
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.actions.AbstractSearchAction#getTitle()
-     */
     @Override
     protected String getTitle() {
         return TITLE;

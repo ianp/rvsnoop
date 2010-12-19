@@ -1,26 +1,20 @@
-/*
- * Class:     FilteredLedgerViewTest
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
+
+import org.jdesktop.application.ApplicationContext;
+import rvsnoop.RecordTypes;
 
 /**
  * Unit tests for the {@link FilteredLedgerView} class.
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
  */
 public class FilteredLedgerViewTest extends RecordLedgerTest {
 
-    /* (non-Javadoc)
-     * @see org.rvsnoop.RecordLedgerTest#createRecordLedger()
-     */
     @Override
     protected RecordLedger createRecordLedger() {
-        return FilteredLedgerView.newInstance(new InMemoryLedger(), false);
+        ApplicationContext context = new ApplicationContext() {};
+        RecordTypes recordTypes = new RecordTypes(context);
+        return FilteredLedgerView.newInstance(new InMemoryLedger(context, recordTypes), recordTypes, false);
     }
 
 }

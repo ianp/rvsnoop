@@ -32,7 +32,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreeNode;
 
-import org.jdesktop.application.ApplicationContext;
 import org.rvsnoop.Application;
 import org.rvsnoop.Logger;
 import org.rvsnoop.RecordLedger;
@@ -152,8 +151,6 @@ public final class MainFrame extends JFrame {
         pack();
 
         connectListeners();
-        state.listenToChangesFrom(this, messageLedger, new JSplitPane[] {
-                connectionListSplitter, messageLedgerSplitter, subjectExplorerSplitter });
     }
 
     public void clearDetails() {
@@ -242,7 +239,6 @@ public final class MainFrame extends JFrame {
 
     private RecordLedgerTable createMessageLedger(RecordLedger ledger) {
         final RecordLedgerTable table = new RecordLedgerTable(ledger, application.getConnections(), recordTypes);
-        table.getTableFormat().setColumns(UserPreferences.getInstance().getLedgerColumns());
         columnsPopup.addPopupMenuListener(new VisibleColumnsMenuManager(table.getTableFormat()));
         return table;
     }

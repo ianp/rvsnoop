@@ -1,16 +1,12 @@
-/*
- * Class:     SearchResultsDialog
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import org.rvsnoop.Connections;
 import org.rvsnoop.FilteredLedgerView;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.RecordLedger;
+import rvsnoop.RecordTypes;
 import rvsnoop.ui.UIUtils;
 
 import javax.swing.AbstractAction;
@@ -74,15 +70,15 @@ public final class SearchResultsDialog extends JDialog {
 
     private final FilteredLedgerView results;
 
-    public SearchResultsDialog(Frame parent, RecordLedger results, Connections connections) {
+    public SearchResultsDialog(Frame parent, RecordLedger results, Connections connections, RecordTypes recordTypes) {
         super(parent, DIALOG_TITLE, false); // false == non-modal
         if (results instanceof FilteredLedgerView) {
             this.results = (FilteredLedgerView) results;
         } else {
-            this.results = FilteredLedgerView.newInstance(results, true);
+            this.results = FilteredLedgerView.newInstance(results, recordTypes, true);
         }
 
-        final RecordLedgerTable table = new RecordLedgerTable(results, connections);
+        final RecordLedgerTable table = new RecordLedgerTable(results, connections, recordTypes);
         columnsPopup.addPopupMenuListener(new VisibleColumnsMenuManager(table.getTableFormat()));
         final JScrollPane scrollpane = new JScrollPane(table);
         scrollpane.setBorder(BorderFactory.createEmptyBorder());

@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop.actions;
 
 import java.awt.event.ActionEvent;
@@ -8,7 +9,7 @@ import javax.swing.Action;
 
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
-import org.rvsnoop.RecordLedgerFormat;
+import org.rvsnoop.ui.RecordLedgerFormat;
 
 /**
  * Show all columns in the message ledger.
@@ -33,7 +34,8 @@ public final class ShowAllColumns extends RvSnoopAction {
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        application.getLedgerTable().getTableFormat().setColumns(RecordLedgerFormat.ALL_COLUMNS);
+        RecordLedgerFormat format = application.getLedgerTable().getTableFormat();
+        format.setColumns(format.getAllColumns());
     }
 
 }

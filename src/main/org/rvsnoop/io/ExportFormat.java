@@ -1,10 +1,5 @@
-/*
- * Class:     ExportFormat
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.io;
 
 import java.io.File;
@@ -16,7 +11,7 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
-import org.rvsnoop.RecordLedgerFormat;
+import org.rvsnoop.ui.RecordLedgerFormat;
 
 import rvsnoop.Record;
 

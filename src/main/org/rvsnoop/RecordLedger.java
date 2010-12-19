@@ -8,7 +8,10 @@ import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swing.EventTableModel;
 import ca.odell.glazedlists.util.concurrent.Lock;
+import org.jdesktop.application.ApplicationContext;
+import org.rvsnoop.ui.RecordLedgerFormat;
 import rvsnoop.Record;
+import rvsnoop.RecordTypes;
 
 import java.util.Collection;
 
@@ -35,13 +38,19 @@ public abstract class RecordLedger {
      */
     private final EventList<Record> list;
 
+    protected final ApplicationContext context;
+
+    protected final RecordTypes recordTypes;
+
     /**
      * Create a new record ledger.
      *
      * @param list The list to use as the record store.
      */
-    protected RecordLedger(final EventList<Record> list) {
+    protected RecordLedger(ApplicationContext context, EventList<Record> list, RecordTypes recordTypes) {
+        this.context = context;
         this.list = list;
+        this.recordTypes = recordTypes;
     }
 
     /**
@@ -138,7 +147,7 @@ public abstract class RecordLedger {
      * @return A new table model.
      */
     public final EventTableModel<Record> createTableModel() {
-        final RecordLedgerFormat format = new RecordLedgerFormat();
+        final RecordLedgerFormat format = new RecordLedgerFormat(context, recordTypes);
         final EventTableModel<Record> model = new EventTableModel<Record>(list, format);
         format.setModel(model);
         return model;
