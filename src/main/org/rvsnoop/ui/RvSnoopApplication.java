@@ -3,7 +3,6 @@
 
 package org.rvsnoop.ui;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -17,10 +16,6 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
-import com.apple.eawt.AboutHandler;
-import com.apple.eawt.AppEvent;
-import com.apple.eawt.QuitHandler;
-import com.apple.eawt.QuitResponse;
 import org.apache.commons.cli2.CommandLine;
 import org.apache.commons.cli2.Group;
 import org.apache.commons.cli2.Option;
@@ -33,6 +28,7 @@ import org.jdesktop.application.ApplicationActionMap;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Task.BlockingScope;
+import org.jdesktop.application.utils.OSXAdapter;
 import org.rvsnoop.Application;
 import org.rvsnoop.Connections;
 import org.rvsnoop.Logger;
@@ -181,6 +177,16 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         }
     }
 
+    public void configureMacOsEventHandlers() {
+        try {
+            OSXAdapter.setAboutHandler(RvSnoopApplication.this, RvSnoopApplication.this.getClass().getMethod("displayAbout"));
+            OSXAdapter.setQuitHandler(RvSnoopApplication.this, RvSnoopApplication.this.getClass().getMethod("exit"));
+        } catch (NoSuchMethodException e) {
+            logger.error(e, "Error installing Mac event handlers.");
+            // should never happen.
+        }
+    }
+
     @Override
     protected void initialize(String[] args) {
         ensureJavaVersionIsValid();
@@ -247,7 +253,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         getContext().getResourceMap().injectComponents(frame);
 
         if (SystemUtils.IS_OS_MAC) {
-            new MacHandlersInstaller().installHandlers();
+            configureMacOsEventHandlers();
         }
 
         if (initialProjectFile == null) {
@@ -314,22 +320,6 @@ public final class RvSnoopApplication extends SingleFrameApplication {
                 logger.error(e, getString("error.shutdown"));
                 System.exit(1);
             }
-        }
-    }
-
-    private final class MacHandlersInstaller {
-        public void installHandlers() {
-            com.apple.eawt.Application.getApplication().setAboutHandler(new AboutHandler() {
-                public void handleAbout(AppEvent.AboutEvent event) {
-                    getContext().getActionMap().get("displayAbout").actionPerformed(
-                            new ActionEvent(event.getSource(), ActionEvent.ACTION_PERFORMED, "displayAbout"));
-                }
-            });
-            com.apple.eawt.Application.getApplication().setQuitHandler(new QuitHandler() {
-                public void handleQuitRequestWith(AppEvent.QuitEvent quitEvent, QuitResponse quitResponse) {
-                    exit();
-                }
-            });
         }
     }
 
