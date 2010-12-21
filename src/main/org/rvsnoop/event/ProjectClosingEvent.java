@@ -3,7 +3,6 @@
 
 package org.rvsnoop.event;
 
-import org.rvsnoop.Project;
 import org.rvsnoop.ProjectService;
 
 import java.util.EventObject;

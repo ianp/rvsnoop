@@ -31,10 +31,11 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
 
     private EventTableModel<Record> model;
 
-    private final Preferences preferences = Preferences.userRoot().node("org").node("rvsnoop");
+    private final Preferences preferences;
 
     @Inject
-    public RecordLedgerFormat(ApplicationContext context, final RecordTypes recordTypes) {
+    public RecordLedgerFormat(ApplicationContext context, final RecordTypes recordTypes, Preferences preferences) {
+        this.preferences = preferences;
         ResourceMap resourceMap = context.getResourceMap(getClass());
         allColumns = ImmutableList.of(
                 new ColumnFormat("connection", resourceMap, String.class) {
