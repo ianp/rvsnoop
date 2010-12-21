@@ -20,7 +20,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 /**
  * The project service manages all accesses to the project data.
@@ -43,8 +42,7 @@ public final class ProjectService {
                 return db.query(clazz);
             }
         };
-        executorService.submit(callable);
-        return new FutureTask<List<T>>(callable);
+        return executorService.submit(callable);
     }
 
     public Future<List<RvConnection>> getConnections() {
