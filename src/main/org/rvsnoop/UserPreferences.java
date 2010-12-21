@@ -16,6 +16,8 @@ import com.google.common.io.Files;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventSubscriber;
 
+import org.jdesktop.application.utils.AppHelper;
+import org.jdesktop.application.utils.PlatformType;
 import org.rvsnoop.event.ConnectionCreatedEvent;
 import rvsnoop.RvConnection;
 
@@ -55,9 +57,9 @@ public final class UserPreferences {
 
     private UserPreferences() {
         String path;
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (AppHelper.getPlatform() == PlatformType.WINDOWS) {
             path = System.getProperty("user.home") + "/Application Data/RvSnoop";
-        } else if (SystemUtils.IS_OS_MAC) {
+        } else if (AppHelper.getPlatform() == PlatformType.OS_X) {
             path = System.getProperty("user.home") + "/Library/Application Support/RvSnoop";
         } else {
             path = System.getProperty("user.home") + "/.rvsnoop";

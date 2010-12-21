@@ -1,22 +1,19 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
 
-import java.util.Locale;
+import org.jdesktop.application.utils.AppHelper;
+import org.jdesktop.application.utils.PlatformType;
+
 import java.util.regex.Pattern;
 
 public final class SystemUtils {
 
-    public static final boolean IS_OS_MAC;
-    public static final boolean IS_OS_WINDOWS;
-
     public static final String LINE_SEPARATOR;
 
     static {
-        String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
-        IS_OS_MAC = os.startsWith("mac");
-        IS_OS_WINDOWS = os.startsWith("win");
-        LINE_SEPARATOR = IS_OS_WINDOWS ? "\r\n" : "\n";
+        LINE_SEPARATOR = AppHelper.getPlatform() == PlatformType.WINDOWS ? "\r\n" : "\n";
     }
 
     private SystemUtils() {}

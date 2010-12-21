@@ -28,7 +28,9 @@ import org.jdesktop.application.ApplicationActionMap;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Task.BlockingScope;
+import org.jdesktop.application.utils.AppHelper;
 import org.jdesktop.application.utils.OSXAdapter;
+import org.jdesktop.application.utils.PlatformType;
 import org.rvsnoop.Application;
 import org.rvsnoop.Connections;
 import org.rvsnoop.Logger;
@@ -56,10 +58,10 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         // Set up the log directory so that it may be used in log4j.properties.
         final String home = System.getProperty("user.home");
         final String fileSep = System.getProperty("file.separator");
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (AppHelper.getPlatform() == PlatformType.WINDOWS) {
             System.setProperty("rvsnoop.logDir",
                     home + "/Application Data/Logs/RvSnoop".replace("/", fileSep));
-        } else if (SystemUtils.IS_OS_MAC) {
+        } else if (AppHelper.getPlatform() == PlatformType.OS_X) {
             System.setProperty("rvsnoop.logDir",
                     home + "/Library/Logs/RvSnoop".replace("/", fileSep));
         } else {
@@ -162,7 +164,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
     private void configureLookAndFeel() {
         try {
-            if (SystemUtils.IS_OS_MAC) {
+            if (AppHelper.getPlatform() == PlatformType.OS_X) {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } else {
                 for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -252,7 +254,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         frame.getJMenuBar().add(createHelpMenu());
         getContext().getResourceMap().injectComponents(frame);
 
-        if (SystemUtils.IS_OS_MAC) {
+        if (AppHelper.getPlatform() == PlatformType.OS_X) {
             configureMacOsEventHandlers();
         }
 

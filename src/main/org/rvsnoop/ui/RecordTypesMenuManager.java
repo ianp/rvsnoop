@@ -1,10 +1,5 @@
-/*
- * Class:     RecordTypesMenuManager
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import java.awt.event.ItemEvent;
@@ -20,8 +15,9 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.jdesktop.application.utils.AppHelper;
+import org.jdesktop.application.utils.PlatformType;
 import org.rvsnoop.Application;
-import org.rvsnoop.SystemUtils;
 import org.rvsnoop.actions.EditRecordTypes;
 
 import rvsnoop.RecordType;
@@ -88,7 +84,7 @@ public final class RecordTypesMenuManager implements MenuListener, PopupMenuList
         menu.addSeparator();
         final JMenuItem item =
             menu.add(application.getAction(EditRecordTypes.COMMAND));
-        if (SystemUtils.IS_OS_MAC) { item.setIcon(null); }
+        if (AppHelper.getPlatform() == PlatformType.OS_X) { item.setIcon(null); }
     }
 
     /* (non-Javadoc)
@@ -118,7 +114,7 @@ public final class RecordTypesMenuManager implements MenuListener, PopupMenuList
         menu.addSeparator();
         final JMenuItem item =
             menu.add(application.getAction(EditRecordTypes.COMMAND));
-        if (SystemUtils.IS_OS_MAC) { item.setIcon(null); }
+        if (AppHelper.getPlatform() == PlatformType.OS_X) { item.setIcon(null); }
     }
 
 }

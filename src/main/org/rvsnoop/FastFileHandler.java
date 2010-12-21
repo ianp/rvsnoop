@@ -1,10 +1,5 @@
-/*
- * Class:     FastFileHandler
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import java.io.BufferedOutputStream;
@@ -32,6 +27,8 @@ import java.util.logging.StreamHandler;
 import java.util.zip.GZIPOutputStream;
 
 import com.google.common.io.ByteStreams;
+import org.jdesktop.application.utils.AppHelper;
+import org.jdesktop.application.utils.PlatformType;
 
 import static com.google.common.io.Closeables.closeQuietly;
 
@@ -64,10 +61,6 @@ import static com.google.common.io.Closeables.closeQuietly;
  * <dd>Should log files be compressed when they are closed, the default is
  * <code>false</code>.</dd>
  * </dl>
- *
- * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
- * @version $Revision$, $Date$
- * @since 1.7
  */
 public class FastFileHandler extends StreamHandler {
 
@@ -148,15 +141,10 @@ public class FastFileHandler extends StreamHandler {
     }
 
     private final class FileRotator implements PrivilegedAction {
-
-        /* (non-Javadoc)
-         * @see java.security.PrivilegedAction#run()
-         */
         public Object run() {
             rotate();
             return null;
         }
-
     }
 
     private static final Level DEFAULT_LEVEL = Level.INFO;
@@ -170,9 +158,9 @@ public class FastFileHandler extends StreamHandler {
 
     static {
         String path;
-        if (SystemUtils.IS_OS_WINDOWS) {
+        if (AppHelper.getPlatform() == PlatformType.WINDOWS) {
             path = System.getProperty("user.home") + "/Application Data/Logs/RvSnoop";
-        } else if (SystemUtils.IS_OS_MAC) {
+        } else if (AppHelper.getPlatform() == PlatformType.OS_X) {
             path = System.getProperty("user.home") + "/Library/Logs/RvSnoop";
         } else {
             path = System.getProperty("user.home") + "/.rvsnoop";

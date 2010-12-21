@@ -1,10 +1,5 @@
-/*
- * Class:     FooterPanel
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import java.awt.ComponentOrientation;
@@ -26,7 +21,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import org.rvsnoop.SystemUtils;
+import org.jdesktop.application.utils.AppHelper;
+import org.jdesktop.application.utils.PlatformType;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -61,8 +57,8 @@ public final class FooterPanel extends JPanel {
                 buttons.add(i, new JButton(extra[i]));
             }
         }
-        final Action leading = SystemUtils.IS_OS_WINDOWS ? ok : cancel;
-        final Action trailing = SystemUtils.IS_OS_WINDOWS ? cancel : ok;
+        final Action leading = AppHelper.getPlatform() == PlatformType.WINDOWS ? ok : cancel;
+        final Action trailing = AppHelper.getPlatform() == PlatformType.WINDOWS ? cancel : ok;
         if (trailing != null) { buttons.add(--numButtons, new JButton(trailing)); }
         if (leading != null)  { buttons.add(--numButtons, new JButton(leading));  }
         if (getComponentOrientation().equals(ComponentOrientation.RIGHT_TO_LEFT)) {
@@ -88,7 +84,7 @@ public final class FooterPanel extends JPanel {
         }
 
         final Border outer = new MatteBorder(1, 0, 0, 0, UIManager.getColor("control"));
-        final Border inner = new EmptyBorder(8, 8, 8, SystemUtils.IS_OS_MAC ? 24 : 8);
+        final Border inner = new EmptyBorder(8, 8, 8, AppHelper.getPlatform() == PlatformType.OS_X ? 24 : 8);
         setBorder(new CompoundBorder(outer, inner));
     }
 

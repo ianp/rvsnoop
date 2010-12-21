@@ -1,10 +1,5 @@
-/*
- * Class:     MatcherEditorDialog
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import java.awt.Container;
@@ -21,8 +16,9 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JTextField;
 
+import org.jdesktop.application.utils.AppHelper;
+import org.jdesktop.application.utils.PlatformType;
 import org.rvsnoop.NLSUtils;
-import org.rvsnoop.SystemUtils;
 import org.rvsnoop.matchers.DataAccessor;
 import org.rvsnoop.matchers.DataAccessorFactory;
 import org.rvsnoop.matchers.Predicate;
@@ -117,8 +113,8 @@ public final class MatcherEditorDialog extends JDialog {
     }
 
     private void configureComponentsAndLayout(Window parent) {
-        final JButton leading = new JButton(SystemUtils.IS_OS_WINDOWS ? new OKAction() : new CancelAction());
-        final JButton trailing = new JButton(SystemUtils.IS_OS_WINDOWS ? new CancelAction() : new OKAction());
+        final JButton leading = new JButton(AppHelper.getPlatform() == PlatformType.WINDOWS ? new OKAction() : new CancelAction());
+        final JButton trailing = new JButton(AppHelper.getPlatform() == PlatformType.WINDOWS ? new CancelAction() : new OKAction());
         predicateArgument.setColumns(20);
         // Layout
         final Container contents = getContentPane();

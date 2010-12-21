@@ -1,10 +1,5 @@
-/*
- * Class:     StatusBar
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop.ui;
 
 import java.awt.Color;
@@ -29,11 +24,12 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
+import org.jdesktop.application.utils.AppHelper;
+import org.jdesktop.application.utils.PlatformType;
 import org.rvsnoop.Application;
 
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
-import org.rvsnoop.SystemUtils;
 
 /**
  * A status bar capable of displaying notifications to the user.
@@ -109,7 +105,7 @@ public final class StatusBar extends JPanel {
         encoding.setText(Charset.defaultCharset().displayName());
         encoding.setToolTipText(Locale.getDefault().getDisplayName());
         encoding.setOpaque(false);
-        if (SystemUtils.IS_OS_MAC) {
+        if (AppHelper.getPlatform() == PlatformType.OS_X) {
             // Leave engough room for the grow box.
             encoding.setBorder(new EmptyBorder(0, 0, 0, 18));
         }
