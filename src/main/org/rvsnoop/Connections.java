@@ -11,7 +11,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EventListener;
-import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -26,6 +25,8 @@ import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.annotation.AnnotationProcessor;
 import org.bushe.swing.event.annotation.EventSubscriber;
 import org.jdesktop.application.ApplicationContext;
+import org.rvsnoop.event.ConnectionCreatedEvent;
+import org.rvsnoop.event.ConnectionDestroyedEvent;
 import org.rvsnoop.event.ProjectClosingEvent;
 import org.rvsnoop.event.ProjectOpenedEvent;
 import org.rvsnoop.ui.SwingRunnable;
@@ -100,7 +101,7 @@ public final class Connections {
             logger.info("Adding connection: %s", connection);
             connection.setParentList(this);
             list.add(connection);
-            EventBus.publish(new AddedEvent(connection));
+            EventBus.publish(new ConnectionCreatedEvent(this, connection));
             return true;
         } finally {
             lock.unlock();
@@ -172,7 +173,7 @@ public final class Connections {
             connection.stop();
             connection.setParentList(null);
             list.remove(connection);
-            EventBus.publish(new RemovedEvent(connection));
+            EventBus.publish(new ConnectionDestroyedEvent(this, connection));
             return true;
         } finally {
             lock.unlock();
@@ -228,28 +229,6 @@ public final class Connections {
         });
     }
 
-    public final class AddedEvent extends EventObject {
-
-        private static final long serialVersionUID = -1027536693959206731L;
-        
-        private final RvConnection connection;
-
-        public AddedEvent(RvConnection connection) {
-            super(Connections.this);
-            this.connection = connection;
-        }
-        
-        public RvConnection getConnection() {
-            return connection;
-        }
-        
-        @Override
-        public Connections getSource() {
-            return (Connections) super.getSource();
-        }
-        
-    }
-    
     private static class DescriptionComparator implements Comparator<RvConnection> {
         private final Collator collator = Collator.getInstance();
 
@@ -286,28 +265,6 @@ public final class Connections {
         public void uninstallListener(RvConnection element, EventListener listener) {
             element.removePropertyChangeListener(this);
         }
-    }
-
-    public final class RemovedEvent extends EventObject {
-
-        private static final long serialVersionUID = -5382677785401677911L;
-
-        private final RvConnection connection;
-
-        public RemovedEvent(RvConnection connection) {
-            super(Connections.this);
-            this.connection = connection;
-        }
-        
-        public RvConnection getConnection() {
-            return connection;
-        }
-        
-        @Override
-        public Connections getSource() {
-            return (Connections) super.getSource();
-        }
-        
     }
 
 }

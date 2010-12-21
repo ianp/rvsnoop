@@ -3,8 +3,6 @@
 
 package org.rvsnoop;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,6 +16,7 @@ import com.google.common.io.Files;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.EventSubscriber;
 
+import org.rvsnoop.event.ConnectionCreatedEvent;
 import rvsnoop.RvConnection;
 
 import static com.google.common.io.Closeables.closeQuietly;
@@ -72,8 +71,8 @@ public final class UserPreferences {
             logger.error(e, ERROR_CREATING_DIR);
         }
         recentConnectionsFile = f;
-        EventBus.subscribe(Connections.AddedEvent.class, new EventSubscriber<Connections.AddedEvent>() {
-            public void onEvent(Connections.AddedEvent event) {
+        EventBus.subscribe(ConnectionCreatedEvent.class, new EventSubscriber<ConnectionCreatedEvent>() {
+            public void onEvent(ConnectionCreatedEvent event) {
                 updateRecentConnectionsList(event.getConnection());
             }
         });

@@ -13,6 +13,8 @@ import com.google.inject.Inject;
 import org.bushe.swing.event.EventBus;
 import org.bushe.swing.event.annotation.AnnotationProcessor;
 import org.bushe.swing.event.annotation.EventSubscriber;
+import org.rvsnoop.event.ConnectionCreatedEvent;
+import org.rvsnoop.event.ConnectionDestroyedEvent;
 import org.rvsnoop.event.MessageReceivedEvent;
 import org.rvsnoop.event.ProjectClosingEvent;
 import org.rvsnoop.event.ProjectOpenedEvent;
@@ -117,6 +119,26 @@ public final class ProjectService {
                                 return input.toURI().toASCIIString();
                             }
                         })));
+            }
+        });
+    }
+
+    @EventSubscriber
+    public void onConnectionCreated(final ConnectionCreatedEvent event) {
+        if (db == null) { return; }
+        executorService.submit(new Runnable() {
+            public void run() {
+                db.store(event.getConnection());
+            }
+        });
+    }
+
+    @EventSubscriber
+    public void onConnectionDestroyed(final ConnectionDestroyedEvent event) {
+        if (db == null) { return; }
+        executorService.submit(new Runnable() {
+            public void run() {
+                db.delete(event.getConnection());
             }
         });
     }
