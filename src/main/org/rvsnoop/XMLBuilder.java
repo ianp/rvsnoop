@@ -1,10 +1,5 @@
-/*
- * Class:     XMLBuilder
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2007-2007 Ian Phillips.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package org.rvsnoop;
 
 import nu.xom.Attribute;
@@ -62,9 +57,9 @@ public final class XMLBuilder {
             xml.write(new Attribute(name, value));
             return this;
         } catch (IllegalStateException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         } catch (IllegalArgumentException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         }
     }
 
@@ -75,7 +70,7 @@ public final class XMLBuilder {
             }
             xml.flush();
         } catch (IllegalStateException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         }
     }
 
@@ -86,9 +81,9 @@ public final class XMLBuilder {
             xml.write(new DocType(name, publicID, systemID));
             return this;
         } catch (IllegalStateException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         } catch (IllegalArgumentException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         }
     }
 
@@ -97,9 +92,9 @@ public final class XMLBuilder {
             xml.writeEndTag(stack.pop());
             return this;
         } catch (IllegalStateException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         } catch (IllegalArgumentException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         }
     }
     
@@ -124,9 +119,9 @@ public final class XMLBuilder {
             xml.write(new Text(text));
             return this;
         } catch (IllegalStateException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         } catch (IllegalArgumentException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         }
     }
 
@@ -149,9 +144,9 @@ public final class XMLBuilder {
             stack.push(elt);
             return this;
         } catch (IllegalStateException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         } catch (IllegalArgumentException e) {
-            throw new CausedIOException(e);
+            throw new IOException(e);
         }
     }
 

@@ -1,10 +1,5 @@
-/*
- * Class:     RecordSelection
- * Version:   $Revision$
- * Date:      $Date$
- * Copyright: Copyright © 2006-2007 Ian Phillips and Örjan Lundberg.
- * License:   Apache Software License (Version 2.0)
- */
+// Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
+// License:   Apache Software License (Version 2.0)
 package rvsnoop;
 
 import java.awt.datatransfer.Clipboard;
@@ -26,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.rvsnoop.CausedIOException;
 import org.rvsnoop.Connections;
 
 import com.tibco.tibrv.TibrvException;
@@ -209,7 +203,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
         try {
             return new Record(connection, new TibrvMsg(bytes), send, reply, timestamp);
         } catch (TibrvException e) {
-            throw new CausedIOException("Could not convert bytes to record.", e);
+            throw new IOException("Could not convert bytes to record.", e);
         }
     }
 
@@ -257,7 +251,7 @@ public final class RecordSelection implements ClipboardOwner, Transferable {
             output.writeInt(bytes.length);
             output.write(bytes);
         } catch (TibrvException e) {
-            throw new CausedIOException("Could not convert record to bytes: " + record, e);
+            throw new IOException("Could not convert record to bytes: " + record, e);
         }
     }
 
