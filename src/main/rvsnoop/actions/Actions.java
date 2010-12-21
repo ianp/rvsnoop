@@ -83,7 +83,6 @@ public final class Actions {
         addAction(new Copy(application));
         addAction(new Cut(application));
         addAction(new Delete(application));
-        add(new DisplayHomePage());
         addAction(new EditRecordTypes(application));
         addAction(new ExportToHtml(application));
         addAction(new ExportToRecordBundle(application));
