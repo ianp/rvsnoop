@@ -194,9 +194,7 @@ public final class Connections {
     }
 
     /**
-     * @return An array containing all of the connections. The contents may be
-     *         safely cast to <code>RvConnection[]</code>.
-     * @see java.util.List#toArray()
+     * @return An array containing all of the connections.
      */
     public RvConnection[] toArray() {
         final Lock lock = list.getReadWriteLock().readLock();
@@ -232,7 +230,7 @@ public final class Connections {
 
     public final class AddedEvent extends EventObject {
 
-        static final long serialVersionUID = -1027536693959206731L;
+        private static final long serialVersionUID = -1027536693959206731L;
         
         private final RvConnection connection;
 
