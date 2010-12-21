@@ -4,7 +4,7 @@ RvSnoop is a graphical application that provides developers and operations suppo
 
 RvSnoop allows you to filter out subjects that you are not interested in making it easier to spot important information and messages. Reduce the time required to locate specific messages by using customizable highlight colours.
 
-RvSnoop is cross platform and will run anywhere there is a suitable virtual machine. RvSnoop requires Java 1.4.2 or later.
+RvSnoop is cross platform and will run anywhere there is a suitable virtual machine. RvSnoop requires Java 1.6 or later.
 
 # Building
 
