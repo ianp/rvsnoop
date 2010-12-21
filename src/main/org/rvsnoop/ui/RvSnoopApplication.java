@@ -156,7 +156,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     }
 
     private void ensureJavaVersionIsValid() {
-        if (!SystemUtils.isJavaVersionAtLeast(1,5)) {
+        if (!SystemUtils.isJavaVersionAtLeast(1,6)) {
             String[] message = { getString("CLI.error.javaVersion[0]"), getString("CLI.error.javaVersion[1]") };
             String title = getString("CLI.error.javaVersion.title");
             JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
