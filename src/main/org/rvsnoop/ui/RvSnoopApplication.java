@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.EventObject;
 import java.util.prefs.Preferences;
+import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -36,7 +37,6 @@ import org.rvsnoop.Connections;
 import org.rvsnoop.Logger;
 import org.rvsnoop.ProjectFileFilter;
 import org.rvsnoop.ProjectService;
-import org.rvsnoop.SystemUtils;
 import org.rvsnoop.UserPreferences;
 
 import rvsnoop.BrowserLauncher;
@@ -154,11 +154,18 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     }
 
     private void ensureJavaVersionIsValid() {
-        if (!SystemUtils.isJavaVersionAtLeast(1,6)) {
-            String[] message = { getString("CLI.error.javaVersion[0]"), getString("CLI.error.javaVersion[1]") };
-            String title = getString("CLI.error.javaVersion.title");
-            JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
-            System.exit(-1);
+        try {
+            String[] parts = Pattern.compile("^(\\d+)\\.(\\d+)").split(System.getProperty("java.version"));
+            int major = Integer.parseInt(parts[0]);
+            int minor = Integer.parseInt(parts[1]);
+            if (major < 1 || major == 1 && minor < 6) {
+                String[] message = { getString("CLI.error.javaVersion[0]"), getString("CLI.error.javaVersion[1]") };
+                String title = getString("CLI.error.javaVersion.title");
+                JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+                System.exit(-1);
+            }
+        } catch (Exception e) {
+            // be optimistic
         }
     }
 

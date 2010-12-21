@@ -1,6 +1,10 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop;
+
+import org.jdesktop.application.utils.AppHelper;
+import org.jdesktop.application.utils.PlatformType;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,6 +18,8 @@ import java.util.logging.LogRecord;
  * supplied {@link java.util.logging.SimpleFormatter}.
  */
 public final class FastFormatter extends Formatter {
+
+    public static final String LINE_SEPARATOR = AppHelper.getPlatform() == PlatformType.WINDOWS ? "\r\n" : "\n";
 
     private static Appendable padLeft(int value, int width, Appendable appendable) throws IOException {
         String s = Integer.toString(value);
@@ -30,7 +36,7 @@ public final class FastFormatter extends Formatter {
     public synchronized String format(LogRecord record) {
         try {
             calendar.setTimeInMillis(record.getMillis());
-            writer.append(SystemUtils.LINE_SEPARATOR);
+            writer.append(LINE_SEPARATOR);
             padLeft(calendar.get(Calendar.YEAR), 4, writer).append('-');
             padLeft(calendar.get(Calendar.MONTH), 2, writer).append('-');
             padLeft(calendar.get(Calendar.DAY_OF_MONTH), 2, writer).append(' ');
@@ -45,7 +51,7 @@ public final class FastFormatter extends Formatter {
             if (message != null) { writer.append(message); }
             final Throwable thrown = record.getThrown();
             if (thrown != null) {
-                writer.append(SystemUtils.LINE_SEPARATOR);
+                writer.append(LINE_SEPARATOR);
                 // Use an auto-flushing writer that appends directly to the builder,
                 // so no need to worry about cleaning up or catching IOExceptions.
                 thrown.printStackTrace(new PrintWriter(writer, true));
