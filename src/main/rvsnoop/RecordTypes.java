@@ -171,7 +171,7 @@ public final class RecordTypes {
 
     @EventSubscriber
     public void onProjectOpened(ProjectOpenedEvent event) {
-        Future<List<RecordType>> future = event.getSource().getAll(RecordType.class);
+        Future<List<RecordType>> future = event.getSource().getRecordTypes();
         SwingUtilities.invokeLater(new SwingRunnable<List<RecordType>>(future, context) {
             @Override
             protected void onSuccess(List<RecordType> value) {

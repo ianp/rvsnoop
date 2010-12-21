@@ -39,19 +39,8 @@ public final class Project {
 
     public void store(Application application) throws IOException {
         storeMetadata();
-        storeConnections(application.getConnections());
         storeSubjects(application.getSubjectHierarchy(),
                 application.getFrame().getSubjectExplorer());
-    }
-
-    public void storeConnections(Connections connections) throws IOException {
-        final File file = new File(projectDirectory, "Connections.xml");
-        final OutputStream stream = new FileOutputStream(file);
-        try {
-            Connections.toXML(connections.toArray(), stream);
-        } finally {
-            closeQuietly(stream);
-        }
     }
 
     private void storeMetadata() throws IOException {

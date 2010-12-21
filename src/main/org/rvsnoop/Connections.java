@@ -215,7 +215,7 @@ public final class Connections {
 
     @EventSubscriber
     public void onProjectOpened(ProjectOpenedEvent event) {
-        Future<List<RvConnection>> future = event.getSource().getAll(RvConnection.class);
+        Future<List<RvConnection>> future = event.getSource().getConnections();
         SwingUtilities.invokeLater(new SwingRunnable<List<RvConnection>>(future, appContext) {
             @Override
             protected void onSuccess(List<RvConnection> value) {

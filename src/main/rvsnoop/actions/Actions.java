@@ -25,8 +25,6 @@ import org.rvsnoop.actions.Paste;
 import org.rvsnoop.actions.PruneEmptySubjects;
 import org.rvsnoop.actions.Republish;
 import org.rvsnoop.actions.RvSnoopAction;
-import org.rvsnoop.actions.SaveProjectAs;
-import org.rvsnoop.actions.SaveProject;
 import org.rvsnoop.actions.Search;
 import org.rvsnoop.actions.SearchBySelection;
 import org.rvsnoop.actions.SelectAllRecords;
@@ -98,8 +96,6 @@ public final class Actions {
         addAction(new PruneEmptySubjects(application));
         add(new ReportBug());
         addAction(new Republish(application));
-        addAction(new SaveProject(application));
-        addAction(new SaveProjectAs(application));
         addAction(new Search(application));
         addAction(new SearchBySelection(application));
         addAction(new SelectAllRecords(application));

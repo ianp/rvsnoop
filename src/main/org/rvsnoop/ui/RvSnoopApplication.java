@@ -7,15 +7,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.EventObject;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
+import com.apple.eawt.AboutHandler;
+import com.apple.eawt.AppEvent;
+import com.apple.eawt.QuitHandler;
+import com.apple.eawt.QuitResponse;
 import org.apache.commons.cli2.CommandLine;
 import org.apache.commons.cli2.Group;
 import org.apache.commons.cli2.Option;
@@ -31,7 +35,8 @@ import org.jdesktop.application.Task.BlockingScope;
 import org.rvsnoop.Application;
 import org.rvsnoop.Connections;
 import org.rvsnoop.Logger;
-import org.rvsnoop.Project;
+import org.rvsnoop.ProjectFileFilter;
+import org.rvsnoop.ProjectService;
 import org.rvsnoop.SystemUtils;
 import org.rvsnoop.UserPreferences;
 
@@ -40,7 +45,6 @@ import rvsnoop.RecordTypes;
 import rvsnoop.RvConnection;
 import rvsnoop.ui.MultiLineToolTipUI;
 
-import com.apple.eawt.ApplicationEvent;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -69,16 +73,13 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
     private static final Logger logger = Logger.getLogger();
 
-    /**
-     * The application entry point.
-     *
-     * @param args The command line arguments.
-     */
-    public static void main(final String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         org.jdesktop.application.Application.launch(RvSnoopApplication.class, args);
     }
 
     private Injector injector;
+
+    private File initialProjectFile;
 
     private String getString(String key) {
         return getContext().getResourceMap().getString(key);
@@ -198,14 +199,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         injector = Guice.createInjector(new GuiModule());
         injector.injectMembers(this);
 
-        Project project = loadProjectIfValid(projectOption, line);
-        if (project != null) {
-            try {
-                injector.getInstance(Application.class).setProject(project);
-            } catch (IOException e) {
-                logger.error(e, getString("CLI.error.readingProject"));
-            }
-        }
+        initialProjectFile = loadProjectIfValid(projectOption, line);
     }
 
     private CommandLine parseCommandLine(String[] args, Option helpOption, Option projectOption) {
@@ -219,7 +213,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
         return line;
     }
 
-    private Project loadProjectIfValid(Option project, CommandLine line) {
+    private File loadProjectIfValid(Option project, CommandLine line) {
         if (!line.hasOption(project)) { return null; }
         String filename = line.getValue(project).toString();
         if (filename == null || filename.length() == 0) {
@@ -231,7 +225,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
             logger.error(getString("CLI.error.unreadableProject"), filename);
             return null;
         }
-        return new Project(file);
+        return file;
     }
 
     @Override
@@ -255,7 +249,16 @@ public final class RvSnoopApplication extends SingleFrameApplication {
             new MacHandlersInstaller().installHandlers();
         }
 
+        if (initialProjectFile == null) {
+            final JFileChooser chooser = new JFileChooser();
+            chooser.setFileFilter(new ProjectFileFilter());
+            final int option = chooser.showDialog(null, "Open Project");
+            initialProjectFile = chooser.getSelectedFile();
+            if (JFileChooser.APPROVE_OPTION != option || initialProjectFile == null) { exit(); }
+
+        }
         show(frame);
+        injector.getInstance(ProjectService.class).openProject(initialProjectFile);
     }
 
     private class FrameClosingListener extends WindowAdapter {
@@ -313,22 +316,14 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
     private final class MacHandlersInstaller {
         public void installHandlers() {
-            com.apple.eawt.Application.getApplication().addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
-
-                @Override
-                public void handleAbout(ApplicationEvent event) {
+            com.apple.eawt.Application.getApplication().setAboutHandler(new AboutHandler() {
+                public void handleAbout(AppEvent.AboutEvent event) {
                     getContext().getActionMap().get("displayAbout").actionPerformed(
                             new ActionEvent(event.getSource(), ActionEvent.ACTION_PERFORMED, "displayAbout"));
                 }
-
-                @Override
-                public void handlePreferences(ApplicationEvent event) {
-                    // TODO display the preferences dialog once we have one.
-                }
-
-                @Override
-                public void handleQuit(ApplicationEvent event) {
-                    event.setHandled(false);
+            });
+            com.apple.eawt.Application.getApplication().setQuitHandler(new QuitHandler() {
+                public void handleQuitRequestWith(AppEvent.QuitEvent quitEvent, QuitResponse quitResponse) {
                     exit();
                 }
             });

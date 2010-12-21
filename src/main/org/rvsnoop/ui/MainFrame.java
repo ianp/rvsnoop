@@ -41,10 +41,9 @@ import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceMap;
 import org.rvsnoop.Application;
 import org.rvsnoop.Logger;
-import org.rvsnoop.Project;
 import org.rvsnoop.ProjectFileFilter;
+import org.rvsnoop.ProjectService;
 import org.rvsnoop.RecordLedger;
-import org.rvsnoop.UserPreferences;
 import org.rvsnoop.actions.ClearLedger;
 import org.rvsnoop.actions.Copy;
 import org.rvsnoop.actions.Cut;
@@ -55,8 +54,6 @@ import org.rvsnoop.actions.NewRvConnection;
 import org.rvsnoop.actions.Paste;
 import org.rvsnoop.actions.PruneEmptySubjects;
 import org.rvsnoop.actions.Republish;
-import org.rvsnoop.actions.SaveProject;
-import org.rvsnoop.actions.SaveProjectAs;
 import org.rvsnoop.actions.Search;
 import org.rvsnoop.actions.SearchBySelection;
 import org.rvsnoop.actions.SelectAllRecords;
@@ -138,12 +135,14 @@ public final class MainFrame extends JFrame {
 
     private final RecordTypes recordTypes;
 
-    public MainFrame(ApplicationContext context, Application application, RecordTypes recordTypes) {
+    private final ProjectService projectService;
+
+    public MainFrame(ApplicationContext context, Application application, RecordTypes recordTypes, ProjectService projectService) {
         setName("mainFrame");
         this.context = context;
         this.application = application;
         this.recordTypes = recordTypes;
-        final UserPreferences state = UserPreferences.getInstance();
+        this.projectService = projectService;
         statusBar = new StatusBar(application);
         subjectExplorer = createSubjectExplorer();
         connectionList = new ConnectionList(application);
@@ -217,11 +216,9 @@ public final class MainFrame extends JFrame {
         file.add(actionMap.get("openProject"));
         final JMenu fileRecent = new JMenu("Recent Projects");
         fileRecent.setIcon(new ImageIcon("/resources/icons/open.png"));
-        fileRecent.addMenuListener(new RecentProjectsMenuManager(application));
+        fileRecent.addMenuListener(new RecentProjectsMenuManager(application, projectService));
         file.add(fileRecent);
         file.addSeparator();
-        file.add(factory.getAction(SaveProject.COMMAND));
-        file.add(factory.getAction(SaveProjectAs.COMMAND));
         final JMenu fileExport = new JMenu("Export To");
         fileExport.setIcon(new ImageIcon("/resources/icons/exportTo.png"));
         fileExport.add(factory.getAction(ExportToHtml.COMMAND));
@@ -236,8 +233,6 @@ public final class MainFrame extends JFrame {
         final JMenu connRecent = new JMenu("Recent Connections");
         connRecent.addMenuListener(new RecentConnectionsMenuManager(application));
         file.add(connRecent);
-//        file.addSeparator();
-//        file.add(factory.getAction(Quit.COMMAND));
         return file;
     }
 
@@ -316,7 +311,6 @@ public final class MainFrame extends JFrame {
         toolbar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
         toolbar.setRollover(true);
         toolbar.add(actionMap.get("openProject"));
-        toolbar.add(factory.getAction(SaveProject.COMMAND));
         toolbar.addSeparator();
         toolbar.add(factory.getAction(NewRvConnection.COMMAND));
         toolbar.addSeparator();
@@ -383,7 +377,7 @@ public final class MainFrame extends JFrame {
         try {
             file = file.getCanonicalFile();
             logger.info(resourceMap.getString("openProject.info.loading"), file.getName());
-            application.setProject(new Project(file));
+            projectService.openProject(file);
             logger.info(resourceMap.getString("openProject.info.loaded"), file.getName());
         } catch (IOException e) {
             logger.error(e, resourceMap.getString("openProject.error.loading"), file.getName());

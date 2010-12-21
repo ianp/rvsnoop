@@ -11,6 +11,7 @@ import org.bushe.swing.event.annotation.EventSubscriber;
 import org.rvsnoop.event.MessageReceivedEvent;
 import org.rvsnoop.event.ProjectClosingEvent;
 import org.rvsnoop.event.ProjectOpenedEvent;
+import rvsnoop.RecordType;
 import rvsnoop.RvConnection;
 
 import java.io.File;
@@ -28,13 +29,15 @@ public final class ProjectService {
 
     private ObjectContainer db;
 
+    private File projectFile;
+
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public ProjectService() {
         AnnotationProcessor.process(this);
     }
 
-    public <T> Future<List<T>> getAll(final Class<T> clazz) {
+    private <T> Future<List<T>> getAll(final Class<T> clazz) {
         Callable<List<T>> callable = new Callable<List<T>>() {
             public List<T> call() throws Exception {
                 return db.query(clazz);
@@ -42,6 +45,18 @@ public final class ProjectService {
         };
         executorService.submit(callable);
         return new FutureTask<List<T>>(callable);
+    }
+
+    public Future<List<RvConnection>> getConnections() {
+        return getAll(RvConnection.class);
+    }
+
+    public Future<List<RecordType>> getRecordTypes() {
+        return getAll(RecordType.class);
+    }
+
+    public File getProjectFile() {
+        return projectFile;
     }
 
     public void openProject(final File file) {
@@ -54,6 +69,7 @@ public final class ProjectService {
         executorService.submit(new Runnable() {
             public void run() {
                 db = Db4oEmbedded.openFile(file.getPath());
+                projectFile = file;
                 EventBus.publish(new ProjectOpenedEvent(ProjectService.this));
             }
         });

@@ -4,8 +4,6 @@
 package org.rvsnoop;
 
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
 
 import org.jdesktop.application.AbstractBean;
 import org.jdesktop.application.ApplicationContext;
@@ -104,14 +102,6 @@ public interface Application {
     public RecordLedgerTable getLedgerTable();
 
     /**
-     * Get the current project.
-     *
-     * @return The project, or <code>null</code> if the project has not been
-     *     saved yet.
-     */
-    public Project getProject();
-
-    /**
      * Get the shared subject hierarchy.
      *
      * @return The subject hierarchy.
@@ -131,28 +121,6 @@ public interface Application {
      */
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener);
 
-    /**
-     * Set a new current project.
-     * <p>
-     * This will close and unload the current project if there is one.
-     *
-     * @param project The project to set.
-     * @throws IOException If there is a current ledger and it could not be
-     *     synchronized (applies to persistent ledgers only).
-     */
-    public void setProject(Project project) throws IOException;
-
-    /**
-     * Set a project for the application.
-     * <p>
-     * This should only be called if no current project is set. This method will
-     * cause the project to be written to disk.
-     *
-     * @param directory The directory to store the project in.
-     * @throws IOException If there is a problem storing the project.
-     */
-    public void setProject(File directory) throws IOException;
-
     @Deprecated
     public RecordTypes getRecordTypes();
     
@@ -171,16 +139,16 @@ public interface Application {
 
         private RecordLedger ledger;
 
-        /** The current project. */
-        private Project project;
-
         private final RecordTypes types;
 
+        private final ProjectService projectService;
+
         @Inject
-        public Impl(ApplicationContext context, Connections connections, RecordTypes types) {
+        public Impl(ApplicationContext context, Connections connections, RecordTypes types, ProjectService projectService) {
             this.context = context;
             this.connections = connections;
             this.types = types;
+            this.projectService = projectService;
             UserPreferences.getInstance().listenToChangesFrom(this);
         }
 
@@ -206,7 +174,7 @@ public interface Application {
 
         public synchronized MainFrame getFrame() {
             if (frame == null) {
-                frame = new MainFrame(context, this, types);
+                frame = new MainFrame(context, this, types, projectService);
                 getActionFactory().configureListeners();
             }
             return frame;
@@ -223,10 +191,6 @@ public interface Application {
             return getFrame().getRecordLedger();
         }
 
-        public synchronized Project getProject() {
-            return project;
-        }
-
         public synchronized SubjectHierarchy getSubjectHierarchy() {
             // FIXME this should not use a static instance, they should be loaded from the project.
             return SubjectHierarchy.INSTANCE;
@@ -236,26 +200,6 @@ public interface Application {
             return types;
         }
 
-        public synchronized void setProject(Project project) throws IOException {
-            final Project oldProject = this.project;
-            if (project.equals(oldProject)) { return; }
-
-            this.project = project;
-
-//            getConnections().clear();
-//            project.loadConnections(getConnections());
-
-//            getRecordTypes().clear();
-//            project.loadRecordTypes(getRecordTypes());
-
-            firePropertyChange(KEY_PROJECT, oldProject, project);
-        }
-
-        public synchronized void setProject(File directory) throws IOException {
-            project = new Project(directory);
-            project.store(this);
-            firePropertyChange(KEY_PROJECT, null, project);
-        }
     }
 
 }
