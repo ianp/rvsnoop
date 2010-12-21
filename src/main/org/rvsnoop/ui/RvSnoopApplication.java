@@ -116,7 +116,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     @Action
     public void displayBugsPage() {
         try {
-            BrowserLauncher.openURL("http://sourceforge.net/tracker/?group_id=63447");
+            BrowserLauncher.openURL("https://github.com/ianp/rvsnoop/issues");
         } catch (Exception e) {
             logger.error(e, getString("displayBugsPage.error.browser"));
         }
@@ -142,7 +142,7 @@ public final class RvSnoopApplication extends SingleFrameApplication {
     @Action
     public void displayHomePage() {
         try {
-            BrowserLauncher.openURL("http://rvsn00p.sourceforge.net");
+            BrowserLauncher.openURL("http://rvsnoop.org");
         } catch (Exception e) {
             logger.error(e, getString("displayHomePage.error.browser"));
         }
