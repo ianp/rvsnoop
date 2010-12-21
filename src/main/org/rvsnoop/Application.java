@@ -28,17 +28,6 @@ public interface Application {
     /** Key for the 'project' JavaBean property. */
     public static final String KEY_PROJECT = "project";
 
-    /**
-     * @param listener
-     * @see java.beans.PropertyChangeSupport#addPropertyChangeListener(java.beans.PropertyChangeListener)
-     */
-    public void addPropertyChangeListener(PropertyChangeListener listener);
-
-    /**
-     * @param propertyName
-     * @param listener
-     * @see java.beans.PropertyChangeSupport#addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-     */
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener);
 
     /**
@@ -107,19 +96,6 @@ public interface Application {
      * @return The subject hierarchy.
      */
     public SubjectHierarchy getSubjectHierarchy();
-
-    /**
-     * @param listener
-     * @see java.beans.PropertyChangeSupport#removePropertyChangeListener(java.beans.PropertyChangeListener)
-     */
-    public void removePropertyChangeListener(PropertyChangeListener listener);
-
-    /**
-     * @param propertyName
-     * @param listener
-     * @see java.beans.PropertyChangeSupport#removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-     */
-    public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener);
 
     @Deprecated
     public RecordTypes getRecordTypes();
