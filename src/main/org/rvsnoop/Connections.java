@@ -151,14 +151,6 @@ public final class Connections {
     }
 
     /**
-     * @return An iterator over all of the connections.
-     * @see java.util.List#iterator()
-     */
-    public Iterator<RvConnection> iterator() {
-        return list.iterator();
-    }
-
-    /**
      * @param connection The connection to remove.
      * @return <code>true</code> if a connection was removed,
      *         <code>false</code> otherwise.
