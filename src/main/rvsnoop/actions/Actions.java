@@ -93,7 +93,6 @@ public final class Actions {
         addAction(new Paste(application));
         add(new PauseAllConnections());
         addAction(new PruneEmptySubjects(application));
-        add(new ReportBug());
         addAction(new Republish(application));
         addAction(new Search(application));
         addAction(new SearchBySelection(application));
