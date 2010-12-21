@@ -8,6 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.EventObject;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -272,9 +273,11 @@ public final class RvSnoopApplication extends SingleFrameApplication {
 
         @Override
         protected void configure() {
+            bind(Preferences.class).toInstance(Preferences.userRoot().node("org").node("rvsnoop"));
             bind(ApplicationContext.class).toInstance(getContext());
             bind(Connections.class).asEagerSingleton();
             bind(RecordTypes.class).asEagerSingleton();
+            bind(ProjectService.class).asEagerSingleton();
             bind(Application.class).to(Application.Impl.class).in(Scopes.SINGLETON);
         }
 

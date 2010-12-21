@@ -30,12 +30,6 @@ import static com.google.common.io.Closeables.closeQuietly;
  */
 public final class UserPreferences {
 
-    private final class RecentProjectsListener implements PropertyChangeListener {
-        public void propertyChange(PropertyChangeEvent event) {
-            updateRecentProjectsList((Project) event.getNewValue());
-        }
-    }
-
     private static final Logger logger = Logger.getLogger();
 
     private static UserPreferences instance;
@@ -43,10 +37,8 @@ public final class UserPreferences {
     static String ERROR_CREATING_DIR, ERROR_STORING_CONNECTIONS;
 
     private static final String KEY_LAST_EXPORT_LOCATION = "LASTExportLocation";
-    private static final String KEY_LEDGER_COLUMNS = "ledgerColumns";
     private static final String KEY_NUM_RECENT_CONNECTIONS = "numberOfRecentConnections";
     private static final String KEY_NUM_RECENT_PROJECTS = "numberOfRecentProjects";
-    private static final String KEY_RECENT_PROJECTS = "recentProjects";
 
     static { NLSUtils.internationalize(UserPreferences.class); }
 
@@ -61,8 +53,6 @@ public final class UserPreferences {
     private final LinkedList<RvConnection> recentConnections = new LinkedList<RvConnection>();
 
     private final File recentConnectionsFile;
-
-    private final LinkedList<File> recentProjects = new LinkedList<File>();
 
     private UserPreferences() {
         String path;
@@ -82,11 +72,6 @@ public final class UserPreferences {
             logger.error(e, ERROR_CREATING_DIR);
         }
         recentConnectionsFile = f;
-        final Preferences node = preferences.node(KEY_RECENT_PROJECTS);
-        for (int i = 0, imax = getNumberOfRecentProjects(); i < imax; ++i) {
-            final String project = node.get(Integer.toString(i), null);
-            if (project != null) { recentProjects.add(new File(project)); }
-        }
         EventBus.subscribe(Connections.AddedEvent.class, new EventSubscriber<Connections.AddedEvent>() {
             public void onEvent(Connections.AddedEvent event) {
                 updateRecentConnectionsList(event.getConnection());
@@ -127,14 +112,6 @@ public final class UserPreferences {
         return Collections.unmodifiableList(recentConnections);
     }
 
-    public List<File> getRecentProjects() {
-        return Collections.unmodifiableList(recentProjects);
-    }
-
-    public void listenToChangesFrom(Application application) {
-        application.addPropertyChangeListener(Application.KEY_PROJECT, new RecentProjectsListener());
-    }
-
     /**
      * @param pcl
      * @see java.util.prefs.Preferences#removePreferenceChangeListener(java.util.prefs.PreferenceChangeListener)
@@ -170,20 +147,6 @@ public final class UserPreferences {
         recentConnections.add(0, connection);
         if (recentConnections.size() > max) {
             recentConnections.removeLast();
-        }
-    }
-
-    private void updateRecentProjectsList(Project newProject) {
-        final File path = newProject.getDirectory();
-        final int max = getNumberOfRecentProjects();
-        recentProjects.remove(path);
-        recentProjects.add(0, path);
-        while (recentProjects.size() > max) {
-            recentProjects.removeLast();
-        }
-        final Preferences node = preferences.node(KEY_RECENT_PROJECTS);
-        for (int i = 0, imax = recentProjects.size(); i < imax; ++i) {
-            node.put(Integer.toString(i), (recentProjects.get(i)).getPath());
         }
     }
 

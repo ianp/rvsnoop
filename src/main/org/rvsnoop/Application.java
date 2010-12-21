@@ -25,11 +25,6 @@ import com.google.inject.Inject;
  */
 public interface Application {
 
-    /** Key for the 'project' JavaBean property. */
-    public static final String KEY_PROJECT = "project";
-
-    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener);
-
     /**
      * Get an action from the applications action factory.
      *
@@ -125,7 +120,6 @@ public interface Application {
             this.connections = connections;
             this.types = types;
             this.projectService = projectService;
-            UserPreferences.getInstance().listenToChangesFrom(this);
         }
 
         public RvSnoopAction getAction(String command) {

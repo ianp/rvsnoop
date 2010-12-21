@@ -1,5 +1,6 @@
 // Copyright: Copyright © 2006-2010 Ian Phillips and Örjan Lundberg.
 // License:   Apache Software License (Version 2.0)
+
 package org.rvsnoop.ui;
 
 import java.awt.event.ActionEvent;
@@ -7,7 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -20,8 +21,6 @@ import javax.swing.event.PopupMenuListener;
 import org.rvsnoop.Application;
 import org.rvsnoop.NLSUtils;
 import org.rvsnoop.ProjectService;
-import org.rvsnoop.UserPreferences;
-
 
 /**
  * Provides access to a list of recently used projects as well as the current project.
@@ -52,13 +51,14 @@ public final class RecentProjectsMenuManager implements MenuListener, PopupMenuL
     public void menuSelected(MenuEvent e) {
         final JMenu menu = (JMenu) e.getSource();
         menu.removeAll();
-        final Iterator<File> i = UserPreferences.getInstance().getRecentProjects().iterator();
-        int count = 0;
-        while (i.hasNext()) {
-            menu.add(new MenuItem(i.next(), ++count));
-        }
-        if (count == 0) {
+        List<File> recentProjects = projectService.getRecentProjectFiles();
+        if (recentProjects.isEmpty()) {
             menu.add(new JMenuItem(EMPTY_MENU_TEXT));
+        } else {
+            int count = 0;
+            for (File recentProject : recentProjects) {
+                menu.add(new MenuItem(recentProject, ++count));
+            }
         }
     }
 
@@ -73,13 +73,14 @@ public final class RecentProjectsMenuManager implements MenuListener, PopupMenuL
     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
         final JPopupMenu menu = (JPopupMenu) e.getSource();
         menu.removeAll();
-        final Iterator<File> i = UserPreferences.getInstance().getRecentProjects().iterator();
-        int count = 0;
-        while (i.hasNext()) {
-            menu.add(new MenuItem(i.next(), ++count));
-        }
-        if (count == 0) {
+        List<File> recentProjects = projectService.getRecentProjectFiles();
+        if (recentProjects.isEmpty()) {
             menu.add(new JMenuItem(EMPTY_MENU_TEXT));
+        } else {
+            int count = 0;
+            for (File recentProject : recentProjects) {
+                menu.add(new MenuItem(recentProject, ++count));
+            }
         }
     }
 
