@@ -75,9 +75,11 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
                 }
         );
         columns = new ArrayList<ColumnFormat>(allColumns);
-        for (ColumnFormat column : allColumns) {
-            if (!preferences.getBoolean(column.getPreferenceKey(), true)) {
-                columns.remove(column);
+        if (preferences != null) {
+            for (ColumnFormat column : allColumns) {
+                if (!preferences.getBoolean(column.getPreferenceKey(), true)) {
+                    columns.remove(column);
+                }
             }
         }
     }
@@ -91,7 +93,9 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
         if (columns.contains(column)) { return; }
         columns.add(column);
         if (model != null) { model.setTableFormat(this); }
-        preferences.putBoolean(column.getPreferenceKey(), true);
+        if (preferences != null) {
+            preferences.putBoolean(column.getPreferenceKey(), true);
+        }
     }
 
     /**
@@ -158,7 +162,9 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
     public void remove(ColumnFormat column) {
         columns.remove(column);
         if (model != null) { model.setTableFormat(this); }
-        preferences.putBoolean(column.getPreferenceKey(), false);
+        if (preferences != null) {
+            preferences.putBoolean(column.getPreferenceKey(), false);
+        }
     }
 
     /**
@@ -170,8 +176,10 @@ public final class RecordLedgerFormat implements AdvancedTableFormat<Record> {
         columns.clear();
         columns.addAll(columns);
         if (model != null) { model.setTableFormat(this); }
-        for (ColumnFormat column : allColumns) {
-            preferences.putBoolean(column.getPreferenceKey(), columns.contains(column));
+        if (preferences != null) {
+            for (ColumnFormat column : allColumns) {
+                preferences.putBoolean(column.getPreferenceKey(), columns.contains(column));
+            }
         }
     }
 

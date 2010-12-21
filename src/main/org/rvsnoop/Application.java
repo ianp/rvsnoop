@@ -3,8 +3,6 @@
 
 package org.rvsnoop;
 
-import java.beans.PropertyChangeListener;
-
 import org.jdesktop.application.AbstractBean;
 import org.jdesktop.application.ApplicationContext;
 import org.rvsnoop.actions.RvSnoopAction;
@@ -34,14 +32,6 @@ public interface Application {
      * @see Actions#getAction(String)
      */
     public RvSnoopAction getAction(String command);
-
-    /**
-     * Get the action factory for this application.
-     * <p>
-     * Note that there is also a convenience method to get individual actions.
-     *
-     */
-    public Actions getActionFactory();
 
     /**
      * Get the connections list for the current project.
@@ -126,7 +116,7 @@ public interface Application {
             return getActionFactory().getAction(command);
         }
 
-        public synchronized Actions getActionFactory() {
+        private synchronized Actions getActionFactory() {
             if (actionFactory == null) { actionFactory = new Actions(this); }
             return actionFactory;
         }

@@ -147,7 +147,7 @@ public abstract class RecordLedger {
      * @return A new table model.
      */
     public final EventTableModel<Record> createTableModel() {
-        final RecordLedgerFormat format = new RecordLedgerFormat(context, recordTypes);
+        final RecordLedgerFormat format = new RecordLedgerFormat(context, recordTypes, null);
         final EventTableModel<Record> model = new EventTableModel<Record>(list, format);
         format.setModel(model);
         return model;

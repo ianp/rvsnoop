@@ -153,10 +153,9 @@ public final class MainFrame extends JFrame {
         messageLedgerSplitter = createMessageLedgerSplitter(messageLedgerScroller, detailsPanel);
         subjectExplorerSplitter = createSubjectExplorerSplitter(subjectExplorerScroller, messageLedgerSplitter);
         connectionListSplitter = createConnectionListSplitter(connectionListScroller, subjectExplorerSplitter);
-        final Actions factory = application.getActionFactory();
-        setJMenuBar(createMenuBar(messageLedger, factory));
+        setJMenuBar(createMenuBar(messageLedger));
         getContentPane().add(connectionListSplitter, BorderLayout.CENTER);
-        getContentPane().add(createToolBar(factory), BorderLayout.NORTH);
+        getContentPane().add(createToolBar(), BorderLayout.NORTH);
         getContentPane().add(statusBar, BorderLayout.SOUTH);
         pack();
 
@@ -191,25 +190,25 @@ public final class MainFrame extends JFrame {
         return splitter;
     }
 
-    private JMenu createEditMenu(final Actions factory) {
+    private JMenu createEditMenu() {
         final JMenu edit = new JMenu("Edit");
         edit.setMnemonic('e');
-        edit.add(factory.getAction(Cut.COMMAND));
-        edit.add(factory.getAction(Copy.COMMAND));
-        edit.add(factory.getAction(Paste.COMMAND));
+        edit.add(application.getAction(Cut.COMMAND));
+        edit.add(application.getAction(Copy.COMMAND));
+        edit.add(application.getAction(Paste.COMMAND));
         edit.addSeparator();
-        edit.add(factory.getAction(Search.COMMAND));
-        edit.add(factory.getAction(SearchBySelection.COMMAND));
+        edit.add(application.getAction(Search.COMMAND));
+        edit.add(application.getAction(SearchBySelection.COMMAND));
         edit.addSeparator();
-        edit.add(factory.getAction(Republish.COMMAND));
+        edit.add(application.getAction(Republish.COMMAND));
         edit.addSeparator();
-        edit.add(factory.getAction(PruneEmptySubjects.COMMAND));
+        edit.add(application.getAction(PruneEmptySubjects.COMMAND));
         edit.addSeparator();
-        edit.add(factory.getAction(Delete.COMMAND));
+        edit.add(application.getAction(Delete.COMMAND));
         return edit;
     }
 
-    private JMenu createFileMenu(final Actions factory) {
+    private JMenu createFileMenu() {
         ActionMap actionMap = context.getActionMap(this);
         final JMenu file = new JMenu("File");
         file.setMnemonic('f');
@@ -221,26 +220,26 @@ public final class MainFrame extends JFrame {
         file.addSeparator();
         final JMenu fileExport = new JMenu("Export To");
         fileExport.setIcon(new ImageIcon("/resources/icons/exportTo.png"));
-        fileExport.add(factory.getAction(ExportToHtml.COMMAND));
-        fileExport.add(factory.getAction(ExportToRecordBundle.COMMAND));
+        fileExport.add(application.getAction(ExportToHtml.COMMAND));
+        fileExport.add(application.getAction(ExportToRecordBundle.COMMAND));
         file.add(fileExport);
         final JMenu fileImport = new JMenu("Import From");
         fileExport.setIcon(new ImageIcon("/resources/icons/import.png"));
-        fileImport.add(factory.getAction(ImportFromRecordBundle.COMMAND));
+        fileImport.add(application.getAction(ImportFromRecordBundle.COMMAND));
         file.add(fileImport);
         file.addSeparator();
-        file.add(factory.getAction(NewRvConnection.COMMAND));
+        file.add(application.getAction(NewRvConnection.COMMAND));
         final JMenu connRecent = new JMenu("Recent Connections");
         connRecent.addMenuListener(new RecentConnectionsMenuManager(application));
         file.add(connRecent);
         return file;
     }
 
-    private JMenuBar createMenuBar(RecordLedgerTable table, Actions factory) {
+    private JMenuBar createMenuBar(RecordLedgerTable table) {
         final JMenuBar bar = new JMenuBar();
-        bar.add(createFileMenu(factory));
-        bar.add(createEditMenu(factory));
-        bar.add(createViewMenu(factory, table));
+        bar.add(createFileMenu());
+        bar.add(createEditMenu());
+        bar.add(createViewMenu(table));
         return bar;
     }
 
@@ -304,7 +303,7 @@ public final class MainFrame extends JFrame {
         return splitter;
     }
 
-    private JToolBar createToolBar(final Actions factory) {
+    private JToolBar createToolBar() {
         ActionMap actionMap = context.getActionMap(this);
         final JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -312,11 +311,11 @@ public final class MainFrame extends JFrame {
         toolbar.setRollover(true);
         toolbar.add(actionMap.get("openProject"));
         toolbar.addSeparator();
-        toolbar.add(factory.getAction(NewRvConnection.COMMAND));
+        toolbar.add(application.getAction(NewRvConnection.COMMAND));
         toolbar.addSeparator();
-        toolbar.add(factory.getAction(ClearLedger.COMMAND));
+        toolbar.add(application.getAction(ClearLedger.COMMAND));
         toolbar.addSeparator();
-        toolbar.add(factory.getAction(PauseAllConnections.COMMAND));
+        toolbar.add(application.getAction(PauseAllConnections.COMMAND));
         final Component[] components = toolbar.getComponents();
         for (int i = 0, imax = components.length; i < imax; ++i) {
             Component component = components[i];
@@ -328,14 +327,14 @@ public final class MainFrame extends JFrame {
         return toolbar;
     }
 
-    private JMenu createViewMenu(final Actions factory, final RecordLedgerTable table) {
+    private JMenu createViewMenu(RecordLedgerTable table) {
         final JMenu view = new JMenu("View");
         view.setMnemonic('v');
-        view.add(factory.getAction(SelectAllRecords.COMMAND));
-        view.add(factory.getAction(ShowAllColumns.COMMAND));
+        view.add(application.getAction(SelectAllRecords.COMMAND));
+        view.add(application.getAction(ShowAllColumns.COMMAND));
         view.addSeparator();
-        view.add(factory.getAction(Filter.COMMAND));
-        view.add(factory.getAction(FilterBySelection.COMMAND));
+        view.add(application.getAction(Filter.COMMAND));
+        view.add(application.getAction(FilterBySelection.COMMAND));
         view.addSeparator();
         final JMenu viewColumns = new JMenu("Columns");
         viewColumns.setIcon(new ImageIcon("/resources/icons/filter_columns.png"));
