@@ -1,4 +1,0 @@
-<blatantSelfPromotion>
-    Check out RvSnoop for TIBCO Rendezvous message monitoring.
-    Get info or a free download from http://rvsnoop.org/.
-</blatantSelfPromotion>
